@@ -1,7 +1,7 @@
 {
 	"name": "@sigrea/use",
 	"version": "0.1.0",
-	"description": "Framework-agnostic utility hooks inspired by VueUse, powered by Sigrea signals.",
+	"description": "Signal-powered, framework-agnostic utility hooks built on @sigrea/core.",
 	"license": "MIT",
 	"type": "module",
 	"packageManager": "pnpm@10.0.0",
