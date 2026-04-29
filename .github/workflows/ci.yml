@@ -1,0 +1,41 @@
+name: ci
+on:
+  push:
+    branches: [main]
+  pull_request:
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Validate PR title (Conventional Commits)
+        if: github.event_name == 'pull_request'
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          node - <<'NODE'
+          const title = process.env.PR_TITLE || "";
+          const ok =
+            /^(feat|fix|chore|docs|test|refactor|ci|build|perf|style|revert)(\(.+\))?(!)?: .+/.test(
+              title,
+            );
+          if (!ok) {
+            console.error(`Invalid PR title (Conventional Commits required): ${title}`);
+            process.exit(1);
+          }
+          NODE
+
+      - run: pnpm install
+      - run: pnpm -s test
+      - run: pnpm -s typecheck
+      - run: pnpm -s build
+      - run: pnpm -s format
