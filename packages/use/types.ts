@@ -57,6 +57,63 @@ export interface Position {
 	y: number;
 }
 
+export interface StorageLike {
+	getItem(key: string): string | null;
+	setItem(key: string, value: string): void;
+	removeItem(key: string): void;
+}
+
+export interface StorageWindowLike extends WindowLike {
+	readonly localStorage?: StorageLike;
+	readonly sessionStorage?: StorageLike;
+}
+
+export type StorageSerializerType =
+	| "any"
+	| "array"
+	| "boolean"
+	| "date"
+	| "map"
+	| "number"
+	| "object"
+	| "set"
+	| "string";
+
+export type StorageWatchFlushType = "pre" | "post" | "sync";
+
+export interface StorageSerializer<T = unknown> {
+	read(raw: string): T;
+	write(value: T): string;
+}
+
+export interface StorageEventLike {
+	readonly storageArea: StorageLike | null;
+	readonly key: string | null;
+	readonly oldValue: string | null;
+	readonly newValue: string | null;
+}
+
+export interface RemovableSignal<T> extends Signal<T> {
+	remove(): void;
+	stop(): void;
+}
+
+export interface UseStorageOptions<
+	T = unknown,
+	TWindow extends StorageWindowLike = StorageWindowLike,
+> {
+	deep?: boolean;
+	flush?: StorageWatchFlushType;
+	initOnMounted?: boolean;
+	listenToStorageChanges?: boolean;
+	mergeDefaults?: boolean | ((storageValue: T, defaults: T) => T);
+	onError?: (error: unknown) => void;
+	serializer?: StorageSerializer<NoInfer<T>>;
+	shallow?: boolean;
+	window?: MaybeTarget<TWindow>;
+	writeDefaults?: boolean;
+}
+
 export interface WindowSizeDocumentLike extends DocumentLike {
 	readonly documentElement?: {
 		readonly clientHeight: number;
