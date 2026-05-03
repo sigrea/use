@@ -16,8 +16,20 @@ import type {
 } from "../types";
 
 function pxValue(value: string): number {
-	return value.trim().endsWith("rem")
-		? Number.parseFloat(value) * 16
+	const trimmedValue = value.trim();
+	const calcMatch = trimmedValue.match(
+		/^calc\(\s*(.+?)\s*([+-])\s*(-?\d+(?:\.\d+)?)px\s*\)$/i,
+	);
+	if (calcMatch !== null) {
+		const baseValue = pxValue(calcMatch[1]);
+		const offsetValue = Number.parseFloat(calcMatch[3]);
+		return calcMatch[2] === "+"
+			? baseValue + offsetValue
+			: baseValue - offsetValue;
+	}
+
+	return trimmedValue.endsWith("rem")
+		? Number.parseFloat(trimmedValue) * 16
 		: Number.parseFloat(value);
 }
 
@@ -34,10 +46,10 @@ function resolveSsrMediaQuery(
 	for (const queryString of query.split(",")) {
 		const not = queryString.includes("not all");
 		const minWidth = queryString.match(
-			/\(\s*min-width:\s*(-?\d+(?:\.\d*)?[a-z]+\s*)\)/,
+			/\(\s*min-width:\s*(calc\([^)]+\)|-?\d+(?:\.\d*)?[a-z]+\s*)\)/,
 		);
 		const maxWidth = queryString.match(
-			/\(\s*max-width:\s*(-?\d+(?:\.\d*)?[a-z]+\s*)\)/,
+			/\(\s*max-width:\s*(calc\([^)]+\)|-?\d+(?:\.\d*)?[a-z]+\s*)\)/,
 		);
 		if (!minWidth && !maxWidth) {
 			continue;
