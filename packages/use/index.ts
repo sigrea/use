@@ -1,6 +1,8 @@
 export { onClickOutside } from "./onClickOutside";
+export { useBreakpoints } from "./useBreakpoints";
 export { useCounter } from "./useCounter";
 export { useDebounceFn } from "./useDebounceFn";
+export { useDocumentVisibility } from "./useDocumentVisibility";
 export { useElementSize } from "./useElementSize";
 export { useEventListener } from "./useEventListener";
 export { useFocus } from "./useFocus";
@@ -8,6 +10,8 @@ export { useInterval } from "./useInterval";
 export { useIntervalFn } from "./useIntervalFn";
 export { useMediaQuery } from "./useMediaQuery";
 export { useMouse } from "./useMouse";
+export { useOnline } from "./useOnline";
+export { usePreferredDark } from "./usePreferredDark";
 export { useThrottleFn } from "./useThrottleFn";
 export { useTimeout } from "./useTimeout";
 export { useTimeoutFn } from "./useTimeoutFn";
@@ -15,7 +19,9 @@ export { useToggle } from "./useToggle";
 export { useWindowSize } from "./useWindowSize";
 export type {
 	Arrayable,
+	Breakpoints,
 	DocumentLike,
+	DocumentVisibilityDocumentLike,
 	ElementSize,
 	FocusableElementLike,
 	FocusMethodOptions,
@@ -25,6 +31,7 @@ export type {
 	MaybeValue,
 	MouseWindowLike,
 	NavigatorLike,
+	OnlineNavigatorLike,
 	OnClickOutsideControlsReturn,
 	OnClickOutsideDocumentLike,
 	OnClickOutsideHandler,
@@ -36,10 +43,14 @@ export type {
 	PromisifyFn,
 	ResizeObserverWindowLike,
 	TargetEventMap,
+	UseBreakpointsOptions,
+	UseBreakpointsReturn,
 	UseCounterOptions,
 	UseCounterReturn,
 	UseDebounceFnOptions,
 	UseDebounceFnReturn,
+	UseDocumentVisibilityOptions,
+	UseDocumentVisibilityReturn,
 	UseElementSizeOptions,
 	UseElementSizeReturn,
 	UseEventListenerOptions,
@@ -58,6 +69,8 @@ export type {
 	UseMouseOptions,
 	UseMouseReturn,
 	UseMouseSourceType,
+	UseOnlineOptions,
+	UseOnlineReturn,
 	UseThrottleFnReturn,
 	UseTimeoutControlsReturn,
 	UseTimeoutFnOptions,
