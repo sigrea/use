@@ -27,15 +27,16 @@ export function useOnline<
 		"window" in options && options.window !== undefined
 			? options.window
 			: (defaultWindow as MaybeTarget<TWindow> | undefined);
-	const hasNavigatorOption = options.navigator !== undefined;
 	const resolveCurrentWindow = () =>
 		windowTarget === undefined
 			? undefined
 			: resolveTarget<TWindow>(windowTarget);
-	const resolveCurrentNavigator = (currentWindow: TWindow | undefined) =>
-		hasNavigatorOption
-			? resolveValue(options.navigator)
-			: (currentWindow?.navigator as TNavigator | null | undefined);
+	const resolveCurrentNavigator = (currentWindow: TWindow | undefined) => {
+		const currentNavigator = resolveValue(options.navigator);
+		return currentNavigator === undefined
+			? (currentWindow?.navigator as TNavigator | null | undefined)
+			: currentNavigator;
+	};
 	const initialWindow = resolveCurrentWindow();
 	const isOnline = signal(readOnline(resolveCurrentNavigator(initialWindow)));
 	const stop = watch(

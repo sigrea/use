@@ -71,6 +71,21 @@ describe("useOnline", () => {
 		online.stop();
 	});
 
+	it("does not fall back to window.navigator when navigator is null", () => {
+		const fakeWindow = new FakeWindow(false);
+		const online = useOnline({
+			navigator: null,
+			window: fakeWindow,
+		});
+
+		expect(online.isOnline.value).toBe(true);
+
+		fakeWindow.dispatchOnline(false);
+		expect(online.isOnline.value).toBe(true);
+
+		online.stop();
+	});
+
 	it("falls back to window.navigator when navigator is undefined", () => {
 		const fakeWindow = new FakeWindow(false);
 		const online = useOnline({
@@ -78,6 +93,25 @@ describe("useOnline", () => {
 			window: fakeWindow,
 		});
 
+		expect(online.isOnline.value).toBe(false);
+
+		online.stop();
+	});
+
+	it("falls back to window.navigator while reactive navigator is undefined", () => {
+		const fakeWindow = new FakeWindow(false);
+		const navigator = signal<OnlineNavigatorLike | null | undefined>(undefined);
+		const online = useOnline({
+			navigator,
+			window: fakeWindow,
+		});
+
+		expect(online.isOnline.value).toBe(false);
+
+		navigator.value = new FakeNavigator(true);
+		expect(online.isOnline.value).toBe(true);
+
+		navigator.value = undefined;
 		expect(online.isOnline.value).toBe(false);
 
 		online.stop();
