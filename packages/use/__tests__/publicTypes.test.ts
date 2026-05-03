@@ -1,4 +1,4 @@
-import { signal } from "@sigrea/core";
+import { type ReadonlySignal, signal } from "@sigrea/core";
 import { describe, expectTypeOf, it } from "vitest";
 
 import type {
@@ -16,12 +16,16 @@ import type {
 } from "../../../index";
 import {
 	onClickOutside,
+	useDebounceFn,
 	useElementSize,
 	useEventListener,
 	useFocus,
+	useInterval,
 	useIntervalFn,
 	useMediaQuery,
 	useMouse,
+	useThrottleFn,
+	useTimeout,
 	useTimeoutFn,
 	useToggle,
 	useWindowSize,
@@ -163,10 +167,73 @@ describe("public types", () => {
 		});
 	});
 
+	it("types timeout ready signals and controls", () => {
+		const ready = useTimeout(100, { immediate: false });
+		const timeout = useTimeout(100, {
+			controls: true,
+			immediate: false,
+		});
+
+		expectTypeOf(ready).toEqualTypeOf<ReadonlySignal<boolean>>();
+		expectTypeOf(timeout.ready).toEqualTypeOf<ReadonlySignal<boolean>>();
+		expectTypeOf(timeout.isPending).toEqualTypeOf<ReadonlySignal<boolean>>();
+		timeout.start();
+		timeout.stop();
+	});
+
 	it("allows the default interval duration", () => {
 		const interval = useIntervalFn(() => {}, 1000, { immediate: false });
 
 		interval.pause();
+	});
+
+	it("types interval counters and callback counts", () => {
+		const counter = useInterval(100, { immediate: false });
+		const interval = useInterval(100, {
+			callback: (count) => {
+				expectTypeOf(count).toEqualTypeOf<number>();
+			},
+			controls: true,
+			immediate: false,
+		});
+
+		expectTypeOf(counter).toEqualTypeOf<ReadonlySignal<number>>();
+		expectTypeOf(interval.counter).toEqualTypeOf<ReadonlySignal<number>>();
+		expectTypeOf(interval.isActive).toEqualTypeOf<ReadonlySignal<boolean>>();
+		interval.pause();
+		interval.resume();
+		interval.pause();
+		interval.reset();
+	});
+
+	it("preserves debounce arguments, this, and return value", () => {
+		function label(this: { prefix: string }, value: number) {
+			return `${this.prefix}${value}`;
+		}
+		const debounced = useDebounceFn(label, 100);
+
+		typeOnly(() => {
+			expectTypeOf(debounced.call({ prefix: "id:" }, 1)).toEqualTypeOf<
+				Promise<string | undefined>
+			>();
+			// @ts-expect-error arguments must match the original function
+			debounced.call({ prefix: "id:" }, "1");
+		});
+	});
+
+	it("preserves throttle arguments, this, and return value", () => {
+		function label(this: { prefix: string }, value: number) {
+			return `${this.prefix}${value}`;
+		}
+		const throttled = useThrottleFn(label, 100);
+
+		typeOnly(() => {
+			expectTypeOf(throttled.call({ prefix: "id:" }, 1)).toEqualTypeOf<
+				Promise<string | undefined>
+			>();
+			// @ts-expect-error arguments must match the original function
+			throttled.call({ prefix: "id:" }, "1");
+		});
 	});
 
 	it("accepts reactive window-like targets for window size", () => {
