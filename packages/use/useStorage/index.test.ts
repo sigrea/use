@@ -380,7 +380,7 @@ describe("useStorage", () => {
 		second.stop();
 	});
 
-	it("syncs same-document removals even when storage had no previous value", () => {
+	it("keeps the removed instance null and returns other same-document instances to defaults", () => {
 		const storage = new FakeStorage();
 		const windowTarget = new FakeWindow();
 		const first = useStorage(KEY, "fallback", storage, {
@@ -396,10 +396,33 @@ describe("useStorage", () => {
 
 		expect(storage.removeItemCalls).toEqual([KEY]);
 		expect(first.value).toBe(null);
-		expect(second.value).toBe(null);
+		expect(second.value).toBe("fallback");
+		expect(storage.data.has(KEY)).toBe(false);
 
 		first.stop();
 		second.stop();
+	});
+
+	it("writes defaults back when a storage event removes the key", () => {
+		const storage = new FakeStorage();
+		const windowTarget = new FakeWindow();
+		storage.setItem(KEY, '"stored"');
+		const stored = useStorage(KEY, "fallback", storage, {
+			window: windowTarget,
+		});
+
+		storage.removeItem(KEY);
+		dispatchStorageSync(windowTarget, {
+			key: KEY,
+			newValue: null,
+			oldValue: '"stored"',
+			storageArea: storage,
+		});
+
+		expect(stored.value).toBe("fallback");
+		expect(storage.data.get(KEY)).toBe("fallback");
+
+		stored.stop();
 	});
 
 	it("uses the target window CustomEvent constructor for custom storage sync", () => {

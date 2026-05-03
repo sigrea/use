@@ -371,6 +371,7 @@ export function useStorage<T>(
 			? shallowDeepSignal({ value: initialDefault as T | null })
 			: deepSignal({ value: initialDefault as T | null })
 	) as StorageState<T>;
+	let pendingLocalRemoveEvent: StorageEventLike | undefined;
 	let suppressStorageWrite = 0;
 	let storageReady = !initOnMounted;
 
@@ -398,14 +399,13 @@ export function useStorage<T>(
 		event?: StorageEventLike,
 	): T | null => {
 		const rawValue =
-			event === undefined ? currentStorage.getItem(currentKey) : event.newValue;
+			event === undefined || event.newValue === null
+				? currentStorage.getItem(currentKey)
+				: event.newValue;
 		const defaultValue = resolveDefault() as T;
 
 		if (rawValue === null) {
-			if (event !== undefined) {
-				return null;
-			}
-			if (event === undefined && writeDefaults && defaultValue != null) {
+			if (writeDefaults && defaultValue != null) {
 				currentStorage.setItem(
 					currentKey,
 					serializer.write(toSerializableValue(defaultValue) as T),
@@ -448,14 +448,24 @@ export function useStorage<T>(
 			const oldValue = currentStorage.getItem(currentKey);
 
 			if (value == null) {
-				dispatchStorageEvent(
-					currentWindow,
-					currentStorage,
-					currentKey,
-					oldValue,
-					null,
-				);
 				currentStorage.removeItem(currentKey);
+				pendingLocalRemoveEvent = {
+					key: currentKey,
+					newValue: null,
+					oldValue,
+					storageArea: currentStorage,
+				};
+				try {
+					dispatchStorageEvent(
+						currentWindow,
+						currentStorage,
+						currentKey,
+						oldValue,
+						null,
+					);
+				} finally {
+					pendingLocalRemoveEvent = undefined;
+				}
 				return;
 			}
 
@@ -480,6 +490,23 @@ export function useStorage<T>(
 		return value == null
 			? null
 			: serializer.write(toSerializableValue(value) as T);
+	};
+	const isPendingLocalRemoveEvent = (
+		event: StorageEventLike,
+		currentStorage: StorageLike,
+	): boolean => {
+		if (
+			pendingLocalRemoveEvent === undefined ||
+			event.key !== pendingLocalRemoveEvent.key ||
+			event.newValue !== null ||
+			event.oldValue !== pendingLocalRemoveEvent.oldValue ||
+			currentStorage !== pendingLocalRemoveEvent.storageArea
+		) {
+			return false;
+		}
+
+		pendingLocalRemoveEvent = undefined;
+		return true;
 	};
 	const syncFromStorage = (
 		event?: StorageEventLike,
@@ -516,7 +543,15 @@ export function useStorage<T>(
 
 			if (
 				event !== undefined &&
+				isPendingLocalRemoveEvent(event, currentStorage)
+			) {
+				return;
+			}
+
+			if (
+				event !== undefined &&
 				event.key !== null &&
+				event.newValue !== null &&
 				event.newValue === serializeState(getState())
 			) {
 				return;
