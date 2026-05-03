@@ -19,10 +19,13 @@ describe("SSR safety", () => {
 		expect(typeof mod.useFocus).toBe("function");
 		expect(typeof mod.useInterval).toBe("function");
 		expect(typeof mod.useIntervalFn).toBe("function");
+		expect(typeof mod.useManualRefHistory).toBe("function");
 		expect(typeof mod.useMediaQuery).toBe("function");
 		expect(typeof mod.useMouse).toBe("function");
 		expect(typeof mod.useOnline).toBe("function");
 		expect(typeof mod.usePreferredDark).toBe("function");
+		expect(typeof mod.usePrevious).toBe("function");
+		expect(typeof mod.useRefHistory).toBe("function");
 		expect(typeof mod.useTimeout).toBe("function");
 		expect(typeof mod.useTimeoutFn).toBe("function");
 		expect(typeof mod.useToggle).toBe("function");

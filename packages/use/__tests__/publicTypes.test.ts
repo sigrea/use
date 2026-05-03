@@ -17,6 +17,7 @@ import type {
 	UseMediaQueryOptions,
 	UseMouseOptions,
 	UseOnlineOptions,
+	UseRefHistoryRecord,
 	UseToggleOptions,
 	UseWindowSizeOptions,
 } from "../../../index";
@@ -30,10 +31,13 @@ import {
 	useFocus,
 	useInterval,
 	useIntervalFn,
+	useManualRefHistory,
 	useMediaQuery,
 	useMouse,
 	useOnline,
 	usePreferredDark,
+	usePrevious,
+	useRefHistory,
 	useThrottleFn,
 	useTimeout,
 	useTimeoutFn,
@@ -398,5 +402,52 @@ describe("public types", () => {
 	it("requires options for custom toggle values", () => {
 		// @ts-expect-error custom values require truthy/falsy options
 		useToggle("off");
+	});
+
+	it("infers manual ref history snapshots", () => {
+		const source = signal(0);
+		const history = useManualRefHistory(source);
+
+		expectTypeOf(history.source).toEqualTypeOf(source);
+		expectTypeOf(history.history.value).toEqualTypeOf<
+			UseRefHistoryRecord<number>[]
+		>();
+
+		const serialized = useManualRefHistory(signal({ count: 0 }), {
+			dump: JSON.stringify,
+			parse: (value: string) => JSON.parse(value) as { count: number },
+		});
+
+		expectTypeOf(serialized.history.value[0].snapshot).toEqualTypeOf<string>();
+	});
+
+	it("infers ref history shouldCommit values", () => {
+		const source = signal(0);
+		const history = useRefHistory(source, {
+			shouldCommit: (oldValue, newValue) => {
+				expectTypeOf(oldValue).toEqualTypeOf<number | undefined>();
+				expectTypeOf(newValue).toEqualTypeOf<number>();
+				return true;
+			},
+		});
+
+		expectTypeOf(history.isTracking.value).toEqualTypeOf<boolean>();
+		history.dispose();
+	});
+
+	it("types previous values with and without an initial value", () => {
+		const source = signal(0);
+
+		typeOnly(() => {
+			const previous = usePrevious(source);
+			const previousWithInitial = usePrevious(source, 0);
+
+			expectTypeOf(previous.value).toEqualTypeOf<number | undefined>();
+			expectTypeOf(previousWithInitial.value).toEqualTypeOf<number>();
+			expectTypeOf(previous).toEqualTypeOf<
+				ReadonlySignal<number | undefined>
+			>();
+			expectTypeOf(previousWithInitial).toEqualTypeOf<ReadonlySignal<number>>();
+		});
 	});
 });

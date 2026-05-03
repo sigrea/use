@@ -134,7 +134,7 @@ is not complete in `@sigrea/use` yet.
 | `useLastChanged` | `-` | Todo |
 | `useLocalStorage` | `-` | Todo |
 | `useMagicKeys` | `-` | Todo |
-| `useManualRefHistory` | `-` | Todo |
+| `useManualRefHistory` | `useManualRefHistory` | Done |
 | `useMediaControls` | `-` | Todo |
 | `useMediaQuery` | `useMediaQuery` | Done |
 | `useMemoize` | `-` | Todo |
@@ -164,9 +164,9 @@ is not complete in `@sigrea/use` yet.
 | `usePreferredLanguages` | `-` | Todo |
 | `usePreferredReducedMotion` | `-` | Todo |
 | `usePreferredReducedTransparency` | `-` | Todo |
-| `usePrevious` | `-` | Todo |
+| `usePrevious` | `usePrevious` | Done |
 | `useRafFn` | `-` | Todo |
-| `useRefHistory` | `-` | Todo |
+| `useRefHistory` | `useRefHistory` | Done |
 | `useResizeObserver` | `-` | Todo |
 | `useSSRWidth` | `-` | Todo |
 | `useScreenOrientation` | `-` | Todo |
