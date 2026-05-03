@@ -1,5 +1,18 @@
 import { getCurrentScope, onDispose, onMount, onUnmount } from "@sigrea/core";
 
+const canAutoStartTimer = () => typeof window !== "undefined";
+
+export function bindTimerCleanup(cleanup: () => void): void {
+	const scope = getCurrentScope();
+	if (scope !== undefined) {
+		onDispose(cleanup, scope);
+	}
+
+	try {
+		onUnmount(cleanup);
+	} catch {}
+}
+
 export function bindAutoStart(
 	start: () => void,
 	stop: () => void,
@@ -13,7 +26,7 @@ export function bindAutoStart(
 	// onMount() only succeeds during molecule setup, so this branches setup and plain usage.
 	try {
 		onMount(() => {
-			if (immediate) {
+			if (immediate && canAutoStartTimer()) {
 				start();
 			}
 		});
@@ -21,7 +34,7 @@ export function bindAutoStart(
 		return;
 	} catch {}
 
-	if (immediate) {
+	if (immediate && canAutoStartTimer()) {
 		start();
 	}
 }
