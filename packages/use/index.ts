@@ -8,10 +8,13 @@ export { useEventListener } from "./useEventListener";
 export { useFocus } from "./useFocus";
 export { useInterval } from "./useInterval";
 export { useIntervalFn } from "./useIntervalFn";
+export { useManualRefHistory } from "./useManualRefHistory";
 export { useMediaQuery } from "./useMediaQuery";
 export { useMouse } from "./useMouse";
 export { useOnline } from "./useOnline";
 export { usePreferredDark } from "./usePreferredDark";
+export { usePrevious } from "./usePrevious";
+export { useRefHistory } from "./useRefHistory";
 export { useThrottleFn } from "./useThrottleFn";
 export { useTimeout } from "./useTimeout";
 export { useTimeoutFn } from "./useTimeoutFn";
@@ -20,6 +23,7 @@ export { useWindowSize } from "./useWindowSize";
 export type {
 	Arrayable,
 	Breakpoints,
+	CloneFn,
 	DocumentLike,
 	DocumentVisibilityDocumentLike,
 	ElementSize,
@@ -62,6 +66,8 @@ export type {
 	UseIntervalFnReturn,
 	UseIntervalOptions,
 	UseIntervalReturn,
+	UseManualRefHistoryOptions,
+	UseManualRefHistoryReturn,
 	UseMediaQueryOptions,
 	UseMediaQueryReturn,
 	UseMouseCoordType,
@@ -71,6 +77,9 @@ export type {
 	UseMouseSourceType,
 	UseOnlineOptions,
 	UseOnlineReturn,
+	UseRefHistoryOptions,
+	UseRefHistoryRecord,
+	UseRefHistoryReturn,
 	UseThrottleFnReturn,
 	UseTimeoutControlsReturn,
 	UseTimeoutFnOptions,
