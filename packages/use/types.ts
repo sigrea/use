@@ -116,6 +116,7 @@ export interface UseMediaQueryOptions<
 	TWindow extends MatchMediaWindow = WindowLike & MatchMediaWindow,
 > {
 	initialValue?: boolean;
+	ssrWidth?: number;
 	window?: MaybeTarget<TWindow>;
 }
 

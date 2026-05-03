@@ -8,6 +8,10 @@ describe("SSR safety", () => {
 
 		expect(typeof mod.useCounter).toBe("function");
 		expect(typeof mod.useEventListener).toBe("function");
+		expect(typeof mod.useIntervalFn).toBe("function");
+		expect(typeof mod.useMediaQuery).toBe("function");
+		expect(typeof mod.useTimeoutFn).toBe("function");
+		expect(typeof mod.useToggle).toBe("function");
 		expect(typeof mod.useWindowSize).toBe("function");
 	});
 
@@ -18,14 +22,19 @@ describe("SSR safety", () => {
 
 		const listener = useEventListener("resize", () => {});
 		const mediaQuery = useMediaQuery("(min-width: 640px)");
+		const ssrMediaQuery = useMediaQuery("(min-width: 640px)", {
+			ssrWidth: 800,
+		});
 		const size = useWindowSize();
 
 		expect(mediaQuery.matches.value).toBe(false);
+		expect(ssrMediaQuery.matches.value).toBe(true);
 		expect(size.width.value).toBe(0);
 		expect(size.height.value).toBe(0);
 
 		listener.stop();
 		mediaQuery.stop();
+		ssrMediaQuery.stop();
 		size.stop();
 	});
 });
