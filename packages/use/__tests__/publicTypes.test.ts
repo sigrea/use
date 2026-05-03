@@ -3,15 +3,25 @@ import { describe, expectTypeOf, it } from "vitest";
 
 import type {
 	Arrayable,
+	FocusableElementLike,
 	MatchMediaWindow,
+	OnClickOutsideOptions,
+	ResizeObserverWindowLike,
+	UseElementSizeOptions,
+	UseFocusOptions,
 	UseMediaQueryOptions,
+	UseMouseOptions,
 	UseToggleOptions,
 	UseWindowSizeOptions,
 } from "../../../index";
 import {
+	onClickOutside,
+	useElementSize,
 	useEventListener,
+	useFocus,
 	useIntervalFn,
 	useMediaQuery,
+	useMouse,
 	useTimeoutFn,
 	useToggle,
 	useWindowSize,
@@ -26,33 +36,50 @@ interface SizedWindow extends EventTarget {
 	readonly innerHeight: number;
 }
 
+interface MouseWindow extends EventTarget {
+	readonly scrollX: number;
+	readonly scrollY: number;
+}
+
+interface ResizeWindow extends EventTarget {
+	readonly ResizeObserver?: typeof ResizeObserver;
+}
+
+function typeOnly(_callback: () => void): void {}
+
 describe("public types", () => {
 	it("infers window event payloads when the target is omitted", () => {
-		useEventListener("resize", (event) => {
+		const listener = useEventListener("resize", (event) => {
 			expectTypeOf(event).toEqualTypeOf<UIEvent>();
 		});
+
+		listener.stop();
 	});
 
 	it("accepts multiple window event names", () => {
 		const events: Arrayable<"resize" | "scroll"> = ["resize", "scroll"];
 
-		useEventListener(events, (event) => {
+		const listener = useEventListener(events, (event) => {
 			expectTypeOf(event).toEqualTypeOf<UIEvent | Event>();
 		});
+
+		listener.stop();
 	});
 
 	it("preserves DOM event payload types", () => {
 		const button = document.createElement("button");
 
-		useEventListener(button, "click", (event) => {
+		const listener = useEventListener(button, "click", (event) => {
 			expectTypeOf(event).toEqualTypeOf<PointerEvent>();
 		});
+
+		listener.stop();
 	});
 
 	it("preserves DOM event payload types with array inputs", () => {
 		const button = document.createElement("button");
 
-		useEventListener(
+		const listener = useEventListener(
 			[button],
 			["click"],
 			[
@@ -61,6 +88,29 @@ describe("public types", () => {
 				},
 			],
 		);
+
+		listener.stop();
+	});
+
+	it("narrows onClickOutside controls return", () => {
+		const target = document.createElement("div");
+		const controlsOptions: OnClickOutsideOptions<true> = {
+			controls: true,
+			ignore: [() => document.body, ".ignored"],
+		};
+		const controls = onClickOutside(
+			target,
+			(event) => {
+				expectTypeOf(event).toMatchTypeOf<Event>();
+			},
+			controlsOptions,
+		);
+		const stop = onClickOutside(target, () => {});
+
+		controls.cancel();
+		controls.trigger(new Event("click"));
+		controls.stop();
+		stop();
 	});
 
 	it("accepts lightweight matchMedia windows", () => {
@@ -81,7 +131,9 @@ describe("public types", () => {
 			window: signal(customWindow),
 		};
 
-		useMediaQuery("(min-width: 768px)", options);
+		const mediaQuery = useMediaQuery("(min-width: 768px)", options);
+
+		mediaQuery.stop();
 	});
 
 	it("forwards timeout start arguments", () => {
@@ -97,20 +149,24 @@ describe("public types", () => {
 			100,
 		);
 
-		timeout.start("ready");
-		optionalTimeout.start();
-		optionalTimeout.start("ready");
-		restTimeout.start("ready", "set");
-		// @ts-expect-error required callback arguments must be passed to start
-		timeout.start();
-		// @ts-expect-error start arguments must match the callback
-		timeout.start(1);
-		// @ts-expect-error callbacks with required arguments must opt out of auto start
-		useTimeoutFn((label: string) => label.length, 100);
+		typeOnly(() => {
+			timeout.start("ready");
+			optionalTimeout.start();
+			optionalTimeout.start("ready");
+			restTimeout.start("ready", "set");
+			// @ts-expect-error required callback arguments must be passed to start
+			timeout.start();
+			// @ts-expect-error start arguments must match the callback
+			timeout.start(1);
+			// @ts-expect-error callbacks with required arguments must opt out of auto start
+			useTimeoutFn((label: string) => label.length, 100);
+		});
 	});
 
 	it("allows the default interval duration", () => {
-		useIntervalFn(() => {});
+		const interval = useIntervalFn(() => {}, 1000, { immediate: false });
+
+		interval.pause();
 	});
 
 	it("accepts reactive window-like targets for window size", () => {
@@ -124,7 +180,59 @@ describe("public types", () => {
 			window: signal(sizedWindow),
 		};
 
-		useWindowSize(options);
+		const size = useWindowSize(options);
+
+		size.stop();
+	});
+
+	it("accepts mouse options with custom targets", () => {
+		const mouseWindow = new EventTarget() as MouseWindow;
+		Object.defineProperties(mouseWindow, {
+			scrollX: { value: 0 },
+			scrollY: { value: 0 },
+		});
+		const target = new EventTarget();
+		const options: UseMouseOptions<MouseWindow> = {
+			target: signal(target),
+			type: "client",
+			window: signal(mouseWindow),
+		};
+		const mouse = useMouse(options);
+
+		expectTypeOf(mouse.x.value).toEqualTypeOf<number>();
+		expectTypeOf(mouse.sourceType.value).toEqualTypeOf<
+			"mouse" | "touch" | null
+		>();
+		mouse.stop();
+	});
+
+	it("returns writable focused state for focus", () => {
+		const target = document.createElement("button") as FocusableElementLike;
+		const options: UseFocusOptions = {
+			focusVisible: true,
+			preventScroll: true,
+		};
+		const focus = useFocus(target, options);
+
+		focus.focused.value = true;
+		expectTypeOf(focus.focused.value).toEqualTypeOf<boolean>();
+		focus.stop();
+	});
+
+	it("accepts ResizeObserver windows for element size", () => {
+		const resizeWindow = new EventTarget() as ResizeWindow;
+		const options: UseElementSizeOptions<ResizeWindow> = {
+			box: "border-box",
+			window: signal(resizeWindow),
+		};
+		const size = useElementSize(
+			document.createElement("div"),
+			undefined,
+			options,
+		);
+
+		expectTypeOf(size.width.value).toEqualTypeOf<number>();
+		size.stop();
 	});
 
 	it("infers custom toggle values", () => {

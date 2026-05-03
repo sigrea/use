@@ -27,7 +27,7 @@ is not complete in `@sigrea/use` yet.
 | `injectLocal` | `-` | Todo |
 | `isDefined` | `-` | Todo |
 | `makeDestructurable` | `-` | Todo |
-| `onClickOutside` | `-` | Todo |
+| `onClickOutside` | `onClickOutside` | Done |
 | `onElementRemoval` | `-` | Todo |
 | `onKeyStroke` | `-` | Todo |
 | `onLongPress` | `-` | Todo |
@@ -107,7 +107,7 @@ is not complete in `@sigrea/use` yet.
 | `useElementBounding` | `-` | Todo |
 | `useElementByPoint` | `-` | Todo |
 | `useElementHover` | `-` | Todo |
-| `useElementSize` | `-` | Todo |
+| `useElementSize` | `useElementSize` | Done |
 | `useElementVisibility` | `-` | Todo |
 | `useEventBus` | `-` | Todo |
 | `useEventListener` | `useEventListener` | Done |
@@ -117,7 +117,7 @@ is not complete in `@sigrea/use` yet.
 | `useFetch` | `-` | Todo |
 | `useFileDialog` | `-` | Todo |
 | `useFileSystemAccess` | `-` | Todo |
-| `useFocus` | `-` | Todo |
+| `useFocus` | `useFocus` | Done |
 | `useFocusWithin` | `-` | Todo |
 | `useFps` | `-` | Todo |
 | `useFullscreen` | `-` | Todo |
@@ -139,7 +139,7 @@ is not complete in `@sigrea/use` yet.
 | `useMemoize` | `-` | Todo |
 | `useMemory` | `-` | Todo |
 | `useMounted` | `-` | Todo |
-| `useMouse` | `-` | Todo |
+| `useMouse` | `useMouse` | Done |
 | `useMouseInElement` | `-` | Todo |
 | `useMousePressed` | `-` | Todo |
 | `useMutationObserver` | `-` | Todo |

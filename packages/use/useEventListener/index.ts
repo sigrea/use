@@ -25,6 +25,9 @@ type EventPayloadFor<
 type MaybeArrayTarget<TTarget> = MaybeValue<
 	Arrayable<TTarget | null | undefined> | null | undefined
 >;
+type MaybeArrayEventName<K extends string> = MaybeValue<
+	Arrayable<K | null | undefined> | null | undefined
+>;
 
 type AnyEventListener = (event: Event) => void;
 
@@ -36,10 +39,31 @@ function toArray<T>(value: Arrayable<T> | null | undefined): T[] {
 	return Array.isArray(value) ? [...value] : [value as T];
 }
 
+function isPresent<T>(value: T | null | undefined): value is T {
+	return value !== undefined && value !== null;
+}
+
 function isStringArray(value: unknown): value is Arrayable<string> {
 	return (
 		typeof value === "string" ||
 		(Array.isArray(value) && value.every((item) => typeof item === "string"))
+	);
+}
+
+function shouldUseOmittedTargetForUnresolvedFirstParam(
+	argumentCount: number,
+	typeOrListener: unknown,
+): boolean {
+	if (argumentCount < 3) {
+		return true;
+	}
+
+	return !isStringArray(typeOrListener);
+}
+
+function resolveEventNames(source: MaybeArrayEventName<string>): string[] {
+	return toArray(resolveValue(source)).filter(
+		(value): value is string => typeof value === "string",
 	);
 }
 
@@ -54,7 +78,7 @@ function cloneEventListenerOptions(
 }
 
 export function useEventListener<K extends WindowEventName>(
-	type: MaybeValue<Arrayable<K>>,
+	type: MaybeArrayEventName<K>,
 	listener: Arrayable<(event: WindowEventMap[K]) => void>,
 	options?: UseEventListenerOptions,
 ): UseEventListenerReturn;
@@ -64,22 +88,26 @@ export function useEventListener<
 	K extends EventNameFor<TTarget>,
 >(
 	target: MaybeArrayTarget<TTarget>,
-	type: MaybeValue<Arrayable<K>>,
+	type: MaybeArrayEventName<K>,
 	listener: Arrayable<(event: EventPayloadFor<TTarget, K>) => void>,
 	options?: UseEventListenerOptions,
 ): UseEventListenerReturn;
 export function useEventListener<T extends EventTarget>(
-	targetOrType: MaybeArrayTarget<T> | MaybeValue<Arrayable<string>>,
-	typeOrListener: MaybeValue<Arrayable<string>> | Arrayable<AnyEventListener>,
+	targetOrType: MaybeArrayTarget<T> | MaybeArrayEventName<string>,
+	typeOrListener: MaybeArrayEventName<string> | Arrayable<AnyEventListener>,
 	listenerOrOptions?: Arrayable<AnyEventListener> | UseEventListenerOptions,
 	maybeOptions?: UseEventListenerOptions,
 ): UseEventListenerReturn;
 export function useEventListener<T extends EventTarget>(
-	targetOrType: MaybeArrayTarget<T> | MaybeValue<Arrayable<string>>,
-	typeOrListener: MaybeValue<Arrayable<string>> | Arrayable<AnyEventListener>,
-	listenerOrOptions?: Arrayable<AnyEventListener> | UseEventListenerOptions,
-	maybeOptions?: UseEventListenerOptions,
+	...args: [
+		targetOrType: MaybeArrayTarget<T> | MaybeArrayEventName<string>,
+		typeOrListener: MaybeArrayEventName<string> | Arrayable<AnyEventListener>,
+		listenerOrOptions?: Arrayable<AnyEventListener> | UseEventListenerOptions,
+		maybeOptions?: UseEventListenerOptions,
+	]
 ): UseEventListenerReturn {
+	const [targetOrType, typeOrListener, listenerOrOptions, maybeOptions] = args;
+	const argumentCount = args.length;
 	const stop = watch(
 		() => {
 			const firstRawValue = resolveValue(
@@ -92,13 +120,22 @@ export function useEventListener<T extends EventTarget>(
 					| Arrayable<EventTarget | string | null | undefined>
 					| null
 					| undefined,
-			).filter((value) => value !== undefined && value !== null);
+			).filter(isPresent);
 			const firstParamTargets =
 				firstValues.length > 0 &&
 				firstValues.every((value) => typeof value !== "string")
 					? (firstValues as EventTarget[])
 					: undefined;
-			const hasOmittedTarget = isStringArray(firstRawValue);
+			const hasFirstParamTypes =
+				firstValues.length > 0 &&
+				firstValues.every((value) => typeof value === "string");
+			const hasOmittedTarget =
+				hasFirstParamTypes ||
+				(firstValues.length === 0 &&
+					shouldUseOmittedTargetForUnresolvedFirstParam(
+						argumentCount,
+						typeOrListener,
+					));
 			const hasExplicitTarget =
 				firstParamTargets !== undefined || !hasOmittedTarget;
 			const rawTargets = hasExplicitTarget
@@ -116,9 +153,7 @@ export function useEventListener<T extends EventTarget>(
 			).filter((listener): listener is AnyEventListener => {
 				return typeof listener === "function";
 			});
-			const types = toArray(
-				resolveValue(rawTypes as MaybeValue<Arrayable<string>>),
-			);
+			const types = resolveEventNames(rawTypes as MaybeArrayEventName<string>);
 
 			return {
 				listeners,
