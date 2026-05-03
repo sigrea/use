@@ -32,6 +32,7 @@ export type WatchMediaQueryOptions<
 export type WatchTargetCallback<TTarget> = SharedWatchTargetCallback<TTarget>;
 export type WatchTargetOptions = SharedWatchTargetOptions;
 export type WindowLike = SharedWindowLike;
+export type Arrayable<T> = T | readonly T[];
 
 export interface WindowSizeDocumentLike extends DocumentLike {
 	readonly documentElement?: {
