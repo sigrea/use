@@ -86,9 +86,9 @@ export interface UseTimeoutFnOptions {
 	immediateCallback?: boolean;
 }
 
-export interface UseTimeoutFnReturn {
+export interface UseTimeoutFnReturn<TArgs extends unknown[] = []> {
 	readonly isPending: ReadonlySignal<boolean>;
-	start(): void;
+	start(...args: TArgs): void;
 	stop(): void;
 }
 
