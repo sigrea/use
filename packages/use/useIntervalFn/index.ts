@@ -1,17 +1,17 @@
 import { readonly, signal, watch } from "@sigrea/core";
-import { resolveValue } from "../shared/resolveValue";
+import { resolveValue } from "../../shared/resolveValue";
 
-import { bindAutoStart } from "./internal";
+import { bindAutoStart } from "../internal";
 
 import type {
 	MaybeValue,
 	UseIntervalFnOptions,
 	UseIntervalFnReturn,
-} from "./types";
+} from "../types";
 
 export function useIntervalFn(
 	callback: () => void,
-	interval: MaybeValue<number>,
+	interval: MaybeValue<number> = 1000,
 	options: UseIntervalFnOptions = {},
 ): UseIntervalFnReturn {
 	const isActive = signal(false);
@@ -91,7 +91,7 @@ export function useIntervalFn(
 		startWatchingInterval();
 	};
 
-	bindAutoStart(resume, pause, options.immediate ?? false);
+	bindAutoStart(resume, pause, options.immediate ?? true);
 
 	return {
 		isActive: readonly(isActive),
