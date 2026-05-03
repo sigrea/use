@@ -33,6 +33,19 @@ export type WatchTargetCallback<TTarget> = SharedWatchTargetCallback<TTarget>;
 export type WatchTargetOptions = SharedWatchTargetOptions;
 export type WindowLike = SharedWindowLike;
 export type Arrayable<T> = T | readonly T[];
+export type FunctionArgs<
+	TArgs extends unknown[] = unknown[],
+	TReturn = unknown,
+	TThis = unknown,
+> = (this: TThis, ...args: TArgs) => TReturn;
+export type PromisifyFn<T> = T extends (
+	this: infer TThis,
+	...args: infer TArgs
+) => infer TReturn
+	? TArgs extends unknown[]
+		? (this: TThis, ...args: TArgs) => Promise<Awaited<TReturn> | undefined>
+		: never
+	: never;
 
 export interface Position {
 	x: number;
@@ -98,6 +111,20 @@ export interface UseTimeoutFnReturn<TArgs extends unknown[] = []> {
 	stop(): void;
 }
 
+export interface UseTimeoutOptions<Controls extends boolean = false>
+	extends UseTimeoutFnOptions {
+	controls?: Controls;
+	callback?: () => void;
+}
+
+export type UseTimeoutControlsReturn = {
+	readonly ready: ReadonlySignal<boolean>;
+} & UseTimeoutFnReturn;
+
+export type UseTimeoutReturn =
+	| ReadonlySignal<boolean>
+	| UseTimeoutControlsReturn;
+
 export interface UseIntervalFnOptions {
 	immediate?: boolean;
 	immediateCallback?: boolean;
@@ -108,6 +135,30 @@ export interface UseIntervalFnReturn {
 	pause(): void;
 	resume(): void;
 }
+
+export interface UseIntervalOptions<Controls extends boolean = false> {
+	controls?: Controls;
+	immediate?: boolean;
+	callback?: (count: number) => void;
+}
+
+export interface UseIntervalControlsReturn extends UseIntervalFnReturn {
+	readonly counter: ReadonlySignal<number>;
+	reset(): void;
+}
+
+export type UseIntervalReturn =
+	| ReadonlySignal<number>
+	| UseIntervalControlsReturn;
+
+export interface UseDebounceFnOptions {
+	maxWait?: MaybeValue<number>;
+	rejectOnCancel?: boolean;
+}
+
+export type UseDebounceFnReturn<T> = PromisifyFn<T>;
+
+export type UseThrottleFnReturn<T> = PromisifyFn<T>;
 
 export type UseEventListenerOptions = MaybeValue<
 	boolean | AddEventListenerOptions
