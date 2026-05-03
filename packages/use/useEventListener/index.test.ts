@@ -108,6 +108,33 @@ describe("useEventListener", () => {
 		expect(listener).toHaveBeenCalledTimes(2);
 	});
 
+	it("keeps omitted reactive event names inert while nullish", () => {
+		const eventName = signal<"resize" | null | undefined>(undefined);
+		const eventTypes: string[] = [];
+		const listener = vi.fn((event: Event) => {
+			eventTypes.push(event.type);
+		});
+		const subscription = useEventListener(() => eventName.value, listener);
+
+		window.dispatchEvent(new Event("resize"));
+		expect(listener).not.toHaveBeenCalled();
+
+		eventName.value = null;
+		window.dispatchEvent(new Event("resize"));
+		expect(listener).not.toHaveBeenCalled();
+
+		eventName.value = "resize";
+		window.dispatchEvent(new Event("resize"));
+		expect(listener).toHaveBeenCalledTimes(1);
+		expect(eventTypes).toEqual(["resize"]);
+
+		eventName.value = undefined;
+		window.dispatchEvent(new Event("resize"));
+		expect(listener).toHaveBeenCalledTimes(1);
+
+		subscription.stop();
+	});
+
 	it("removes listeners with the original options snapshot", () => {
 		const target = new EventTarget();
 		const listener = vi.fn();
