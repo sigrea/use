@@ -1,4 +1,4 @@
-import type { ReadonlySignal } from "@sigrea/core";
+import type { Computed, ReadonlySignal } from "@sigrea/core";
 import type {
 	DocumentLike as SharedDocumentLike,
 	MaybeTarget as SharedMaybeTarget,
@@ -33,6 +33,11 @@ export type WatchTargetCallback<TTarget> = SharedWatchTargetCallback<TTarget>;
 export type WatchTargetOptions = SharedWatchTargetOptions;
 export type WindowLike = SharedWindowLike;
 export type Arrayable<T> = T | readonly T[];
+
+export interface Position {
+	x: number;
+	y: number;
+}
 
 export interface WindowSizeDocumentLike extends DocumentLike {
 	readonly documentElement?: {
@@ -137,6 +142,119 @@ export interface UseWindowSizeOptions<
 }
 
 export interface UseWindowSizeReturn {
+	readonly width: ReadonlySignal<number>;
+	readonly height: ReadonlySignal<number>;
+	stop(): void;
+}
+
+export interface OnClickOutsideDocumentLike extends DocumentLike {
+	readonly activeElement?: Element | null;
+	querySelectorAll?(selector: string): Iterable<Element> | ArrayLike<Element>;
+}
+
+export interface OnClickOutsideWindowLike extends WindowLike {
+	readonly document: OnClickOutsideDocumentLike;
+	setTimeout?(
+		handler: () => void,
+		timeout?: number,
+	): ReturnType<typeof globalThis.setTimeout>;
+	clearTimeout?(handle: ReturnType<typeof globalThis.setTimeout>): void;
+}
+
+export type OnClickOutsideIgnoreTarget = MaybeTarget<Element> | string;
+
+export interface OnClickOutsideOptions<
+	Controls extends boolean = false,
+	TWindow extends OnClickOutsideWindowLike = OnClickOutsideWindowLike,
+> {
+	ignore?: MaybeValue<Arrayable<OnClickOutsideIgnoreTarget> | null | undefined>;
+	capture?: boolean;
+	detectIframe?: boolean;
+	controls?: Controls;
+	window?: MaybeTarget<TWindow>;
+}
+
+export type OnClickOutsideHandler = (
+	event: PointerEvent | FocusEvent | Event,
+) => void;
+
+export interface OnClickOutsideControlsReturn {
+	stop(): void;
+	cancel(): void;
+	trigger(event: Event): void;
+}
+
+export type OnClickOutsideReturn<Controls extends boolean = false> =
+	Controls extends true ? OnClickOutsideControlsReturn : () => void;
+
+export type UseMouseCoordType = "page" | "client" | "screen" | "movement";
+export type UseMouseSourceType = "mouse" | "touch" | null;
+export type UseMouseEventExtractor = (
+	event: MouseEvent | Touch,
+) => [x: number, y: number] | null | undefined;
+
+export interface MouseWindowLike extends WindowLike {
+	readonly scrollX: number;
+	readonly scrollY: number;
+}
+
+export interface UseMouseOptions<
+	TWindow extends MouseWindowLike = MouseWindowLike,
+	TTarget extends EventTarget = EventTarget,
+> {
+	type?: UseMouseCoordType | UseMouseEventExtractor;
+	target?: MaybeTarget<TTarget | TWindow>;
+	touch?: boolean;
+	scroll?: boolean;
+	resetOnTouchEnds?: boolean;
+	initialValue?: Position;
+	window?: MaybeTarget<TWindow>;
+}
+
+export interface UseMouseReturn {
+	readonly x: ReadonlySignal<number>;
+	readonly y: ReadonlySignal<number>;
+	readonly sourceType: ReadonlySignal<UseMouseSourceType>;
+	stop(): void;
+}
+
+export type FocusMethodOptions = FocusOptions;
+
+export interface FocusableElementLike extends EventTarget {
+	focus(options?: FocusMethodOptions): void;
+	blur(): void;
+	matches?(selectors: string): boolean;
+}
+
+export interface UseFocusOptions {
+	initialValue?: boolean;
+	focusVisible?: boolean;
+	preventScroll?: boolean;
+}
+
+export interface UseFocusReturn {
+	readonly focused: Computed<boolean>;
+	focus(): void;
+	blur(): void;
+	stop(): void;
+}
+
+export interface ElementSize {
+	width: number;
+	height: number;
+}
+
+export interface ResizeObserverWindowLike extends WindowLike {
+	readonly ResizeObserver?: typeof ResizeObserver;
+}
+
+export interface UseElementSizeOptions<
+	TWindow extends ResizeObserverWindowLike = ResizeObserverWindowLike,
+> extends ResizeObserverOptions {
+	window?: MaybeTarget<TWindow>;
+}
+
+export interface UseElementSizeReturn {
 	readonly width: ReadonlySignal<number>;
 	readonly height: ReadonlySignal<number>;
 	stop(): void;
