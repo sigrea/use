@@ -33,6 +33,7 @@ is not complete in `@sigrea/use` yet.
 | `onLongPress` | `-` | Todo |
 | `onStartTyping` | `-` | Todo |
 | `provideLocal` | `-` | Todo |
+| `provideSSRWidth` | `-` | Todo |
 | `reactify` | `-` | Todo |
 | `reactifyObject` | `-` | Todo |
 | `reactiveComputed` | `-` | Todo |
@@ -77,7 +78,7 @@ is not complete in `@sigrea/use` yet.
 | `useBase64` | `-` | Todo |
 | `useBattery` | `-` | Todo |
 | `useBluetooth` | `-` | Todo |
-| `useBreakpoints` | `-` | Todo |
+| `useBreakpoints` | `useBreakpoints` | Done |
 | `useBroadcastChannel` | `-` | Todo |
 | `useBrowserLocation` | `-` | Todo |
 | `useCached` | `-` | Todo |
@@ -101,7 +102,7 @@ is not complete in `@sigrea/use` yet.
 | `useDevicePixelRatio` | `-` | Todo |
 | `useDevicesList` | `-` | Todo |
 | `useDisplayMedia` | `-` | Todo |
-| `useDocumentVisibility` | `-` | Todo |
+| `useDocumentVisibility` | `useDocumentVisibility` | Done |
 | `useDraggable` | `-` | Todo |
 | `useDropZone` | `-` | Todo |
 | `useElementBounding` | `-` | Todo |
@@ -148,7 +149,7 @@ is not complete in `@sigrea/use` yet.
 | `useNow` | `-` | Todo |
 | `useObjectUrl` | `-` | Todo |
 | `useOffsetPagination` | `-` | Todo |
-| `useOnline` | `-` | Todo |
+| `useOnline` | `useOnline` | Done |
 | `usePageLeave` | `-` | Todo |
 | `useParallax` | `-` | Todo |
 | `useParentElement` | `-` | Todo |
@@ -159,7 +160,7 @@ is not complete in `@sigrea/use` yet.
 | `usePointerSwipe` | `-` | Todo |
 | `usePreferredColorScheme` | `-` | Todo |
 | `usePreferredContrast` | `-` | Todo |
-| `usePreferredDark` | `-` | Todo |
+| `usePreferredDark` | `usePreferredDark` | Done |
 | `usePreferredLanguages` | `-` | Todo |
 | `usePreferredReducedMotion` | `-` | Todo |
 | `usePreferredReducedTransparency` | `-` | Todo |

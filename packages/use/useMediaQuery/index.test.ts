@@ -176,6 +176,35 @@ describe("useMediaQuery", () => {
 		expect(mediaQuery.matches.value).toBe(true);
 	});
 
+	it("evaluates calc width media queries with ssrWidth", () => {
+		const belowMax = useMediaQuery("(max-width: calc(64rem - 0.1px))", {
+			ssrWidth: 1023,
+			window: null,
+		});
+		const atMax = useMediaQuery("(max-width: calc(64rem - 0.1px))", {
+			ssrWidth: 1024,
+			window: null,
+		});
+		const aboveMin = useMediaQuery("(min-width: calc(48rem + 0.1px))", {
+			ssrWidth: 769,
+			window: null,
+		});
+		const atMin = useMediaQuery("(min-width: calc(48rem + 0.1px))", {
+			ssrWidth: 768,
+			window: null,
+		});
+
+		expect(belowMax.matches.value).toBe(true);
+		expect(atMax.matches.value).toBe(false);
+		expect(aboveMin.matches.value).toBe(true);
+		expect(atMin.matches.value).toBe(false);
+
+		belowMax.stop();
+		atMax.stop();
+		aboveMin.stop();
+		atMin.stop();
+	});
+
 	it("uses initialValue when ssrWidth cannot evaluate the query", () => {
 		const mediaQuery = useMediaQuery("(prefers-reduced-motion: reduce)", {
 			initialValue: true,

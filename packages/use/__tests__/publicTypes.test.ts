@@ -3,20 +3,28 @@ import { describe, expectTypeOf, it } from "vitest";
 
 import type {
 	Arrayable,
+	Breakpoints,
+	DocumentVisibilityDocumentLike,
 	FocusableElementLike,
 	MatchMediaWindow,
 	OnClickOutsideOptions,
+	OnlineNavigatorLike,
 	ResizeObserverWindowLike,
+	UseBreakpointsOptions,
+	UseDocumentVisibilityOptions,
 	UseElementSizeOptions,
 	UseFocusOptions,
 	UseMediaQueryOptions,
 	UseMouseOptions,
+	UseOnlineOptions,
 	UseToggleOptions,
 	UseWindowSizeOptions,
 } from "../../../index";
 import {
 	onClickOutside,
+	useBreakpoints,
 	useDebounceFn,
+	useDocumentVisibility,
 	useElementSize,
 	useEventListener,
 	useFocus,
@@ -24,6 +32,8 @@ import {
 	useIntervalFn,
 	useMediaQuery,
 	useMouse,
+	useOnline,
+	usePreferredDark,
 	useThrottleFn,
 	useTimeout,
 	useTimeoutFn,
@@ -138,6 +148,70 @@ describe("public types", () => {
 		const mediaQuery = useMediaQuery("(min-width: 768px)", options);
 
 		mediaQuery.stop();
+	});
+
+	it("preserves browser composable public types", () => {
+		const queryList = new EventTarget() as MediaQueryList;
+		Object.defineProperties(queryList, {
+			matches: { value: true, writable: true },
+			media: { value: "(min-width: 1px)" },
+			onchange: { value: null, writable: true },
+		});
+
+		const customWindow = {
+			label: "test",
+			matchMedia: (_query: string) => queryList,
+		} satisfies MatchMediaOnlyWindow;
+		const mediaOptions: UseBreakpointsOptions<MatchMediaOnlyWindow> = {
+			ssrWidth: 1024,
+			window: signal(customWindow),
+		};
+		const points = {
+			md: signal("48rem"),
+			sm: 640,
+		} satisfies Breakpoints<"sm" | "md">;
+		const breakpoints = useBreakpoints(points, mediaOptions);
+		const preferredDark = usePreferredDark(mediaOptions);
+
+		expectTypeOf(breakpoints.md.matches.value).toEqualTypeOf<boolean>();
+		expectTypeOf(breakpoints.active().value).toEqualTypeOf<"sm" | "md" | "">();
+		expectTypeOf(breakpoints.stop).toEqualTypeOf<() => void>();
+		expectTypeOf(preferredDark.matches.value).toEqualTypeOf<boolean>();
+
+		const visibilityDocument =
+			new EventTarget() as DocumentVisibilityDocumentLike;
+		Object.defineProperty(visibilityDocument, "visibilityState", {
+			value: "visible",
+		});
+		const visibilityOptions: UseDocumentVisibilityOptions = {
+			document: signal(visibilityDocument),
+		};
+		const visibility = useDocumentVisibility(visibilityOptions);
+
+		expectTypeOf(
+			visibility.visibility.value,
+		).toEqualTypeOf<DocumentVisibilityState>();
+
+		const onlineNavigator: OnlineNavigatorLike = {
+			onLine: true,
+		};
+		const onlineWindow = new EventTarget() as Window & {
+			readonly navigator: OnlineNavigatorLike;
+		};
+		Object.defineProperty(onlineWindow, "navigator", {
+			value: onlineNavigator,
+		});
+		const onlineOptions: UseOnlineOptions<typeof onlineWindow> = {
+			window: signal(onlineWindow),
+		};
+		const online = useOnline(onlineOptions);
+
+		expectTypeOf(online.isOnline.value).toEqualTypeOf<boolean>();
+
+		breakpoints.stop();
+		preferredDark.stop();
+		visibility.stop();
+		online.stop();
 	});
 
 	it("forwards timeout start arguments", () => {

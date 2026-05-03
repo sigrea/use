@@ -65,6 +65,14 @@ export interface VisualViewportLike extends EventTarget {
 	readonly width: number;
 }
 
+export interface DocumentVisibilityDocumentLike extends DocumentLike {
+	readonly visibilityState?: DocumentVisibilityState;
+}
+
+export interface OnlineNavigatorLike extends NavigatorLike {
+	readonly onLine?: boolean;
+}
+
 export interface WindowSizeLike extends WindowLike {
 	readonly document?: WindowSizeDocumentLike;
 	readonly innerWidth: number;
@@ -168,6 +176,31 @@ export interface UseEventListenerReturn {
 	stop(): void;
 }
 
+export interface UseDocumentVisibilityOptions<
+	TDocument extends
+		DocumentVisibilityDocumentLike = DocumentVisibilityDocumentLike,
+> {
+	document?: MaybeTarget<TDocument>;
+}
+
+export interface UseDocumentVisibilityReturn {
+	readonly visibility: ReadonlySignal<DocumentVisibilityState>;
+	stop(): void;
+}
+
+export interface UseOnlineOptions<
+	TWindow extends WindowLike = WindowLike,
+	TNavigator extends OnlineNavigatorLike = OnlineNavigatorLike,
+> {
+	window?: MaybeTarget<TWindow>;
+	navigator?: MaybeValue<TNavigator | null | undefined>;
+}
+
+export interface UseOnlineReturn {
+	readonly isOnline: ReadonlySignal<boolean>;
+	stop(): void;
+}
+
 export interface UseMediaQueryOptions<
 	TWindow extends MatchMediaWindow = WindowLike & MatchMediaWindow,
 > {
@@ -180,6 +213,36 @@ export interface UseMediaQueryReturn {
 	readonly matches: ReadonlySignal<boolean>;
 	stop(): void;
 }
+
+export type Breakpoints<K extends string = string> = Record<
+	K,
+	MaybeValue<number | string>
+>;
+
+export interface UseBreakpointsOptions<
+	TWindow extends MatchMediaWindow = WindowLike & MatchMediaWindow,
+> extends UseMediaQueryOptions<TWindow> {
+	strategy?: "min-width" | "max-width";
+}
+
+export type UseBreakpointsReturn<K extends string = string> = Record<
+	K,
+	UseMediaQueryReturn
+> & {
+	active(): ReadonlySignal<K | "">;
+	between(first: MaybeValue<K>, second: MaybeValue<K>): UseMediaQueryReturn;
+	current(): ReadonlySignal<K[]>;
+	greater(key: MaybeValue<K>): UseMediaQueryReturn;
+	greaterOrEqual(key: MaybeValue<K>): UseMediaQueryReturn;
+	isGreater(key: MaybeValue<K>): boolean;
+	isGreaterOrEqual(key: MaybeValue<K>): boolean;
+	isInBetween(first: MaybeValue<K>, second: MaybeValue<K>): boolean;
+	isSmaller(key: MaybeValue<K>): boolean;
+	isSmallerOrEqual(key: MaybeValue<K>): boolean;
+	smaller(key: MaybeValue<K>): UseMediaQueryReturn;
+	smallerOrEqual(key: MaybeValue<K>): UseMediaQueryReturn;
+	stop(): void;
+};
 
 export interface UseWindowSizeOptions<
 	TWindow extends WindowSizeLike = WindowSizeLike,
