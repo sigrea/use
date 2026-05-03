@@ -222,7 +222,7 @@ export function onClickOutside<TOptions extends OnClickOutsideOptions<boolean>>(
 				!shouldIgnore(event) &&
 				Boolean(element && !isEventInside(element, event));
 		},
-		{ passive: true },
+		{ capture, passive: true },
 	);
 
 	const blur = detectIframe

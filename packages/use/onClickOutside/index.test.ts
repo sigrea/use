@@ -14,7 +14,7 @@ function dispatchPointerClick(element: Element) {
 		new MouseEvent("pointerdown", { bubbles: true, composed: true }),
 	);
 	element.dispatchEvent(
-		new MouseEvent("click", { bubbles: true, composed: true }),
+		new MouseEvent("click", { bubbles: true, composed: true, detail: 1 }),
 	);
 	vi.runOnlyPendingTimers();
 }
@@ -110,6 +110,26 @@ describe("onClickOutside", () => {
 		stop();
 	});
 
+	it("detects an outside click after outside pointerdown propagation stops", () => {
+		const target = document.createElement("div");
+		const inside = document.createElement("button");
+		const outside = document.createElement("button");
+		target.append(inside);
+		document.body.append(target, outside);
+		outside.addEventListener("pointerdown", (event) => {
+			event.stopPropagation();
+		});
+		const handler = vi.fn();
+		const stop = onClickOutside(target, handler);
+
+		dispatchPointerClick(inside);
+		dispatchPointerClick(outside);
+
+		expect(handler).toHaveBeenCalledTimes(1);
+
+		stop();
+	});
+
 	it("returns controls when requested", () => {
 		const target = document.createElement("div");
 		const outside = document.createElement("button");
@@ -172,6 +192,11 @@ describe("onClickOutside", () => {
 
 		expect(addSpy).toHaveBeenCalledWith(
 			"click",
+			expect.any(Function),
+			expect.objectContaining({ capture: true, passive: true }),
+		);
+		expect(addSpy).toHaveBeenCalledWith(
+			"pointerdown",
 			expect.any(Function),
 			expect.objectContaining({ capture: true, passive: true }),
 		);
