@@ -1,0 +1,58 @@
+import { describe, expect, it } from "vitest";
+
+import type { StorageLike, StorageWindowLike } from "../types";
+import { useSessionStorage } from "./index";
+
+class FakeStorage implements StorageLike {
+	readonly data = new Map<string, string>();
+
+	getItem(key: string): string | null {
+		return this.data.get(key) ?? null;
+	}
+
+	setItem(key: string, value: string): void {
+		this.data.set(key, value);
+	}
+
+	removeItem(key: string): void {
+		this.data.delete(key);
+	}
+}
+
+class FakeWindow extends EventTarget implements StorageWindowLike {
+	readonly localStorage = new FakeStorage();
+	readonly sessionStorage = new FakeStorage();
+}
+
+describe("useSessionStorage", () => {
+	it("uses sessionStorage from the configured window", () => {
+		const windowTarget = new FakeWindow();
+		const stored = useSessionStorage("session-key", "fallback", {
+			window: windowTarget,
+		});
+
+		expect(stored.value).toBe("fallback");
+		expect(windowTarget.sessionStorage.data.get("session-key")).toBe(
+			"fallback",
+		);
+		expect(windowTarget.localStorage.data.has("session-key")).toBe(false);
+
+		stored.value = "next";
+		expect(windowTarget.sessionStorage.data.get("session-key")).toBe("next");
+
+		stored.stop();
+	});
+
+	it("falls back when no storage is available", () => {
+		const stored = useSessionStorage("session-key", "fallback", {
+			window: undefined,
+		});
+
+		expect(stored.value).toBe("fallback");
+
+		stored.remove();
+		expect(stored.value).toBe(null);
+
+		stored.stop();
+	});
+});

@@ -132,7 +132,7 @@ is not complete in `@sigrea/use` yet.
 | `useIntervalFn` | `useIntervalFn` | Done |
 | `useKeyModifier` | `-` | Todo |
 | `useLastChanged` | `-` | Todo |
-| `useLocalStorage` | `-` | Todo |
+| `useLocalStorage` | `useLocalStorage` | Done |
 | `useMagicKeys` | `-` | Todo |
 | `useManualRefHistory` | `useManualRefHistory` | Done |
 | `useMediaControls` | `-` | Todo |
@@ -174,13 +174,13 @@ is not complete in `@sigrea/use` yet.
 | `useScriptTag` | `-` | Todo |
 | `useScroll` | `-` | Todo |
 | `useScrollLock` | `-` | Todo |
-| `useSessionStorage` | `-` | Todo |
+| `useSessionStorage` | `useSessionStorage` | Done |
 | `useShare` | `-` | Todo |
 | `useSorted` | `-` | Todo |
 | `useSpeechRecognition` | `-` | Todo |
 | `useSpeechSynthesis` | `-` | Todo |
 | `useStepper` | `-` | Todo |
-| `useStorage` | `-` | Todo |
+| `useStorage` | `useStorage` | Done |
 | `useStorageAsync` | `-` | Todo |
 | `useStyleTag` | `-` | Todo |
 | `useSupported` | `-` | Todo |

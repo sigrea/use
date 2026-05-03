@@ -8,6 +8,7 @@ export { useEventListener } from "./useEventListener";
 export { useFocus } from "./useFocus";
 export { useInterval } from "./useInterval";
 export { useIntervalFn } from "./useIntervalFn";
+export { useLocalStorage } from "./useLocalStorage";
 export { useManualRefHistory } from "./useManualRefHistory";
 export { useMediaQuery } from "./useMediaQuery";
 export { useMouse } from "./useMouse";
@@ -15,6 +16,12 @@ export { useOnline } from "./useOnline";
 export { usePreferredDark } from "./usePreferredDark";
 export { usePrevious } from "./usePrevious";
 export { useRefHistory } from "./useRefHistory";
+export { useSessionStorage } from "./useSessionStorage";
+export {
+	customStorageEventName,
+	StorageSerializers,
+	useStorage,
+} from "./useStorage";
 export { useThrottleFn } from "./useThrottleFn";
 export { useTimeout } from "./useTimeout";
 export { useTimeoutFn } from "./useTimeoutFn";
@@ -45,7 +52,14 @@ export type {
 	OnClickOutsideWindowLike,
 	Position,
 	PromisifyFn,
+	RemovableSignal,
 	ResizeObserverWindowLike,
+	StorageEventLike,
+	StorageLike,
+	StorageSerializer,
+	StorageSerializerType,
+	StorageWatchFlushType,
+	StorageWindowLike,
 	TargetEventMap,
 	UseBreakpointsOptions,
 	UseBreakpointsReturn,
@@ -80,6 +94,7 @@ export type {
 	UseRefHistoryOptions,
 	UseRefHistoryRecord,
 	UseRefHistoryReturn,
+	UseStorageOptions,
 	UseThrottleFnReturn,
 	UseTimeoutControlsReturn,
 	UseTimeoutFnOptions,
