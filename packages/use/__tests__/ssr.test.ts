@@ -19,6 +19,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.useFocus).toBe("function");
 		expect(typeof mod.useInterval).toBe("function");
 		expect(typeof mod.useIntervalFn).toBe("function");
+		expect(typeof mod.useLocalStorage).toBe("function");
 		expect(typeof mod.useManualRefHistory).toBe("function");
 		expect(typeof mod.useMediaQuery).toBe("function");
 		expect(typeof mod.useMouse).toBe("function");
@@ -26,6 +27,8 @@ describe("SSR safety", () => {
 		expect(typeof mod.usePreferredDark).toBe("function");
 		expect(typeof mod.usePrevious).toBe("function");
 		expect(typeof mod.useRefHistory).toBe("function");
+		expect(typeof mod.useSessionStorage).toBe("function");
+		expect(typeof mod.useStorage).toBe("function");
 		expect(typeof mod.useTimeout).toBe("function");
 		expect(typeof mod.useTimeoutFn).toBe("function");
 		expect(typeof mod.useToggle).toBe("function");
@@ -40,37 +43,52 @@ describe("SSR safety", () => {
 			useElementSize,
 			useEventListener,
 			useFocus,
+			useLocalStorage,
 			useMediaQuery,
 			useMouse,
 			useOnline,
 			usePreferredDark,
+			useSessionStorage,
+			useStorage,
 			useWindowSize,
 		} = await import("../../../index");
 
 		const breakpoints = useBreakpoints({ md: 768 }, { ssrWidth: 800 });
 		const visibility = useDocumentVisibility();
 		const listener = useEventListener("resize", () => {});
+		const localStorageValue = useLocalStorage("local", "fallback", {
+			window: undefined,
+		});
 		const outside = onClickOutside(null, () => {});
 		const focus = useFocus(null);
 		const mouse = useMouse();
 		const mediaQuery = useMediaQuery("(min-width: 640px)");
 		const online = useOnline();
 		const preferredDark = usePreferredDark();
+		const sessionStorageValue = useSessionStorage("session", "fallback", {
+			window: undefined,
+		});
 		const ssrMediaQuery = useMediaQuery("(min-width: 640px)", {
 			ssrWidth: 800,
+		});
+		const storageValue = useStorage("storage", "fallback", undefined, {
+			window: undefined,
 		});
 		const elementSize = useElementSize(null, { width: 10, height: 20 });
 		const size = useWindowSize();
 
 		expect(breakpoints.md.matches.value).toBe(true);
 		expect(visibility.visibility.value).toBe("visible");
+		expect(localStorageValue.value).toBe("fallback");
 		expect(focus.focused.value).toBe(false);
 		expect(mouse.x.value).toBe(0);
 		expect(mouse.y.value).toBe(0);
 		expect(mediaQuery.matches.value).toBe(false);
 		expect(online.isOnline.value).toBe(true);
 		expect(preferredDark.matches.value).toBe(false);
+		expect(sessionStorageValue.value).toBe("fallback");
 		expect(ssrMediaQuery.matches.value).toBe(true);
+		expect(storageValue.value).toBe("fallback");
 		expect(elementSize.width.value).toBe(10);
 		expect(elementSize.height.value).toBe(20);
 		expect(size.width.value).toBe(0);
@@ -79,13 +97,16 @@ describe("SSR safety", () => {
 		breakpoints.md.stop();
 		visibility.stop();
 		listener.stop();
+		localStorageValue.stop();
 		outside();
 		focus.stop();
 		mouse.stop();
 		mediaQuery.stop();
 		online.stop();
 		preferredDark.stop();
+		sessionStorageValue.stop();
 		ssrMediaQuery.stop();
+		storageValue.stop();
 		elementSize.stop();
 		size.stop();
 	});

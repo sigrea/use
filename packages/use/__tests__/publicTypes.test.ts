@@ -9,7 +9,10 @@ import type {
 	MatchMediaWindow,
 	OnClickOutsideOptions,
 	OnlineNavigatorLike,
+	RemovableSignal,
 	ResizeObserverWindowLike,
+	StorageSerializer,
+	StorageWindowLike,
 	UseBreakpointsOptions,
 	UseDocumentVisibilityOptions,
 	UseElementSizeOptions,
@@ -18,10 +21,12 @@ import type {
 	UseMouseOptions,
 	UseOnlineOptions,
 	UseRefHistoryRecord,
+	UseStorageOptions,
 	UseToggleOptions,
 	UseWindowSizeOptions,
 } from "../../../index";
 import {
+	StorageSerializers,
 	onClickOutside,
 	useBreakpoints,
 	useDebounceFn,
@@ -31,6 +36,7 @@ import {
 	useFocus,
 	useInterval,
 	useIntervalFn,
+	useLocalStorage,
 	useManualRefHistory,
 	useMediaQuery,
 	useMouse,
@@ -38,6 +44,8 @@ import {
 	usePreferredDark,
 	usePrevious,
 	useRefHistory,
+	useSessionStorage,
+	useStorage,
 	useThrottleFn,
 	useTimeout,
 	useTimeoutFn,
@@ -61,6 +69,10 @@ interface MouseWindow extends EventTarget {
 
 interface ResizeWindow extends EventTarget {
 	readonly ResizeObserver?: typeof ResizeObserver;
+}
+
+interface StorageOnlyWindow extends StorageWindowLike {
+	readonly label: string;
 }
 
 function typeOnly(_callback: () => void): void {}
@@ -448,6 +460,91 @@ describe("public types", () => {
 				ReadonlySignal<number | undefined>
 			>();
 			expectTypeOf(previousWithInitial).toEqualTypeOf<ReadonlySignal<number>>();
+		});
+	});
+
+	it("returns removable writable storage signals", () => {
+		typeOnly(() => {
+			const storage = useStorage("key", 1);
+
+			storage.value = 2;
+			storage.value = null;
+			storage.remove();
+
+			expectTypeOf(storage).toEqualTypeOf<RemovableSignal<number | null>>();
+		});
+	});
+
+	it("keeps default value inference with built-in storage serializers", () => {
+		typeOnly(() => {
+			const map = useStorage("map", new Map<string, number>(), undefined, {
+				serializer: StorageSerializers.map,
+			});
+			const set = useStorage("set", new Set<string>(), undefined, {
+				serializer: StorageSerializers.set,
+			});
+
+			expectTypeOf(map).toEqualTypeOf<
+				RemovableSignal<Map<string, number> | null>
+			>();
+			expectTypeOf(set).toEqualTypeOf<RemovableSignal<Set<string> | null>>();
+
+			StorageSerializers.map.write(new Map<string, number>());
+			StorageSerializers.set.write(new Set<string>());
+			StorageSerializers.array.write([1, 2]);
+			StorageSerializers.object.write({ count: 1 });
+
+			expectTypeOf(
+				StorageSerializers.map.read<string, number>("[]"),
+			).toEqualTypeOf<Map<string, number>>();
+			expectTypeOf(StorageSerializers.set.read<string>("[]")).toEqualTypeOf<
+				Set<string>
+			>();
+		});
+	});
+
+	it("supports null defaults with explicit storage value types", () => {
+		typeOnly(() => {
+			const objectSerializer: StorageSerializer<{ count: number }> = {
+				read(raw) {
+					return JSON.parse(raw) as { count: number };
+				},
+				write(value) {
+					return JSON.stringify(value);
+				},
+			};
+			const stored = useStorage<{ count: number }>("key", null, undefined, {
+				serializer: objectSerializer,
+			});
+
+			stored.value = { count: 1 };
+			stored.value = null;
+
+			expectTypeOf(stored).toEqualTypeOf<
+				RemovableSignal<{ count: number } | null>
+			>();
+		});
+	});
+
+	it("accepts storage window overrides", () => {
+		typeOnly(() => {
+			const localStorage = {
+				getItem: (_key: string) => null,
+				removeItem: (_key: string) => {},
+				setItem: (_key: string, _value: string) => {},
+			};
+			const customWindow = new EventTarget() as StorageOnlyWindow;
+			Object.defineProperties(customWindow, {
+				label: { value: "storage" },
+				localStorage: { value: localStorage },
+				sessionStorage: { value: localStorage },
+			});
+			const options: UseStorageOptions<string, StorageOnlyWindow> = {
+				window: signal(customWindow),
+			};
+
+			useLocalStorage("local", "value", options);
+			useSessionStorage("session", "value", options);
 		});
 	});
 });
