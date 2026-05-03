@@ -98,8 +98,7 @@ export function useRefHistory<Raw, Serialized = Raw>(
 		}
 	}
 	let lastRawValue: Raw | undefined = source.value;
-	let pausedChanged = false;
-	let pausedSourceValue: Raw | undefined;
+	let lastWatchValue: Raw | undefined = lastRawValue;
 	let pendingWatch = false;
 
 	function queueIgnoredWatchValue(
@@ -147,6 +146,19 @@ export function useRefHistory<Raw, Serialized = Raw>(
 		return sourceValue;
 	}
 
+	function queuePendingIgnoredWatchValue(value: Raw): void {
+		if (
+			!pendingWatch &&
+			(flush === "sync" || Object.is(lastWatchValue, value))
+		) {
+			return;
+		}
+
+		queueIgnoredWatchValue(value, false);
+		lastWatchValue = value;
+		pendingWatch = false;
+	}
+
 	const clone = manualOptions.clone || deep;
 	const dump = manualOptions.dump ?? createDefaultDump<Raw, Serialized>(clone);
 	const parse =
@@ -169,10 +181,7 @@ export function useRefHistory<Raw, Serialized = Raw>(
 		}
 
 		const nextValue = ensureDeepSourceValue(source.value);
-		if (pendingWatch || flush !== "sync") {
-			queueIgnoredWatchValue(nextValue, false);
-			pendingWatch = false;
-		}
+		queuePendingIgnoredWatchValue(nextValue);
 
 		if (!shouldCommit(lastRawValue, nextValue)) {
 			return;
@@ -186,19 +195,22 @@ export function useRefHistory<Raw, Serialized = Raw>(
 		source,
 		(nextValue) => {
 			pendingWatch = false;
+			lastWatchValue = nextValue;
 
 			const ignored = takeIgnoredWatchValue(nextValue);
 			if (ignored !== undefined) {
+				const sourceValue = ensureDeepSourceValue(nextValue);
+				lastWatchValue = sourceValue;
 				if (ignored.updateLastRawValue) {
-					lastRawValue = nextValue;
+					lastRawValue = sourceValue;
 				}
 				return;
 			}
 
 			const sourceValue = ensureDeepSourceValue(nextValue);
+			lastWatchValue = sourceValue;
 
 			if (!isTrackingSource.value) {
-				pausedChanged = false;
 				return;
 			}
 
@@ -220,9 +232,6 @@ export function useRefHistory<Raw, Serialized = Raw>(
 				if (disposed) {
 					return;
 				}
-				if (!isTrackingSource.value) {
-					pausedChanged = true;
-				}
 				if (flush !== "sync") {
 					pendingWatch = true;
 				}
@@ -234,7 +243,6 @@ export function useRefHistory<Raw, Serialized = Raw>(
 		if (disposed || !isTrackingSource.value) {
 			return;
 		}
-		pausedSourceValue = source.peek();
 		isTrackingSource.value = false;
 	}
 
@@ -244,16 +252,10 @@ export function useRefHistory<Raw, Serialized = Raw>(
 		}
 
 		const wasPaused = !isTrackingSource.value;
-		const sourceValue = source.peek();
-		if (
-			wasPaused &&
-			flush !== "sync" &&
-			(pausedChanged || !Object.is(pausedSourceValue, sourceValue))
-		) {
-			queueIgnoredWatchValue(source.value, false);
-			pausedChanged = false;
+		if (wasPaused) {
+			const sourceValue = source.value;
+			queuePendingIgnoredWatchValue(sourceValue);
 		}
-		pausedSourceValue = undefined;
 
 		if (!isTrackingSource.value) {
 			isTrackingSource.value = true;
@@ -299,7 +301,6 @@ export function useRefHistory<Raw, Serialized = Raw>(
 		watchHandle();
 		isTrackingSource.value = false;
 		ignoredWatchValues.length = 0;
-		pausedChanged = false;
 		pendingWatch = false;
 		clear();
 	}

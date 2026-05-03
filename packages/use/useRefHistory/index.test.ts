@@ -122,6 +122,48 @@ describe("useRefHistory", () => {
 		]);
 	});
 
+	it("keeps deep tracking when resuming before the paused pre-flush watcher runs", async () => {
+		const source = signal({ nested: { count: 0 } });
+		const history = useRefHistory(source, { deep: true });
+
+		history.pause();
+		source.value = { nested: { count: 1 } };
+		history.resume();
+		await nextTick();
+
+		expect(isDeepSignal(source.value)).toBe(true);
+
+		source.value.nested.count = 2;
+		await nextTick();
+
+		expect(history.history.value.map((record) => record.snapshot)).toEqual([
+			{ nested: { count: 2 } },
+			{ nested: { count: 0 } },
+		]);
+	});
+
+	it("tracks nested mutations after resuming when the paused pre-flush watcher already ran", async () => {
+		const source = signal({ nested: { count: 0 } });
+		const history = useRefHistory(source, { deep: true });
+
+		history.pause();
+		source.value = { nested: { count: 1 } };
+		await nextTick();
+
+		expect(history.history.value.map((record) => record.snapshot)).toEqual([
+			{ nested: { count: 0 } },
+		]);
+
+		history.resume();
+		source.value.nested.count = 2;
+		await nextTick();
+
+		expect(history.history.value.map((record) => record.snapshot)).toEqual([
+			{ nested: { count: 2 } },
+			{ nested: { count: 0 } },
+		]);
+	});
+
 	it("restores tracking when resume commit throws", () => {
 		const source = signal(0);
 		const history = useRefHistory(source, {
@@ -334,6 +376,25 @@ describe("useRefHistory", () => {
 			{ nested: { count: 0 } },
 		]);
 		expect(isDeepSignal(history.history.value[0].snapshot)).toBe(false);
+	});
+
+	it("tracks nested mutations after a manual commit with no pending pre-flush watcher", async () => {
+		const source = signal({ nested: { count: 0 } });
+		const history = useRefHistory(source, { deep: true });
+
+		source.value.nested.count = 1;
+		await nextTick();
+		history.commit();
+
+		source.value.nested.count = 2;
+		await nextTick();
+
+		expect(history.history.value.map((record) => record.snapshot)).toEqual([
+			{ nested: { count: 2 } },
+			{ nested: { count: 1 } },
+			{ nested: { count: 1 } },
+			{ nested: { count: 0 } },
+		]);
 	});
 
 	it("keeps tracking nested mutations after undo restores a snapshot", () => {
