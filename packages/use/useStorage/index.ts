@@ -221,6 +221,16 @@ function isBuiltInStorage(
 	);
 }
 
+function isStorageLike(value: unknown): value is StorageLike {
+	return (
+		typeof value === "object" &&
+		value !== null &&
+		typeof (value as StorageLike).getItem === "function" &&
+		typeof (value as StorageLike).setItem === "function" &&
+		typeof (value as StorageLike).removeItem === "function"
+	);
+}
+
 function createCustomStorageEvent(
 	windowTarget: StorageWindowLike | undefined,
 	detail: StorageEventLike,
@@ -379,7 +389,8 @@ export function useStorage<T>(
 	const resolveCurrentWindow = () => resolveTarget(windowTarget);
 	const resolveCurrentStorage = () => {
 		try {
-			return resolveValue(storageTarget) ?? undefined;
+			const currentStorage = resolveValue(storageTarget);
+			return isStorageLike(currentStorage) ? currentStorage : undefined;
 		} catch (error) {
 			onError(error);
 			return undefined;
