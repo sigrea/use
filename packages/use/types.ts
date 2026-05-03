@@ -1,4 +1,9 @@
-import type { Computed, ReadonlySignal } from "@sigrea/core";
+import type {
+	Computed,
+	ReadonlySignal,
+	Signal,
+	WatchOptions,
+} from "@sigrea/core";
 import type {
 	DocumentLike as SharedDocumentLike,
 	MaybeTarget as SharedMaybeTarget,
@@ -372,4 +377,50 @@ export interface UseElementSizeReturn {
 	readonly width: ReadonlySignal<number>;
 	readonly height: ReadonlySignal<number>;
 	stop(): void;
+}
+
+export type CloneFn<T> = (value: T) => T;
+
+export interface UseRefHistoryRecord<T> {
+	snapshot: T;
+	timestamp: number;
+}
+
+export interface UseManualRefHistoryOptions<Raw, Serialized = Raw> {
+	capacity?: number;
+	clone?: boolean | CloneFn<Raw>;
+	dump?: (value: Raw) => Serialized;
+	parse?: (value: Serialized) => Raw;
+	setSource?: (source: Signal<Raw>, value: Raw) => void;
+}
+
+export interface UseManualRefHistoryReturn<Raw, Serialized = Raw> {
+	readonly source: Signal<Raw>;
+	readonly history: ReadonlySignal<UseRefHistoryRecord<Serialized>[]>;
+	readonly last: Signal<UseRefHistoryRecord<Serialized>>;
+	readonly undoStack: Signal<UseRefHistoryRecord<Serialized>[]>;
+	readonly redoStack: Signal<UseRefHistoryRecord<Serialized>[]>;
+	readonly canUndo: ReadonlySignal<boolean>;
+	readonly canRedo: ReadonlySignal<boolean>;
+	clear(): void;
+	commit(): void;
+	reset(): void;
+	undo(): void;
+	redo(): void;
+}
+
+export interface UseRefHistoryOptions<Raw, Serialized = Raw>
+	extends Omit<UseManualRefHistoryOptions<Raw, Serialized>, "setSource"> {
+	deep?: boolean;
+	flush?: WatchOptions["flush"];
+	shouldCommit?: (oldValue: Raw | undefined, newValue: Raw) => boolean;
+}
+
+export interface UseRefHistoryReturn<Raw, Serialized = Raw>
+	extends UseManualRefHistoryReturn<Raw, Serialized> {
+	readonly isTracking: ReadonlySignal<boolean>;
+	pause(): void;
+	resume(commit?: boolean): void;
+	batch(fn: (cancel: () => void) => void): void;
+	dispose(): void;
 }
