@@ -4,14 +4,14 @@ import {
 	listen,
 	resolveTarget,
 	watchMediaQuery,
-} from "../shared";
+} from "../../shared";
 import type {
 	MatchMediaWindow,
 	MaybeTarget,
 	UseWindowSizeOptions,
 	UseWindowSizeReturn,
 	WindowSizeLike,
-} from "./types";
+} from "../types";
 
 export function useWindowSize<TWindow extends WindowSizeLike = WindowSizeLike>(
 	options: UseWindowSizeOptions<TWindow> = {},
@@ -50,8 +50,8 @@ export function useWindowSize<TWindow extends WindowSizeLike = WindowSizeLike>(
 		const viewport = currentWindow.visualViewport;
 		if (sizeType === "visual" && viewport !== undefined && viewport !== null) {
 			return {
-				height: Math.round(viewport.height),
-				width: Math.round(viewport.width),
+				height: Math.round(viewport.height * viewport.scale),
+				width: Math.round(viewport.width * viewport.scale),
 			};
 		}
 
