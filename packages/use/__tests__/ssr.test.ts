@@ -1,8 +1,12 @@
 // @vitest-environment node
 
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 describe("SSR safety", () => {
+	afterEach(() => {
+		vi.useRealTimers();
+	});
+
 	it("imports the root entry in a node environment", async () => {
 		const mod = await import("../../../index");
 
@@ -11,9 +15,11 @@ describe("SSR safety", () => {
 		expect(typeof mod.useElementSize).toBe("function");
 		expect(typeof mod.useEventListener).toBe("function");
 		expect(typeof mod.useFocus).toBe("function");
+		expect(typeof mod.useInterval).toBe("function");
 		expect(typeof mod.useIntervalFn).toBe("function");
 		expect(typeof mod.useMediaQuery).toBe("function");
 		expect(typeof mod.useMouse).toBe("function");
+		expect(typeof mod.useTimeout).toBe("function");
 		expect(typeof mod.useTimeoutFn).toBe("function");
 		expect(typeof mod.useToggle).toBe("function");
 		expect(typeof mod.useWindowSize).toBe("function");
@@ -59,5 +65,27 @@ describe("SSR safety", () => {
 		ssrMediaQuery.stop();
 		elementSize.stop();
 		size.stop();
+	});
+
+	it("auto-starts timers when timer APIs are available without a browser window", async () => {
+		vi.useFakeTimers();
+		const { useInterval, useTimeout } = await import("../../../index");
+		const interval = useInterval(1, { controls: true });
+		const timeout = useTimeout(1, { controls: true });
+
+		expect(globalThis.window).toBeUndefined();
+		expect(interval.isActive.value).toBe(true);
+		expect(interval.counter.value).toBe(0);
+		expect(timeout.isPending.value).toBe(true);
+		expect(timeout.ready.value).toBe(false);
+
+		vi.advanceTimersByTime(1);
+
+		expect(interval.counter.value).toBe(1);
+		expect(timeout.ready.value).toBe(true);
+		expect(timeout.isPending.value).toBe(false);
+
+		interval.pause();
+		timeout.stop();
 	});
 });

@@ -1,5 +1,16 @@
 import { getCurrentScope, onDispose, onMount, onUnmount } from "@sigrea/core";
 
+export function bindTimerCleanup(cleanup: () => void): void {
+	const scope = getCurrentScope();
+	if (scope !== undefined) {
+		onDispose(cleanup, scope);
+	}
+
+	try {
+		onUnmount(cleanup);
+	} catch {}
+}
+
 export function bindAutoStart(
 	start: () => void,
 	stop: () => void,

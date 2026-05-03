@@ -94,7 +94,7 @@ is not complete in `@sigrea/use` yet.
 | `useCycleList` | `-` | Todo |
 | `useDark` | `-` | Todo |
 | `useDateFormat` | `-` | Todo |
-| `useDebounceFn` | `-` | Todo |
+| `useDebounceFn` | `useDebounceFn` | Done |
 | `useDebouncedRefHistory` | `-` | Todo |
 | `useDeviceMotion` | `-` | Todo |
 | `useDeviceOrientation` | `-` | Todo |
@@ -127,7 +127,7 @@ is not complete in `@sigrea/use` yet.
 | `useImage` | `-` | Todo |
 | `useInfiniteScroll` | `-` | Todo |
 | `useIntersectionObserver` | `-` | Todo |
-| `useInterval` | `-` | Todo |
+| `useInterval` | `useInterval` | Done |
 | `useIntervalFn` | `useIntervalFn` | Done |
 | `useKeyModifier` | `-` | Todo |
 | `useLastChanged` | `-` | Todo |
@@ -188,11 +188,11 @@ is not complete in `@sigrea/use` yet.
 | `useTextDirection` | `-` | Todo |
 | `useTextSelection` | `-` | Todo |
 | `useTextareaAutosize` | `-` | Todo |
-| `useThrottleFn` | `-` | Todo |
+| `useThrottleFn` | `useThrottleFn` | Done |
 | `useThrottledRefHistory` | `-` | Todo |
 | `useTimeAgo` | `-` | Todo |
 | `useTimeAgoIntl` | `-` | Todo |
-| `useTimeout` | `-` | Todo |
+| `useTimeout` | `useTimeout` | Done |
 | `useTimeoutFn` | `useTimeoutFn` | Done |
 | `useTimeoutPoll` | `-` | Todo |
 | `useTimestamp` | `-` | Todo |
