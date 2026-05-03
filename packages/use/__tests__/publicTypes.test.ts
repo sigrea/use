@@ -2,15 +2,20 @@ import { signal } from "@sigrea/core";
 import { describe, expectTypeOf, it } from "vitest";
 
 import type {
+	Arrayable,
 	MatchMediaWindow,
 	UseMediaQueryOptions,
 	UseToggleOptions,
 	UseWindowSizeOptions,
-} from "../types";
-import { useEventListener } from "../useEventListener";
-import { useMediaQuery } from "../useMediaQuery";
-import { useToggle } from "../useToggle";
-import { useWindowSize } from "../useWindowSize";
+} from "../../../index";
+import {
+	useEventListener,
+	useIntervalFn,
+	useMediaQuery,
+	useTimeoutFn,
+	useToggle,
+	useWindowSize,
+} from "../../../index";
 
 interface MatchMediaOnlyWindow extends MatchMediaWindow {
 	readonly label: string;
@@ -28,12 +33,34 @@ describe("public types", () => {
 		});
 	});
 
+	it("accepts multiple window event names", () => {
+		const events: Arrayable<"resize" | "scroll"> = ["resize", "scroll"];
+
+		useEventListener(events, (event) => {
+			expectTypeOf(event).toEqualTypeOf<UIEvent | Event>();
+		});
+	});
+
 	it("preserves DOM event payload types", () => {
 		const button = document.createElement("button");
 
 		useEventListener(button, "click", (event) => {
 			expectTypeOf(event).toEqualTypeOf<PointerEvent>();
 		});
+	});
+
+	it("preserves DOM event payload types with array inputs", () => {
+		const button = document.createElement("button");
+
+		useEventListener(
+			[button],
+			["click"],
+			[
+				(event) => {
+					expectTypeOf(event).toEqualTypeOf<PointerEvent>();
+				},
+			],
+		);
 	});
 
 	it("accepts lightweight matchMedia windows", () => {
@@ -50,10 +77,40 @@ describe("public types", () => {
 		} satisfies MatchMediaOnlyWindow;
 
 		const options: UseMediaQueryOptions<MatchMediaOnlyWindow> = {
+			ssrWidth: 1024,
 			window: signal(customWindow),
 		};
 
 		useMediaQuery("(min-width: 768px)", options);
+	});
+
+	it("forwards timeout start arguments", () => {
+		const timeout = useTimeoutFn((label: string) => label.length, 100, {
+			immediate: false,
+		});
+		const optionalTimeout = useTimeoutFn(
+			(label?: string) => label?.length,
+			100,
+		);
+		const restTimeout = useTimeoutFn(
+			(...labels: string[]) => labels.length,
+			100,
+		);
+
+		timeout.start("ready");
+		optionalTimeout.start();
+		optionalTimeout.start("ready");
+		restTimeout.start("ready", "set");
+		// @ts-expect-error required callback arguments must be passed to start
+		timeout.start();
+		// @ts-expect-error start arguments must match the callback
+		timeout.start(1);
+		// @ts-expect-error callbacks with required arguments must opt out of auto start
+		useTimeoutFn((label: string) => label.length, 100);
+	});
+
+	it("allows the default interval duration", () => {
+		useIntervalFn(() => {});
 	});
 
 	it("accepts reactive window-like targets for window size", () => {
