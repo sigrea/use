@@ -1,6 +1,6 @@
 import { readonly, signal } from "@sigrea/core";
-import { resolveValue } from "../shared/resolveValue";
-import type { MaybeValue, UseToggleOptions, UseToggleReturn } from "./types";
+import { resolveValue } from "../../shared/resolveValue";
+import type { MaybeValue, UseToggleOptions, UseToggleReturn } from "../types";
 
 type ToggleValue<Truthy, Falsy> = Truthy | Falsy;
 

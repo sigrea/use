@@ -1,7 +1,7 @@
 import { signal } from "@sigrea/core";
 import { describe, expect, it } from "vitest";
 
-import { useToggle } from "../useToggle";
+import { useToggle } from "./index";
 
 describe("useToggle", () => {
 	it("toggles and sets explicit boolean values", () => {
