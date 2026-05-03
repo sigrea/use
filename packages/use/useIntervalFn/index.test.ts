@@ -1,3 +1,5 @@
+// @vitest-environment node
+
 import {
 	disposeTrackedMolecules,
 	molecule,
@@ -44,6 +46,7 @@ describe("useIntervalFn", () => {
 		const callback = vi.fn();
 		const interval = useIntervalFn(callback);
 
+		expect(globalThis.window).toBeUndefined();
 		expect(interval.isActive.value).toBe(true);
 		vi.advanceTimersByTime(999);
 		expect(callback).not.toHaveBeenCalled();

@@ -1,3 +1,5 @@
+// @vitest-environment node
+
 import {
 	createScope,
 	disposeScope,
@@ -62,6 +64,7 @@ describe("useTimeoutFn", () => {
 		const callback = vi.fn();
 		const timeout = useTimeoutFn(callback, 10);
 
+		expect(globalThis.window).toBeUndefined();
 		expect(timeout.isPending.value).toBe(true);
 
 		vi.advanceTimersByTime(10);
