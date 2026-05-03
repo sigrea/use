@@ -1,8 +1,8 @@
 import { readonly, signal } from "@sigrea/core";
-import { resolveValue } from "../shared/resolveValue";
+import { resolveValue } from "../../shared/resolveValue";
 
-import type { UseCounterOptions, UseCounterReturn } from "./types";
-import type { MaybeValue } from "./types";
+import type { UseCounterOptions, UseCounterReturn } from "../types";
+import type { MaybeValue } from "../types";
 
 function clamp(value: number, min?: number, max?: number): number {
 	let next = value;

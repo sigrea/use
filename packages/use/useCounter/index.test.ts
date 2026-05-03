@@ -1,7 +1,7 @@
 import { signal } from "@sigrea/core";
 import { describe, expect, it } from "vitest";
 
-import { useCounter } from "../useCounter";
+import { useCounter } from "./index";
 
 describe("useCounter", () => {
 	it("increments, decrements, and resets within bounds", () => {
