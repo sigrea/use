@@ -139,6 +139,16 @@ type ReactiveOmitValue<TValue> = TValue extends Signal<infer Value>
 
 type ReactiveOmitEntry<TValue> = DeepSignal<ReactiveOmitValue<TValue>>;
 
+type ReactivePickValue<TValue> = TValue extends Signal<infer Value>
+	? Value
+	: TValue extends ReadonlySignal<infer Value>
+		? Value
+		: TValue extends Computed<infer Value>
+			? Value
+			: TValue;
+
+type ReactivePickEntry<TValue> = DeepSignal<ReactivePickValue<TValue>>;
+
 type ReactiveOmitReadonlyKeys<T extends object> = {
 	[TKey in keyof T]-?: IsReadonlyKey<T, TKey> extends true
 		? TKey
@@ -206,6 +216,74 @@ export type ReactiveOmitReturn<
 
 export type ReactiveOmitPredicate<T extends object> = (
 	value: ReactiveOmitValue<T[keyof T]>,
+	key: keyof T,
+) => boolean;
+
+type ReactivePickReadonlyKeys<T extends object> = {
+	[TKey in keyof T]-?: IsReadonlyKey<T, TKey> extends true
+		? TKey
+		: IsReadonlySignalValue<T[TKey]> extends true
+			? TKey
+			: never;
+}[keyof T];
+
+type ReactivePickWritableKeys<T extends object> = Exclude<
+	keyof T,
+	ReactivePickReadonlyKeys<T>
+>;
+
+type ReactivePickOptionalKeys<T extends object> = {
+	[TKey in keyof T]-?: object extends Pick<T, TKey> ? TKey : never;
+}[keyof T];
+
+type ReactivePickRequiredKeys<T extends object> = Exclude<
+	keyof T,
+	ReactivePickOptionalKeys<T>
+>;
+
+type ReactivePickReadonlyRequiredKeys<T extends object> = Extract<
+	ReactivePickReadonlyKeys<T>,
+	ReactivePickRequiredKeys<T>
+>;
+
+type ReactivePickReadonlyOptionalKeys<T extends object> = Extract<
+	ReactivePickReadonlyKeys<T>,
+	ReactivePickOptionalKeys<T>
+>;
+
+type ReactivePickWritableRequiredKeys<T extends object> = Extract<
+	ReactivePickWritableKeys<T>,
+	ReactivePickRequiredKeys<T>
+>;
+
+type ReactivePickWritableOptionalKeys<T extends object> = Extract<
+	ReactivePickWritableKeys<T>,
+	ReactivePickOptionalKeys<T>
+>;
+
+type ReactivePickObject<T extends object> = {
+	[TKey in ReactivePickWritableRequiredKeys<T>]: ReactivePickEntry<T[TKey]>;
+} & {
+	[TKey in ReactivePickWritableOptionalKeys<T>]?: ReactivePickEntry<T[TKey]>;
+} & {
+	readonly [TKey in ReactivePickReadonlyRequiredKeys<T>]: ReactivePickEntry<
+		T[TKey]
+	>;
+} & {
+	readonly [TKey in ReactivePickReadonlyOptionalKeys<T>]?: ReactivePickEntry<
+		T[TKey]
+	>;
+};
+
+export type ReactivePickReturn<
+	T extends object,
+	K extends keyof T | undefined = undefined,
+> = [K] extends [undefined]
+	? Partial<ReactivePickObject<T>>
+	: ReactivePickObject<Pick<T, Extract<K, keyof T>>>;
+
+export type ReactivePickPredicate<T extends object> = (
+	value: ReactivePickValue<T[keyof T]>,
 	key: keyof T,
 ) => boolean;
 

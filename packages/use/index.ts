@@ -16,6 +16,7 @@ export { reactify } from "./reactify";
 export { reactifyObject } from "./reactifyObject";
 export { reactiveComputed } from "./reactiveComputed";
 export { reactiveOmit } from "./reactiveOmit";
+export { reactivePick } from "./reactivePick";
 export { resolveValue } from "./resolveValue";
 export { useBreakpoints } from "./useBreakpoints";
 export { useCounter } from "./useCounter";
@@ -127,6 +128,8 @@ export type {
 	ReactiveComputedReturn,
 	ReactiveOmitPredicate,
 	ReactiveOmitReturn,
+	ReactivePickPredicate,
+	ReactivePickReturn,
 	RemovableSignal,
 	ResizeObserverWindowLike,
 	ResolveValueFn,
