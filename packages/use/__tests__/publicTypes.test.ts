@@ -1,4 +1,4 @@
-import { type ReadonlySignal, signal } from "@sigrea/core";
+import { type ReadonlySignal, type Signal, signal } from "@sigrea/core";
 import { describe, expectTypeOf, it } from "vitest";
 
 import type {
@@ -7,6 +7,8 @@ import type {
 	Breakpoints,
 	ComputedEagerOptions,
 	ComputedEagerReturn,
+	ComputedWithControlOptions,
+	ComputedWithControlReturn,
 	DocumentVisibilityDocumentLike,
 	FocusableElementLike,
 	MatchMediaWindow,
@@ -27,11 +29,13 @@ import type {
 	UseStorageOptions,
 	UseToggleOptions,
 	UseWindowSizeOptions,
+	WritableComputedWithControlReturn,
 } from "../../../index";
 import {
 	StorageSerializers,
 	computedAsync,
 	computedEager,
+	computedWithControl,
 	onClickOutside,
 	useBreakpoints,
 	useDebounceFn,
@@ -132,6 +136,41 @@ describe("public types", () => {
 			expectTypeOf(value).toEqualTypeOf<ReadonlySignal<number>>();
 			expectTypeOf(value).toEqualTypeOf<ComputedEagerReturn<number>>();
 			// @ts-expect-error returned values are readonly signals
+			value.value = 2;
+		});
+	});
+
+	it("types controlled computed values and options", () => {
+		typeOnly(() => {
+			const trigger = signal(0);
+			const options: ComputedWithControlOptions = {
+				deep: true,
+				flush: "sync",
+				onTrack: (_event) => {},
+				onTrigger: (_event) => {},
+			};
+			const value = computedWithControl<number>(
+				trigger,
+				(oldValue) => {
+					expectTypeOf(oldValue).toEqualTypeOf<number | undefined>();
+					return oldValue === undefined ? 1 : oldValue + 1;
+				},
+				options,
+			);
+			const writable = computedWithControl(trigger, {
+				get: () => 1,
+				set: (_next) => {},
+			});
+
+			expectTypeOf(value).toEqualTypeOf<ComputedWithControlReturn<number>>();
+			expectTypeOf(value).toMatchTypeOf<ReadonlySignal<number>>();
+			expectTypeOf(value.trigger).toEqualTypeOf<() => void>();
+			expectTypeOf(writable).toEqualTypeOf<
+				WritableComputedWithControlReturn<number>
+			>();
+			expectTypeOf(writable).toMatchTypeOf<Signal<number>>();
+			writable.value = 2;
+			// @ts-expect-error returned getter values are readonly signals
 			value.value = 2;
 		});
 	});
