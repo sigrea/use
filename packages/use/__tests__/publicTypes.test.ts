@@ -17,10 +17,13 @@ import type {
 	EventHookReturn,
 	FocusableElementLike,
 	MatchMediaWindow,
+	MaybeValue,
+	MaybeValueArgs,
 	OnClickOutsideOptions,
 	OnlineNavigatorLike,
 	RemovableSignal,
 	ResizeObserverWindowLike,
+	ResolveValueFn,
 	StorageSerializer,
 	StorageWindowLike,
 	UseBreakpointsOptions,
@@ -42,6 +45,7 @@ import {
 	computedEager,
 	computedWithControl,
 	createEventHook,
+	createResolveValueFn,
 	createSignal,
 	onClickOutside,
 	useBreakpoints,
@@ -260,6 +264,38 @@ describe("public types", () => {
 			shallow.value = { nested: { count: 1 } };
 			deep.value.nested.count = 1;
 			primitive.value = 1;
+		});
+	});
+
+	it("types value-resolving functions", () => {
+		typeOnly(() => {
+			function join(this: { prefix: string }, first: string, second: number) {
+				return `${this.prefix}:${first}:${second}`;
+			}
+			function callFactory(factory: () => string) {
+				return factory();
+			}
+			const first = signal("ready");
+			const second = computedEager(() => 1);
+			const factory = signal(() => "ready");
+			const resolveJoin = createResolveValueFn(join);
+			const resolveFactory = createResolveValueFn(callFactory);
+
+			expectTypeOf(resolveJoin).toEqualTypeOf<ResolveValueFn<typeof join>>();
+			expectTypeOf(
+				resolveJoin.call({ prefix: "item" }, first, second),
+			).toEqualTypeOf<string>();
+			expectTypeOf<[MaybeValue<string>, MaybeValue<number>]>().toEqualTypeOf<
+				MaybeValueArgs<[string, number]>
+			>();
+			expectTypeOf(resolveFactory(factory)).toEqualTypeOf<string>();
+			resolveJoin.call({ prefix: "item" }, () => "ready", 1);
+			// @ts-expect-error first argument must resolve to string
+			resolveJoin.call({ prefix: "item" }, signal(1), second);
+			// @ts-expect-error second argument must resolve to number
+			resolveJoin.call({ prefix: "item" }, first, "1");
+			// @ts-expect-error function values must be wrapped to avoid getter handling
+			resolveFactory(() => "ready");
 		});
 	});
 
