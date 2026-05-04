@@ -52,6 +52,7 @@ import type {
 	OnStartTypingOptions,
 	OnStartTypingReturn,
 	OnlineNavigatorLike,
+	ReactifyReturn,
 	RemovableSignal,
 	ResizeObserverWindowLike,
 	ResolveValueFn,
@@ -89,6 +90,7 @@ import {
 	onKeyUp,
 	onLongPress,
 	onStartTyping,
+	reactify,
 	resolveValue,
 	useBreakpoints,
 	useDebounceFn,
@@ -441,6 +443,56 @@ describe("public types", () => {
 			resolveFactory(() => "ready");
 			// @ts-expect-error function values in unions must also be wrapped
 			resolveUnion((input: string) => input.toUpperCase());
+		});
+	});
+
+	it("types reactified functions", () => {
+		typeOnly(() => {
+			function join(this: { prefix: string }, first: string, second: number) {
+				return `${this.prefix}:${first}:${second}`;
+			}
+			function callFactory(factory: () => string) {
+				return factory();
+			}
+			function formatUnion(value: string | ((input: string) => string)) {
+				return typeof value === "function" ? value("ready") : value;
+			}
+			const first = signal("ready");
+			const second = computedEager(() => 1);
+			const factory = signal(() => "ready");
+			const unionFactory = signal((input: string) => input.toUpperCase());
+			const reactiveJoin = reactify(join);
+			const add = reactify((left: number, right: number) => left + right);
+			const reactiveFactory = reactify(callFactory);
+			const reactiveUnion = reactify(formatUnion);
+			const total = add(
+				readonly(signal(1)),
+				computed(() => 2),
+			);
+
+			expectTypeOf(reactiveJoin).toEqualTypeOf<ReactifyReturn<typeof join>>();
+			expectTypeOf(
+				reactiveJoin.call({ prefix: "item" }, first, second),
+			).toEqualTypeOf<ReadonlySignal<string>>();
+			expectTypeOf(add(1, () => 2)).toEqualTypeOf<ReadonlySignal<number>>();
+			expectTypeOf(total).toEqualTypeOf<ReadonlySignal<number>>();
+			expectTypeOf(reactiveFactory(factory)).toEqualTypeOf<
+				ReadonlySignal<string>
+			>();
+			expectTypeOf(reactiveUnion("ready")).toEqualTypeOf<
+				ReadonlySignal<string>
+			>();
+			expectTypeOf(reactiveUnion(unionFactory)).toEqualTypeOf<
+				ReadonlySignal<string>
+			>();
+			// @ts-expect-error returned values are readonly signals
+			total.value = 3;
+			// @ts-expect-error first argument must resolve to string
+			reactiveJoin.call({ prefix: "item" }, signal(1), second);
+			// @ts-expect-error function values must be wrapped to avoid getter handling
+			reactiveFactory(() => "ready");
+			// @ts-expect-error function values in unions must also be wrapped
+			reactiveUnion((input: string) => input.toUpperCase());
 		});
 	});
 
