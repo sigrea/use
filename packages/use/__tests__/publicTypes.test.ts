@@ -28,6 +28,9 @@ import type {
 	ExtendSignalUnwrapped,
 	FocusableElementLike,
 	IsDefinedReturn,
+	KeyFilter,
+	KeyPredicate,
+	KeyStrokeEventName,
 	MatchMediaWindow,
 	MaybeValue,
 	MaybeValueArgs,
@@ -36,6 +39,9 @@ import type {
 	OnElementRemovalOptions,
 	OnElementRemovalReturn,
 	OnElementRemovalWindowLike,
+	OnKeyStrokeHandler,
+	OnKeyStrokeOptions,
+	OnKeyStrokeReturn,
 	OnlineNavigatorLike,
 	RemovableSignal,
 	ResizeObserverWindowLike,
@@ -68,6 +74,10 @@ import {
 	makeDestructurable,
 	onClickOutside,
 	onElementRemoval,
+	onKeyDown,
+	onKeyPressed,
+	onKeyStroke,
+	onKeyUp,
 	resolveValue,
 	useBreakpoints,
 	useDebounceFn,
@@ -592,6 +602,41 @@ describe("public types", () => {
 
 		expectTypeOf(stop).toEqualTypeOf<OnElementRemovalReturn>();
 		stop();
+	});
+
+	it("types keyboard stroke handlers and options", () => {
+		typeOnly(() => {
+			const target = signal<EventTarget | null>(new EventTarget());
+			const dedupe = signal(true);
+			const eventName: KeyStrokeEventName = "keyup";
+			const filter: KeyFilter = ["Enter", "Escape"];
+			const predicate: KeyPredicate = (event) => event.key === "Enter";
+			const handler: OnKeyStrokeHandler = (event) => {
+				expectTypeOf(event).toEqualTypeOf<KeyboardEvent>();
+			};
+			const options: OnKeyStrokeOptions<EventTarget> = {
+				dedupe,
+				eventName,
+				passive: true,
+				target,
+			};
+
+			const stopByFilter = onKeyStroke(filter, handler, options);
+			const stopByPredicate = onKeyStroke(predicate, handler, options);
+			const stopByHandler = onKeyStroke(handler, options);
+			const stopDown = onKeyDown("Enter", handler, options);
+			const stopPressed = onKeyPressed("Enter", handler, options);
+			const stopUp = onKeyUp("Enter", handler, options);
+
+			expectTypeOf(stopByFilter).toEqualTypeOf<OnKeyStrokeReturn>();
+			expectTypeOf(stopByPredicate).toEqualTypeOf<OnKeyStrokeReturn>();
+			expectTypeOf(stopByHandler).toEqualTypeOf<OnKeyStrokeReturn>();
+			expectTypeOf(stopDown).toEqualTypeOf<OnKeyStrokeReturn>();
+			expectTypeOf(stopPressed).toEqualTypeOf<OnKeyStrokeReturn>();
+			expectTypeOf(stopUp).toEqualTypeOf<OnKeyStrokeReturn>();
+			// @ts-expect-error keyboard stroke event names are limited
+			onKeyStroke("Enter", handler, { eventName: "click" });
+		});
 	});
 
 	it("accepts lightweight matchMedia windows", () => {
