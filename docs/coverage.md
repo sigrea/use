@@ -36,7 +36,7 @@ Status values:
 | `onElementRemoval` | `onElementRemoval` | Done |
 | `onKeyStroke` | `onKeyStroke` | Done |
 | `onLongPress` | `onLongPress` | Done |
-| `onStartTyping` | `-` | Todo |
+| `onStartTyping` | `onStartTyping` | Done |
 | `provideLocal` | `-` | Out of scope |
 | `provideSSRWidth` | `-` | Out of scope |
 | `reactify` | `-` | Todo |
