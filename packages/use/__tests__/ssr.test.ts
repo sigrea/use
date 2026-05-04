@@ -37,6 +37,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.signalAutoReset).toBe("function");
 		expect(typeof mod.signalDefault).toBe("function");
 		expect(typeof mod.signalDebounced).toBe("function");
+		expect(typeof mod.signalManualReset).toBe("function");
 		expect(typeof mod.useBreakpoints).toBe("function");
 		expect(typeof mod.useDocumentVisibility).toBe("function");
 		expect(typeof mod.useElementSize).toBe("function");
@@ -197,18 +198,25 @@ describe("SSR safety", () => {
 
 	it("creates signals without a window", async () => {
 		const { signal } = await import("@sigrea/core");
-		const { createSignal, signalAutoReset, signalDefault, signalDebounced } =
-			await import("../../../index");
+		const {
+			createSignal,
+			signalAutoReset,
+			signalDefault,
+			signalDebounced,
+			signalManualReset,
+		} = await import("../../../index");
 		const value = createSignal("ready");
 		const autoResetValue = signalAutoReset("default", 100);
 		const defaultValue = signalDefault(signal<string | undefined>(), "default");
 		const debouncedValue = signalDebounced(signal("source"), 100);
+		const manualResetValue = signalManualReset("manual");
 
 		expect(globalThis.window).toBeUndefined();
 		expect(value.value).toBe("ready");
 		expect(autoResetValue.value).toBe("default");
 		expect(defaultValue.value).toBe("default");
 		expect(debouncedValue.value).toBe("source");
+		expect(manualResetValue.value).toBe("manual");
 	});
 
 	it("extends signals without a window", async () => {

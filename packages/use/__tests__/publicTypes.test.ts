@@ -71,6 +71,7 @@ import type {
 	SignalDebouncedOptions,
 	SignalDebouncedReturn,
 	SignalDefaultReturn,
+	SignalManualResetReturn,
 	StorageSerializer,
 	StorageWindowLike,
 	UseBreakpointsOptions,
@@ -114,6 +115,7 @@ import {
 	signalAutoReset,
 	signalDebounced,
 	signalDefault,
+	signalManualReset,
 	useBreakpoints,
 	useDebounceFn,
 	useDocumentVisibility,
@@ -942,6 +944,47 @@ describe("public types", () => {
 				computed(() => source.value),
 				"default",
 			);
+		});
+	});
+
+	it("types manual-reset signals", () => {
+		typeOnly(() => {
+			const defaultText: MaybeValue<string> = () => "idle";
+			const source = signal(0);
+			const readonlySource = readonly(source);
+			const computedSource = computed(() => source.value * 2);
+			const text = signalManualReset(defaultText);
+			const count = signalManualReset(source);
+			const fromReadonly = signalManualReset(readonlySource);
+			const fromComputed = signalManualReset(computedSource);
+			const literal = signalManualReset<"idle" | "done">("idle");
+			const fallbackFn = signal((): string => "default");
+			const functionValue = signalManualReset(fallbackFn);
+			const getterFunctionValue = signalManualReset(() => fallbackFn.value);
+			const rawFunction = (_input: string): string => "default";
+
+			expectTypeOf(text).toEqualTypeOf<SignalManualResetReturn<string>>();
+			expectTypeOf(text).toMatchTypeOf<Signal<string>>();
+			expectTypeOf(count).toEqualTypeOf<SignalManualResetReturn<number>>();
+			expectTypeOf(fromReadonly.value).toEqualTypeOf<number>();
+			expectTypeOf(fromComputed.value).toEqualTypeOf<number>();
+			expectTypeOf(functionValue).toEqualTypeOf<
+				SignalManualResetReturn<() => string>
+			>();
+			expectTypeOf(getterFunctionValue).toEqualTypeOf<
+				SignalManualResetReturn<() => string>
+			>();
+			expectTypeOf(text.reset()).toEqualTypeOf<void>();
+
+			text.value = "ready";
+			count.value = 1;
+			literal.value = "done";
+			functionValue.value = () => "updated";
+			getterFunctionValue.value = () => "updated";
+			// @ts-expect-error value type is preserved
+			literal.value = "other";
+			// @ts-expect-error raw function values must be wrapped to avoid getter handling
+			signalManualReset(rawFunction);
 		});
 	});
 
