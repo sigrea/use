@@ -22,7 +22,7 @@ Status values:
 | `createEventHook` | `createEventHook` | Done |
 | `createGlobalState` | `-` | Needs design |
 | `createInjectionState` | `-` | Out of scope |
-| `createRef` | `-` | Todo |
+| `createRef` | `createSignal` | Done |
 | `createReusableTemplate` | `-` | Out of scope |
 | `createSharedComposable` | `-` | Needs design |
 | `createTemplatePromise` | `-` | Out of scope |
