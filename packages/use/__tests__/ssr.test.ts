@@ -34,6 +34,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.reactiveComputed).toBe("function");
 		expect(typeof mod.reactiveOmit).toBe("function");
 		expect(typeof mod.reactivePick).toBe("function");
+		expect(typeof mod.signalAutoReset).toBe("function");
 		expect(typeof mod.useBreakpoints).toBe("function");
 		expect(typeof mod.useDocumentVisibility).toBe("function");
 		expect(typeof mod.useElementSize).toBe("function");
@@ -193,11 +194,13 @@ describe("SSR safety", () => {
 	});
 
 	it("creates signals without a window", async () => {
-		const { createSignal } = await import("../../../index");
+		const { createSignal, signalAutoReset } = await import("../../../index");
 		const value = createSignal("ready");
+		const autoResetValue = signalAutoReset("default", 100);
 
 		expect(globalThis.window).toBeUndefined();
 		expect(value.value).toBe("ready");
+		expect(autoResetValue.value).toBe("default");
 	});
 
 	it("extends signals without a window", async () => {
