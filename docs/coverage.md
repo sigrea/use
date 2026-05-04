@@ -46,7 +46,7 @@ Status values:
 | `reactivePick` | `reactivePick` | Done |
 | `refAutoReset` | `signalAutoReset` | Done |
 | `refDebounced` | `signalDebounced` | Done |
-| `refDefault` | `signalDefault` | Todo |
+| `refDefault` | `signalDefault` | Done |
 | `refManualReset` | `signalManualReset` | Todo |
 | `refThrottled` | `signalThrottled` | Todo |
 | `refWithControl` | `signalWithControl` | Needs design |
