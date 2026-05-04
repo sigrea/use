@@ -70,6 +70,7 @@ import type {
 	SignalAutoResetReturn,
 	SignalDebouncedOptions,
 	SignalDebouncedReturn,
+	SignalDefaultReturn,
 	StorageSerializer,
 	StorageWindowLike,
 	UseBreakpointsOptions,
@@ -112,6 +113,7 @@ import {
 	resolveValue,
 	signalAutoReset,
 	signalDebounced,
+	signalDefault,
 	useBreakpoints,
 	useDebounceFn,
 	useDocumentVisibility,
@@ -898,6 +900,48 @@ describe("public types", () => {
 			literal.value = "other";
 			// @ts-expect-error afterMs must resolve to a number
 			signalAutoReset("idle", "100");
+		});
+	});
+
+	it("types defaulted signals", () => {
+		typeOnly(() => {
+			const source = signal<string | null | undefined>();
+			const value = signalDefault(source, "default");
+			const nullValue = signalDefault(source, null);
+			const undefinedValue = signalDefault(source, undefined);
+			const fallbackFn: () => string = () => "default";
+			const functionValue = signalDefault(
+				signal<(() => string) | undefined>(),
+				fallbackFn,
+			);
+
+			expectTypeOf(value).toEqualTypeOf<SignalDefaultReturn<string>>();
+			expectTypeOf(value).toEqualTypeOf<Signal<string>>();
+			expectTypeOf(nullValue).toEqualTypeOf<Signal<string | null>>();
+			expectTypeOf(undefinedValue).toEqualTypeOf<Signal<string | undefined>>();
+			expectTypeOf(functionValue).toMatchTypeOf<Signal<() => string>>();
+
+			value.value = "updated";
+			nullValue.value = null;
+			undefinedValue.value = undefined;
+			functionValue.value = () => "updated";
+			// @ts-expect-error value type is preserved
+			value.value = 1;
+			// @ts-expect-error default value must match the source value
+			signalDefault(source, 1);
+			// @ts-expect-error default is a raw value, not a MaybeValue getter
+			signalDefault(source, () => "default");
+			// @ts-expect-error default is a raw value, not a signal wrapper
+			signalDefault(source, signal("default"));
+			// @ts-expect-error source must be a writable signal
+			signalDefault("source", "default");
+			// @ts-expect-error getter sources do not expose a writable target
+			signalDefault(() => source.value, "default");
+			// @ts-expect-error computed sources do not expose a safe writable target
+			signalDefault(
+				computed(() => source.value),
+				"default",
+			);
 		});
 	});
 

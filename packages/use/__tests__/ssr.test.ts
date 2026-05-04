@@ -35,6 +35,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.reactiveOmit).toBe("function");
 		expect(typeof mod.reactivePick).toBe("function");
 		expect(typeof mod.signalAutoReset).toBe("function");
+		expect(typeof mod.signalDefault).toBe("function");
 		expect(typeof mod.signalDebounced).toBe("function");
 		expect(typeof mod.useBreakpoints).toBe("function");
 		expect(typeof mod.useDocumentVisibility).toBe("function");
@@ -196,16 +197,17 @@ describe("SSR safety", () => {
 
 	it("creates signals without a window", async () => {
 		const { signal } = await import("@sigrea/core");
-		const { createSignal, signalAutoReset, signalDebounced } = await import(
-			"../../../index"
-		);
+		const { createSignal, signalAutoReset, signalDefault, signalDebounced } =
+			await import("../../../index");
 		const value = createSignal("ready");
 		const autoResetValue = signalAutoReset("default", 100);
+		const defaultValue = signalDefault(signal<string | undefined>(), "default");
 		const debouncedValue = signalDebounced(signal("source"), 100);
 
 		expect(globalThis.window).toBeUndefined();
 		expect(value.value).toBe("ready");
 		expect(autoResetValue.value).toBe("default");
+		expect(defaultValue.value).toBe("default");
 		expect(debouncedValue.value).toBe("source");
 	});
 
