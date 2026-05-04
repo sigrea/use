@@ -38,6 +38,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.signalDefault).toBe("function");
 		expect(typeof mod.signalDebounced).toBe("function");
 		expect(typeof mod.signalManualReset).toBe("function");
+		expect(typeof mod.signalThrottled).toBe("function");
 		expect(typeof mod.useBreakpoints).toBe("function");
 		expect(typeof mod.useDocumentVisibility).toBe("function");
 		expect(typeof mod.useElementSize).toBe("function");
@@ -204,12 +205,14 @@ describe("SSR safety", () => {
 			signalDefault,
 			signalDebounced,
 			signalManualReset,
+			signalThrottled,
 		} = await import("../../../index");
 		const value = createSignal("ready");
 		const autoResetValue = signalAutoReset("default", 100);
 		const defaultValue = signalDefault(signal<string | undefined>(), "default");
 		const debouncedValue = signalDebounced(signal("source"), 100);
 		const manualResetValue = signalManualReset("manual");
+		const throttledValue = signalThrottled(signal("source"), 100);
 
 		expect(globalThis.window).toBeUndefined();
 		expect(value.value).toBe("ready");
@@ -217,6 +220,7 @@ describe("SSR safety", () => {
 		expect(defaultValue.value).toBe("default");
 		expect(debouncedValue.value).toBe("source");
 		expect(manualResetValue.value).toBe("manual");
+		expect(throttledValue.value).toBe("source");
 	});
 
 	it("extends signals without a window", async () => {
