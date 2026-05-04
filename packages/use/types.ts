@@ -52,6 +52,28 @@ export type PromisifyFn<T> = T extends (
 		: never
 	: never;
 
+export type AsyncComputedCancelCallback = () => void;
+
+export type AsyncComputedOnCancel = (
+	cancelCallback: AsyncComputedCancelCallback,
+) => void;
+
+export type AsyncComputedEvaluationCallback<T> = (
+	onCancel: AsyncComputedOnCancel,
+) => T | Promise<T>;
+
+export interface AsyncComputedOptions {
+	evaluating?: Signal<boolean>;
+	flush?: WatchOptions["flush"];
+	lazy?: boolean;
+	onError?: (error: unknown) => void;
+	shallow?: boolean;
+}
+
+export type AsyncComputedOptionsOrSignal =
+	| Signal<boolean>
+	| AsyncComputedOptions;
+
 export interface Position {
 	x: number;
 	y: number;
