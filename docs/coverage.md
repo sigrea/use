@@ -45,7 +45,7 @@ Status values:
 | `reactiveOmit` | `reactiveOmit` | Done |
 | `reactivePick` | `reactivePick` | Done |
 | `refAutoReset` | `signalAutoReset` | Done |
-| `refDebounced` | `signalDebounced` | Todo |
+| `refDebounced` | `signalDebounced` | Done |
 | `refDefault` | `signalDefault` | Todo |
 | `refManualReset` | `signalManualReset` | Todo |
 | `refThrottled` | `signalThrottled` | Todo |
