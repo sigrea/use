@@ -54,7 +54,7 @@ Status values:
 | `syncRef` | `syncSignal` | Done |
 | `syncRefs` | `syncSignals` | Done |
 | `templateRef` | `-` | Out of scope |
-| `toReactive` | `-` | Todo |
+| `toReactive` | `toDeepSignal` | Done |
 | `toRef` | `toSignal` | Needs design |
 | `toRefs` | `toSignals` | Needs design |
 | `tryOnBeforeMount` | `-` | Needs design |
