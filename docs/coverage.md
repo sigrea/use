@@ -47,7 +47,7 @@ Status values:
 | `refAutoReset` | `signalAutoReset` | Done |
 | `refDebounced` | `signalDebounced` | Done |
 | `refDefault` | `signalDefault` | Done |
-| `refManualReset` | `signalManualReset` | Todo |
+| `refManualReset` | `signalManualReset` | Done |
 | `refThrottled` | `signalThrottled` | Todo |
 | `refWithControl` | `signalWithControl` | Needs design |
 | `set` | `setValue` | Needs design |
