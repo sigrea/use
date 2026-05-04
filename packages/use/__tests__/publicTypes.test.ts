@@ -411,11 +411,16 @@ describe("public types", () => {
 			function callFactory(factory: () => string) {
 				return factory();
 			}
+			function formatUnion(value: string | ((input: string) => string)) {
+				return typeof value === "function" ? value("ready") : value;
+			}
 			const first = signal("ready");
 			const second = computedEager(() => 1);
 			const factory = signal(() => "ready");
+			const unionFactory = signal((input: string) => input.toUpperCase());
 			const resolveJoin = createResolveValueFn(join);
 			const resolveFactory = createResolveValueFn(callFactory);
+			const resolveUnion = createResolveValueFn(formatUnion);
 
 			expectTypeOf(resolveJoin).toEqualTypeOf<ResolveValueFn<typeof join>>();
 			expectTypeOf(
@@ -425,6 +430,8 @@ describe("public types", () => {
 				MaybeValueArgs<[string, number]>
 			>();
 			expectTypeOf(resolveFactory(factory)).toEqualTypeOf<string>();
+			expectTypeOf(resolveUnion("ready")).toEqualTypeOf<string>();
+			expectTypeOf(resolveUnion(unionFactory)).toEqualTypeOf<string>();
 			resolveJoin.call({ prefix: "item" }, () => "ready", 1);
 			// @ts-expect-error first argument must resolve to string
 			resolveJoin.call({ prefix: "item" }, signal(1), second);
@@ -432,6 +439,8 @@ describe("public types", () => {
 			resolveJoin.call({ prefix: "item" }, first, "1");
 			// @ts-expect-error function values must be wrapped to avoid getter handling
 			resolveFactory(() => "ready");
+			// @ts-expect-error function values in unions must also be wrapped
+			resolveUnion((input: string) => input.toUpperCase());
 		});
 	});
 
