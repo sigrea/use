@@ -42,21 +42,21 @@ Status values:
 | `reactify` | `reactify` | Done |
 | `reactifyObject` | `reactifyObject` | Done |
 | `reactiveComputed` | `reactiveComputed` | Done |
-| `reactiveOmit` | `-` | Todo |
+| `reactiveOmit` | `reactiveOmit` | Done |
 | `reactivePick` | `-` | Todo |
-| `refAutoReset` | `-` | Todo |
-| `refDebounced` | `-` | Todo |
-| `refDefault` | `-` | Todo |
-| `refManualReset` | `-` | Todo |
-| `refThrottled` | `-` | Todo |
-| `refWithControl` | `-` | Todo |
-| `set` | `-` | Todo |
-| `syncRef` | `-` | Todo |
-| `syncRefs` | `-` | Todo |
+| `refAutoReset` | `signalAutoReset` | Todo |
+| `refDebounced` | `signalDebounced` | Todo |
+| `refDefault` | `signalDefault` | Todo |
+| `refManualReset` | `signalManualReset` | Todo |
+| `refThrottled` | `signalThrottled` | Todo |
+| `refWithControl` | `signalWithControl` | Needs design |
+| `set` | `setValue` | Needs design |
+| `syncRef` | `syncSignal` | Todo |
+| `syncRefs` | `syncSignals` | Todo |
 | `templateRef` | `-` | Out of scope |
 | `toReactive` | `-` | Todo |
-| `toRef` | `-` | Todo |
-| `toRefs` | `-` | Todo |
+| `toRef` | `toSignal` | Needs design |
+| `toRefs` | `toSignals` | Needs design |
 | `tryOnBeforeMount` | `-` | Needs design |
 | `tryOnBeforeUnmount` | `-` | Needs design |
 | `tryOnMounted` | `-` | Needs design |
