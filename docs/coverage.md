@@ -48,7 +48,7 @@ Status values:
 | `refDebounced` | `signalDebounced` | Done |
 | `refDefault` | `signalDefault` | Done |
 | `refManualReset` | `signalManualReset` | Done |
-| `refThrottled` | `signalThrottled` | Todo |
+| `refThrottled` | `signalThrottled` | Done |
 | `refWithControl` | `signalWithControl` | Needs design |
 | `set` | `setValue` | Needs design |
 | `syncRef` | `syncSignal` | Todo |
