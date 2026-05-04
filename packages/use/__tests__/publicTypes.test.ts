@@ -4,6 +4,7 @@ import {
 	type ReadonlySignal,
 	type Signal,
 	computed,
+	deepSignal,
 	readonly,
 	signal,
 } from "@sigrea/core";
@@ -59,6 +60,8 @@ import type {
 	ReactifyReturn,
 	ReactiveComputedGetter,
 	ReactiveComputedReturn,
+	ReactiveOmitPredicate,
+	ReactiveOmitReturn,
 	RemovableSignal,
 	ResizeObserverWindowLike,
 	ResolveValueFn,
@@ -99,6 +102,7 @@ import {
 	reactify,
 	reactifyObject,
 	reactiveComputed,
+	reactiveOmit,
 	resolveValue,
 	useBreakpoints,
 	useDebounceFn,
@@ -662,6 +666,97 @@ describe("public types", () => {
 			state.nestedSignal.inner = "2";
 			// @ts-expect-error reactiveComputed only accepts object returns
 			reactiveComputed(() => 1);
+		});
+	});
+
+	it("types reactive omitted objects", () => {
+		typeOnly(() => {
+			const source = {
+				count: signal(1),
+				label: "ready",
+				hidden: true,
+			};
+			const readonlySource = {
+				readonlyCount: readonly(signal(1)),
+				hidden: true,
+			};
+			const readonlyObjectSource = readonly(
+				deepSignal({
+					label: "ready",
+					hidden: true,
+				}),
+			);
+			const readonlyNestedSource = readonly(
+				deepSignal({
+					nested: { count: 1 },
+					hidden: true,
+				}),
+			);
+			const optionalSource: {
+				foo?: string;
+				hidden: boolean;
+			} = {
+				hidden: true,
+			};
+			const all = reactiveOmit(source);
+			const omitted = reactiveOmit(source, "hidden");
+			const omittedFromArray = reactiveOmit(source, ["hidden"] as const);
+			const readonlyOmitted = reactiveOmit(readonlySource, "hidden");
+			const readonlyObjectOmitted = reactiveOmit(
+				readonlyObjectSource,
+				"hidden",
+			);
+			const readonlyNestedOmitted = reactiveOmit(
+				readonlyNestedSource,
+				"hidden",
+			);
+			const optionalOmitted = reactiveOmit(optionalSource, "hidden");
+			const predicate: ReactiveOmitPredicate<typeof source> = (value, key) => {
+				expectTypeOf(value).toEqualTypeOf<string | number | boolean>();
+				expectTypeOf(key).toEqualTypeOf<"count" | "label" | "hidden">();
+				return key === "hidden" || value === "ready";
+			};
+			const predicateResult = reactiveOmit(source, predicate);
+
+			expectTypeOf(omitted).toEqualTypeOf<
+				ReactiveOmitReturn<typeof source, "hidden">
+			>();
+			expectTypeOf(all).toEqualTypeOf<
+				ReactiveOmitReturn<typeof source, never>
+			>();
+			expectTypeOf(all.count).toEqualTypeOf<number>();
+			expectTypeOf(all.hidden).toEqualTypeOf<boolean>();
+			expectTypeOf(omitted.count).toEqualTypeOf<number>();
+			expectTypeOf(omitted.label).toEqualTypeOf<string>();
+			expectTypeOf(omittedFromArray.count).toEqualTypeOf<number>();
+			expectTypeOf(readonlyOmitted.readonlyCount).toEqualTypeOf<number>();
+			expectTypeOf(readonlyObjectOmitted.label).toEqualTypeOf<string>();
+			expectTypeOf(readonlyNestedOmitted.nested.count).toEqualTypeOf<number>();
+			expectTypeOf(optionalOmitted.foo).toEqualTypeOf<string | undefined>();
+			expectTypeOf(predicateResult).toEqualTypeOf<
+				ReactiveOmitReturn<typeof source>
+			>();
+			expectTypeOf(predicateResult.count).toEqualTypeOf<number | undefined>();
+			expectTypeOf(predicateResult.label).toEqualTypeOf<string | undefined>();
+
+			omitted.count = 2;
+			omitted.label = "next";
+			// @ts-expect-error omitted keys are not exposed
+			omitted.hidden;
+			// @ts-expect-error omitted keys are not exposed from array keys
+			omittedFromArray.hidden;
+			// @ts-expect-error signal property unwrap keeps the source value type
+			omitted.count = "2";
+			// @ts-expect-error readonly signal source stays readonly
+			readonlyOmitted.readonlyCount = 2;
+			// @ts-expect-error readonly object source stays readonly
+			readonlyObjectOmitted.label = "next";
+			// @ts-expect-error readonly deep signal source stays readonly
+			readonlyNestedOmitted.nested.count = 2;
+			const optionalTarget: { foo?: string } = optionalOmitted;
+			optionalTarget.foo = "next";
+			// @ts-expect-error optional source keys stay optional
+			const requiredTarget: { foo: string | undefined } = optionalOmitted;
 		});
 	});
 
