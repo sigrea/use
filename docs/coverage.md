@@ -40,7 +40,7 @@ Status values:
 | `provideLocal` | `-` | Out of scope |
 | `provideSSRWidth` | `-` | Out of scope |
 | `reactify` | `reactify` | Done |
-| `reactifyObject` | `-` | Todo |
+| `reactifyObject` | `reactifyObject` | Done |
 | `reactiveComputed` | `-` | Todo |
 | `reactiveOmit` | `-` | Todo |
 | `reactivePick` | `-` | Todo |
