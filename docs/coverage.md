@@ -34,7 +34,7 @@ Status values:
 | `makeDestructurable` | `makeDestructurable` | Done |
 | `onClickOutside` | `onClickOutside` | Done |
 | `onElementRemoval` | `onElementRemoval` | Done |
-| `onKeyStroke` | `-` | Todo |
+| `onKeyStroke` | `onKeyStroke` | Done |
 | `onLongPress` | `-` | Todo |
 | `onStartTyping` | `-` | Todo |
 | `provideLocal` | `-` | Out of scope |
