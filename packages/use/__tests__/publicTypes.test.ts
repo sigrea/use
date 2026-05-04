@@ -1,5 +1,6 @@
 import {
 	type Computed,
+	type DeepSignal,
 	type ReadonlySignal,
 	type Signal,
 	computed,
@@ -56,6 +57,8 @@ import type {
 	ReactifyObjectOptions,
 	ReactifyObjectReturn,
 	ReactifyReturn,
+	ReactiveComputedGetter,
+	ReactiveComputedReturn,
 	RemovableSignal,
 	ResizeObserverWindowLike,
 	ResolveValueFn,
@@ -95,6 +98,7 @@ import {
 	onStartTyping,
 	reactify,
 	reactifyObject,
+	reactiveComputed,
 	resolveValue,
 	useBreakpoints,
 	useDebounceFn,
@@ -568,6 +572,96 @@ describe("public types", () => {
 			}>();
 			// @ts-expect-error selected keys do not include non-selected properties
 			selected.count;
+		});
+	});
+
+	it("types reactive computed objects", () => {
+		typeOnly(() => {
+			const count = signal(1);
+			const nestedSignal = signal({ inner: signal(1) });
+			const getter: ReactiveComputedGetter<{
+				count: Signal<number>;
+				label: string;
+				nested: { ready: boolean };
+				nestedSignal: Signal<{ inner: Signal<number> }>;
+			}> = (previous) => {
+				expectTypeOf(previous).toEqualTypeOf<
+					| {
+							count: Signal<number>;
+							label: string;
+							nested: { ready: boolean };
+							nestedSignal: Signal<{ inner: Signal<number> }>;
+					  }
+					| undefined
+				>();
+				return {
+					count,
+					label: String(count.value),
+					nested: { ready: true },
+					nestedSignal,
+				};
+			};
+			const state = reactiveComputed(getter);
+			const inlineState = reactiveComputed<{
+				count: Signal<number>;
+				label: string;
+				nested: { ready: boolean };
+				nestedSignal: Signal<{ inner: Signal<number> }>;
+			}>((previous) => {
+				expectTypeOf(previous).toEqualTypeOf<
+					| {
+							count: Signal<number>;
+							label: string;
+							nested: { ready: boolean };
+							nestedSignal: Signal<{ inner: Signal<number> }>;
+					  }
+					| undefined
+				>();
+				return {
+					count,
+					label: String(count.value),
+					nested: { ready: true },
+					nestedSignal,
+				};
+			});
+			const inferredPreviousState = reactiveComputed((previous) => {
+				expectTypeOf(previous).toEqualTypeOf<
+					Record<PropertyKey, unknown> | undefined
+				>();
+				return {
+					count: typeof previous?.count === "number" ? previous.count + 1 : 1,
+					nestedSignal,
+				};
+			});
+
+			expectTypeOf(state).toEqualTypeOf<
+				ReactiveComputedReturn<{
+					count: Signal<number>;
+					label: string;
+					nested: { ready: boolean };
+					nestedSignal: Signal<{ inner: Signal<number> }>;
+				}>
+			>();
+			expectTypeOf(state).toMatchTypeOf<DeepSignal<object>>();
+			expectTypeOf(state.count).toEqualTypeOf<number>();
+			expectTypeOf(state.label).toEqualTypeOf<string>();
+			expectTypeOf(state.nested.ready).toEqualTypeOf<boolean>();
+			expectTypeOf(state.nestedSignal.inner).toEqualTypeOf<number>();
+			expectTypeOf(inlineState.count).toEqualTypeOf<number>();
+			expectTypeOf(inlineState.nestedSignal.inner).toEqualTypeOf<number>();
+			expectTypeOf(inferredPreviousState.count).toEqualTypeOf<number>();
+			expectTypeOf(
+				inferredPreviousState.nestedSignal.inner,
+			).toEqualTypeOf<number>();
+
+			state.count = 2;
+			state.nestedSignal.inner = 2;
+			// @ts-expect-error signal property unwrap keeps the source value type
+			state.count = "2";
+			// @ts-expect-error nested signal object unwrap keeps the nested source value type
+			state.nestedSignal.inner = "2";
+			// @ts-expect-error reactiveComputed only accepts object returns
+			reactiveComputed(() => 1);
 		});
 	});
 
