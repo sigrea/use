@@ -60,7 +60,7 @@ Status values:
 | `tryOnBeforeMount` | `-` | Needs design |
 | `tryOnBeforeUnmount` | `-` | Needs design |
 | `tryOnMounted` | `-` | Needs design |
-| `tryOnScopeDispose` | `-` | Todo |
+| `tryOnScopeDispose` | `tryOnScopeDispose` | Done |
 | `tryOnUnmounted` | `-` | Needs design |
 | `unrefElement` | `-` | Out of scope |
 | `until` | `-` | Todo |
