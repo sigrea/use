@@ -1,30 +1,35 @@
-# In-scope function coverage
+# Function coverage
 
 VueUse is the main reference for API shape, behavior, and documentation
-structure. This file tracks the reference APIs currently in scope for
-`@sigrea/use`.
+structure. This file tracks the reference APIs considered for `@sigrea/use`.
 
-Status is intentionally limited to `Done` and `Todo`. `Todo` means the utility
-is not complete in `@sigrea/use` yet.
+Status values:
+
+- `Done`: implemented in `@sigrea/use`.
+- `Todo`: still intended for `@sigrea/use`, but not complete yet.
+- `Needs design`: may fit `@sigrea/use`, but the Sigrea-specific behavior needs
+  a separate design decision first.
+- `Out of scope`: tied to Vue component, template, directive, or provide/inject
+  behavior that should not be redefined in `@sigrea/use`.
 
 | Reference API | `@sigrea/use` API | Status |
 | --- | --- | --- |
 | `computedAsync` | `computedAsync` | Done |
 | `computedEager` | `computedEager` | Done |
-| `computedInject` | `-` | Todo |
+| `computedInject` | `-` | Out of scope |
 | `computedWithControl` | `-` | Todo |
-| `createDisposableDirective` | `-` | Todo |
+| `createDisposableDirective` | `-` | Out of scope |
 | `createEventHook` | `-` | Todo |
-| `createGlobalState` | `-` | Todo |
-| `createInjectionState` | `-` | Todo |
+| `createGlobalState` | `-` | Needs design |
+| `createInjectionState` | `-` | Out of scope |
 | `createRef` | `-` | Todo |
-| `createReusableTemplate` | `-` | Todo |
-| `createSharedComposable` | `-` | Todo |
-| `createTemplatePromise` | `-` | Todo |
+| `createReusableTemplate` | `-` | Out of scope |
+| `createSharedComposable` | `-` | Needs design |
+| `createTemplatePromise` | `-` | Out of scope |
 | `createUnrefFn` | `-` | Todo |
 | `extendRef` | `-` | Todo |
 | `get` | `-` | Todo |
-| `injectLocal` | `-` | Todo |
+| `injectLocal` | `-` | Out of scope |
 | `isDefined` | `-` | Todo |
 | `makeDestructurable` | `-` | Todo |
 | `onClickOutside` | `onClickOutside` | Done |
@@ -32,8 +37,8 @@ is not complete in `@sigrea/use` yet.
 | `onKeyStroke` | `-` | Todo |
 | `onLongPress` | `-` | Todo |
 | `onStartTyping` | `-` | Todo |
-| `provideLocal` | `-` | Todo |
-| `provideSSRWidth` | `-` | Todo |
+| `provideLocal` | `-` | Out of scope |
+| `provideSSRWidth` | `-` | Out of scope |
 | `reactify` | `-` | Todo |
 | `reactifyObject` | `-` | Todo |
 | `reactiveComputed` | `-` | Todo |
@@ -48,16 +53,16 @@ is not complete in `@sigrea/use` yet.
 | `set` | `-` | Todo |
 | `syncRef` | `-` | Todo |
 | `syncRefs` | `-` | Todo |
-| `templateRef` | `-` | Todo |
+| `templateRef` | `-` | Out of scope |
 | `toReactive` | `-` | Todo |
 | `toRef` | `-` | Todo |
 | `toRefs` | `-` | Todo |
-| `tryOnBeforeMount` | `-` | Todo |
-| `tryOnBeforeUnmount` | `-` | Todo |
-| `tryOnMounted` | `-` | Todo |
+| `tryOnBeforeMount` | `-` | Needs design |
+| `tryOnBeforeUnmount` | `-` | Needs design |
+| `tryOnMounted` | `-` | Needs design |
 | `tryOnScopeDispose` | `-` | Todo |
-| `tryOnUnmounted` | `-` | Todo |
-| `unrefElement` | `-` | Todo |
+| `tryOnUnmounted` | `-` | Needs design |
+| `unrefElement` | `-` | Out of scope |
 | `until` | `-` | Todo |
 | `useActiveElement` | `-` | Todo |
 | `useAnimate` | `-` | Todo |
@@ -91,7 +96,7 @@ is not complete in `@sigrea/use` yet.
 | `useCounter` | `useCounter` | Done |
 | `useCssSupports` | `-` | Todo |
 | `useCssVar` | `-` | Todo |
-| `useCurrentElement` | `-` | Todo |
+| `useCurrentElement` | `-` | Out of scope |
 | `useCycleList` | `-` | Todo |
 | `useDark` | `-` | Todo |
 | `useDateFormat` | `-` | Todo |
@@ -139,7 +144,7 @@ is not complete in `@sigrea/use` yet.
 | `useMediaQuery` | `useMediaQuery` | Done |
 | `useMemoize` | `-` | Todo |
 | `useMemory` | `-` | Todo |
-| `useMounted` | `-` | Todo |
+| `useMounted` | `-` | Needs design |
 | `useMouse` | `useMouse` | Done |
 | `useMouseInElement` | `-` | Todo |
 | `useMousePressed` | `-` | Todo |
@@ -152,7 +157,7 @@ is not complete in `@sigrea/use` yet.
 | `useOnline` | `useOnline` | Done |
 | `usePageLeave` | `-` | Todo |
 | `useParallax` | `-` | Todo |
-| `useParentElement` | `-` | Todo |
+| `useParentElement` | `-` | Needs design |
 | `usePerformanceObserver` | `-` | Todo |
 | `usePermission` | `-` | Todo |
 | `usePointer` | `-` | Todo |
@@ -168,7 +173,7 @@ is not complete in `@sigrea/use` yet.
 | `useRafFn` | `-` | Todo |
 | `useRefHistory` | `useRefHistory` | Done |
 | `useResizeObserver` | `-` | Todo |
-| `useSSRWidth` | `-` | Todo |
+| `useSSRWidth` | `-` | Out of scope |
 | `useScreenOrientation` | `-` | Todo |
 | `useScreenSafeArea` | `-` | Todo |
 | `useScriptTag` | `-` | Todo |
@@ -185,7 +190,7 @@ is not complete in `@sigrea/use` yet.
 | `useStyleTag` | `-` | Todo |
 | `useSupported` | `-` | Todo |
 | `useSwipe` | `-` | Todo |
-| `useTemplateRefsList` | `-` | Todo |
+| `useTemplateRefsList` | `-` | Out of scope |
 | `useTextDirection` | `-` | Todo |
 | `useTextSelection` | `-` | Todo |
 | `useTextareaAutosize` | `-` | Todo |
@@ -204,10 +209,10 @@ is not complete in `@sigrea/use` yet.
 | `useTransition` | `-` | Todo |
 | `useUrlSearchParams` | `-` | Todo |
 | `useUserMedia` | `-` | Todo |
-| `useVModel` | `-` | Todo |
-| `useVModels` | `-` | Todo |
+| `useVModel` | `-` | Out of scope |
+| `useVModels` | `-` | Out of scope |
 | `useVibrate` | `-` | Todo |
-| `useVirtualList` | `-` | Todo |
+| `useVirtualList` | `-` | Needs design |
 | `useWakeLock` | `-` | Todo |
 | `useWebNotification` | `-` | Todo |
 | `useWebSocket` | `-` | Todo |
