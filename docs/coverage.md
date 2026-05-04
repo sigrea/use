@@ -39,7 +39,7 @@ Status values:
 | `onStartTyping` | `onStartTyping` | Done |
 | `provideLocal` | `-` | Out of scope |
 | `provideSSRWidth` | `-` | Out of scope |
-| `reactify` | `-` | Todo |
+| `reactify` | `reactify` | Done |
 | `reactifyObject` | `-` | Todo |
 | `reactiveComputed` | `-` | Todo |
 | `reactiveOmit` | `-` | Todo |
