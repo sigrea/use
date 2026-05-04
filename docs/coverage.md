@@ -41,7 +41,7 @@ Status values:
 | `provideSSRWidth` | `-` | Out of scope |
 | `reactify` | `reactify` | Done |
 | `reactifyObject` | `reactifyObject` | Done |
-| `reactiveComputed` | `-` | Todo |
+| `reactiveComputed` | `reactiveComputed` | Done |
 | `reactiveOmit` | `-` | Todo |
 | `reactivePick` | `-` | Todo |
 | `refAutoReset` | `-` | Todo |
