@@ -52,7 +52,7 @@ Status values:
 | `refWithControl` | `signalWithControl` | Needs design |
 | `set` | `setValue` | Needs design |
 | `syncRef` | `syncSignal` | Done |
-| `syncRefs` | `syncSignals` | Todo |
+| `syncRefs` | `syncSignals` | Done |
 | `templateRef` | `-` | Out of scope |
 | `toReactive` | `-` | Todo |
 | `toRef` | `toSignal` | Needs design |
