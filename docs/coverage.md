@@ -35,7 +35,7 @@ Status values:
 | `onClickOutside` | `onClickOutside` | Done |
 | `onElementRemoval` | `onElementRemoval` | Done |
 | `onKeyStroke` | `onKeyStroke` | Done |
-| `onLongPress` | `-` | Todo |
+| `onLongPress` | `onLongPress` | Done |
 | `onStartTyping` | `-` | Todo |
 | `provideLocal` | `-` | Out of scope |
 | `provideSSRWidth` | `-` | Out of scope |
