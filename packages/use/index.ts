@@ -5,6 +5,7 @@ export { createEventHook } from "./createEventHook";
 export { createSignal } from "./createSignal";
 export { createResolveValueFn } from "./createResolveValueFn";
 export { extendSignal } from "./extendSignal";
+export { isDefined } from "./isDefined";
 export { onClickOutside } from "./onClickOutside";
 export { resolveValue } from "./resolveValue";
 export { useBreakpoints } from "./useBreakpoints";
@@ -72,6 +73,7 @@ export type {
 	FocusableElementLike,
 	FocusMethodOptions,
 	FunctionArgs,
+	IsDefinedReturn,
 	MatchMediaWindow,
 	MaybeValueArgs,
 	MaybeTarget,
