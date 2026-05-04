@@ -583,6 +583,13 @@ export interface UseToggleReturn<T = boolean> {
 
 export type SignalAutoResetReturn<T = unknown> = Signal<T>;
 
+export type SignalDebouncedOptions = Omit<
+	UseDebounceFnOptions,
+	"rejectOnCancel"
+>;
+
+export type SignalDebouncedReturn<T = unknown> = ReadonlySignal<T>;
+
 export interface UseTimeoutFnOptions {
 	immediate?: boolean;
 	immediateCallback?: boolean;
