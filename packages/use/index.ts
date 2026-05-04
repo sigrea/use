@@ -1,5 +1,6 @@
 export { computedAsync } from "./computedAsync";
 export { computedEager } from "./computedEager";
+export { computedWithControl } from "./computedWithControl";
 export { onClickOutside } from "./onClickOutside";
 export { useBreakpoints } from "./useBreakpoints";
 export { useCounter } from "./useCounter";
@@ -40,6 +41,14 @@ export type {
 	CloneFn,
 	ComputedEagerOptions,
 	ComputedEagerReturn,
+	ComputedWithControlExtra,
+	ComputedWithControlGetter,
+	ComputedWithControlOptions,
+	ComputedWithControlRef,
+	ComputedWithControlReturn,
+	ComputedWithControlSetter,
+	ComputedWithControlSource,
+	ComputedWithControlSourceList,
 	DocumentLike,
 	DocumentVisibilityDocumentLike,
 	ElementSize,
@@ -115,6 +124,8 @@ export type {
 	ValueGetter,
 	WindowLike,
 	WindowSizeLike,
+	WritableComputedWithControlOptions,
+	WritableComputedWithControlReturn,
 	UseWindowSizeOptions,
 	UseWindowSizeReturn,
 } from "./types";
