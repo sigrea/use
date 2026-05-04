@@ -27,6 +27,7 @@ import type {
 	ExtendSignalSource,
 	ExtendSignalUnwrapped,
 	FocusableElementLike,
+	IsDefinedReturn,
 	MatchMediaWindow,
 	MaybeValue,
 	MaybeValueArgs,
@@ -59,6 +60,7 @@ import {
 	createResolveValueFn,
 	createSignal,
 	extendSignal,
+	isDefined,
 	onClickOutside,
 	resolveValue,
 	useBreakpoints,
@@ -425,6 +427,47 @@ describe("public types", () => {
 			resolveValue({ count: 1 }, "count");
 			// @ts-expect-error function values must be wrapped to avoid getter handling
 			resolveValue(functionValue);
+		});
+	});
+
+	it("narrows defined values", () => {
+		typeOnly(() => {
+			const raw = "ready" as string | null | undefined;
+			const count = signal<number | undefined>(1);
+			const readonlyCount = readonly(count);
+			const doubled = computed((): number | null => count.value ?? null);
+			const zeroArgFunction = (() => "ready") as
+				| (() => string | undefined)
+				| undefined;
+			const functionValue = ((_input: string): string => "ready") as
+				| ((input: string) => string)
+				| undefined;
+			const factory = signal((): string => "ready");
+
+			expectTypeOf(isDefined(raw)).toEqualTypeOf<IsDefinedReturn>();
+			expectTypeOf(isDefined(zeroArgFunction)).toEqualTypeOf<IsDefinedReturn>();
+
+			if (isDefined(raw)) {
+				expectTypeOf(raw).toEqualTypeOf<string>();
+			}
+			if (isDefined(count)) {
+				expectTypeOf(count.value).toEqualTypeOf<number>();
+				count.value = 2;
+			}
+			if (isDefined(readonlyCount)) {
+				expectTypeOf(readonlyCount.value).toEqualTypeOf<number>();
+			}
+			if (isDefined(doubled)) {
+				expectTypeOf(doubled.value).toEqualTypeOf<number>();
+			}
+			if (isDefined(zeroArgFunction)) {
+				expectTypeOf(zeroArgFunction).toEqualTypeOf<() => string | undefined>();
+			}
+			// @ts-expect-error function values must be wrapped to avoid getter handling
+			isDefined(functionValue);
+			if (isDefined(factory)) {
+				expectTypeOf(factory.value).toEqualTypeOf<() => string>();
+			}
 		});
 	});
 
