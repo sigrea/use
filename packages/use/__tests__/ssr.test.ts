@@ -33,6 +33,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.reactifyObject).toBe("function");
 		expect(typeof mod.reactiveComputed).toBe("function");
 		expect(typeof mod.reactiveOmit).toBe("function");
+		expect(typeof mod.reactivePick).toBe("function");
 		expect(typeof mod.useBreakpoints).toBe("function");
 		expect(typeof mod.useDocumentVisibility).toBe("function");
 		expect(typeof mod.useElementSize).toBe("function");
@@ -254,6 +255,14 @@ describe("SSR safety", () => {
 	it("creates reactive omitted objects without a window", async () => {
 		const { reactiveOmit } = await import("../../../index");
 		const state = reactiveOmit({ ready: true, hidden: false }, "hidden");
+
+		expect(globalThis.window).toBeUndefined();
+		expect(state.ready).toBe(true);
+	});
+
+	it("creates reactive picked objects without a window", async () => {
+		const { reactivePick } = await import("../../../index");
+		const state = reactivePick({ ready: true, hidden: false }, "ready");
 
 		expect(globalThis.window).toBeUndefined();
 		expect(state.ready).toBe(true);
