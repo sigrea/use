@@ -32,6 +32,10 @@ import type {
 	MaybeValue,
 	MaybeValueArgs,
 	OnClickOutsideOptions,
+	OnElementRemovalDocumentLike,
+	OnElementRemovalOptions,
+	OnElementRemovalReturn,
+	OnElementRemovalWindowLike,
 	OnlineNavigatorLike,
 	RemovableSignal,
 	ResizeObserverWindowLike,
@@ -63,6 +67,7 @@ import {
 	isDefined,
 	makeDestructurable,
 	onClickOutside,
+	onElementRemoval,
 	resolveValue,
 	useBreakpoints,
 	useDebounceFn,
@@ -105,6 +110,10 @@ interface MouseWindow extends EventTarget {
 
 interface ResizeWindow extends EventTarget {
 	readonly ResizeObserver?: typeof ResizeObserver;
+}
+
+interface MutationWindow extends OnElementRemovalWindowLike {
+	readonly label: string;
 }
 
 interface StorageOnlyWindow extends StorageWindowLike {
@@ -553,6 +562,35 @@ describe("public types", () => {
 		controls.cancel();
 		controls.trigger(new Event("click"));
 		controls.stop();
+		stop();
+	});
+
+	it("types onElementRemoval targets and options", () => {
+		const host = document.createElement("div");
+		const shadowRoot = host.attachShadow({ mode: "open" });
+		const mutationWindow = new EventTarget() as MutationWindow;
+		Object.defineProperties(mutationWindow, {
+			document: { value: document },
+			label: { value: "test" },
+			MutationObserver: { value: MutationObserver },
+		});
+		const documentTarget = shadowRoot;
+		expectTypeOf(documentTarget).toMatchTypeOf<OnElementRemovalDocumentLike>();
+		const options: OnElementRemovalOptions<MutationWindow, ShadowRoot> = {
+			document: signal(documentTarget),
+			flush: "sync",
+			window: signal(mutationWindow),
+		};
+		const target = signal<Element | null>(document.createElement("div"));
+		const stop = onElementRemoval(
+			target,
+			(mutationRecords) => {
+				expectTypeOf(mutationRecords).toEqualTypeOf<MutationRecord[]>();
+			},
+			options,
+		);
+
+		expectTypeOf(stop).toEqualTypeOf<OnElementRemovalReturn>();
 		stop();
 	});
 
