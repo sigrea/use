@@ -80,6 +80,15 @@ export type ResolveValueFn<T> = T extends (
 		: never
 	: never;
 
+export type ReactifyReturn<T> = T extends (
+	this: infer TThis,
+	...args: infer TArgs
+) => infer TReturn
+	? TArgs extends unknown[]
+		? (this: TThis, ...args: MaybeValueArgs<TArgs>) => ReadonlySignal<TReturn>
+		: never
+	: never;
+
 export type AsyncComputedCancelCallback = () => void;
 
 export type AsyncComputedOnCancel = (
