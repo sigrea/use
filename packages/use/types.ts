@@ -118,6 +118,48 @@ export type ComputedWithControlRef<T> =
 	| ComputedWithControlReturn<T>
 	| WritableComputedWithControlReturn<T>;
 
+type IsAny<T> = 0 extends 1 & T ? true : false;
+type IsUnknown<T> = IsAny<T> extends true
+	? false
+	: unknown extends T
+		? [T] extends [unknown]
+			? true
+			: false
+		: false;
+
+export type EventHookArgs<T = unknown> = IsAny<T> extends true
+	? unknown[]
+	: IsUnknown<T> extends true
+		? unknown[]
+		: [T] extends [void]
+			? unknown[]
+			: [T] extends [readonly unknown[]]
+				? [...T]
+				: [T, ...unknown[]];
+
+export type EventHookCallback<T = unknown> = (
+	...args: EventHookArgs<T>
+) => unknown;
+
+export type EventHookOn<T = unknown> = (fn: EventHookCallback<T>) => {
+	off: () => void;
+};
+
+export type EventHookOff<T = unknown> = (fn: EventHookCallback<T>) => void;
+
+export type EventHookTrigger<T = unknown> = (
+	...args: EventHookArgs<T>
+) => Promise<unknown[]>;
+
+export interface EventHook<T = unknown> {
+	on: EventHookOn<T>;
+	off: EventHookOff<T>;
+	trigger: EventHookTrigger<T>;
+	clear: () => void;
+}
+
+export type EventHookReturn<T = unknown> = EventHook<T>;
+
 export interface Position {
 	x: number;
 	y: number;
