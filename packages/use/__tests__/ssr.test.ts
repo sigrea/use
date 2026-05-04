@@ -16,6 +16,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.createEventHook).toBe("function");
 		expect(typeof mod.createSignal).toBe("function");
 		expect(typeof mod.createResolveValueFn).toBe("function");
+		expect(typeof mod.extendSignal).toBe("function");
 		expect(typeof mod.useCounter).toBe("function");
 		expect(typeof mod.onClickOutside).toBe("function");
 		expect(typeof mod.useBreakpoints).toBe("function");
@@ -161,6 +162,18 @@ describe("SSR safety", () => {
 
 		expect(globalThis.window).toBeUndefined();
 		expect(value.value).toBe("ready");
+	});
+
+	it("extends signals without a window", async () => {
+		const { signal } = await import("@sigrea/core");
+		const { extendSignal } = await import("../../../index");
+		const source = signal("ready");
+		const extra = signal("extra");
+		const extended = extendSignal(source, { extra });
+
+		expect(globalThis.window).toBeUndefined();
+		expect(extended.value).toBe("ready");
+		expect(extended.extra).toBe("extra");
 	});
 
 	it("creates value-resolving functions without a window", async () => {
