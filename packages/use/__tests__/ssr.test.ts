@@ -27,6 +27,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.onKeyPressed).toBe("function");
 		expect(typeof mod.onKeyStroke).toBe("function");
 		expect(typeof mod.onKeyUp).toBe("function");
+		expect(typeof mod.onLongPress).toBe("function");
 		expect(typeof mod.useBreakpoints).toBe("function");
 		expect(typeof mod.useDocumentVisibility).toBe("function");
 		expect(typeof mod.useElementSize).toBe("function");
@@ -68,6 +69,7 @@ describe("SSR safety", () => {
 			onKeyPressed,
 			onKeyStroke,
 			onKeyUp,
+			onLongPress,
 			useSessionStorage,
 			useStorage,
 			useWindowSize,
@@ -85,6 +87,7 @@ describe("SSR safety", () => {
 		const keyDown = onKeyDown("Escape", () => {});
 		const keyPressed = onKeyPressed("Enter", () => {});
 		const keyUp = onKeyUp("Shift", () => {});
+		const longPress = onLongPress(null, () => {});
 		const focus = useFocus(null);
 		const mouse = useMouse();
 		const mediaQuery = useMediaQuery("(min-width: 640px)");
@@ -129,6 +132,7 @@ describe("SSR safety", () => {
 		keyDown();
 		keyPressed();
 		keyUp();
+		longPress();
 		focus.stop();
 		mouse.stop();
 		mediaQuery.stop();
