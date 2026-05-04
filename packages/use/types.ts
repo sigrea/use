@@ -111,6 +111,24 @@ export interface ReactifyObjectOptions {
 	includeOwnProperties?: boolean;
 }
 
+export type ReactiveComputedGetter<T extends object> = (previousValue?: T) => T;
+
+type ReactiveComputedObjectValue<TValue> = TValue extends Signal<infer Value>
+	? Value
+	: TValue extends ReadonlySignal<infer Value>
+		? Value
+		: TValue extends Computed<infer Value>
+			? Value
+			: TValue;
+
+type ReactiveComputedObject<T extends object> = {
+	[TKey in keyof T]: ReactiveComputedObjectValue<T[TKey]>;
+};
+
+export type ReactiveComputedReturn<T extends object> = DeepSignal<
+	ReactiveComputedObject<T>
+>;
+
 export type AsyncComputedCancelCallback = () => void;
 
 export type AsyncComputedOnCancel = (
