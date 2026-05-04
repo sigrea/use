@@ -52,6 +52,9 @@ import type {
 	OnStartTypingOptions,
 	OnStartTypingReturn,
 	OnlineNavigatorLike,
+	ReactifyNested,
+	ReactifyObjectOptions,
+	ReactifyObjectReturn,
 	ReactifyReturn,
 	RemovableSignal,
 	ResizeObserverWindowLike,
@@ -91,6 +94,7 @@ import {
 	onLongPress,
 	onStartTyping,
 	reactify,
+	reactifyObject,
 	resolveValue,
 	useBreakpoints,
 	useDebounceFn,
@@ -493,6 +497,77 @@ describe("public types", () => {
 			reactiveFactory(() => "ready");
 			// @ts-expect-error function values in unions must also be wrapped
 			reactiveUnion((input: string) => input.toUpperCase());
+		});
+	});
+
+	it("types reactified objects", () => {
+		typeOnly(() => {
+			const source = {
+				count: 1,
+				format(this: { prefix: string }, value: string) {
+					return `${this.prefix}:${value}`;
+				},
+				prefix: "item",
+			};
+			const symbolKey = Symbol("double");
+			const withSymbol = {
+				[symbolKey](value: number) {
+					return value * 2;
+				},
+			};
+			const optionalSource: {
+				optional?: (value: number) => number;
+				status: "ready" | ((value: number) => number);
+			} = {
+				optional(value: number) {
+					return value * 2;
+				},
+				status(value: number) {
+					return value * 3;
+				},
+			};
+			const options: ReactifyObjectOptions = {
+				includeOwnProperties: true,
+			};
+			const all = reactifyObject(source, options);
+			const selected = reactifyObject(source, ["format"] as const);
+			const symbolResult = reactifyObject(withSymbol);
+			const optionalResult = reactifyObject(optionalSource);
+
+			expectTypeOf(all).toEqualTypeOf<
+				ReactifyObjectReturn<typeof source, keyof typeof source>
+			>();
+			expectTypeOf(all.format("ready")).toEqualTypeOf<ReadonlySignal<string>>();
+			expectTypeOf(all.count).toEqualTypeOf<number>();
+			expectTypeOf(all.prefix).toEqualTypeOf<string>();
+			expectTypeOf(selected).toEqualTypeOf<
+				ReactifyObjectReturn<typeof source, "format">
+			>();
+			expectTypeOf(selected.format(signal("ready"))).toEqualTypeOf<
+				ReadonlySignal<string>
+			>();
+			expectTypeOf(symbolResult[symbolKey](signal(2))).toEqualTypeOf<
+				ReadonlySignal<number>
+			>();
+			expectTypeOf(optionalResult.optional).toEqualTypeOf<
+				| ((value: MaybeValueArgs<[number]>[0]) => ReadonlySignal<number>)
+				| undefined
+			>();
+			expectTypeOf(optionalResult.status).toEqualTypeOf<
+				| "ready"
+				| ((value: MaybeValueArgs<[number]>[0]) => ReadonlySignal<number>)
+			>();
+			expectTypeOf<
+				ReactifyNested<{
+					count: number;
+					double(value: number): number;
+				}>
+			>().toMatchTypeOf<{
+				count: number;
+				double(value: number): ReadonlySignal<number>;
+			}>();
+			// @ts-expect-error selected keys do not include non-selected properties
+			selected.count;
 		});
 	});
 
