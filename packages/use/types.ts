@@ -585,6 +585,10 @@ export type SignalAutoResetReturn<T = unknown> = Signal<T>;
 
 export type SignalDefaultReturn<T = unknown> = Signal<T>;
 
+export interface SignalManualResetReturn<T = unknown> extends Signal<T> {
+	reset(): void;
+}
+
 export type SignalDebouncedOptions = Omit<
 	UseDebounceFnOptions,
 	"rejectOnCancel"

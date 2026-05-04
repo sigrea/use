@@ -21,6 +21,7 @@ export { resolveValue } from "./resolveValue";
 export { signalAutoReset } from "./signalAutoReset";
 export { signalDefault } from "./signalDefault";
 export { signalDebounced } from "./signalDebounced";
+export { signalManualReset } from "./signalManualReset";
 export { useBreakpoints } from "./useBreakpoints";
 export { useCounter } from "./useCounter";
 export { useDebounceFn } from "./useDebounceFn";
@@ -140,6 +141,7 @@ export type {
 	SignalDefaultReturn,
 	SignalDebouncedOptions,
 	SignalDebouncedReturn,
+	SignalManualResetReturn,
 	StorageEventLike,
 	StorageLike,
 	StorageSerializer,
