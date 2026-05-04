@@ -596,6 +596,8 @@ export type SignalDebouncedOptions = Omit<
 
 export type SignalDebouncedReturn<T = unknown> = ReadonlySignal<T>;
 
+export type SignalThrottledReturn<T = unknown> = ReadonlySignal<T>;
+
 export interface UseTimeoutFnOptions {
 	immediate?: boolean;
 	immediateCallback?: boolean;

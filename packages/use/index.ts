@@ -22,6 +22,7 @@ export { signalAutoReset } from "./signalAutoReset";
 export { signalDefault } from "./signalDefault";
 export { signalDebounced } from "./signalDebounced";
 export { signalManualReset } from "./signalManualReset";
+export { signalThrottled } from "./signalThrottled";
 export { useBreakpoints } from "./useBreakpoints";
 export { useCounter } from "./useCounter";
 export { useDebounceFn } from "./useDebounceFn";
@@ -142,6 +143,7 @@ export type {
 	SignalDebouncedOptions,
 	SignalDebouncedReturn,
 	SignalManualResetReturn,
+	SignalThrottledReturn,
 	StorageEventLike,
 	StorageLike,
 	StorageSerializer,
