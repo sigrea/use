@@ -47,6 +47,10 @@ import type {
 	OnLongPressModifiers,
 	OnLongPressOptions,
 	OnLongPressReturn,
+	OnStartTypingDocumentLike,
+	OnStartTypingHandler,
+	OnStartTypingOptions,
+	OnStartTypingReturn,
 	OnlineNavigatorLike,
 	RemovableSignal,
 	ResizeObserverWindowLike,
@@ -84,6 +88,7 @@ import {
 	onKeyStroke,
 	onKeyUp,
 	onLongPress,
+	onStartTyping,
 	resolveValue,
 	useBreakpoints,
 	useDebounceFn,
@@ -679,6 +684,23 @@ describe("public types", () => {
 			stop();
 			// @ts-expect-error onLongPress targets must be elements
 			onLongPress(new EventTarget(), handler);
+		});
+	});
+
+	it("types start typing document options", () => {
+		typeOnly(() => {
+			const documentTarget = signal<OnStartTypingDocumentLike | null>(document);
+			const handler: OnStartTypingHandler = (event) => {
+				expectTypeOf(event).toEqualTypeOf<KeyboardEvent>();
+			};
+			const options: OnStartTypingOptions<OnStartTypingDocumentLike> = {
+				document: documentTarget,
+			};
+			const stop = onStartTyping(handler, options);
+
+			expectTypeOf(document).toMatchTypeOf<OnStartTypingDocumentLike>();
+			expectTypeOf(stop).toEqualTypeOf<OnStartTypingReturn>();
+			stop();
 		});
 	});
 
