@@ -42,6 +42,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.syncSignal).toBe("function");
 		expect(typeof mod.syncSignals).toBe("function");
 		expect(typeof mod.toDeepSignal).toBe("function");
+		expect(typeof mod.tryOnScopeDispose).toBe("function");
 		expect(typeof mod.useBreakpoints).toBe("function");
 		expect(typeof mod.useDocumentVisibility).toBe("function");
 		expect(typeof mod.useElementSize).toBe("function");
@@ -313,6 +314,13 @@ describe("SSR safety", () => {
 
 		expect(globalThis.window).toBeUndefined();
 		expect(state.ready).toBe(true);
+	});
+
+	it("tries scoped cleanup without a window", async () => {
+		const { tryOnScopeDispose } = await import("../../../index");
+
+		expect(globalThis.window).toBeUndefined();
+		expect(tryOnScopeDispose(() => {})).toBe(false);
 	});
 
 	it("resolves values without a window", async () => {
