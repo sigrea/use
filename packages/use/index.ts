@@ -18,6 +18,7 @@ export { reactiveComputed } from "./reactiveComputed";
 export { reactiveOmit } from "./reactiveOmit";
 export { reactivePick } from "./reactivePick";
 export { resolveValue } from "./resolveValue";
+export { signalAutoReset } from "./signalAutoReset";
 export { useBreakpoints } from "./useBreakpoints";
 export { useCounter } from "./useCounter";
 export { useDebounceFn } from "./useDebounceFn";
@@ -133,6 +134,7 @@ export type {
 	RemovableSignal,
 	ResizeObserverWindowLike,
 	ResolveValueFn,
+	SignalAutoResetReturn,
 	StorageEventLike,
 	StorageLike,
 	StorageSerializer,

@@ -581,6 +581,8 @@ export interface UseToggleReturn<T = boolean> {
 	toggle(nextValue?: T): T;
 }
 
+export type SignalAutoResetReturn<T = unknown> = Signal<T>;
+
 export interface UseTimeoutFnOptions {
 	immediate?: boolean;
 	immediateCallback?: boolean;
