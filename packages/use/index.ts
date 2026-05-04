@@ -15,6 +15,7 @@ export { onStartTyping } from "./onStartTyping";
 export { reactify } from "./reactify";
 export { reactifyObject } from "./reactifyObject";
 export { reactiveComputed } from "./reactiveComputed";
+export { reactiveOmit } from "./reactiveOmit";
 export { resolveValue } from "./resolveValue";
 export { useBreakpoints } from "./useBreakpoints";
 export { useCounter } from "./useCounter";
@@ -124,6 +125,8 @@ export type {
 	ReactifyObjectReturn,
 	ReactiveComputedGetter,
 	ReactiveComputedReturn,
+	ReactiveOmitPredicate,
+	ReactiveOmitReturn,
 	RemovableSignal,
 	ResizeObserverWindowLike,
 	ResolveValueFn,
