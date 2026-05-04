@@ -9,6 +9,7 @@ import type {
 	ComputedEagerReturn,
 	ComputedWithControlOptions,
 	ComputedWithControlReturn,
+	CreateSignalReturn,
 	DocumentVisibilityDocumentLike,
 	EventHook,
 	EventHookArgs,
@@ -41,6 +42,7 @@ import {
 	computedEager,
 	computedWithControl,
 	createEventHook,
+	createSignal,
 	onClickOutside,
 	useBreakpoints,
 	useDebounceFn,
@@ -230,6 +232,34 @@ describe("public types", () => {
 			tuple.trigger(1);
 			// @ts-expect-error payload type must match
 			single.trigger("ready");
+		});
+	});
+
+	it("types created signals", () => {
+		typeOnly(() => {
+			const shallow = createSignal({ nested: { count: 0 } });
+			const shallowExplicit = createSignal({ nested: { count: 0 } }, false);
+			const deep = createSignal({ nested: { count: 0 } }, true);
+			const primitive = createSignal(0, true);
+			const dynamic = createSignal("ready", Math.random() > 0.5);
+
+			expectTypeOf(shallow).toEqualTypeOf<
+				Signal<{ nested: { count: number } }>
+			>();
+			expectTypeOf(shallowExplicit).toEqualTypeOf<
+				Signal<{ nested: { count: number } }>
+			>();
+			expectTypeOf(deep).toEqualTypeOf<
+				CreateSignalReturn<{ nested: { count: number } }, true>
+			>();
+			expectTypeOf(deep).toEqualTypeOf<Signal<{ nested: { count: number } }>>();
+			expectTypeOf(deep.value.nested.count).toEqualTypeOf<number>();
+			expectTypeOf(primitive.value).toEqualTypeOf<number>();
+			expectTypeOf(dynamic).toEqualTypeOf<Signal<string>>();
+
+			shallow.value = { nested: { count: 1 } };
+			deep.value.nested.count = 1;
+			primitive.value = 1;
 		});
 	});
 
