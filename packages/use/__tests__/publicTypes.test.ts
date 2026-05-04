@@ -79,6 +79,8 @@ import type {
 	SyncSignalOptions,
 	SyncSignalReturn,
 	SyncSignalTransform,
+	SyncSignalsOptions,
+	SyncSignalsReturn,
 	UseBreakpointsOptions,
 	UseDocumentVisibilityOptions,
 	UseElementSizeOptions,
@@ -123,6 +125,7 @@ import {
 	signalManualReset,
 	signalThrottled,
 	syncSignal,
+	syncSignals,
 	useBreakpoints,
 	useDebounceFn,
 	useDocumentVisibility,
@@ -1075,6 +1078,56 @@ describe("public types", () => {
 			syncSignal(readonlySource, right);
 			// @ts-expect-error computed sources do not expose a safe writable target
 			syncSignal(computedSource, right);
+		});
+	});
+
+	it("types one-way synced signals", () => {
+		typeOnly(() => {
+			const source = signal(1);
+			const readonlySource = readonly(source);
+			const computedSource = computed(() => source.value);
+			const getterSource = () => source.value;
+			const target = signal(0);
+			const otherTarget = signal(2);
+			const widerTarget = signal<number | string>(0);
+			const textTarget = signal("target");
+			const computedTarget = computed(() => target.value);
+			const deepSource = deepSignal({ count: 0 });
+			const deepTarget = signal(deepSignal({ count: 1 }));
+			const options: SyncSignalsOptions = {
+				deep: true,
+				flush: "sync",
+				immediate: true,
+			};
+
+			expectTypeOf(
+				syncSignals(source, target),
+			).toEqualTypeOf<SyncSignalsReturn>();
+			expectTypeOf(
+				syncSignals(source, [target, otherTarget] as const, options),
+			).toEqualTypeOf<SyncSignalsReturn>();
+			expectTypeOf(
+				syncSignals(source, widerTarget),
+			).toEqualTypeOf<SyncSignalsReturn>();
+			expectTypeOf(
+				syncSignals(readonlySource, target),
+			).toEqualTypeOf<SyncSignalsReturn>();
+			expectTypeOf(
+				syncSignals(computedSource, target),
+			).toEqualTypeOf<SyncSignalsReturn>();
+			expectTypeOf(
+				syncSignals(getterSource, target),
+			).toEqualTypeOf<SyncSignalsReturn>();
+			expectTypeOf(
+				syncSignals(deepSource, deepTarget),
+			).toEqualTypeOf<SyncSignalsReturn>();
+
+			// @ts-expect-error raw values are not watch sources
+			syncSignals(1, target);
+			// @ts-expect-error target must accept the source value
+			syncSignals(source, textTarget);
+			// @ts-expect-error computed targets do not expose a safe writable target
+			syncSignals(source, computedTarget);
 		});
 	});
 
