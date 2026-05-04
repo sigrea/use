@@ -28,7 +28,7 @@ Status values:
 | `createTemplatePromise` | `-` | Out of scope |
 | `createUnrefFn` | `createResolveValueFn` | Done |
 | `extendRef` | `extendSignal` | Done |
-| `get` | `-` | Todo |
+| `get` | `resolveValue` | Done |
 | `injectLocal` | `-` | Out of scope |
 | `isDefined` | `-` | Todo |
 | `makeDestructurable` | `-` | Todo |
