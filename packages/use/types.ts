@@ -287,6 +287,76 @@ export type ReactivePickPredicate<T extends object> = (
 	key: keyof T,
 ) => boolean;
 
+type ToDeepSignalValue<TValue> = TValue extends Signal<infer Value>
+	? Value
+	: TValue extends ReadonlySignal<infer Value>
+		? Value
+		: TValue extends Computed<infer Value>
+			? Value
+			: TValue;
+
+type ToDeepSignalEntry<TValue> = DeepSignal<ToDeepSignalValue<TValue>>;
+
+type ToDeepSignalReadonlyKeys<T extends object> = {
+	[TKey in keyof T]-?: IsReadonlyKey<T, TKey> extends true
+		? TKey
+		: IsReadonlySignalValue<T[TKey]> extends true
+			? TKey
+			: never;
+}[keyof T];
+
+type ToDeepSignalWritableKeys<T extends object> = Exclude<
+	keyof T,
+	ToDeepSignalReadonlyKeys<T>
+>;
+
+type ToDeepSignalOptionalKeys<T extends object> = {
+	[TKey in keyof T]-?: object extends Pick<T, TKey> ? TKey : never;
+}[keyof T];
+
+type ToDeepSignalRequiredKeys<T extends object> = Exclude<
+	keyof T,
+	ToDeepSignalOptionalKeys<T>
+>;
+
+type ToDeepSignalReadonlyRequiredKeys<T extends object> = Extract<
+	ToDeepSignalReadonlyKeys<T>,
+	ToDeepSignalRequiredKeys<T>
+>;
+
+type ToDeepSignalReadonlyOptionalKeys<T extends object> = Extract<
+	ToDeepSignalReadonlyKeys<T>,
+	ToDeepSignalOptionalKeys<T>
+>;
+
+type ToDeepSignalWritableRequiredKeys<T extends object> = Extract<
+	ToDeepSignalWritableKeys<T>,
+	ToDeepSignalRequiredKeys<T>
+>;
+
+type ToDeepSignalWritableOptionalKeys<T extends object> = Extract<
+	ToDeepSignalWritableKeys<T>,
+	ToDeepSignalOptionalKeys<T>
+>;
+
+type ToDeepSignalObject<T extends object> = {
+	[TKey in ToDeepSignalWritableRequiredKeys<T>]: ToDeepSignalEntry<T[TKey]>;
+} & {
+	[TKey in ToDeepSignalWritableOptionalKeys<T>]?: ToDeepSignalEntry<T[TKey]>;
+} & {
+	readonly [TKey in ToDeepSignalReadonlyRequiredKeys<T>]: ToDeepSignalEntry<
+		T[TKey]
+	>;
+} & {
+	readonly [TKey in ToDeepSignalReadonlyOptionalKeys<T>]?: ToDeepSignalEntry<
+		T[TKey]
+	>;
+};
+
+export type ToDeepSignalReturn<T extends object> = DeepSignal<
+	ToDeepSignalObject<T>
+>;
+
 export type AsyncComputedCancelCallback = () => void;
 
 export type AsyncComputedOnCancel = (
