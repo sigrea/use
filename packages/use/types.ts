@@ -74,6 +74,14 @@ export type AsyncComputedOptionsOrSignal =
 	| Signal<boolean>
 	| AsyncComputedOptions;
 
+export interface ComputedEagerOptions {
+	flush?: WatchOptions["flush"];
+	onTrack?: WatchOptions["onTrack"];
+	onTrigger?: WatchOptions["onTrigger"];
+}
+
+export type ComputedEagerReturn<T> = ReadonlySignal<T>;
+
 export interface Position {
 	x: number;
 	y: number;
