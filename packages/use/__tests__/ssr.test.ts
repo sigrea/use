@@ -18,6 +18,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.createResolveValueFn).toBe("function");
 		expect(typeof mod.extendSignal).toBe("function");
 		expect(typeof mod.isDefined).toBe("function");
+		expect(typeof mod.makeDestructurable).toBe("function");
 		expect(typeof mod.resolveValue).toBe("function");
 		expect(typeof mod.useCounter).toBe("function");
 		expect(typeof mod.onClickOutside).toBe("function");
@@ -205,6 +206,17 @@ describe("SSR safety", () => {
 		expect(globalThis.window).toBeUndefined();
 		expect(isDefined(value)).toBe(true);
 		expect(isDefined(undefined)).toBe(false);
+	});
+
+	it("creates destructurable values without a window", async () => {
+		const { makeDestructurable } = await import("../../../index");
+		const result = makeDestructurable({ count: 1 }, [1]);
+		const { count } = result;
+		const [first] = result;
+
+		expect(globalThis.window).toBeUndefined();
+		expect(count).toBe(1);
+		expect(first).toBe(1);
 	});
 
 	it("auto-starts timers when timer APIs are available without a browser window", async () => {
