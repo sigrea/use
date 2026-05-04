@@ -133,6 +133,72 @@ export type ComputedWithControlRef<T> =
 	| ComputedWithControlReturn<T>
 	| WritableComputedWithControlReturn<T>;
 
+export type ExtendSignalSource<T = unknown> =
+	| Signal<T>
+	| ReadonlySignal<T>
+	| Computed<T>;
+
+export type ExtendSignalOptions<Unwrap extends boolean = boolean> = {
+	enumerable?: boolean;
+} & ([Unwrap] extends [false] ? { unwrap: false } : { unwrap?: Unwrap });
+
+type IfEquals<X, Y, Then, Else> = (<T>() => T extends X ? 1 : 2) extends <
+	T,
+>() => T extends Y ? 1 : 2
+	? Then
+	: Else;
+
+type IsReadonlyKey<T, K extends keyof T> = IfEquals<
+	{ [P in K]: T[P] },
+	{ -readonly [P in K]: T[P] },
+	false,
+	true
+>;
+
+type IsReadonlySignalValue<T> = T extends { readonly value: unknown }
+	? IsReadonlyKey<T, "value">
+	: false;
+
+type ExtendSignalProtectedKey = "value" | "peek";
+
+type ExtendSignalValue<T> = T extends Computed<infer Value>
+	? Value
+	: T extends Signal<infer Value>
+		? Value
+		: T extends ReadonlySignal<infer Value>
+			? Value
+			: T;
+
+type ExtendSignalReadonlyKeys<Extend extends object> = {
+	[K in keyof Extend]-?: K extends ExtendSignalProtectedKey
+		? never
+		: IsReadonlySignalValue<Extend[K]> extends true
+			? K
+			: never;
+}[keyof Extend];
+
+type ExtendSignalWritableKeys<Extend extends object> = Exclude<
+	keyof Extend,
+	ExtendSignalProtectedKey | ExtendSignalReadonlyKeys<Extend>
+>;
+
+export type ExtendSignalUnwrapped<Extend extends object> = {
+	[K in ExtendSignalWritableKeys<Extend>]: ExtendSignalValue<Extend[K]>;
+} & {
+	readonly [K in ExtendSignalReadonlyKeys<Extend>]: ExtendSignalValue<
+		Extend[K]
+	>;
+};
+
+export type ExtendSignalReturn<
+	R extends ExtendSignalSource,
+	Extend extends object,
+	Unwrap extends boolean = true,
+> = R &
+	(Unwrap extends false
+		? Omit<Extend, ExtendSignalProtectedKey>
+		: ExtendSignalUnwrapped<Extend>);
+
 export type CreateSignalReturn<
 	T = unknown,
 	D extends boolean = false,
