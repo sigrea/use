@@ -23,6 +23,7 @@ export { signalDefault } from "./signalDefault";
 export { signalDebounced } from "./signalDebounced";
 export { signalManualReset } from "./signalManualReset";
 export { signalThrottled } from "./signalThrottled";
+export { syncSignal } from "./syncSignal";
 export { useBreakpoints } from "./useBreakpoints";
 export { useCounter } from "./useCounter";
 export { useDebounceFn } from "./useDebounceFn";
@@ -144,6 +145,10 @@ export type {
 	SignalDebouncedReturn,
 	SignalManualResetReturn,
 	SignalThrottledReturn,
+	SyncSignalDirection,
+	SyncSignalOptions,
+	SyncSignalReturn,
+	SyncSignalTransform,
 	StorageEventLike,
 	StorageLike,
 	StorageSerializer,
