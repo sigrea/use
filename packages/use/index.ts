@@ -48,6 +48,7 @@ export { useBase64 } from "./useBase64";
 export { useBattery } from "./useBattery";
 export { useBluetooth } from "./useBluetooth";
 export { useBroadcastChannel } from "./useBroadcastChannel";
+export { useBrowserLocation } from "./useBrowserLocation";
 export { useBreakpoints } from "./useBreakpoints";
 export { useCounter } from "./useCounter";
 export { useDebounceFn } from "./useDebounceFn";
@@ -115,6 +116,11 @@ export type {
 	BluetoothServiceUUIDLike,
 	BroadcastChannelLike,
 	BroadcastChannelWindowLike,
+	BrowserLocationHistoryLike,
+	BrowserLocationLike,
+	BrowserLocationTrigger,
+	BrowserLocationWindowLike,
+	BrowserLocationWritableProperty,
 	UseBatteryOptions,
 	UseBatteryReturn,
 	UseBluetoothOptions,
@@ -122,6 +128,8 @@ export type {
 	UseBluetoothReturn,
 	UseBroadcastChannelOptions,
 	UseBroadcastChannelReturn,
+	UseBrowserLocationOptions,
+	UseBrowserLocationReturn,
 	Arrayable,
 	Breakpoints,
 	CloneFn,
