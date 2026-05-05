@@ -117,7 +117,7 @@ Status values:
 | `useElementVisibility` | `useElementVisibility` | Done |
 | `useEventBus` | `useEventBus` | Done |
 | `useEventListener` | `useEventListener` | Done |
-| `useEventSource` | `-` | Todo |
+| `useEventSource` | `useEventSource` | Done |
 | `useEyeDropper` | `-` | Todo |
 | `useFavicon` | `-` | Todo |
 | `useFetch` | `-` | Todo |
