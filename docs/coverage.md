@@ -81,7 +81,7 @@ Status values:
 | `useAsyncQueue` | `useAsyncQueue` | Done |
 | `useAsyncState` | `useAsyncState` | Done |
 | `useBase64` | `useBase64` | Done |
-| `useBattery` | `-` | Todo |
+| `useBattery` | `useBattery` | Done |
 | `useBluetooth` | `-` | Todo |
 | `useBreakpoints` | `useBreakpoints` | Done |
 | `useBroadcastChannel` | `-` | Todo |
