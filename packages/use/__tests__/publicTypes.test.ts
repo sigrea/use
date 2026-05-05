@@ -87,6 +87,10 @@ import type {
 	UntilBaseInstance,
 	UntilToMatchOptions,
 	UntilValueInstance,
+	UseActiveElementDocumentLike,
+	UseActiveElementOptions,
+	UseActiveElementReturn,
+	UseActiveElementWindowLike,
 	UseBreakpointsOptions,
 	UseDocumentVisibilityOptions,
 	UseElementSizeOptions,
@@ -135,6 +139,7 @@ import {
 	toDeepSignal,
 	tryOnScopeDispose,
 	until,
+	useActiveElement,
 	useBreakpoints,
 	useDebounceFn,
 	useDocumentVisibility,
@@ -1637,6 +1642,35 @@ describe("public types", () => {
 	});
 
 	it("preserves browser composable public types", () => {
+		expectTypeOf(document).toMatchTypeOf<UseActiveElementDocumentLike>();
+		expectTypeOf(window).toMatchTypeOf<UseActiveElementWindowLike>();
+		const activeOptions: UseActiveElementOptions<
+			UseActiveElementWindowLike,
+			UseActiveElementDocumentLike
+		> = {
+			deep: true,
+			document: signal(document),
+			triggerOnRemoval: true,
+			window: signal(window),
+		};
+		const active = useActiveElement<HTMLInputElement>(activeOptions);
+		const defaultActive = useActiveElement();
+
+		expectTypeOf(active).toEqualTypeOf<
+			UseActiveElementReturn<HTMLInputElement>
+		>();
+		expectTypeOf(defaultActive).toEqualTypeOf<UseActiveElementReturn>();
+		expectTypeOf(active.activeElement.value).toEqualTypeOf<
+			HTMLInputElement | null | undefined
+		>();
+		expectTypeOf(defaultActive.activeElement.value).toEqualTypeOf<
+			Element | null | undefined
+		>();
+		typeOnly(() => {
+			// @ts-expect-error activeElement is readonly
+			active.activeElement.value = document.createElement("input");
+		});
+
 		const queryList = new EventTarget() as MediaQueryList;
 		Object.defineProperties(queryList, {
 			matches: { value: true, writable: true },
@@ -1696,6 +1730,8 @@ describe("public types", () => {
 
 		breakpoints.stop();
 		preferredDark.stop();
+		active.stop();
+		defaultActive.stop();
 		visibility.stop();
 		online.stop();
 	});
