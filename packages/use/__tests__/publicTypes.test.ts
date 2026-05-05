@@ -163,6 +163,9 @@ import type {
 	UseBroadcastChannelReturn,
 	UseBrowserLocationOptions,
 	UseBrowserLocationReturn,
+	UseCachedComparator,
+	UseCachedOptions,
+	UseCachedReturn,
 	UseDocumentVisibilityOptions,
 	UseElementSizeOptions,
 	UseFocusOptions,
@@ -232,6 +235,7 @@ import {
 	useBreakpoints,
 	useBroadcastChannel,
 	useBrowserLocation,
+	useCached,
 	useDebounceFn,
 	useDocumentVisibility,
 	useElementSize,
@@ -785,6 +789,55 @@ describe("public types", () => {
 				hash: 1,
 			};
 			expectTypeOf(invalidLocation).toEqualTypeOf<BrowserLocationLike>();
+		});
+	});
+
+	it("types cached values and options", () => {
+		typeOnly(() => {
+			const source = signal({ value: 1, extra: "initial" });
+			const readonlySource = readonly(source);
+			const comparator: UseCachedComparator<{
+				value: number;
+				extra: string;
+			}> = (newSourceValue, cachedValue) =>
+				newSourceValue.value === cachedValue.value;
+			const options: UseCachedOptions = {
+				deep: true,
+				flush: "sync",
+			};
+			const invalidOptions: UseCachedOptions = {
+				// @ts-expect-error Vue deepRefs option is not part of the Sigrea API
+				deepRefs: true,
+			};
+			const result = useCached(source, comparator, options);
+			const readonlyResult = useCached(readonlySource, comparator);
+			const getterResult = useCached(() => source.value.value);
+			const returnValue: UseCachedReturn<{ value: number; extra: string }> =
+				result;
+
+			expectTypeOf(result).toEqualTypeOf<
+				ReadonlySignal<{ value: number; extra: string }>
+			>();
+			expectTypeOf(readonlyResult).toEqualTypeOf<
+				ReadonlySignal<{ value: number; extra: string }>
+			>();
+			expectTypeOf(getterResult).toEqualTypeOf<ReadonlySignal<number>>();
+			expectTypeOf(returnValue).toEqualTypeOf<
+				UseCachedReturn<{ value: number; extra: string }>
+			>();
+			expectTypeOf(comparator).toEqualTypeOf<
+				UseCachedComparator<{ value: number; extra: string }>
+			>();
+			expectTypeOf(invalidOptions).toEqualTypeOf<UseCachedOptions>();
+
+			// @ts-expect-error cached value is readonly
+			result.value = { value: 2, extra: "manual" };
+			// @ts-expect-error cached value must match the source value type
+			result.value = { value: "2", extra: "manual" };
+			// @ts-expect-error comparator receives the source value type
+			useCached(source, (newSourceValue: string) => newSourceValue.length > 0);
+			// @ts-expect-error source must be reactive or a getter
+			useCached(1);
 		});
 	});
 
