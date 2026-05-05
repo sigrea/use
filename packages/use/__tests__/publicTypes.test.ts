@@ -269,6 +269,10 @@ import type {
 	UseElementByPointReturn,
 	UseElementByPointScheduler,
 	UseElementByPointWindowLike,
+	UseElementHoverDocumentLike,
+	UseElementHoverOptions,
+	UseElementHoverReturn,
+	UseElementHoverWindowLike,
 	UseElementSizeOptions,
 	UseFocusOptions,
 	UseMediaQueryOptions,
@@ -364,6 +368,7 @@ import {
 	useDropZone,
 	useElementBounding,
 	useElementByPoint,
+	useElementHover,
 	useElementSize,
 	useEventListener,
 	useFocus,
@@ -425,6 +430,14 @@ interface PointDocument extends UseElementByPointDocumentLike {
 }
 
 interface PointWindow extends UseElementByPointWindowLike {
+	readonly label: string;
+}
+
+interface HoverWindow extends UseElementHoverWindowLike {
+	readonly label: string;
+}
+
+interface HoverDocument extends UseElementHoverDocumentLike {
 	readonly label: string;
 }
 
@@ -4525,6 +4538,42 @@ describe("public types", () => {
 					x: 1,
 					y: 2,
 				});
+			});
+		});
+	});
+
+	it("types element hover values and options", () => {
+		typeOnly(() => {
+			const hoverDocument: HoverDocument = Object.assign(
+				document.createElement("div"),
+				{ label: "root" },
+			);
+			const hoverWindow = new EventTarget() as HoverWindow;
+			const target = signal<Element | null>(document.createElement("button"));
+			const options: UseElementHoverOptions<HoverWindow, HoverDocument> = {
+				delayEnter: signal(10),
+				delayLeave: signal(20),
+				document: signal(hoverDocument),
+				triggerOnRemoval: true,
+				window: signal(hoverWindow),
+			};
+			const hover = useElementHover(target, options);
+			const hoverReturn: UseElementHoverReturn = hover;
+
+			expectTypeOf(hover).toEqualTypeOf<UseElementHoverReturn>();
+			expectTypeOf(hoverReturn.isHovered).toEqualTypeOf<
+				ReadonlySignal<boolean>
+			>();
+			expectTypeOf(hover.stop()).toEqualTypeOf<void>();
+			typeOnly(() => {
+				// @ts-expect-error returned values are readonly signals
+				hover.isHovered.value = true;
+				useElementHover(target, {
+					// @ts-expect-error delayEnter must be numeric
+					delayEnter: "10",
+				});
+				// @ts-expect-error target must be an Element
+				useElementHover(new EventTarget());
 			});
 		});
 	});
