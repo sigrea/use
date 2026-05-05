@@ -61,6 +61,7 @@ export { useCounter } from "./useCounter";
 export { useCssSupports } from "./useCssSupports";
 export { useCssVar } from "./useCssVar";
 export { useCycleList } from "./useCycleList";
+export { useDark } from "./useDark";
 export { useDebounceFn } from "./useDebounceFn";
 export { useDocumentVisibility } from "./useDocumentVisibility";
 export { useElementSize } from "./useElementSize";
@@ -329,6 +330,8 @@ export type {
 	UseCounterReturn,
 	UseCycleListOptions,
 	UseCycleListReturn,
+	UseDarkOptions,
+	UseDarkReturn,
 	UseDebounceFnOptions,
 	UseDebounceFnReturn,
 	UseDocumentVisibilityOptions,

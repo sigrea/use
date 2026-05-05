@@ -1086,6 +1086,34 @@ export interface UseColorModeReturn<T extends string = BasicColorMode> {
 	stop(): void;
 }
 
+export interface UseDarkOptions
+	extends Omit<UseColorModeOptions, "modes" | "onChanged"> {
+	/**
+	 * Value applied when dark mode is active.
+	 *
+	 * @default "dark"
+	 */
+	valueDark?: MaybeValue<string>;
+	/**
+	 * Value applied when dark mode is inactive.
+	 *
+	 * @default ""
+	 */
+	valueLight?: MaybeValue<string>;
+	/**
+	 * Called when the resolved dark state changes.
+	 */
+	onChanged?: (
+		isDark: boolean,
+		defaultHandler: UseColorModeDefaultHandler,
+		mode: BasicColorMode,
+	) => void;
+}
+
+export type UseDarkReturn = Computed<boolean> & {
+	stop(): void;
+};
+
 export type UseConfirmDialogResult<ConfirmData, CancelData> =
 	| {
 			readonly data?: ConfirmData;
