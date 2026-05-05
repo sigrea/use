@@ -38,6 +38,7 @@ export { useArrayFindIndex } from "./useArrayFindIndex";
 export { useArrayFindLast } from "./useArrayFindLast";
 export { useArrayIncludes } from "./useArrayIncludes";
 export { useArrayJoin } from "./useArrayJoin";
+export { useArrayMap } from "./useArrayMap";
 export { useBreakpoints } from "./useBreakpoints";
 export { useCounter } from "./useCounter";
 export { useDebounceFn } from "./useDebounceFn";
@@ -203,6 +204,8 @@ export type {
 	UseArrayIncludesOptions,
 	UseArrayIncludesReturn,
 	UseArrayJoinReturn,
+	UseArrayMapCallback,
+	UseArrayMapReturn,
 	UseBreakpointsOptions,
 	UseBreakpointsReturn,
 	UseCounterOptions,
