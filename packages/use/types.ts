@@ -481,6 +481,14 @@ export type UseArrayEveryPredicate<T> = (
 
 export type UseArrayEveryReturn = ReadonlySignal<boolean>;
 
+export type UseArraySomePredicate<T> = (
+	element: T,
+	index: number,
+	array: readonly MaybeValue<T>[],
+) => unknown;
+
+export type UseArraySomeReturn = ReadonlySignal<boolean>;
+
 export type UseArrayFilterPredicate<T> = (
 	element: T,
 	index: number,
