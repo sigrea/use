@@ -63,6 +63,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.useBase64).toBe("function");
 		expect(typeof mod.useBattery).toBe("function");
 		expect(typeof mod.useBluetooth).toBe("function");
+		expect(typeof mod.useBroadcastChannel).toBe("function");
 		expect(typeof mod.useBreakpoints).toBe("function");
 		expect(typeof mod.useDocumentVisibility).toBe("function");
 		expect(typeof mod.useElementSize).toBe("function");
@@ -385,6 +386,22 @@ describe("SSR safety", () => {
 		await result.requestDevice();
 		await result.connect();
 		result.disconnect();
+		result.stop();
+	});
+
+	it("creates useBroadcastChannel without a window", async () => {
+		const { useBroadcastChannel } = await import("../../../index");
+		const result = useBroadcastChannel({ name: "test" });
+
+		expect(globalThis.window).toBeUndefined();
+		expect(result.isSupported.value).toBe(false);
+		expect(result.isClosed.value).toBe(true);
+		expect(result.channel.value).toBeUndefined();
+		expect(result.data.value).toBeUndefined();
+		expect(result.error.value).toBeNull();
+
+		result.postMessage("hello");
+		result.close();
 		result.stop();
 	});
 
