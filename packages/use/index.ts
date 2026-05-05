@@ -66,6 +66,7 @@ export { formatDate, normalizeDate, useDateFormat } from "./useDateFormat";
 export { useDebounceFn } from "./useDebounceFn";
 export { useDebouncedRefHistory } from "./useDebouncedRefHistory";
 export { useDeviceMotion } from "./useDeviceMotion";
+export { useDeviceOrientation } from "./useDeviceOrientation";
 export { useDocumentVisibility } from "./useDocumentVisibility";
 export { useElementSize } from "./useElementSize";
 export { useEventListener } from "./useEventListener";
@@ -217,6 +218,8 @@ export type {
 	DocumentVisibilityDocumentLike,
 	DeviceMotionEventConstructorLike,
 	DeviceMotionPermissionState,
+	DeviceOrientationEventConstructorLike,
+	DeviceOrientationPermissionState,
 	ElementSize,
 	FocusableElementLike,
 	FocusMethodOptions,
@@ -347,6 +350,9 @@ export type {
 	UseDeviceMotionOptions,
 	UseDeviceMotionReturn,
 	UseDeviceMotionWindowLike,
+	UseDeviceOrientationOptions,
+	UseDeviceOrientationReturn,
+	UseDeviceOrientationWindowLike,
 	UseDocumentVisibilityOptions,
 	UseDocumentVisibilityReturn,
 	UseElementSizeOptions,

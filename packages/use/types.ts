@@ -1658,6 +1658,22 @@ export interface UseDeviceMotionWindowLike extends WindowLike {
 	readonly DeviceMotionEvent?: DeviceMotionEventConstructorLike;
 }
 
+export type DeviceOrientationPermissionState = "granted" | "denied";
+
+export interface DeviceOrientationEventConstructorLike {
+	new (
+		type: string,
+		eventInitDict?: DeviceOrientationEventInit,
+	): DeviceOrientationEvent;
+	requestPermission?(
+		absolute?: boolean,
+	): Promise<DeviceOrientationPermissionState>;
+}
+
+export interface UseDeviceOrientationWindowLike extends WindowLike {
+	readonly DeviceOrientationEvent?: DeviceOrientationEventConstructorLike;
+}
+
 export interface OnlineNavigatorLike extends NavigatorLike {
 	readonly onLine?: boolean;
 }
@@ -1914,6 +1930,39 @@ export interface UseDeviceMotionReturn {
 	readonly requirePermissions: ReadonlySignal<boolean>;
 	readonly permissionGranted: ReadonlySignal<boolean>;
 	ensurePermissions(): Promise<void>;
+	stop(): void;
+}
+
+export interface UseDeviceOrientationOptions<
+	TWindow extends
+		UseDeviceOrientationWindowLike = UseDeviceOrientationWindowLike,
+> {
+	/**
+	 * Pass true to DeviceOrientationEvent.requestPermission(true) when requesting
+	 * absolute orientation permission.
+	 *
+	 * @default false
+	 */
+	absolute?: MaybeValue<boolean>;
+	/**
+	 * Request orientation permission immediately when the browser exposes
+	 * DeviceOrientationEvent.requestPermission().
+	 *
+	 * @default false
+	 */
+	requestPermissions?: MaybeValue<boolean>;
+	window?: MaybeTarget<TWindow>;
+}
+
+export interface UseDeviceOrientationReturn {
+	readonly isAbsolute: ReadonlySignal<boolean>;
+	readonly alpha: ReadonlySignal<number | null>;
+	readonly beta: ReadonlySignal<number | null>;
+	readonly gamma: ReadonlySignal<number | null>;
+	readonly isSupported: ReadonlySignal<boolean>;
+	readonly requirePermissions: ReadonlySignal<boolean>;
+	readonly permissionGranted: ReadonlySignal<boolean>;
+	ensurePermissions(absolute?: boolean): Promise<void>;
 	stop(): void;
 }
 
