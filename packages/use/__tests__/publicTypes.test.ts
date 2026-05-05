@@ -237,6 +237,12 @@ import type {
 	UseDevicesListPermissionStatusLike,
 	UseDevicesListPermissionsLike,
 	UseDevicesListReturn,
+	UseDisplayMediaMediaDevicesLike,
+	UseDisplayMediaMediaStreamLike,
+	UseDisplayMediaMediaStreamTrackLike,
+	UseDisplayMediaNavigatorLike,
+	UseDisplayMediaOptions,
+	UseDisplayMediaReturn,
 	UseDocumentVisibilityOptions,
 	UseElementSizeOptions,
 	UseFocusOptions,
@@ -327,6 +333,7 @@ import {
 	useDeviceOrientation,
 	useDevicePixelRatio,
 	useDevicesList,
+	useDisplayMedia,
 	useDocumentVisibility,
 	useElementSize,
 	useEventListener,
@@ -3879,6 +3886,70 @@ describe("public types", () => {
 				useDevicesList({ requestPermissions: "true" });
 				// @ts-expect-error audio constraints must be boolean or MediaTrackConstraints
 				useDevicesList({ constraints: { audio: "true" } });
+			});
+		});
+
+		typeOnly(() => {
+			const displayTrack: UseDisplayMediaMediaStreamTrackLike =
+				new EventTarget() as UseDisplayMediaMediaStreamTrackLike;
+			displayTrack.stop = () => {};
+			const displayStream: UseDisplayMediaMediaStreamLike = {
+				getTracks: () => [displayTrack],
+			};
+			const displayMediaDevices = {
+				getDisplayMedia: (_options?: DisplayMediaStreamOptions) =>
+					Promise.resolve(displayStream),
+			} satisfies UseDisplayMediaMediaDevicesLike<UseDisplayMediaMediaStreamLike>;
+			const displayNavigator: UseDisplayMediaNavigatorLike<UseDisplayMediaMediaStreamLike> =
+				{
+					mediaDevices: displayMediaDevices,
+				};
+			const displayOptions: UseDisplayMediaOptions<
+				UseDisplayMediaMediaStreamLike,
+				UseDisplayMediaNavigatorLike<UseDisplayMediaMediaStreamLike>
+			> = {
+				constraints: signal({
+					audio: true,
+					video: { displaySurface: "browser" },
+				}),
+				enabled: signal(false),
+				navigator: signal(displayNavigator),
+			};
+			const displayMedia = useDisplayMedia(displayOptions);
+			const displayFallback = useDisplayMedia({ navigator: null });
+			const displayReturn: UseDisplayMediaReturn<UseDisplayMediaMediaStreamLike> =
+				displayMedia;
+
+			expectTypeOf(displayMedia).toEqualTypeOf<
+				UseDisplayMediaReturn<UseDisplayMediaMediaStreamLike>
+			>();
+			expectTypeOf(displayReturn.stream).toEqualTypeOf<
+				ReadonlySignal<UseDisplayMediaMediaStreamLike | undefined>
+			>();
+			expectTypeOf(displayMedia.isSupported).toEqualTypeOf<
+				ReadonlySignal<boolean>
+			>();
+			expectTypeOf(displayMedia.isStarting).toEqualTypeOf<
+				ReadonlySignal<boolean>
+			>();
+			expectTypeOf(displayMedia.isStreaming).toEqualTypeOf<
+				ReadonlySignal<boolean>
+			>();
+			expectTypeOf(displayMedia.error).toEqualTypeOf<
+				ReadonlySignal<unknown | null>
+			>();
+			expectTypeOf(displayMedia.start()).toEqualTypeOf<
+				Promise<UseDisplayMediaMediaStreamLike | undefined>
+			>();
+			expectTypeOf(displayMedia.stop()).toEqualTypeOf<void>();
+			expectTypeOf(displayFallback).toEqualTypeOf<UseDisplayMediaReturn>();
+			typeOnly(() => {
+				// @ts-expect-error returned values are readonly signals
+				displayMedia.stream.value = displayStream;
+				// @ts-expect-error enabled must be boolean
+				useDisplayMedia({ enabled: "true" });
+				// @ts-expect-error display media options must use valid option types
+				useDisplayMedia({ constraints: { audio: "true" } });
 			});
 		});
 

@@ -84,6 +84,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.useDeviceOrientation).toBe("function");
 		expect(typeof mod.useDevicePixelRatio).toBe("function");
 		expect(typeof mod.useDevicesList).toBe("function");
+		expect(typeof mod.useDisplayMedia).toBe("function");
 		expect(typeof mod.useBreakpoints).toBe("function");
 		expect(typeof mod.useDocumentVisibility).toBe("function");
 		expect(typeof mod.useElementSize).toBe("function");
@@ -120,6 +121,7 @@ describe("SSR safety", () => {
 			useCssVar,
 			useDark,
 			useDevicesList,
+			useDisplayMedia,
 			useLocalStorage,
 			useMediaQuery,
 			useMouse,
@@ -181,6 +183,7 @@ describe("SSR safety", () => {
 			window: null,
 		});
 		const devicesList = useDevicesList({ navigator: null });
+		const displayMedia = useDisplayMedia({ navigator: null });
 		const sessionStorageValue = useSessionStorage("session", "fallback", {
 			window: undefined,
 		});
@@ -214,6 +217,8 @@ describe("SSR safety", () => {
 		expect(cssVar.value).toBe("red");
 		expect(devicesList.isSupported.value).toBe(false);
 		expect(devicesList.devices.value).toEqual([]);
+		expect(displayMedia.isSupported.value).toBe(false);
+		expect(displayMedia.stream.value).toBeUndefined();
 		expect(sessionStorageValue.value).toBe("fallback");
 		expect(ssrMediaQuery.matches.value).toBe(true);
 		expect(storageValue.value).toBe("fallback");
@@ -253,6 +258,8 @@ describe("SSR safety", () => {
 		cssVar.stop();
 		expect(await devicesList.ensurePermissions()).toBe(false);
 		devicesList.stop();
+		expect(await displayMedia.start()).toBeUndefined();
+		displayMedia.stop();
 		sessionStorageValue.stop();
 		ssrMediaQuery.stop();
 		storageValue.stop();
@@ -548,6 +555,20 @@ describe("SSR safety", () => {
 		expect(result.audioInputs.value).toEqual([]);
 		expect(result.audioOutputs.value).toEqual([]);
 		expect(await result.ensurePermissions()).toBe(false);
+		result.stop();
+	});
+
+	it("creates useDisplayMedia without a window", async () => {
+		const { useDisplayMedia } = await import("../../../index");
+		const result = useDisplayMedia();
+
+		expect(globalThis.window).toBeUndefined();
+		expect(result.isSupported.value).toBe(false);
+		expect(result.isStarting.value).toBe(false);
+		expect(result.isStreaming.value).toBe(false);
+		expect(result.stream.value).toBeUndefined();
+		expect(result.error.value).toBeNull();
+		expect(await result.start()).toBeUndefined();
 		result.stop();
 	});
 
