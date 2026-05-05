@@ -339,6 +339,14 @@ import type {
 	UseFullscreenEnterOptions,
 	UseFullscreenOptions,
 	UseFullscreenReturn,
+	UseGamepadButtonLike,
+	UseGamepadGamepadLike,
+	UseGamepadGamepadSnapshot,
+	UseGamepadHapticActuatorLike,
+	UseGamepadNavigatorLike,
+	UseGamepadOptions,
+	UseGamepadReturn,
+	UseGamepadWindowLike,
 	UseMediaQueryOptions,
 	UseMouseOptions,
 	UseOnlineOptions,
@@ -447,6 +455,7 @@ import {
 	useFocusWithin,
 	useFps,
 	useFullscreen,
+	useGamepad,
 	useInterval,
 	useIntervalFn,
 	useLocalStorage,
@@ -5213,6 +5222,83 @@ describe("public types", () => {
 				});
 				// @ts-expect-error enter options must use a valid navigationUI value
 				fullscreen.enter({ navigationUI: "minimal" });
+			});
+		});
+	});
+
+	it("types gamepad controls and snapshots", () => {
+		typeOnly(() => {
+			const actuator: UseGamepadHapticActuatorLike = {
+				playEffect: async () => undefined,
+				reset: async () => undefined,
+			};
+			const button: UseGamepadButtonLike = {
+				pressed: true,
+				touched: true,
+				value: 1,
+			};
+			const rawGamepad: UseGamepadGamepadLike = {
+				axes: [0, 1],
+				buttons: [button],
+				connected: true,
+				hapticActuators: [actuator],
+				id: "pad",
+				index: 0,
+				mapping: "standard",
+				timestamp: 1,
+				vibrationActuator: actuator,
+			};
+			const navigatorTarget: UseGamepadNavigatorLike = {
+				getGamepads: () => [rawGamepad],
+			};
+			const windowTarget = Object.assign(new EventTarget(), {
+				cancelAnimationFrame: (_handle: number) => {},
+				navigator: navigatorTarget,
+				requestAnimationFrame: (_callback: FrameRequestCallback) => 1,
+			}) as UseGamepadWindowLike;
+			const options: UseGamepadOptions<
+				UseGamepadNavigatorLike,
+				UseGamepadWindowLike
+			> = {
+				immediate: false,
+				navigator: signal(navigatorTarget),
+				window: signal(windowTarget),
+			};
+			const gamepad = useGamepad(options);
+			const gamepadReturn: UseGamepadReturn = gamepad;
+
+			expectTypeOf(gamepad).toEqualTypeOf<UseGamepadReturn>();
+			expectTypeOf(gamepadReturn.gamepads).toEqualTypeOf<
+				ReadonlySignal<readonly UseGamepadGamepadSnapshot[]>
+			>();
+			expectTypeOf(gamepad.isSupported).toEqualTypeOf<
+				ReadonlySignal<boolean>
+			>();
+			expectTypeOf(gamepad.isActive).toEqualTypeOf<ReadonlySignal<boolean>>();
+			expectTypeOf(gamepad.pause()).toEqualTypeOf<void>();
+			expectTypeOf(gamepad.resume()).toEqualTypeOf<void>();
+			expectTypeOf(gamepad.stop()).toEqualTypeOf<void>();
+			gamepad.onConnected((index) => {
+				expectTypeOf(index).toEqualTypeOf<number>();
+			});
+			gamepad.onDisconnected((index) => {
+				expectTypeOf(index).toEqualTypeOf<number>();
+			});
+			typeOnly(() => {
+				// @ts-expect-error gamepads is readonly
+				gamepad.gamepads.value = [];
+				useGamepad({
+					// @ts-expect-error navigator must expose getGamepads()
+					navigator: {},
+				});
+				useGamepad({
+					// @ts-expect-error window must be EventTarget-like
+					window: { navigator: navigatorTarget },
+				});
+				useGamepad({
+					// @ts-expect-error immediate must be boolean
+					immediate: "yes",
+				});
 			});
 		});
 	});
