@@ -45,6 +45,7 @@ export { useArrayUnique } from "./useArrayUnique";
 export { useAsyncQueue } from "./useAsyncQueue";
 export { useAsyncState } from "./useAsyncState";
 export { useBase64 } from "./useBase64";
+export { useBattery } from "./useBattery";
 export { useBreakpoints } from "./useBreakpoints";
 export { useCounter } from "./useCounter";
 export { useDebounceFn } from "./useDebounceFn";
@@ -96,6 +97,10 @@ export type {
 	UseBase64Return,
 	UseBase64Source,
 	UseBase64WindowLike,
+	BatteryManagerLike,
+	BatteryNavigatorLike,
+	UseBatteryOptions,
+	UseBatteryReturn,
 	Arrayable,
 	Breakpoints,
 	CloneFn,
