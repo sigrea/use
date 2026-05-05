@@ -72,6 +72,7 @@ export { useDevicesList } from "./useDevicesList";
 export { useDisplayMedia } from "./useDisplayMedia";
 export { useDocumentVisibility } from "./useDocumentVisibility";
 export { useDraggable } from "./useDraggable";
+export { useDropZone } from "./useDropZone";
 export { useElementSize } from "./useElementSize";
 export { useEventListener } from "./useEventListener";
 export { useFocus } from "./useFocus";
@@ -383,6 +384,13 @@ export type {
 	UseDraggableOptions,
 	UseDraggablePointerType,
 	UseDraggableReturn,
+	UseDropZoneDataTypes,
+	UseDropZoneDataTypesValidator,
+	UseDropZoneEventCallback,
+	UseDropZoneFiles,
+	UseDropZoneOptions,
+	UseDropZoneReturn,
+	UseDropZoneTarget,
 	UseElementSizeOptions,
 	UseElementSizeReturn,
 	UseEventListenerOptions,

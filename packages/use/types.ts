@@ -2363,6 +2363,55 @@ export interface UseDraggableReturn {
 	stop(): void;
 }
 
+export type UseDropZoneTarget = HTMLElement | SVGElement | Document | Window;
+export type UseDropZoneFiles = readonly File[] | null;
+export type UseDropZoneDataTypesValidator = (
+	types: readonly string[],
+) => boolean;
+
+export type UseDropZoneDataTypes =
+	| MaybeValue<readonly string[]>
+	| UseDropZoneDataTypesValidator;
+
+export type UseDropZoneEventCallback = (
+	files: UseDropZoneFiles,
+	event: DragEvent,
+) => void;
+
+export interface UseDropZoneOptions {
+	/**
+	 * Allowed drag data types. If omitted or empty, all data types are allowed.
+	 */
+	dataTypes?: UseDropZoneDataTypes;
+	/**
+	 * Custom validation for DataTransferItemList. This takes precedence over dataTypes.
+	 * The multiple-file limit is still applied when this is provided.
+	 */
+	checkValidity?: (items: DataTransferItemList) => boolean;
+	onDrop?: UseDropZoneEventCallback;
+	onEnter?: UseDropZoneEventCallback;
+	onLeave?: UseDropZoneEventCallback;
+	onOver?: UseDropZoneEventCallback;
+	/**
+	 * Allow multiple files to be dropped.
+	 *
+	 * @default true
+	 */
+	multiple?: MaybeValue<boolean>;
+	/**
+	 * Prevent default behavior for unhandled events.
+	 *
+	 * @default false
+	 */
+	preventDefaultForUnhandled?: MaybeValue<boolean>;
+}
+
+export interface UseDropZoneReturn {
+	readonly files: ReadonlySignal<UseDropZoneFiles>;
+	readonly isOverDropZone: ReadonlySignal<boolean>;
+	stop(): void;
+}
+
 export type FocusMethodOptions = FocusOptions;
 
 export interface FocusableElementLike extends EventTarget {
