@@ -1795,6 +1795,71 @@ export interface UseFetchReturnBase<Data = unknown> {
 export type UseFetchReturn<Data = unknown> = UseFetchReturnBase<Data> &
 	PromiseLike<UseFetchReturnBase<Data>>;
 
+export interface UseFileDialogInputLike extends HTMLInputElement {
+	webkitdirectory: boolean;
+}
+
+export interface UseFileDialogDocumentLike extends DocumentLike {
+	readonly defaultView?:
+		| (WindowLike & {
+				readonly DataTransfer?: { new (): DataTransfer };
+		  })
+		| null;
+	createElement(tagName: "input"): UseFileDialogInputLike;
+}
+
+export interface UseFileDialogOptions<
+	TDocument extends UseFileDialogDocumentLike = UseFileDialogDocumentLike,
+> {
+	/**
+	 * Allow multiple files to be selected.
+	 *
+	 * @default true
+	 */
+	multiple?: MaybeValue<boolean>;
+	/**
+	 * Accepted file types.
+	 *
+	 * @default ""
+	 */
+	accept?: MaybeValue<string>;
+	/**
+	 * Preferred capture source for file inputs that accept media.
+	 */
+	capture?: MaybeValue<string | undefined>;
+	/**
+	 * Reset current files when opening the dialog.
+	 *
+	 * @default false
+	 */
+	reset?: MaybeValue<boolean>;
+	/**
+	 * Select directories instead of files where the browser supports it.
+	 *
+	 * @default false
+	 */
+	directory?: MaybeValue<boolean>;
+	initialFiles?: FileList | readonly File[] | null;
+	document?: MaybeTarget<TDocument>;
+	input?: MaybeTarget<UseFileDialogInputLike>;
+}
+
+export type UseFileDialogOpenOptions = Partial<
+	Pick<
+		UseFileDialogOptions,
+		"accept" | "capture" | "directory" | "multiple" | "reset"
+	>
+>;
+
+export interface UseFileDialogReturn {
+	readonly files: ReadonlySignal<FileList | null>;
+	open(options?: UseFileDialogOpenOptions): void;
+	reset(): void;
+	onChange: EventHookOn<FileList | null>;
+	onCancel: EventHookOn<void>;
+	stop(): void;
+}
+
 export interface Position {
 	x: number;
 	y: number;
