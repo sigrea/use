@@ -73,7 +73,7 @@ Status values:
 | `useArrayFindIndex` | `useArrayFindIndex` | Done |
 | `useArrayFindLast` | `useArrayFindLast` | Done |
 | `useArrayIncludes` | `useArrayIncludes` | Done |
-| `useArrayJoin` | `-` | Todo |
+| `useArrayJoin` | `useArrayJoin` | Done |
 | `useArrayMap` | `-` | Todo |
 | `useArrayReduce` | `-` | Todo |
 | `useArraySome` | `-` | Todo |
