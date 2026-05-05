@@ -1627,6 +1627,20 @@ export interface UseCounterReturn {
 	set(value: number): void;
 }
 
+export interface UseCycleListOptions<T> {
+	initialValue?: MaybeValue<T>;
+	fallbackIndex?: MaybeValue<number>;
+	getIndexOf?: (value: T | undefined, list: T[]) => number;
+}
+
+export interface UseCycleListReturn<T> {
+	readonly state: Signal<T | undefined>;
+	readonly index: Signal<number>;
+	next(delta?: number): T | undefined;
+	prev(delta?: number): T | undefined;
+	go(index: number): T | undefined;
+}
+
 export interface UseToggleOptions<Truthy = true, Falsy = false> {
 	truthyValue?: MaybeValue<Truthy>;
 	falsyValue?: MaybeValue<Falsy>;

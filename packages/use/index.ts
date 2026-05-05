@@ -60,6 +60,7 @@ export { useBreakpoints } from "./useBreakpoints";
 export { useCounter } from "./useCounter";
 export { useCssSupports } from "./useCssSupports";
 export { useCssVar } from "./useCssVar";
+export { useCycleList } from "./useCycleList";
 export { useDebounceFn } from "./useDebounceFn";
 export { useDocumentVisibility } from "./useDocumentVisibility";
 export { useElementSize } from "./useElementSize";
@@ -326,6 +327,8 @@ export type {
 	UseBreakpointsReturn,
 	UseCounterOptions,
 	UseCounterReturn,
+	UseCycleListOptions,
+	UseCycleListReturn,
 	UseDebounceFnOptions,
 	UseDebounceFnReturn,
 	UseDocumentVisibilityOptions,
