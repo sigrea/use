@@ -225,6 +225,9 @@ import type {
 	UseDeviceOrientationOptions,
 	UseDeviceOrientationReturn,
 	UseDeviceOrientationWindowLike,
+	UseDevicePixelRatioOptions,
+	UseDevicePixelRatioReturn,
+	UseDevicePixelRatioWindowLike,
 	UseDocumentVisibilityOptions,
 	UseElementSizeOptions,
 	UseFocusOptions,
@@ -313,6 +316,7 @@ import {
 	useDebouncedRefHistory,
 	useDeviceMotion,
 	useDeviceOrientation,
+	useDevicePixelRatio,
 	useDocumentVisibility,
 	useElementSize,
 	useEventListener,
@@ -337,6 +341,10 @@ import {
 } from "../../../index";
 
 interface MatchMediaOnlyWindow extends MatchMediaWindow {
+	readonly label: string;
+}
+
+interface DevicePixelRatioOnlyWindow extends UseDevicePixelRatioWindowLike {
 	readonly label: string;
 }
 
@@ -3749,6 +3757,45 @@ describe("public types", () => {
 			useDeviceOrientation({ absolute: "true" });
 		});
 
+		const pixelRatioQueryList = new EventTarget() as MediaQueryList;
+		Object.defineProperty(pixelRatioQueryList, "matches", {
+			value: true,
+		});
+		Object.defineProperty(pixelRatioQueryList, "media", {
+			value: "(resolution: 2dppx)",
+		});
+		const pixelRatioWindow = new EventTarget() as DevicePixelRatioOnlyWindow;
+		Object.defineProperty(pixelRatioWindow, "label", {
+			value: "pixel-ratio",
+		});
+		Object.defineProperty(pixelRatioWindow, "devicePixelRatio", {
+			value: 2,
+		});
+		Object.defineProperty(pixelRatioWindow, "matchMedia", {
+			value: (_query: string) => pixelRatioQueryList,
+		});
+		const pixelRatioOptions: UseDevicePixelRatioOptions<DevicePixelRatioOnlyWindow> =
+			{
+				initialValue: 1,
+				window: signal(pixelRatioWindow),
+			};
+		const pixelRatio = useDevicePixelRatio(pixelRatioOptions);
+		const pixelRatioFallback = useDevicePixelRatio({ window: null });
+		const pixelRatioReturn: UseDevicePixelRatioReturn = pixelRatio;
+
+		expectTypeOf(pixelRatio).toEqualTypeOf<UseDevicePixelRatioReturn>();
+		expectTypeOf(pixelRatioReturn.pixelRatio).toEqualTypeOf<
+			ReadonlySignal<number>
+		>();
+		expectTypeOf(pixelRatio.stop()).toEqualTypeOf<void>();
+		expectTypeOf(pixelRatioFallback).toEqualTypeOf<UseDevicePixelRatioReturn>();
+		typeOnly(() => {
+			// @ts-expect-error returned values are readonly signals
+			pixelRatio.pixelRatio.value = 1;
+			// @ts-expect-error initialValue must be a number
+			useDevicePixelRatio({ initialValue: "1" });
+		});
+
 		const visibilityDocument =
 			new EventTarget() as DocumentVisibilityDocumentLike;
 		Object.defineProperty(visibilityDocument, "visibilityState", {
@@ -3787,6 +3834,8 @@ describe("public types", () => {
 		colorMode.stop();
 		motion.stop();
 		motionFallback.stop();
+		pixelRatio.stop();
+		pixelRatioFallback.stop();
 		visibility.stop();
 		online.stop();
 	});

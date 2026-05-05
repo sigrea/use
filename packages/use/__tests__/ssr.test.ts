@@ -82,6 +82,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.useDebouncedRefHistory).toBe("function");
 		expect(typeof mod.useDeviceMotion).toBe("function");
 		expect(typeof mod.useDeviceOrientation).toBe("function");
+		expect(typeof mod.useDevicePixelRatio).toBe("function");
 		expect(typeof mod.useBreakpoints).toBe("function");
 		expect(typeof mod.useDocumentVisibility).toBe("function");
 		expect(typeof mod.useElementSize).toBe("function");
@@ -516,6 +517,15 @@ describe("SSR safety", () => {
 		expect(result.gamma.value).toBeNull();
 
 		await result.ensurePermissions();
+		result.stop();
+	});
+
+	it("creates useDevicePixelRatio without a window", async () => {
+		const { useDevicePixelRatio } = await import("../../../index");
+		const result = useDevicePixelRatio();
+
+		expect(globalThis.window).toBeUndefined();
+		expect(result.pixelRatio.value).toBe(1);
 		result.stop();
 	});
 
