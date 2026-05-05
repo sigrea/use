@@ -307,6 +307,11 @@ import type {
 	UseFetchReturnBase,
 	UseFetchUrl,
 	UseFetchWindowLike,
+	UseFileDialogDocumentLike,
+	UseFileDialogInputLike,
+	UseFileDialogOpenOptions,
+	UseFileDialogOptions,
+	UseFileDialogReturn,
 	UseFocusOptions,
 	UseMediaQueryOptions,
 	UseMouseOptions,
@@ -410,6 +415,7 @@ import {
 	useEyeDropper,
 	useFavicon,
 	useFetch,
+	useFileDialog,
 	useFocus,
 	useInterval,
 	useIntervalFn,
@@ -2519,6 +2525,81 @@ describe("public types", () => {
 			request.post({ id: "1" }, 1);
 			// @ts-expect-error returned data is readonly
 			request.data.value = { id: "2" };
+		});
+	});
+
+	it("types file dialogs", () => {
+		typeOnly(() => {
+			const input = {} as UseFileDialogInputLike;
+			const customDocument = {} as UseFileDialogDocumentLike;
+			const documentTarget = signal<UseFileDialogDocumentLike | null>(
+				customDocument,
+			);
+			const files = {} as FileList;
+			const options: UseFileDialogOptions<UseFileDialogDocumentLike> = {
+				accept: () => "image/*",
+				capture: signal<string | undefined>("environment"),
+				directory: signal(false),
+				document: documentTarget,
+				initialFiles: [new File(["content"], "file.txt"), files[0]],
+				input: signal<UseFileDialogInputLike | null>(input),
+				multiple: signal(true),
+				reset: false,
+			};
+			const dialog = useFileDialog(options);
+			const fallback = useFileDialog({ document: null });
+			const openOptions: UseFileDialogOpenOptions = {
+				accept: "text/plain",
+				capture: undefined,
+				directory: true,
+				multiple: false,
+				reset: true,
+			};
+
+			useFileDialog({
+				document: customDocument,
+				initialFiles: files,
+				input,
+			});
+			expectTypeOf(dialog).toEqualTypeOf<UseFileDialogReturn>();
+			expectTypeOf(dialog.files).toEqualTypeOf<
+				ReadonlySignal<FileList | null>
+			>();
+			expectTypeOf(dialog.open()).toEqualTypeOf<void>();
+			expectTypeOf(dialog.open(openOptions)).toEqualTypeOf<void>();
+			expectTypeOf(dialog.reset()).toEqualTypeOf<void>();
+			expectTypeOf(dialog.stop()).toEqualTypeOf<void>();
+			expectTypeOf(fallback.files.value).toEqualTypeOf<FileList | null>();
+			dialog.onChange((selectedFiles) => {
+				expectTypeOf(selectedFiles).toEqualTypeOf<FileList | null>();
+			});
+			dialog.onCancel(() => {});
+			useFileDialog({
+				// @ts-expect-error initialFiles must be a FileList or file array
+				initialFiles: 1,
+			});
+			useFileDialog({
+				// @ts-expect-error multiple must be boolean
+				multiple: "true",
+			});
+			useFileDialog({
+				// @ts-expect-error accept must be a string
+				accept: 1,
+			});
+			useFileDialog({
+				// @ts-expect-error capture must be a string
+				capture: 1,
+			});
+			useFileDialog({
+				// @ts-expect-error input must be an input target
+				input: 1,
+			});
+			useFileDialog({
+				// @ts-expect-error document must be document-like
+				document: {},
+			});
+			// @ts-expect-error returned files signal is readonly
+			dialog.files.value = null;
 		});
 	});
 
