@@ -32,6 +32,11 @@ import type {
 	BrowserLocationTrigger,
 	BrowserLocationWindowLike,
 	BrowserLocationWritableProperty,
+	ClipboardDocumentBodyLike,
+	ClipboardDocumentLike,
+	ClipboardLike,
+	ClipboardNavigatorLike,
+	ClipboardTextareaLike,
 	ComputedEagerOptions,
 	ComputedEagerReturn,
 	ComputedWithControlOptions,
@@ -166,6 +171,11 @@ import type {
 	UseCachedComparator,
 	UseCachedOptions,
 	UseCachedReturn,
+	UseClipboardCopyFn,
+	UseClipboardOptions,
+	UseClipboardReturn,
+	UseClipboardTextSource,
+	UseClipboardWindowLike,
 	UseDocumentVisibilityOptions,
 	UseElementSizeOptions,
 	UseFocusOptions,
@@ -236,6 +246,7 @@ import {
 	useBroadcastChannel,
 	useBrowserLocation,
 	useCached,
+	useClipboard,
 	useDebounceFn,
 	useDocumentVisibility,
 	useElementSize,
@@ -838,6 +849,87 @@ describe("public types", () => {
 			useCached(source, (newSourceValue: string) => newSourceValue.length > 0);
 			// @ts-expect-error source must be reactive or a getter
 			useCached(1);
+		});
+	});
+
+	it("types clipboard values and options", () => {
+		typeOnly(() => {
+			class TypedWindow extends EventTarget implements UseClipboardWindowLike {}
+			const textarea: ClipboardTextareaLike = {
+				value: "",
+				style: {},
+				remove() {},
+				select() {},
+				setAttribute(_name, _value) {},
+			};
+			const body: ClipboardDocumentBodyLike = {
+				appendChild(_node) {},
+			};
+			const document: ClipboardDocumentLike = {
+				body,
+				createElement: (_tagName) => textarea,
+				execCommand: (_command) => true,
+			} as ClipboardDocumentLike;
+			const clipboard: ClipboardLike = {
+				readText: async () => "current",
+				writeText: async (_data) => {},
+			};
+			const navigator: ClipboardNavigatorLike = {
+				clipboard,
+			};
+			const source = signal("copy me");
+			const textSource: UseClipboardTextSource = source;
+			const options: UseClipboardOptions<
+				UseClipboardTextSource,
+				ClipboardNavigatorLike,
+				ClipboardDocumentLike,
+				TypedWindow
+			> = {
+				copiedDuring: signal(100),
+				document,
+				legacy: true,
+				navigator: signal(navigator),
+				read: true,
+				source: textSource,
+				window: new TypedWindow(),
+			};
+			const result = useClipboard(options);
+			const requiredCopy = useClipboard({ navigator: null });
+			const returnValue: UseClipboardReturn<true> = result;
+			const optionalCopy: UseClipboardCopyFn<true> = result.copy;
+			const requiredCopyFn: UseClipboardCopyFn<false> = requiredCopy.copy;
+
+			expectTypeOf(result).toEqualTypeOf<UseClipboardReturn<true>>();
+			expectTypeOf(requiredCopy).toEqualTypeOf<UseClipboardReturn<false>>();
+			expectTypeOf(returnValue.isSupported).toEqualTypeOf<
+				ReadonlySignal<boolean>
+			>();
+			expectTypeOf(result.text).toEqualTypeOf<ReadonlySignal<string>>();
+			expectTypeOf(result.copied).toEqualTypeOf<ReadonlySignal<boolean>>();
+			expectTypeOf(result.isCopying).toEqualTypeOf<ReadonlySignal<boolean>>();
+			expectTypeOf(result.error).toEqualTypeOf<
+				ReadonlySignal<unknown | null>
+			>();
+			expectTypeOf(result.copy()).toEqualTypeOf<Promise<void>>();
+			expectTypeOf(optionalCopy()).toEqualTypeOf<Promise<void>>();
+			expectTypeOf(requiredCopy.copy("value")).toEqualTypeOf<Promise<void>>();
+			expectTypeOf(requiredCopyFn("value")).toEqualTypeOf<Promise<void>>();
+			expectTypeOf(result.read()).toEqualTypeOf<Promise<string | undefined>>();
+			expectTypeOf(result.stop()).toEqualTypeOf<void>();
+
+			// @ts-expect-error copied state is readonly
+			result.copied.value = true;
+			// @ts-expect-error copy value must be text-like
+			result.copy(1);
+			// @ts-expect-error async providers are left to useClipboardItems
+			result.copy(async () => "async");
+			// @ts-expect-error source-less clipboard copy needs a value
+			requiredCopy.copy();
+			// @ts-expect-error Vue copyPending name is not part of the Sigrea API
+			result.copyPending;
+			// @ts-expect-error navigator.clipboard.writeText must return a promise
+			const invalidClipboard: ClipboardLike = { writeText: (_data) => {} };
+			expectTypeOf(invalidClipboard).toEqualTypeOf<ClipboardLike>();
 		});
 	});
 

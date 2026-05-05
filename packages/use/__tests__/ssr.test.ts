@@ -66,6 +66,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.useBroadcastChannel).toBe("function");
 		expect(typeof mod.useBrowserLocation).toBe("function");
 		expect(typeof mod.useCached).toBe("function");
+		expect(typeof mod.useClipboard).toBe("function");
 		expect(typeof mod.useBreakpoints).toBe("function");
 		expect(typeof mod.useDocumentVisibility).toBe("function");
 		expect(typeof mod.useElementSize).toBe("function");
@@ -435,6 +436,24 @@ describe("SSR safety", () => {
 		source.value = 2;
 
 		expect(cached.value).toBe(2);
+	});
+
+	it("creates useClipboard without a window", async () => {
+		const { useClipboard } = await import("../../../index");
+		const result = useClipboard();
+
+		expect(globalThis.window).toBeUndefined();
+		expect(result.isSupported.value).toBe(false);
+		expect(result.text.value).toBe("");
+		expect(result.copied.value).toBe(false);
+		expect(result.isCopying.value).toBe(false);
+		expect(result.error.value).toBeNull();
+
+		await result.copy("hello");
+
+		expect(result.text.value).toBe("");
+		expect(result.copied.value).toBe(false);
+		result.stop();
 	});
 
 	it("creates event hooks without a window", async () => {
