@@ -1860,6 +1860,110 @@ export interface UseFileDialogReturn {
 	stop(): void;
 }
 
+export type FileSystemAccessDataType = "ArrayBuffer" | "Blob" | "Text";
+
+export interface FileSystemAccessAcceptType {
+	description?: string;
+	accept: Record<string, readonly string[]>;
+}
+
+export type FileSystemAccessWellKnownDirectory =
+	| "desktop"
+	| "documents"
+	| "downloads"
+	| "music"
+	| "pictures"
+	| "videos";
+
+export type FileSystemAccessStartInDirectory =
+	| FileSystemHandle
+	| FileSystemAccessWellKnownDirectory;
+
+export interface FileSystemAccessPickerOptions {
+	excludeAcceptAllOption?: boolean;
+	id?: string;
+	startIn?: FileSystemAccessStartInDirectory;
+	types?: readonly FileSystemAccessAcceptType[];
+}
+
+export interface FileSystemAccessShowOpenFileOptions
+	extends FileSystemAccessPickerOptions {
+	multiple?: boolean;
+}
+
+export interface FileSystemAccessShowSaveFileOptions
+	extends FileSystemAccessPickerOptions {
+	suggestedName?: string;
+}
+
+export type FileSystemAccessWriteData = string | BufferSource | Blob;
+
+export interface FileSystemAccessWritableFileStreamLike {
+	write(data: FileSystemAccessWriteData): Promise<void>;
+	close(): Promise<void>;
+}
+
+export interface FileSystemAccessCreateWritableOptions {
+	keepExistingData?: boolean;
+}
+
+export interface FileSystemAccessFileHandleLike {
+	getFile(): Promise<File>;
+	createWritable(
+		options?: FileSystemAccessCreateWritableOptions,
+	): Promise<FileSystemAccessWritableFileStreamLike>;
+}
+
+export interface FileSystemAccessWindowLike<
+	TFileHandle extends
+		FileSystemAccessFileHandleLike = FileSystemAccessFileHandleLike,
+> extends WindowLike {
+	showOpenFilePicker?: (
+		options?: FileSystemAccessShowOpenFileOptions,
+	) => Promise<readonly TFileHandle[]>;
+	showSaveFilePicker?: (
+		options?: FileSystemAccessShowSaveFileOptions,
+	) => Promise<TFileHandle>;
+}
+
+export interface UseFileSystemAccessPickerOptions {
+	excludeAcceptAllOption?: MaybeValue<boolean | undefined>;
+	id?: MaybeValue<string | undefined>;
+	startIn?: MaybeValue<FileSystemAccessStartInDirectory | undefined>;
+	types?: MaybeValue<readonly FileSystemAccessAcceptType[] | undefined>;
+}
+
+export type UseFileSystemAccessOpenOptions = UseFileSystemAccessPickerOptions;
+
+export interface UseFileSystemAccessSaveOptions
+	extends UseFileSystemAccessPickerOptions {
+	suggestedName?: MaybeValue<string | undefined>;
+}
+
+export interface UseFileSystemAccessOptions<
+	TWindow extends FileSystemAccessWindowLike = FileSystemAccessWindowLike,
+> extends UseFileSystemAccessPickerOptions {
+	dataType?: MaybeValue<FileSystemAccessDataType>;
+	window?: MaybeTarget<TWindow>;
+}
+
+export interface UseFileSystemAccessReturn<Data = string | ArrayBuffer | Blob> {
+	readonly isSupported: ReadonlySignal<boolean>;
+	readonly data: Signal<Data | undefined>;
+	readonly file: ReadonlySignal<File | undefined>;
+	readonly fileName: ReadonlySignal<string>;
+	readonly fileMIME: ReadonlySignal<string>;
+	readonly fileSize: ReadonlySignal<number>;
+	readonly fileLastModified: ReadonlySignal<number>;
+	readonly error: ReadonlySignal<unknown | null>;
+	open(options?: UseFileSystemAccessOpenOptions): Promise<void>;
+	create(options?: UseFileSystemAccessSaveOptions): Promise<void>;
+	save(options?: UseFileSystemAccessSaveOptions): Promise<void>;
+	saveAs(options?: UseFileSystemAccessSaveOptions): Promise<void>;
+	updateData(): Promise<void>;
+	stop(): void;
+}
+
 export interface Position {
 	x: number;
 	y: number;

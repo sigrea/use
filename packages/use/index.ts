@@ -85,6 +85,7 @@ export { useEyeDropper } from "./useEyeDropper";
 export { useFavicon } from "./useFavicon";
 export { useFetch } from "./useFetch";
 export { useFileDialog } from "./useFileDialog";
+export { useFileSystemAccess } from "./useFileSystemAccess";
 export { useFocus } from "./useFocus";
 export { useInterval } from "./useInterval";
 export { useIntervalFn } from "./useIntervalFn";
@@ -462,6 +463,23 @@ export type {
 	UseFileDialogOpenOptions,
 	UseFileDialogOptions,
 	UseFileDialogReturn,
+	FileSystemAccessAcceptType,
+	FileSystemAccessCreateWritableOptions,
+	FileSystemAccessDataType,
+	FileSystemAccessFileHandleLike,
+	FileSystemAccessPickerOptions,
+	FileSystemAccessShowOpenFileOptions,
+	FileSystemAccessShowSaveFileOptions,
+	FileSystemAccessStartInDirectory,
+	FileSystemAccessWellKnownDirectory,
+	FileSystemAccessWindowLike,
+	FileSystemAccessWritableFileStreamLike,
+	FileSystemAccessWriteData,
+	UseFileSystemAccessOpenOptions,
+	UseFileSystemAccessOptions,
+	UseFileSystemAccessPickerOptions,
+	UseFileSystemAccessReturn,
+	UseFileSystemAccessSaveOptions,
 	UseFocusOptions,
 	UseFocusReturn,
 	UseIntervalControlsReturn,
