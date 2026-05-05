@@ -89,7 +89,7 @@ Status values:
 | `useCached` | `useCached` | Done |
 | `useClipboard` | `useClipboard` | Done |
 | `useClipboardItems` | `useClipboardItems` | Done |
-| `useCloned` | `-` | Todo |
+| `useCloned` | `useCloned` | Done |
 | `useColorMode` | `-` | Todo |
 | `useConfirmDialog` | `-` | Todo |
 | `useCountdown` | `-` | Todo |
