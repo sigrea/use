@@ -100,6 +100,8 @@ import type {
 	UseArrayDifferenceReturn,
 	UseArrayEveryPredicate,
 	UseArrayEveryReturn,
+	UseArrayFilterPredicate,
+	UseArrayFilterReturn,
 	UseBreakpointsOptions,
 	UseDocumentVisibilityOptions,
 	UseElementSizeOptions,
@@ -152,6 +154,7 @@ import {
 	useAnimate,
 	useArrayDifference,
 	useArrayEvery,
+	useArrayFilter,
 	useBreakpoints,
 	useDebounceFn,
 	useDocumentVisibility,
@@ -342,6 +345,60 @@ describe("public types", () => {
 				signal((value: number) => value > 0),
 			);
 			useArrayEvery(
+				signal([1]),
+				// @ts-expect-error predicate is a raw function, not a computed value
+				computed(() => (value: number) => value > 0),
+			);
+		});
+	});
+
+	it("types array filter values", () => {
+		typeOnly(() => {
+			const first = signal<number | null>(1);
+			const second = computed<number | null>(() => null);
+			const third = signal<number | null>(3);
+			const list = signal([first, second, () => third.value]);
+			const rawList: Array<number | string> = [1, "ready"];
+			const predicate: UseArrayFilterPredicate<number | null> = (
+				element,
+				index,
+				array,
+			) => {
+				expectTypeOf(element).toEqualTypeOf<number | null>();
+				expectTypeOf(index).toEqualTypeOf<number>();
+				expectTypeOf(array).toEqualTypeOf<Array<number | null>>();
+				return element != null;
+			};
+			const result = useArrayFilter(list, predicate);
+			const narrowed = useArrayFilter(rawList, (value): value is number => {
+				return typeof value === "number";
+			});
+			const getterResult = useArrayFilter(
+				() => [1, 2, 3],
+				(value) => value > 1,
+			);
+			const readonlyResult = useArrayFilter(readonly(list), predicate);
+
+			expectTypeOf(result).toEqualTypeOf<UseArrayFilterReturn<number | null>>();
+			expectTypeOf(result).toEqualTypeOf<
+				ReadonlySignal<Array<number | null>>
+			>();
+			expectTypeOf(narrowed).toEqualTypeOf<UseArrayFilterReturn<number>>();
+			expectTypeOf(narrowed.value).toEqualTypeOf<number[]>();
+			expectTypeOf(getterResult).toEqualTypeOf<UseArrayFilterReturn<number>>();
+			expectTypeOf(readonlyResult).toEqualTypeOf<
+				UseArrayFilterReturn<number | null>
+			>();
+			// @ts-expect-error returned value is readonly
+			result.value = [];
+			// @ts-expect-error predicate element type must match the array item type
+			useArrayFilter(signal([1]), (value: string) => value.length > 0);
+			useArrayFilter(
+				signal([1]),
+				// @ts-expect-error predicate is a raw function, not a signal
+				signal((value: number) => value > 0),
+			);
+			useArrayFilter(
 				signal([1]),
 				// @ts-expect-error predicate is a raw function, not a computed value
 				computed(() => (value: number) => value > 0),
