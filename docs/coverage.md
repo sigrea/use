@@ -80,7 +80,7 @@ Status values:
 | `useArrayUnique` | `useArrayUnique` | Done |
 | `useAsyncQueue` | `useAsyncQueue` | Done |
 | `useAsyncState` | `useAsyncState` | Done |
-| `useBase64` | `-` | Todo |
+| `useBase64` | `useBase64` | Done |
 | `useBattery` | `-` | Todo |
 | `useBluetooth` | `-` | Todo |
 | `useBreakpoints` | `useBreakpoints` | Done |
