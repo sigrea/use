@@ -130,6 +130,12 @@ import type {
 	UseAsyncStateReturn,
 	UseAsyncStateReturnBase,
 	UseAsyncStateSource,
+	UseBase64ImageOptions,
+	UseBase64ObjectOptions,
+	UseBase64Options,
+	UseBase64Return,
+	UseBase64Source,
+	UseBase64WindowLike,
 	UseBreakpointsOptions,
 	UseDocumentVisibilityOptions,
 	UseElementSizeOptions,
@@ -194,6 +200,7 @@ import {
 	useArrayUnique,
 	useAsyncQueue,
 	useAsyncState,
+	useBase64,
 	useBreakpoints,
 	useDebounceFn,
 	useDocumentVisibility,
@@ -415,6 +422,69 @@ describe("public types", () => {
 			asyncState.execute(0, 1, "ready");
 			// @ts-expect-error delay must be a number
 			useAsyncState(action, initial, { delay: "slow" });
+		});
+	});
+
+	it("types base64 values and options", () => {
+		typeOnly(() => {
+			const text = signal("hello");
+			const windowTarget = signal<UseBase64WindowLike | undefined>(undefined);
+			const options: UseBase64Options = {
+				dataUrl: false,
+				window: windowTarget,
+			};
+			const imageOptions: UseBase64ImageOptions = {
+				type: "image/jpeg",
+				quality: 0.8,
+			};
+			const objectOptions: UseBase64ObjectOptions<{ id: number }> = {
+				serializer(value) {
+					expectTypeOf(value).toEqualTypeOf<{ id: number }>();
+					return JSON.stringify(value);
+				},
+			};
+			const source: UseBase64Source = new Set([1]);
+			const result = useBase64(text, options);
+			const getterResult = useBase64(() => new Map<string, unknown>(), {
+				serializer(value) {
+					expectTypeOf(value).toEqualTypeOf<Map<string, unknown>>();
+					return JSON.stringify(Object.fromEntries(value));
+				},
+			});
+			const blobResult = useBase64(new Blob(["hello"]));
+			const bufferResult = useBase64(new Uint8Array([1]).buffer);
+			const canvasResult = useBase64(
+				document.createElement("canvas"),
+				imageOptions,
+			);
+			const objectResult = useBase64({ id: 1 }, objectOptions);
+			const returnValue: UseBase64Return = result;
+
+			expectTypeOf(source).toMatchTypeOf<UseBase64Source>();
+			expectTypeOf(result).toEqualTypeOf<UseBase64Return>();
+			expectTypeOf(returnValue.base64).toEqualTypeOf<ReadonlySignal<string>>();
+			expectTypeOf(result.base64).toEqualTypeOf<ReadonlySignal<string>>();
+			expectTypeOf(result.promise).toEqualTypeOf<
+				ReadonlySignal<Promise<string> | undefined>
+			>();
+			expectTypeOf(result.execute()).toEqualTypeOf<Promise<string>>();
+			expectTypeOf(getterResult).toEqualTypeOf<UseBase64Return>();
+			expectTypeOf(blobResult).toEqualTypeOf<UseBase64Return>();
+			expectTypeOf(bufferResult).toEqualTypeOf<UseBase64Return>();
+			expectTypeOf(canvasResult).toEqualTypeOf<UseBase64Return>();
+			expectTypeOf(objectResult).toEqualTypeOf<UseBase64Return>();
+			// @ts-expect-error base64 is readonly
+			result.base64.value = "next";
+			// @ts-expect-error promise is readonly
+			result.promise.value = Promise.resolve("next");
+			// @ts-expect-error dataUrl must be boolean
+			useBase64("hello", { dataUrl: "false" });
+			// @ts-expect-error string sources do not accept image options
+			useBase64("hello", { type: "image/png" });
+			// @ts-expect-error quality must be a number
+			useBase64(document.createElement("canvas"), { quality: "high" });
+			// @ts-expect-error serializers must return strings
+			useBase64({ id: 1 }, { serializer: () => 1 });
 		});
 	});
 
