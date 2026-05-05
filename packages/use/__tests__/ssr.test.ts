@@ -97,6 +97,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.useEventBus).toBe("function");
 		expect(typeof mod.useEventListener).toBe("function");
 		expect(typeof mod.useEventSource).toBe("function");
+		expect(typeof mod.useEyeDropper).toBe("function");
 		expect(typeof mod.useFocus).toBe("function");
 		expect(typeof mod.useInterval).toBe("function");
 		expect(typeof mod.useIntervalFn).toBe("function");
@@ -138,6 +139,7 @@ describe("SSR safety", () => {
 			useElementVisibility,
 			useLocalStorage,
 			useEventSource,
+			useEyeDropper,
 			useMediaQuery,
 			useMouse,
 			useOnline,
@@ -225,6 +227,7 @@ describe("SSR safety", () => {
 			window: null,
 		});
 		const eventSource = useEventSource("https://example.com/events");
+		const eyeDropper = useEyeDropper();
 		const sessionStorageValue = useSessionStorage("session", "fallback", {
 			window: undefined,
 		});
@@ -284,6 +287,10 @@ describe("SSR safety", () => {
 		expect(eventSource.isSupported.value).toBe(false);
 		expect(eventSource.status.value).toBe("CLOSED");
 		expect(eventSource.eventSource.value).toBeUndefined();
+		expect(eyeDropper.isSupported.value).toBe(false);
+		expect(eyeDropper.isOpen.value).toBe(false);
+		expect(eyeDropper.sRGBHex.value).toBe("");
+		expect(eyeDropper.error.value).toBeNull();
 		expect(sessionStorageValue.value).toBe("fallback");
 		expect(ssrMediaQuery.matches.value).toBe(true);
 		expect(storageValue.value).toBe("fallback");
@@ -339,6 +346,9 @@ describe("SSR safety", () => {
 		eventSource.open();
 		eventSource.close();
 		eventSource.stop();
+		expect(await eyeDropper.open()).toBeUndefined();
+		eyeDropper.abort();
+		eyeDropper.stop();
 		sessionStorageValue.stop();
 		ssrMediaQuery.stop();
 		storageValue.stop();

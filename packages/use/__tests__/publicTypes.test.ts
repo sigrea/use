@@ -68,6 +68,10 @@ import type {
 	ExtendSignalReturn,
 	ExtendSignalSource,
 	ExtendSignalUnwrapped,
+	EyeDropperConstructorLike,
+	EyeDropperLike,
+	EyeDropperOpenOptions,
+	EyeDropperResult,
 	FocusableElementLike,
 	IsDefinedReturn,
 	KeyFilter,
@@ -288,6 +292,9 @@ import type {
 	UseEventSourceReturn,
 	UseEventSourceSerializer,
 	UseEventSourceStatus,
+	UseEyeDropperOptions,
+	UseEyeDropperReturn,
+	UseEyeDropperWindowLike,
 	UseFocusOptions,
 	UseMediaQueryOptions,
 	UseMouseOptions,
@@ -388,6 +395,7 @@ import {
 	useEventBus,
 	useEventListener,
 	useEventSource,
+	useEyeDropper,
 	useFocus,
 	useInterval,
 	useIntervalFn,
@@ -2283,6 +2291,64 @@ describe("public types", () => {
 			// @ts-expect-error status must be one of the EventSource states
 			const invalidStatus: EventSourceStatus = "READY";
 			invalidStatus;
+		});
+	});
+
+	it("types eye droppers", () => {
+		typeOnly(() => {
+			class TypedEyeDropper implements EyeDropperLike {
+				open(_options?: EyeDropperOpenOptions): Promise<EyeDropperResult> {
+					return Promise.resolve({ sRGBHex: "#112233" });
+				}
+			}
+
+			const EyeDropperCtor: EyeDropperConstructorLike<TypedEyeDropper> =
+				TypedEyeDropper;
+			const window = Object.assign(new EventTarget(), {
+				EyeDropper: EyeDropperCtor,
+			}) as UseEyeDropperWindowLike<TypedEyeDropper>;
+			const windowSignal =
+				signal<UseEyeDropperWindowLike<TypedEyeDropper> | null>(window);
+			const options: UseEyeDropperOptions<TypedEyeDropper> = {
+				initialValue: "#000000",
+				window: windowSignal,
+			};
+			const eyeDropper = useEyeDropper(options);
+			const fallback = useEyeDropper({ window: null });
+			const abortController = new AbortController();
+
+			expectTypeOf(eyeDropper).toEqualTypeOf<
+				UseEyeDropperReturn<TypedEyeDropper>
+			>();
+			expectTypeOf(eyeDropper.isSupported).toEqualTypeOf<
+				ReadonlySignal<boolean>
+			>();
+			expectTypeOf(eyeDropper.isOpen).toEqualTypeOf<ReadonlySignal<boolean>>();
+			expectTypeOf(eyeDropper.sRGBHex).toEqualTypeOf<ReadonlySignal<string>>();
+			expectTypeOf(eyeDropper.error).toEqualTypeOf<
+				ReadonlySignal<unknown | null>
+			>();
+			expectTypeOf(eyeDropper.open()).toEqualTypeOf<
+				Promise<EyeDropperResult | undefined>
+			>();
+			expectTypeOf(
+				eyeDropper.open({ signal: abortController.signal }),
+			).toEqualTypeOf<Promise<EyeDropperResult | undefined>>();
+			expectTypeOf(eyeDropper.abort()).toEqualTypeOf<void>();
+			expectTypeOf(eyeDropper.stop()).toEqualTypeOf<void>();
+			expectTypeOf(fallback.sRGBHex.value).toEqualTypeOf<string>();
+			// @ts-expect-error initialValue must be a string
+			useEyeDropper({ initialValue: 1 });
+			useEyeDropper({
+				// @ts-expect-error window must be a window-like target
+				window: 1,
+			});
+			// @ts-expect-error signal must be an AbortSignal
+			eyeDropper.open({ signal: "bad" });
+			// @ts-expect-error returned signals are readonly
+			eyeDropper.sRGBHex.value = "#ffffff";
+			// @ts-expect-error isOpen is readonly
+			eyeDropper.isOpen.value = true;
 		});
 	});
 
