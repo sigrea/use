@@ -91,7 +91,7 @@ Status values:
 | `useClipboardItems` | `useClipboardItems` | Done |
 | `useCloned` | `useCloned` | Done |
 | `useColorMode` | `useColorMode` | Done |
-| `useConfirmDialog` | `-` | Todo |
+| `useConfirmDialog` | `useConfirmDialog` | Done |
 | `useCountdown` | `-` | Todo |
 | `useCounter` | `useCounter` | Done |
 | `useCssSupports` | `-` | Todo |
