@@ -679,6 +679,44 @@ export interface UseActiveElementReturn<TElement extends Element = Element> {
 	stop(): void;
 }
 
+export interface UseAnimateWindowLike extends WindowLike {
+	requestAnimationFrame?(callback: FrameRequestCallback): number;
+	cancelAnimationFrame?(handle: number): void;
+}
+
+export interface UseAnimateOptions<
+	TWindow extends UseAnimateWindowLike = UseAnimateWindowLike,
+> extends KeyframeAnimationOptions {
+	window?: MaybeTarget<TWindow>;
+	immediate?: boolean;
+	commitStyles?: boolean;
+	persist?: boolean;
+	onReady?: (animate: Animation) => void;
+	onError?: (error: unknown) => void;
+}
+
+export type UseAnimateKeyframes = MaybeValue<
+	Keyframe[] | PropertyIndexedKeyframes | null
+>;
+
+export interface UseAnimateReturn {
+	readonly isSupported: ReadonlySignal<boolean>;
+	readonly animate: ReadonlySignal<Animation | undefined>;
+	play(): void;
+	pause(): void;
+	reverse(): void;
+	finish(): void;
+	cancel(): void;
+	readonly pending: ReadonlySignal<boolean>;
+	readonly playState: ReadonlySignal<AnimationPlayState>;
+	readonly replaceState: ReadonlySignal<AnimationReplaceState>;
+	readonly startTime: Computed<CSSNumberish | null>;
+	readonly currentTime: Computed<CSSNumberish | null>;
+	readonly timeline: Computed<AnimationTimeline | null>;
+	readonly playbackRate: Computed<number>;
+	stop(): void;
+}
+
 export interface UseStorageOptions<
 	T = unknown,
 	TWindow extends StorageWindowLike = StorageWindowLike,
