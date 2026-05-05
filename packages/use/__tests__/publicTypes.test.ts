@@ -13,6 +13,8 @@ import { describe, expectTypeOf, it } from "vitest";
 import type {
 	Arrayable,
 	AsyncComputedOptions,
+	BatteryManagerLike,
+	BatteryNavigatorLike,
 	Breakpoints,
 	ComputedEagerOptions,
 	ComputedEagerReturn,
@@ -136,6 +138,8 @@ import type {
 	UseBase64Return,
 	UseBase64Source,
 	UseBase64WindowLike,
+	UseBatteryOptions,
+	UseBatteryReturn,
 	UseBreakpointsOptions,
 	UseDocumentVisibilityOptions,
 	UseElementSizeOptions,
@@ -201,6 +205,7 @@ import {
 	useAsyncQueue,
 	useAsyncState,
 	useBase64,
+	useBattery,
 	useBreakpoints,
 	useDebounceFn,
 	useDocumentVisibility,
@@ -485,6 +490,48 @@ describe("public types", () => {
 			useBase64(document.createElement("canvas"), { quality: "high" });
 			// @ts-expect-error serializers must return strings
 			useBase64({ id: 1 }, { serializer: () => 1 });
+		});
+	});
+
+	it("types battery values and options", () => {
+		typeOnly(() => {
+			class TypedBattery extends EventTarget implements BatteryManagerLike {
+				charging = true;
+				chargingTime = 0;
+				dischargingTime = Number.POSITIVE_INFINITY;
+				level = 1;
+			}
+			const manager = new TypedBattery();
+			const navigator: BatteryNavigatorLike = {
+				getBattery: () => Promise.resolve(manager),
+			};
+			const options: UseBatteryOptions<BatteryNavigatorLike> = {
+				navigator: signal(navigator),
+			};
+			const result = useBattery(options);
+			const fallback = useBattery({ navigator: null });
+			const returnValue: UseBatteryReturn = result;
+
+			expectTypeOf(result).toEqualTypeOf<UseBatteryReturn>();
+			expectTypeOf(returnValue.isSupported).toEqualTypeOf<
+				ReadonlySignal<boolean>
+			>();
+			expectTypeOf(result.isSupported).toEqualTypeOf<ReadonlySignal<boolean>>();
+			expectTypeOf(result.charging).toEqualTypeOf<ReadonlySignal<boolean>>();
+			expectTypeOf(result.chargingTime).toEqualTypeOf<ReadonlySignal<number>>();
+			expectTypeOf(result.dischargingTime).toEqualTypeOf<
+				ReadonlySignal<number>
+			>();
+			expectTypeOf(result.level).toEqualTypeOf<ReadonlySignal<number>>();
+			expectTypeOf(result.stop()).toEqualTypeOf<void>();
+			expectTypeOf(fallback).toEqualTypeOf<UseBatteryReturn>();
+			// @ts-expect-error returned values are readonly signals
+			result.level.value = 0.5;
+			const invalidOptions: UseBatteryOptions<BatteryNavigatorLike> = {
+				// @ts-expect-error getBattery must return a promise
+				navigator: { getBattery: () => manager },
+			};
+			useBattery(invalidOptions);
 		});
 	});
 
