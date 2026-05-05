@@ -115,7 +115,7 @@ Status values:
 | `useElementHover` | `useElementHover` | Done |
 | `useElementSize` | `useElementSize` | Done |
 | `useElementVisibility` | `useElementVisibility` | Done |
-| `useEventBus` | `-` | Todo |
+| `useEventBus` | `useEventBus` | Done |
 | `useEventListener` | `useEventListener` | Done |
 | `useEventSource` | `-` | Todo |
 | `useEyeDropper` | `-` | Todo |
