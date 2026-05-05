@@ -91,6 +91,7 @@ export { useFocusWithin } from "./useFocusWithin";
 export { useFps } from "./useFps";
 export { useFullscreen } from "./useFullscreen";
 export { useGamepad } from "./useGamepad";
+export { useGeolocation } from "./useGeolocation";
 export { useInterval } from "./useInterval";
 export { useIntervalFn } from "./useIntervalFn";
 export { useLocalStorage } from "./useLocalStorage";
@@ -506,6 +507,12 @@ export type {
 	UseGamepadOptions,
 	UseGamepadReturn,
 	UseGamepadWindowLike,
+	UseGeolocationCoordinates,
+	UseGeolocationGeolocationLike,
+	UseGeolocationNavigatorLike,
+	UseGeolocationOptions,
+	UseGeolocationPositionLike,
+	UseGeolocationReturn,
 	UseIntervalControlsReturn,
 	UseIntervalFnOptions,
 	UseIntervalFnReturn,
