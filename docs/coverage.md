@@ -88,7 +88,7 @@ Status values:
 | `useBrowserLocation` | `useBrowserLocation` | Done |
 | `useCached` | `useCached` | Done |
 | `useClipboard` | `useClipboard` | Done |
-| `useClipboardItems` | `-` | Todo |
+| `useClipboardItems` | `useClipboardItems` | Done |
 | `useCloned` | `-` | Todo |
 | `useColorMode` | `-` | Todo |
 | `useConfirmDialog` | `-` | Todo |
