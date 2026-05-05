@@ -73,6 +73,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.useConfirmDialog).toBe("function");
 		expect(typeof mod.useCountdown).toBe("function");
 		expect(typeof mod.useCssSupports).toBe("function");
+		expect(typeof mod.useCssVar).toBe("function");
 		expect(typeof mod.useBreakpoints).toBe("function");
 		expect(typeof mod.useDocumentVisibility).toBe("function");
 		expect(typeof mod.useElementSize).toBe("function");
@@ -106,6 +107,7 @@ describe("SSR safety", () => {
 			useFocus,
 			useColorMode,
 			useCssSupports,
+			useCssVar,
 			useLocalStorage,
 			useMediaQuery,
 			useMouse,
@@ -156,6 +158,11 @@ describe("SSR safety", () => {
 			initialValue: true,
 			window: null,
 		});
+		const cssVar = useCssVar("--color", null, {
+			initialValue: "red",
+			observe: true,
+			window: null,
+		});
 		const sessionStorageValue = useSessionStorage("session", "fallback", {
 			window: undefined,
 		});
@@ -185,6 +192,7 @@ describe("SSR safety", () => {
 		expect(preferredDark.matches.value).toBe(false);
 		expect(cssSupports.value).toBe(false);
 		expect(initialCssSupports.value).toBe(true);
+		expect(cssVar.value).toBe("red");
 		expect(sessionStorageValue.value).toBe("fallback");
 		expect(ssrMediaQuery.matches.value).toBe(true);
 		expect(storageValue.value).toBe("fallback");
@@ -218,6 +226,9 @@ describe("SSR safety", () => {
 		mediaQuery.stop();
 		online.stop();
 		preferredDark.stop();
+		cssVar.value = "blue";
+		expect(cssVar.value).toBe("blue");
+		cssVar.stop();
 		sessionStorageValue.stop();
 		ssrMediaQuery.stop();
 		storageValue.stop();
