@@ -2925,6 +2925,66 @@ export interface UseFpsOptions<
 
 export type UseFpsReturn = ReadonlySignal<number>;
 
+export interface UseFullscreenEnterOptions {
+	navigationUI?: FullscreenNavigationUI;
+}
+
+export interface UseFullscreenElementLike extends EventTarget {
+	readonly webkitDisplayingFullscreen?: boolean;
+	getRootNode?(): UseFullscreenRootLike;
+	requestFullscreen?(options?: UseFullscreenEnterOptions): Promise<void>;
+	webkitEnterFullscreen?(): Promise<void> | void;
+	webkitEnterFullScreen?(): Promise<void> | void;
+	webkitExitFullscreen?(): Promise<void> | void;
+	webkitExitFullScreen?(): Promise<void> | void;
+	webkitRequestFullscreen?(
+		options?: UseFullscreenEnterOptions,
+	): Promise<void> | void;
+	webkitRequestFullScreen?(
+		options?: UseFullscreenEnterOptions,
+	): Promise<void> | void;
+}
+
+export interface UseFullscreenRootLike {
+	readonly fullscreenElement?: UseFullscreenElementLike | null;
+	readonly webkitFullscreenElement?: UseFullscreenElementLike | null;
+}
+
+export interface UseFullscreenDocumentLike extends DocumentLike {
+	readonly documentElement?: UseFullscreenElementLike | null;
+	readonly fullscreen?: boolean;
+	readonly fullscreenElement?: UseFullscreenElementLike | null;
+	readonly fullscreenEnabled?: boolean;
+	readonly webkitFullscreenElement?: UseFullscreenElementLike | null;
+	readonly webkitFullscreenEnabled?: boolean;
+	readonly webkitIsFullScreen?: boolean;
+	exitFullscreen?(): Promise<void>;
+	webkitCancelFullScreen?(): Promise<void> | void;
+	webkitExitFullScreen?(): Promise<void> | void;
+	webkitExitFullscreen?(): Promise<void> | void;
+}
+
+export interface UseFullscreenOptions<
+	TDocument extends UseFullscreenDocumentLike = UseFullscreenDocumentLike,
+> {
+	/**
+	 * Automatically exit fullscreen when the current Sigrea scope is disposed.
+	 *
+	 * @default false
+	 */
+	autoExit?: boolean;
+	document?: MaybeTarget<TDocument>;
+}
+
+export interface UseFullscreenReturn {
+	readonly isSupported: ReadonlySignal<boolean>;
+	readonly isFullscreen: ReadonlySignal<boolean>;
+	enter(options?: UseFullscreenEnterOptions): Promise<void>;
+	exit(): Promise<void>;
+	toggle(options?: UseFullscreenEnterOptions): Promise<void>;
+	stop(): void;
+}
+
 export interface ElementSize {
 	width: number;
 	height: number;
