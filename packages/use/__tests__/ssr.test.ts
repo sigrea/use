@@ -79,6 +79,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.useDateFormat).toBe("function");
 		expect(typeof mod.formatDate).toBe("function");
 		expect(typeof mod.normalizeDate).toBe("function");
+		expect(typeof mod.useDebouncedRefHistory).toBe("function");
 		expect(typeof mod.useBreakpoints).toBe("function");
 		expect(typeof mod.useDocumentVisibility).toBe("function");
 		expect(typeof mod.useElementSize).toBe("function");
@@ -604,11 +605,15 @@ describe("SSR safety", () => {
 			signalThrottled,
 			syncSignal,
 			syncSignals,
+			useDebouncedRefHistory,
 		} = await import("../../../index");
 		const value = createSignal("ready");
 		const autoResetValue = signalAutoReset("default", 100);
 		const defaultValue = signalDefault(signal<string | undefined>(), "default");
 		const debouncedValue = signalDebounced(signal("source"), 100);
+		const debouncedHistory = useDebouncedRefHistory(signal("source"), {
+			debounce: 100,
+		});
 		const manualResetValue = signalManualReset("manual");
 		const throttledValue = signalThrottled(signal("source"), 100);
 		const left = signal("left");
@@ -623,6 +628,7 @@ describe("SSR safety", () => {
 		expect(autoResetValue.value).toBe("default");
 		expect(defaultValue.value).toBe("default");
 		expect(debouncedValue.value).toBe("source");
+		expect(debouncedHistory.history.value[0].snapshot).toBe("source");
 		expect(manualResetValue.value).toBe("manual");
 		expect(throttledValue.value).toBe("source");
 		expect(right.value).toBe("left");
@@ -630,6 +636,7 @@ describe("SSR safety", () => {
 
 		stopSync();
 		stopSyncSignals();
+		debouncedHistory.dispose();
 	});
 
 	it("extends signals without a window", async () => {
