@@ -43,6 +43,7 @@ export { useArrayReduce } from "./useArrayReduce";
 export { useArraySome } from "./useArraySome";
 export { useArrayUnique } from "./useArrayUnique";
 export { useAsyncQueue } from "./useAsyncQueue";
+export { useAsyncState } from "./useAsyncState";
 export { useBreakpoints } from "./useBreakpoints";
 export { useCounter } from "./useCounter";
 export { useDebounceFn } from "./useDebounceFn";
@@ -83,6 +84,10 @@ export type {
 	UseAsyncQueueResultState,
 	UseAsyncQueueReturn,
 	UseAsyncQueueTask,
+	UseAsyncStateOptions,
+	UseAsyncStateReturn,
+	UseAsyncStateReturnBase,
+	UseAsyncStateSource,
 	Arrayable,
 	Breakpoints,
 	CloneFn,
