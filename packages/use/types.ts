@@ -833,6 +833,18 @@ export interface UseBrowserLocationReturn {
 	stop(): void;
 }
 
+export type UseCachedComparator<T> = (
+	newSourceValue: T,
+	cachedValue: T,
+) => boolean;
+
+export interface UseCachedOptions {
+	deep?: WatchOptions["deep"];
+	flush?: WatchOptions["flush"];
+}
+
+export type UseCachedReturn<T = unknown> = ReadonlySignal<T>;
+
 export interface ComputedEagerOptions {
 	flush?: WatchOptions["flush"];
 	onTrack?: WatchOptions["onTrack"];
