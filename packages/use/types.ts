@@ -1878,6 +1878,33 @@ export interface UseElementSizeReturn {
 
 export type CloneFn<T> = (value: T) => T;
 
+export type UseClonedCloneFn<T, Cloned = T> = (
+	value: T,
+) => Cloned extends PromiseLike<unknown> ? never : Cloned;
+
+export interface UseClonedOptions<T, Cloned = T>
+	extends Omit<WatchOptions, "immediate"> {
+	/**
+	 * Custom clone function.
+	 *
+	 * @default structuredClone
+	 */
+	clone?: UseClonedCloneFn<T, Cloned>;
+	/**
+	 * Do not sync the cloned value when the source changes.
+	 *
+	 * @default false
+	 */
+	manual?: boolean;
+}
+
+export interface UseClonedReturn<T> {
+	cloned: Signal<T>;
+	readonly isModified: ReadonlySignal<boolean>;
+	sync(): void;
+	stop(): void;
+}
+
 export interface UseRefHistoryRecord<T> {
 	snapshot: T;
 	timestamp: number;

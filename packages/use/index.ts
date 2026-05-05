@@ -52,6 +52,7 @@ export { useBrowserLocation } from "./useBrowserLocation";
 export { useCached } from "./useCached";
 export { useClipboard } from "./useClipboard";
 export { useClipboardItems } from "./useClipboardItems";
+export { cloneStructured, useCloned } from "./useCloned";
 export { useBreakpoints } from "./useBreakpoints";
 export { useCounter } from "./useCounter";
 export { useDebounceFn } from "./useDebounceFn";
@@ -133,6 +134,9 @@ export type {
 	ClipboardTextareaLike,
 	UseBatteryOptions,
 	UseBatteryReturn,
+	UseClonedCloneFn,
+	UseClonedOptions,
+	UseClonedReturn,
 	UseBluetoothOptions,
 	UseBluetoothRequestDeviceOptions,
 	UseBluetoothReturn,
