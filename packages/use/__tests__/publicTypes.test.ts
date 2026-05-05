@@ -108,6 +108,9 @@ import type {
 	UseArrayFindLastReturn,
 	UseArrayFindPredicate,
 	UseArrayFindReturn,
+	UseArrayIncludesComparatorFn,
+	UseArrayIncludesOptions,
+	UseArrayIncludesReturn,
 	UseBreakpointsOptions,
 	UseDocumentVisibilityOptions,
 	UseElementSizeOptions,
@@ -164,6 +167,7 @@ import {
 	useArrayFind,
 	useArrayFindIndex,
 	useArrayFindLast,
+	useArrayIncludes,
 	useBreakpoints,
 	useDebounceFn,
 	useDocumentVisibility,
@@ -580,6 +584,92 @@ describe("public types", () => {
 				// @ts-expect-error predicate is a raw function, not a computed value
 				computed(() => (value: number) => value > 0),
 			);
+		});
+	});
+
+	it("types array includes values", () => {
+		typeOnly(() => {
+			const first = signal<number | null>(1);
+			const second = computed<number | null>(() => null);
+			const third = signal<number | null>(3);
+			const list = signal([first, second, () => third.value]);
+			const rawList = [1, 2, 3];
+			const search = signal<number | null>(3);
+			const comparator: UseArrayIncludesComparatorFn<number | null> = (
+				element,
+				value,
+				index,
+				array,
+			) => {
+				expectTypeOf(element).toEqualTypeOf<number | null>();
+				expectTypeOf(value).toEqualTypeOf<number | null>();
+				expectTypeOf(index).toEqualTypeOf<number>();
+				expectTypeOf(array).toEqualTypeOf<
+					readonly MaybeValue<number | null>[]
+				>();
+				return element === value;
+			};
+			const keyedOptions: UseArrayIncludesOptions<{ id: number }, number> = {
+				fromIndex: signal(1),
+				comparator: "id",
+			};
+			const functionOptions: UseArrayIncludesOptions<
+				{ id: number },
+				{ id: number }
+			> = {
+				comparator: (element, value) => element.id === value.id,
+			};
+			const result = useArrayIncludes(list, search, comparator);
+			const rawResult = useArrayIncludes(rawList, 2);
+			const getterResult = useArrayIncludes(
+				() => [1, 2, 3],
+				() => 2,
+			);
+			const readonlyResult = useArrayIncludes(readonly(list), search);
+			const keyed = useArrayIncludes([{ id: 1 }], 1, "id");
+			const keyedWithOptions = useArrayIncludes(
+				[{ id: 1 }, { id: 2 }],
+				signal(2),
+				keyedOptions,
+			);
+			const compared = useArrayIncludes(
+				[{ id: 1 }],
+				{ id: 1 },
+				functionOptions,
+			);
+
+			expectTypeOf(result).toEqualTypeOf<UseArrayIncludesReturn>();
+			expectTypeOf(result).toEqualTypeOf<ReadonlySignal<boolean>>();
+			expectTypeOf(rawResult).toEqualTypeOf<UseArrayIncludesReturn>();
+			expectTypeOf(getterResult).toEqualTypeOf<UseArrayIncludesReturn>();
+			expectTypeOf(readonlyResult).toEqualTypeOf<UseArrayIncludesReturn>();
+			expectTypeOf(keyed).toEqualTypeOf<UseArrayIncludesReturn>();
+			expectTypeOf(keyedWithOptions).toEqualTypeOf<UseArrayIncludesReturn>();
+			expectTypeOf(compared).toEqualTypeOf<UseArrayIncludesReturn>();
+			// @ts-expect-error returned value is readonly
+			result.value = false;
+			// @ts-expect-error comparator must return boolean
+			useArrayIncludes(signal([1]), signal(1), () => "matched");
+			// @ts-expect-error key comparator must exist on the array item type
+			useArrayIncludes(signal([{ id: 1 }]), signal(1), "name");
+			useArrayIncludes(
+				signal([{ id: 1 }]),
+				signal(1),
+				// @ts-expect-error options key comparator must exist on the array item type
+				{ comparator: "name" },
+			);
+			useArrayIncludes(signal([1]), signal(1), {
+				// @ts-expect-error options comparator must be raw, not a signal
+				comparator: signal(
+					(element: number, value: number) => element === value,
+				),
+			});
+			useArrayIncludes(signal([1]), signal(1), {
+				// @ts-expect-error options comparator must be raw, not a computed value
+				comparator: computed(
+					() => (element: number, value: number) => element === value,
+				),
+			});
 		});
 	});
 
