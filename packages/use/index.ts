@@ -58,6 +58,7 @@ export { useConfirmDialog } from "./useConfirmDialog";
 export { useCountdown } from "./useCountdown";
 export { useBreakpoints } from "./useBreakpoints";
 export { useCounter } from "./useCounter";
+export { useCssSupports } from "./useCssSupports";
 export { useDebounceFn } from "./useDebounceFn";
 export { useDocumentVisibility } from "./useDocumentVisibility";
 export { useElementSize } from "./useElementSize";
@@ -152,6 +153,10 @@ export type {
 	UseCountdownScheduler,
 	UseCountdownOptions,
 	UseCountdownReturn,
+	CssSupportsLike,
+	UseCssSupportsOptions,
+	UseCssSupportsReturn,
+	UseCssSupportsWindowLike,
 	UseBluetoothOptions,
 	UseBluetoothRequestDeviceOptions,
 	UseBluetoothReturn,

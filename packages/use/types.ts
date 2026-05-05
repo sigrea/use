@@ -1150,6 +1150,24 @@ export interface UseCountdownReturn extends UseIntervalFnReturn {
 	start(countdown?: MaybeValue<number>): void;
 }
 
+export interface CssSupportsLike {
+	supports(property: string, value: string): boolean;
+	supports(conditionText: string): boolean;
+}
+
+export interface UseCssSupportsWindowLike extends WindowLike {
+	readonly CSS?: CssSupportsLike;
+}
+
+export interface UseCssSupportsOptions<
+	TWindow extends UseCssSupportsWindowLike = UseCssSupportsWindowLike,
+> {
+	initialValue?: boolean;
+	window?: MaybeTarget<TWindow>;
+}
+
+export type UseCssSupportsReturn = ReadonlySignal<boolean>;
+
 export interface ComputedEagerOptions {
 	flush?: WatchOptions["flush"];
 	onTrack?: WatchOptions["onTrack"];
