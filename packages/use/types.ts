@@ -1653,6 +1653,148 @@ export type UseFaviconReturn = Computed<string | null | undefined> & {
 	stop(): void;
 };
 
+export type UseFetchDataType =
+	| "text"
+	| "json"
+	| "blob"
+	| "arrayBuffer"
+	| "formData";
+
+export type UseFetchMethod =
+	| "GET"
+	| "POST"
+	| "PUT"
+	| "DELETE"
+	| "PATCH"
+	| "HEAD"
+	| "OPTIONS";
+
+export type UseFetchUrl = string | URL;
+
+export type UseFetchFetch = (
+	input: RequestInfo | URL,
+	init?: RequestInit,
+) => Promise<Response>;
+
+export interface UseFetchWindowLike extends WindowLike {
+	readonly fetch?: UseFetchFetch;
+}
+
+export interface BeforeFetchContext {
+	url: UseFetchUrl;
+	options: RequestInit;
+	cancel(): void;
+}
+
+export interface AfterFetchContext<Data = unknown> {
+	response: Response;
+	data: Data | null;
+	context: BeforeFetchContext;
+	execute(throwOnFailed?: boolean): Promise<Response | null>;
+}
+
+export interface OnFetchErrorContext<Data = unknown, Error = unknown> {
+	error: Error;
+	data: Data | null;
+	response: Response | null;
+	context: BeforeFetchContext;
+	execute(throwOnFailed?: boolean): Promise<Response | null>;
+}
+
+export interface UseFetchOptions<
+	Data = unknown,
+	TWindow extends UseFetchWindowLike = UseFetchWindowLike,
+> {
+	fetch?: UseFetchFetch;
+	window?: MaybeTarget<TWindow>;
+	/**
+	 * Execute the request after creation.
+	 *
+	 * @default true
+	 */
+	immediate?: boolean;
+	/**
+	 * Re-run the request when reactive URL or payload values change.
+	 *
+	 * @default false
+	 */
+	refetch?: MaybeValue<boolean>;
+	/**
+	 * Initial data before the first request finishes.
+	 *
+	 * @default null
+	 */
+	initialData?: MaybeValue<Data | null>;
+	/**
+	 * Abort the request after this many milliseconds. Zero disables the timeout.
+	 *
+	 * @default 0
+	 */
+	timeout?: MaybeValue<number>;
+	/**
+	 * Update data from onFetchError context.
+	 *
+	 * @default false
+	 */
+	updateDataOnError?: boolean;
+	beforeFetch?:
+		| ((
+				context: BeforeFetchContext,
+		  ) =>
+				| Promise<Partial<BeforeFetchContext> | void>
+				| Partial<BeforeFetchContext>
+				| void)
+		| undefined;
+	afterFetch?:
+		| ((
+				context: AfterFetchContext<Data>,
+		  ) =>
+				| Promise<Partial<AfterFetchContext<Data>> | void>
+				| Partial<AfterFetchContext<Data>>
+				| void)
+		| undefined;
+	onFetchError?:
+		| ((
+				context: OnFetchErrorContext<Data>,
+		  ) =>
+				| Promise<Partial<OnFetchErrorContext<Data>> | void>
+				| Partial<OnFetchErrorContext<Data>>
+				| void)
+		| undefined;
+}
+
+export interface UseFetchReturnBase<Data = unknown> {
+	readonly isFinished: ReadonlySignal<boolean>;
+	readonly isFetching: ReadonlySignal<boolean>;
+	readonly canAbort: ReadonlySignal<boolean>;
+	readonly aborted: ReadonlySignal<boolean>;
+	readonly statusCode: ReadonlySignal<number | null>;
+	readonly response: ReadonlySignal<Response | null>;
+	readonly error: ReadonlySignal<unknown | null>;
+	readonly data: ReadonlySignal<Data | null>;
+	execute(throwOnFailed?: boolean): Promise<Response | null>;
+	abort(reason?: unknown): void;
+	stop(): void;
+	onFetchResponse: EventHookOn<Response>;
+	onFetchError: EventHookOn<unknown>;
+	onFetchFinally: EventHookOn<void>;
+	get(): UseFetchReturn<Data>;
+	post(payload?: MaybeValue<unknown>, type?: string): UseFetchReturn<Data>;
+	put(payload?: MaybeValue<unknown>, type?: string): UseFetchReturn<Data>;
+	delete(payload?: MaybeValue<unknown>, type?: string): UseFetchReturn<Data>;
+	patch(payload?: MaybeValue<unknown>, type?: string): UseFetchReturn<Data>;
+	head(payload?: MaybeValue<unknown>, type?: string): UseFetchReturn<Data>;
+	options(payload?: MaybeValue<unknown>, type?: string): UseFetchReturn<Data>;
+	json<Json = unknown>(): UseFetchReturn<Json>;
+	text(): UseFetchReturn<string>;
+	blob(): UseFetchReturn<Blob>;
+	arrayBuffer(): UseFetchReturn<ArrayBuffer>;
+	formData(): UseFetchReturn<FormData>;
+}
+
+export type UseFetchReturn<Data = unknown> = UseFetchReturnBase<Data> &
+	PromiseLike<UseFetchReturnBase<Data>>;
+
 export interface Position {
 	x: number;
 	y: number;
