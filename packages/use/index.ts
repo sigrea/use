@@ -75,6 +75,7 @@ export { useDraggable } from "./useDraggable";
 export { useDropZone } from "./useDropZone";
 export { useElementBounding } from "./useElementBounding";
 export { useElementByPoint } from "./useElementByPoint";
+export { useElementHover } from "./useElementHover";
 export { useElementSize } from "./useElementSize";
 export { useEventListener } from "./useEventListener";
 export { useFocus } from "./useFocus";
@@ -404,6 +405,10 @@ export type {
 	UseElementByPointReturn,
 	UseElementByPointScheduler,
 	UseElementByPointWindowLike,
+	UseElementHoverDocumentLike,
+	UseElementHoverOptions,
+	UseElementHoverReturn,
+	UseElementHoverWindowLike,
 	UseElementSizeOptions,
 	UseElementSizeReturn,
 	UseEventListenerOptions,
