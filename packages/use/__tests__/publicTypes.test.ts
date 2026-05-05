@@ -334,6 +334,11 @@ import type {
 	UseFpsPerformanceLike,
 	UseFpsReturn,
 	UseFpsWindowLike,
+	UseFullscreenDocumentLike,
+	UseFullscreenElementLike,
+	UseFullscreenEnterOptions,
+	UseFullscreenOptions,
+	UseFullscreenReturn,
 	UseMediaQueryOptions,
 	UseMouseOptions,
 	UseOnlineOptions,
@@ -441,6 +446,7 @@ import {
 	useFocus,
 	useFocusWithin,
 	useFps,
+	useFullscreen,
 	useInterval,
 	useIntervalFn,
 	useLocalStorage,
@@ -5151,6 +5157,62 @@ describe("public types", () => {
 						performance: {},
 					},
 				});
+			});
+		});
+	});
+
+	it("types fullscreen controls and injectable document", () => {
+		typeOnly(() => {
+			const fullscreenElement = Object.assign(new EventTarget(), {
+				requestFullscreen: (_options?: UseFullscreenEnterOptions) =>
+					Promise.resolve(),
+			}) as UseFullscreenElementLike;
+			const fullscreenDocument = Object.assign(new EventTarget(), {
+				documentElement: fullscreenElement,
+				exitFullscreen: () => Promise.resolve(),
+				fullscreenElement: null,
+				fullscreenEnabled: true,
+			}) as UseFullscreenDocumentLike;
+			const options: UseFullscreenOptions = {
+				autoExit: true,
+				document: signal(fullscreenDocument),
+			};
+			const fullscreen = useFullscreen(signal(fullscreenElement), options);
+			const fallback = useFullscreen(undefined, { document: null });
+			const fullscreenReturn: UseFullscreenReturn = fullscreen;
+
+			expectTypeOf(fullscreen).toEqualTypeOf<UseFullscreenReturn>();
+			expectTypeOf(fullscreenReturn.isSupported).toEqualTypeOf<
+				ReadonlySignal<boolean>
+			>();
+			expectTypeOf(fullscreen.isFullscreen).toEqualTypeOf<
+				ReadonlySignal<boolean>
+			>();
+			expectTypeOf(fullscreen.enter()).toEqualTypeOf<Promise<void>>();
+			expectTypeOf(fullscreen.enter({ navigationUI: "show" })).toEqualTypeOf<
+				Promise<void>
+			>();
+			expectTypeOf(fullscreen.exit()).toEqualTypeOf<Promise<void>>();
+			expectTypeOf(fullscreen.toggle()).toEqualTypeOf<Promise<void>>();
+			expectTypeOf(fullscreen.stop()).toEqualTypeOf<void>();
+			expectTypeOf(fallback).toEqualTypeOf<UseFullscreenReturn>();
+			useFullscreen(null, options);
+			useFullscreen(() => fullscreenElement, options);
+			typeOnly(() => {
+				// @ts-expect-error returned values are readonly signals
+				fullscreen.isFullscreen.value = true;
+				// @ts-expect-error target must be EventTarget-like
+				useFullscreen(1, options);
+				useFullscreen(fullscreenElement, {
+					// @ts-expect-error document must be document-like
+					document: 1,
+				});
+				useFullscreen(fullscreenElement, {
+					// @ts-expect-error unknown options are rejected
+					navigationUI: "hide",
+				});
+				// @ts-expect-error enter options must use a valid navigationUI value
+				fullscreen.enter({ navigationUI: "minimal" });
 			});
 		});
 	});
