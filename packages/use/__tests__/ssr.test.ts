@@ -89,6 +89,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.useDocumentVisibility).toBe("function");
 		expect(typeof mod.useDraggable).toBe("function");
 		expect(typeof mod.useDropZone).toBe("function");
+		expect(typeof mod.useElementBounding).toBe("function");
 		expect(typeof mod.useElementSize).toBe("function");
 		expect(typeof mod.useEventListener).toBe("function");
 		expect(typeof mod.useFocus).toBe("function");
@@ -126,6 +127,7 @@ describe("SSR safety", () => {
 			useDisplayMedia,
 			useDraggable,
 			useDropZone,
+			useElementBounding,
 			useLocalStorage,
 			useMediaQuery,
 			useMouse,
@@ -190,6 +192,10 @@ describe("SSR safety", () => {
 		const displayMedia = useDisplayMedia({ navigator: null });
 		const draggable = useDraggable(null, { initialValue: { x: 10, y: 20 } });
 		const dropZone = useDropZone(null);
+		const bounding = useElementBounding(null, {
+			updateTiming: "next-frame",
+			window: null,
+		});
 		const sessionStorageValue = useSessionStorage("session", "fallback", {
 			window: undefined,
 		});
@@ -229,6 +235,14 @@ describe("SSR safety", () => {
 		expect(draggable.isDragging.value).toBe(false);
 		expect(dropZone.files.value).toBeNull();
 		expect(dropZone.isOverDropZone.value).toBe(false);
+		expect(bounding.width.value).toBe(0);
+		expect(bounding.height.value).toBe(0);
+		expect(bounding.top.value).toBe(0);
+		expect(bounding.right.value).toBe(0);
+		expect(bounding.bottom.value).toBe(0);
+		expect(bounding.left.value).toBe(0);
+		expect(bounding.x.value).toBe(0);
+		expect(bounding.y.value).toBe(0);
 		expect(sessionStorageValue.value).toBe("fallback");
 		expect(ssrMediaQuery.matches.value).toBe(true);
 		expect(storageValue.value).toBe("fallback");
@@ -272,6 +286,8 @@ describe("SSR safety", () => {
 		displayMedia.stop();
 		draggable.stop();
 		dropZone.stop();
+		bounding.update();
+		bounding.stop();
 		sessionStorageValue.stop();
 		ssrMediaQuery.stop();
 		storageValue.stop();
