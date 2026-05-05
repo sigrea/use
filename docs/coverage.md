@@ -120,7 +120,7 @@ Status values:
 | `useEventSource` | `useEventSource` | Done |
 | `useEyeDropper` | `useEyeDropper` | Done |
 | `useFavicon` | `useFavicon` | Done |
-| `useFetch` | `-` | Todo |
+| `useFetch` | `useFetch` | Done |
 | `useFileDialog` | `-` | Todo |
 | `useFileSystemAccess` | `-` | Todo |
 | `useFocus` | `useFocus` | Done |
