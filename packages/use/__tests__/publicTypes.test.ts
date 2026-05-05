@@ -206,6 +206,8 @@ import type {
 	UseCssVarOptions,
 	UseCssVarReturn,
 	UseCssVarWindowLike,
+	UseCycleListOptions,
+	UseCycleListReturn,
 	UseDocumentVisibilityOptions,
 	UseElementSizeOptions,
 	UseFocusOptions,
@@ -285,6 +287,7 @@ import {
 	useCountdown,
 	useCssSupports,
 	useCssVar,
+	useCycleList,
 	useDebounceFn,
 	useDocumentVisibility,
 	useElementSize,
@@ -1823,6 +1826,54 @@ describe("public types", () => {
 				// @ts-expect-error reducer accumulator type must match the initial value type
 				"start",
 			);
+		});
+	});
+
+	it("types cycle list values", () => {
+		typeOnly(() => {
+			interface Item {
+				id: number;
+				name: string;
+			}
+
+			const list = signal([
+				{ id: 1, name: "foo" },
+				{ id: 2, name: "bar" },
+			]);
+			const fallbackIndex = signal(1);
+			const options: UseCycleListOptions<Item> = {
+				fallbackIndex,
+				getIndexOf(value, array) {
+					expectTypeOf(value).toEqualTypeOf<Item | undefined>();
+					expectTypeOf(array).toEqualTypeOf<Item[]>();
+					return array.findIndex((item) => item.id === value?.id);
+				},
+				initialValue: () => list.value[1],
+			};
+			const cycle = useCycleList(list, options);
+			const rawCycle = useCycleList(["foo", "bar"] as const);
+			const readonlyCycle = useCycleList(readonly(list));
+			const returnValue: UseCycleListReturn<Item> = cycle;
+
+			expectTypeOf(cycle).toEqualTypeOf<UseCycleListReturn<Item>>();
+			expectTypeOf(cycle.state).toEqualTypeOf<Signal<Item | undefined>>();
+			expectTypeOf(cycle.index).toEqualTypeOf<Signal<number>>();
+			expectTypeOf(cycle.next()).toEqualTypeOf<Item | undefined>();
+			expectTypeOf(cycle.prev(2)).toEqualTypeOf<Item | undefined>();
+			expectTypeOf(cycle.go(1)).toEqualTypeOf<Item | undefined>();
+			expectTypeOf(rawCycle.state.value).toEqualTypeOf<
+				"foo" | "bar" | undefined
+			>();
+			expectTypeOf(readonlyCycle).toEqualTypeOf<UseCycleListReturn<Item>>();
+
+			returnValue.state.value = { id: 3, name: "baz" };
+			returnValue.index.value = 0;
+			// @ts-expect-error state value must match the list item type
+			cycle.state.value = { id: "3", name: "baz" };
+			// @ts-expect-error fallbackIndex must resolve to number
+			useCycleList(list, { fallbackIndex: "0" });
+			// @ts-expect-error getIndexOf must return a number
+			useCycleList(list, { getIndexOf: () => "0" });
 		});
 	});
 

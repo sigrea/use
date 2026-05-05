@@ -74,6 +74,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.useCountdown).toBe("function");
 		expect(typeof mod.useCssSupports).toBe("function");
 		expect(typeof mod.useCssVar).toBe("function");
+		expect(typeof mod.useCycleList).toBe("function");
 		expect(typeof mod.useBreakpoints).toBe("function");
 		expect(typeof mod.useDocumentVisibility).toBe("function");
 		expect(typeof mod.useElementSize).toBe("function");
@@ -356,6 +357,16 @@ describe("SSR safety", () => {
 
 		expect(globalThis.window).toBeUndefined();
 		expect(result.value).toEqual([1, 2, 3]);
+	});
+
+	it("creates useCycleList without a window", async () => {
+		const { useCycleList } = await import("../../../index");
+		const result = useCycleList(["foo", "bar"]);
+
+		expect(globalThis.window).toBeUndefined();
+		expect(result.state.value).toBe("foo");
+		expect(result.next()).toBe("bar");
+		expect(result.index.value).toBe(1);
 	});
 
 	it("creates useAsyncQueue without a window", async () => {
