@@ -80,6 +80,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.formatDate).toBe("function");
 		expect(typeof mod.normalizeDate).toBe("function");
 		expect(typeof mod.useDebouncedRefHistory).toBe("function");
+		expect(typeof mod.useDeviceMotion).toBe("function");
 		expect(typeof mod.useBreakpoints).toBe("function");
 		expect(typeof mod.useDocumentVisibility).toBe("function");
 		expect(typeof mod.useElementSize).toBe("function");
@@ -472,6 +473,31 @@ describe("SSR safety", () => {
 
 		result.postMessage("hello");
 		result.close();
+		result.stop();
+	});
+
+	it("creates useDeviceMotion without a window", async () => {
+		const { useDeviceMotion } = await import("../../../index");
+		const result = useDeviceMotion();
+
+		expect(globalThis.window).toBeUndefined();
+		expect(result.isSupported.value).toBe(false);
+		expect(result.requirePermissions.value).toBe(false);
+		expect(result.permissionGranted.value).toBe(false);
+		expect(result.acceleration.value).toEqual({ x: null, y: null, z: null });
+		expect(result.accelerationIncludingGravity.value).toEqual({
+			x: null,
+			y: null,
+			z: null,
+		});
+		expect(result.rotationRate.value).toEqual({
+			alpha: null,
+			beta: null,
+			gamma: null,
+		});
+		expect(result.interval.value).toBe(0);
+
+		await result.ensurePermissions();
 		result.stop();
 	});
 
