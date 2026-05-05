@@ -64,7 +64,7 @@ Status values:
 | `tryOnUnmounted` | `-` | Needs design |
 | `unrefElement` | `-` | Out of scope |
 | `until` | `until` | Done |
-| `useActiveElement` | `-` | Todo |
+| `useActiveElement` | `useActiveElement` | Done |
 | `useAnimate` | `-` | Todo |
 | `useArrayDifference` | `-` | Todo |
 | `useArrayEvery` | `-` | Todo |
