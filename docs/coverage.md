@@ -114,7 +114,7 @@ Status values:
 | `useElementByPoint` | `useElementByPoint` | Done |
 | `useElementHover` | `useElementHover` | Done |
 | `useElementSize` | `useElementSize` | Done |
-| `useElementVisibility` | `-` | Todo |
+| `useElementVisibility` | `useElementVisibility` | Done |
 | `useEventBus` | `-` | Todo |
 | `useEventListener` | `useEventListener` | Done |
 | `useEventSource` | `-` | Todo |
