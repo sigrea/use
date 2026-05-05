@@ -82,6 +82,7 @@ export { useEventBus } from "./useEventBus";
 export { useEventListener } from "./useEventListener";
 export { useEventSource } from "./useEventSource";
 export { useEyeDropper } from "./useEyeDropper";
+export { useFavicon } from "./useFavicon";
 export { useFocus } from "./useFocus";
 export { useInterval } from "./useInterval";
 export { useIntervalFn } from "./useIntervalFn";
@@ -440,6 +441,9 @@ export type {
 	UseEyeDropperOptions,
 	UseEyeDropperReturn,
 	UseEyeDropperWindowLike,
+	UseFaviconDocumentLike,
+	UseFaviconOptions,
+	UseFaviconReturn,
 	UseFocusOptions,
 	UseFocusReturn,
 	UseIntervalControlsReturn,

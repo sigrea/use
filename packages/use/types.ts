@@ -1633,6 +1633,26 @@ export interface UseEyeDropperReturn<
 	stop(): void;
 }
 
+export interface UseFaviconDocumentLike extends DocumentLike {
+	readonly head?: HTMLHeadElement;
+	createElement(tagName: "link"): HTMLLinkElement;
+}
+
+export interface UseFaviconOptions<
+	TDocument extends UseFaviconDocumentLike = UseFaviconDocumentLike,
+> {
+	baseUrl?: string;
+	document?: MaybeTarget<TDocument>;
+	media?: string;
+	rel?: string;
+	sizes?: string;
+	type?: string;
+}
+
+export type UseFaviconReturn = Computed<string | null | undefined> & {
+	stop(): void;
+};
+
 export interface Position {
 	x: number;
 	y: number;
