@@ -90,6 +90,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.useDraggable).toBe("function");
 		expect(typeof mod.useDropZone).toBe("function");
 		expect(typeof mod.useElementBounding).toBe("function");
+		expect(typeof mod.useElementByPoint).toBe("function");
 		expect(typeof mod.useElementSize).toBe("function");
 		expect(typeof mod.useEventListener).toBe("function");
 		expect(typeof mod.useFocus).toBe("function");
@@ -128,6 +129,7 @@ describe("SSR safety", () => {
 			useDraggable,
 			useDropZone,
 			useElementBounding,
+			useElementByPoint,
 			useLocalStorage,
 			useMediaQuery,
 			useMouse,
@@ -196,6 +198,19 @@ describe("SSR safety", () => {
 			updateTiming: "next-frame",
 			window: null,
 		});
+		const point = useElementByPoint({
+			document: null,
+			immediate: false,
+			x: 0,
+			y: 0,
+		});
+		const points = useElementByPoint<true>({
+			document: null,
+			immediate: false,
+			multiple: true,
+			x: 0,
+			y: 0,
+		});
 		const sessionStorageValue = useSessionStorage("session", "fallback", {
 			window: undefined,
 		});
@@ -243,6 +258,10 @@ describe("SSR safety", () => {
 		expect(bounding.left.value).toBe(0);
 		expect(bounding.x.value).toBe(0);
 		expect(bounding.y.value).toBe(0);
+		expect(point.isSupported.value).toBe(false);
+		expect(point.element.value).toBeNull();
+		expect(points.isSupported.value).toBe(false);
+		expect(points.element.value).toEqual([]);
 		expect(sessionStorageValue.value).toBe("fallback");
 		expect(ssrMediaQuery.matches.value).toBe(true);
 		expect(storageValue.value).toBe("fallback");
@@ -288,6 +307,10 @@ describe("SSR safety", () => {
 		dropZone.stop();
 		bounding.update();
 		bounding.stop();
+		point.resume();
+		point.pause();
+		point.stop();
+		points.stop();
 		sessionStorageValue.stop();
 		ssrMediaQuery.stop();
 		storageValue.stop();
