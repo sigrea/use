@@ -88,6 +88,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.useBreakpoints).toBe("function");
 		expect(typeof mod.useDocumentVisibility).toBe("function");
 		expect(typeof mod.useDraggable).toBe("function");
+		expect(typeof mod.useDropZone).toBe("function");
 		expect(typeof mod.useElementSize).toBe("function");
 		expect(typeof mod.useEventListener).toBe("function");
 		expect(typeof mod.useFocus).toBe("function");
@@ -124,6 +125,7 @@ describe("SSR safety", () => {
 			useDevicesList,
 			useDisplayMedia,
 			useDraggable,
+			useDropZone,
 			useLocalStorage,
 			useMediaQuery,
 			useMouse,
@@ -187,6 +189,7 @@ describe("SSR safety", () => {
 		const devicesList = useDevicesList({ navigator: null });
 		const displayMedia = useDisplayMedia({ navigator: null });
 		const draggable = useDraggable(null, { initialValue: { x: 10, y: 20 } });
+		const dropZone = useDropZone(null);
 		const sessionStorageValue = useSessionStorage("session", "fallback", {
 			window: undefined,
 		});
@@ -224,6 +227,8 @@ describe("SSR safety", () => {
 		expect(displayMedia.stream.value).toBeUndefined();
 		expect(draggable.position.value).toEqual({ x: 10, y: 20 });
 		expect(draggable.isDragging.value).toBe(false);
+		expect(dropZone.files.value).toBeNull();
+		expect(dropZone.isOverDropZone.value).toBe(false);
 		expect(sessionStorageValue.value).toBe("fallback");
 		expect(ssrMediaQuery.matches.value).toBe(true);
 		expect(storageValue.value).toBe("fallback");
@@ -266,6 +271,7 @@ describe("SSR safety", () => {
 		expect(await displayMedia.start()).toBeUndefined();
 		displayMedia.stop();
 		draggable.stop();
+		dropZone.stop();
 		sessionStorageValue.stop();
 		ssrMediaQuery.stop();
 		storageValue.stop();

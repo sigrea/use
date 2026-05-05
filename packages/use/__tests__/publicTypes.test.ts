@@ -251,6 +251,13 @@ import type {
 	UseDraggableOptions,
 	UseDraggablePointerType,
 	UseDraggableReturn,
+	UseDropZoneDataTypes,
+	UseDropZoneDataTypesValidator,
+	UseDropZoneEventCallback,
+	UseDropZoneFiles,
+	UseDropZoneOptions,
+	UseDropZoneReturn,
+	UseDropZoneTarget,
 	UseElementSizeOptions,
 	UseFocusOptions,
 	UseMediaQueryOptions,
@@ -343,6 +350,7 @@ import {
 	useDisplayMedia,
 	useDocumentVisibility,
 	useDraggable,
+	useDropZone,
 	useElementSize,
 	useEventListener,
 	useFocus,
@@ -3958,6 +3966,58 @@ describe("public types", () => {
 				useDisplayMedia({ enabled: "true" });
 				// @ts-expect-error display media options must use valid option types
 				useDisplayMedia({ constraints: { audio: "true" } });
+			});
+		});
+
+		typeOnly(() => {
+			const dropTarget: UseDropZoneTarget = document.createElement("div");
+			const dropFiles: UseDropZoneFiles = [
+				new File(["sigrea"], "photo.jpg", { type: "image/jpeg" }),
+			];
+			const dropDataTypes: UseDropZoneDataTypes = signal(["image/"] as const);
+			const dropValidator: UseDropZoneDataTypesValidator = (types) =>
+				types.includes("image/jpeg");
+			const dropCallback: UseDropZoneEventCallback = (files, event) => {
+				expectTypeOf(files).toEqualTypeOf<UseDropZoneFiles>();
+				expectTypeOf(event).toEqualTypeOf<DragEvent>();
+			};
+			const dropOptions: UseDropZoneOptions = {
+				checkValidity: (items) => items.length > 0,
+				dataTypes: dropDataTypes,
+				multiple: signal(true),
+				onDrop: dropCallback,
+				onEnter: dropCallback,
+				onLeave: dropCallback,
+				onOver: dropCallback,
+				preventDefaultForUnhandled: signal(false),
+			};
+			const dropZone = useDropZone(signal(dropTarget), dropOptions);
+			const predicateDropZone = useDropZone(dropTarget, {
+				dataTypes: dropValidator,
+			});
+			const shorthandDropZone = useDropZone(dropTarget, dropCallback);
+			const dropReturn: UseDropZoneReturn = dropZone;
+
+			expectTypeOf(dropFiles).toMatchTypeOf<UseDropZoneFiles>();
+			expectTypeOf(dropZone).toEqualTypeOf<UseDropZoneReturn>();
+			expectTypeOf(dropReturn.files).toEqualTypeOf<
+				ReadonlySignal<UseDropZoneFiles>
+			>();
+			expectTypeOf(dropZone.isOverDropZone).toEqualTypeOf<
+				ReadonlySignal<boolean>
+			>();
+			expectTypeOf(dropZone.stop()).toEqualTypeOf<void>();
+			expectTypeOf(predicateDropZone).toEqualTypeOf<UseDropZoneReturn>();
+			expectTypeOf(shorthandDropZone).toEqualTypeOf<UseDropZoneReturn>();
+			typeOnly(() => {
+				// @ts-expect-error returned values are readonly signals
+				dropZone.files.value = null;
+				// @ts-expect-error dataTypes must be an array or predicate
+				useDropZone(dropTarget, { dataTypes: "image/" });
+				// @ts-expect-error multiple must be boolean
+				useDropZone(dropTarget, { multiple: "true" });
+				// @ts-expect-error target must be an EventTarget
+				useDropZone(1, {});
 			});
 		});
 
