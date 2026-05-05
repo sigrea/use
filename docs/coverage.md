@@ -90,7 +90,7 @@ Status values:
 | `useClipboard` | `useClipboard` | Done |
 | `useClipboardItems` | `useClipboardItems` | Done |
 | `useCloned` | `useCloned` | Done |
-| `useColorMode` | `-` | Todo |
+| `useColorMode` | `useColorMode` | Done |
 | `useConfirmDialog` | `-` | Todo |
 | `useCountdown` | `-` | Todo |
 | `useCounter` | `useCounter` | Done |
