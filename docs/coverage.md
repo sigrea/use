@@ -85,7 +85,7 @@ Status values:
 | `useBluetooth` | `useBluetooth` | Done |
 | `useBreakpoints` | `useBreakpoints` | Done |
 | `useBroadcastChannel` | `useBroadcastChannel` | Done |
-| `useBrowserLocation` | `-` | Todo |
+| `useBrowserLocation` | `useBrowserLocation` | Done |
 | `useCached` | `-` | Todo |
 | `useClipboard` | `-` | Todo |
 | `useClipboardItems` | `-` | Todo |
