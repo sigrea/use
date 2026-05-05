@@ -112,6 +112,8 @@ import type {
 	UseArrayIncludesOptions,
 	UseArrayIncludesReturn,
 	UseArrayJoinReturn,
+	UseArrayMapCallback,
+	UseArrayMapReturn,
 	UseBreakpointsOptions,
 	UseDocumentVisibilityOptions,
 	UseElementSizeOptions,
@@ -170,6 +172,7 @@ import {
 	useArrayFindLast,
 	useArrayIncludes,
 	useArrayJoin,
+	useArrayMap,
 	useBreakpoints,
 	useDebounceFn,
 	useDocumentVisibility,
@@ -701,6 +704,57 @@ describe("public types", () => {
 			useArrayJoin(signal([1]), signal(1));
 			// @ts-expect-error separator must resolve to string or undefined
 			useArrayJoin(signal([1]), () => 1);
+		});
+	});
+
+	it("types array map values", () => {
+		typeOnly(() => {
+			const first = signal<number | null>(1);
+			const second = computed<number | null>(() => null);
+			const third = signal<number | null>(3);
+			const list = signal([first, second, () => third.value]);
+			const rawList = [1, 2, 3];
+			const callback: UseArrayMapCallback<number | null, string> = (
+				element,
+				index,
+				array,
+			) => {
+				expectTypeOf(element).toEqualTypeOf<number | null>();
+				expectTypeOf(index).toEqualTypeOf<number>();
+				expectTypeOf(array).toEqualTypeOf<(number | null)[]>();
+				return `${index}:${element}`;
+			};
+			const result = useArrayMap(list, callback);
+			const rawResult = useArrayMap(rawList, (value) => value * 2);
+			const getterResult = useArrayMap(
+				() => [1, 2, 3],
+				(value) => value.toString(),
+			);
+			const readonlyResult = useArrayMap(readonly(list), callback);
+			const objectResult = useArrayMap(rawList, (value) => ({ value }));
+
+			expectTypeOf(result).toEqualTypeOf<UseArrayMapReturn<string>>();
+			expectTypeOf(result).toEqualTypeOf<ReadonlySignal<string[]>>();
+			expectTypeOf(rawResult).toEqualTypeOf<UseArrayMapReturn<number>>();
+			expectTypeOf(getterResult).toEqualTypeOf<UseArrayMapReturn<string>>();
+			expectTypeOf(readonlyResult).toEqualTypeOf<UseArrayMapReturn<string>>();
+			expectTypeOf(objectResult).toEqualTypeOf<
+				UseArrayMapReturn<{ value: number }>
+			>();
+			// @ts-expect-error returned value is readonly
+			result.value = [];
+			// @ts-expect-error callback element type must match the array item type
+			useArrayMap(signal([1]), (value: string) => value.length);
+			useArrayMap(
+				signal([1]),
+				// @ts-expect-error callback is a raw function, not a signal
+				signal((value: number) => value * 2),
+			);
+			useArrayMap(
+				signal([1]),
+				// @ts-expect-error callback is a raw function, not a computed value
+				computed(() => (value: number) => value * 2),
+			);
 		});
 	});
 
