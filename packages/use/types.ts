@@ -656,6 +656,29 @@ export interface RemovableSignal<T> extends Signal<T> {
 	stop(): void;
 }
 
+export interface UseActiveElementDocumentLike extends Node {
+	readonly activeElement?: Element | null;
+}
+
+export interface UseActiveElementWindowLike extends OnElementRemovalWindowLike {
+	readonly document?: UseActiveElementDocumentLike;
+}
+
+export interface UseActiveElementOptions<
+	TWindow extends UseActiveElementWindowLike = UseActiveElementWindowLike,
+	TDocument extends UseActiveElementDocumentLike = UseActiveElementDocumentLike,
+> {
+	window?: MaybeTarget<TWindow>;
+	document?: MaybeTarget<TDocument>;
+	deep?: boolean;
+	triggerOnRemoval?: boolean;
+}
+
+export interface UseActiveElementReturn<TElement extends Element = Element> {
+	readonly activeElement: ReadonlySignal<TElement | null | undefined>;
+	stop(): void;
+}
+
 export interface UseStorageOptions<
 	T = unknown,
 	TWindow extends StorageWindowLike = StorageWindowLike,
