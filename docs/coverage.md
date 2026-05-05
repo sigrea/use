@@ -121,7 +121,7 @@ Status values:
 | `useEyeDropper` | `useEyeDropper` | Done |
 | `useFavicon` | `useFavicon` | Done |
 | `useFetch` | `useFetch` | Done |
-| `useFileDialog` | `-` | Todo |
+| `useFileDialog` | `useFileDialog` | Done |
 | `useFileSystemAccess` | `-` | Todo |
 | `useFocus` | `useFocus` | Done |
 | `useFocusWithin` | `-` | Todo |
