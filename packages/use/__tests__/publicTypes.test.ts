@@ -274,6 +274,9 @@ import type {
 	UseElementHoverReturn,
 	UseElementHoverWindowLike,
 	UseElementSizeOptions,
+	UseElementVisibilityOptions,
+	UseElementVisibilityReturn,
+	UseElementVisibilityWindowLike,
 	UseFocusOptions,
 	UseMediaQueryOptions,
 	UseMouseOptions,
@@ -370,6 +373,7 @@ import {
 	useElementByPoint,
 	useElementHover,
 	useElementSize,
+	useElementVisibility,
 	useEventListener,
 	useFocus,
 	useInterval,
@@ -438,6 +442,10 @@ interface HoverWindow extends UseElementHoverWindowLike {
 }
 
 interface HoverDocument extends UseElementHoverDocumentLike {
+	readonly label: string;
+}
+
+interface VisibilityWindow extends UseElementVisibilityWindowLike {
 	readonly label: string;
 }
 
@@ -4574,6 +4582,55 @@ describe("public types", () => {
 				});
 				// @ts-expect-error target must be an Element
 				useElementHover(new EventTarget());
+			});
+		});
+	});
+
+	it("types element visibility values and options", () => {
+		typeOnly(() => {
+			const visibilityWindow = new EventTarget() as VisibilityWindow;
+			const root = signal<Element | Document | null>(
+				document.createElement("main"),
+			);
+			const target = signal<Element | null>(document.createElement("section"));
+			const options: UseElementVisibilityOptions<VisibilityWindow> = {
+				initialValue: true,
+				once: false,
+				root,
+				rootMargin: signal("0px 0px 100px 0px"),
+				threshold: signal([0, 0.5, 1]),
+				window: signal(visibilityWindow),
+			};
+			const visibility = useElementVisibility(target, options);
+			const visibilityReturn: UseElementVisibilityReturn = visibility;
+
+			expectTypeOf(visibility).toEqualTypeOf<UseElementVisibilityReturn>();
+			expectTypeOf(visibilityReturn.isVisible).toEqualTypeOf<
+				ReadonlySignal<boolean>
+			>();
+			expectTypeOf(visibilityReturn.isSupported).toEqualTypeOf<
+				ReadonlySignal<boolean>
+			>();
+			expectTypeOf(visibility.stop()).toEqualTypeOf<void>();
+			typeOnly(() => {
+				// @ts-expect-error returned values are readonly signals
+				visibility.isVisible.value = true;
+				// @ts-expect-error returned values are readonly signals
+				visibility.isSupported.value = true;
+				useElementVisibility(target, {
+					// @ts-expect-error once must be boolean
+					once: "true",
+				});
+				useElementVisibility(target, {
+					// @ts-expect-error threshold must be numeric or numeric array
+					threshold: "1",
+				});
+				useElementVisibility(target, {
+					// @ts-expect-error root must be an Element or Document
+					root: new EventTarget(),
+				});
+				// @ts-expect-error target must be an Element
+				useElementVisibility(new EventTarget());
 			});
 		});
 	});
