@@ -58,6 +58,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.useArrayReduce).toBe("function");
 		expect(typeof mod.useArraySome).toBe("function");
 		expect(typeof mod.useArrayUnique).toBe("function");
+		expect(typeof mod.useAsyncQueue).toBe("function");
 		expect(typeof mod.useBreakpoints).toBe("function");
 		expect(typeof mod.useDocumentVisibility).toBe("function");
 		expect(typeof mod.useElementSize).toBe("function");
@@ -312,6 +313,20 @@ describe("SSR safety", () => {
 
 		expect(globalThis.window).toBeUndefined();
 		expect(result.value).toEqual([1, 2, 3]);
+	});
+
+	it("creates useAsyncQueue without a window", async () => {
+		const { useAsyncQueue } = await import("../../../index");
+		const result = useAsyncQueue([
+			() => Promise.resolve(1),
+			(value: number) => Promise.resolve(value + 1),
+		]);
+
+		await vi.waitFor(() => {
+			expect(result.activeIndex.value).toBe(1);
+		});
+		expect(globalThis.window).toBeUndefined();
+		expect(result.result.value[1].data).toBe(2);
 	});
 
 	it("creates event hooks without a window", async () => {
