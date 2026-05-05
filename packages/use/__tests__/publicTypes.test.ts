@@ -347,6 +347,12 @@ import type {
 	UseGamepadOptions,
 	UseGamepadReturn,
 	UseGamepadWindowLike,
+	UseGeolocationCoordinates,
+	UseGeolocationGeolocationLike,
+	UseGeolocationNavigatorLike,
+	UseGeolocationOptions,
+	UseGeolocationPositionLike,
+	UseGeolocationReturn,
 	UseMediaQueryOptions,
 	UseMouseOptions,
 	UseOnlineOptions,
@@ -456,6 +462,7 @@ import {
 	useFps,
 	useFullscreen,
 	useGamepad,
+	useGeolocation,
 	useInterval,
 	useIntervalFn,
 	useLocalStorage,
@@ -5296,6 +5303,78 @@ describe("public types", () => {
 					window: { navigator: navigatorTarget },
 				});
 				useGamepad({
+					// @ts-expect-error immediate must be boolean
+					immediate: "yes",
+				});
+			});
+		});
+	});
+
+	it("types geolocation controls and snapshots", () => {
+		typeOnly(() => {
+			const coordinates: UseGeolocationCoordinates = {
+				accuracy: 1,
+				altitude: null,
+				altitudeAccuracy: null,
+				heading: null,
+				latitude: 35,
+				longitude: 139,
+				speed: null,
+			};
+			const geolocationTarget: UseGeolocationGeolocationLike = {
+				clearWatch: (_watchId: number) => {},
+				watchPosition: (
+					_successCallback: PositionCallback,
+					_errorCallback?: PositionErrorCallback | null,
+					_options?: PositionOptions,
+				) => 1,
+			};
+			const navigatorTarget: UseGeolocationNavigatorLike = {
+				geolocation: geolocationTarget,
+			};
+			const position: UseGeolocationPositionLike = {
+				coords: coordinates,
+				timestamp: 1000,
+			};
+			const options: UseGeolocationOptions<UseGeolocationNavigatorLike> = {
+				enableHighAccuracy: true,
+				immediate: false,
+				maximumAge: 1000,
+				navigator: signal(navigatorTarget),
+				timeout: 500,
+			};
+			const geolocation = useGeolocation(options);
+			const geolocationReturn: UseGeolocationReturn = geolocation;
+
+			expectTypeOf(geolocation).toEqualTypeOf<UseGeolocationReturn>();
+			expectTypeOf(geolocationReturn.coords).toEqualTypeOf<
+				ReadonlySignal<UseGeolocationCoordinates | null>
+			>();
+			expectTypeOf(geolocation.locatedAt).toEqualTypeOf<
+				ReadonlySignal<number | null>
+			>();
+			expectTypeOf(geolocation.error).toEqualTypeOf<
+				ReadonlySignal<GeolocationPositionError | null>
+			>();
+			expectTypeOf(geolocation.isSupported).toEqualTypeOf<
+				ReadonlySignal<boolean>
+			>();
+			expectTypeOf(geolocation.isActive).toEqualTypeOf<
+				ReadonlySignal<boolean>
+			>();
+			expectTypeOf(geolocation.resume()).toEqualTypeOf<void>();
+			expectTypeOf(geolocation.pause()).toEqualTypeOf<void>();
+			expectTypeOf(geolocation.stop()).toEqualTypeOf<void>();
+			expectTypeOf(coordinates.latitude).toEqualTypeOf<number>();
+			expectTypeOf(position.timestamp).toEqualTypeOf<number>();
+			typeOnly(() => {
+				// @ts-expect-error coords is readonly
+				geolocation.coords.value = null;
+				useGeolocation({
+					// @ts-expect-error navigator must expose geolocation controls
+					navigator: { geolocation: {} },
+				});
+				useGeolocation({
 					// @ts-expect-error immediate must be boolean
 					immediate: "yes",
 				});
