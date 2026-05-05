@@ -101,6 +101,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.useFavicon).toBe("function");
 		expect(typeof mod.useFetch).toBe("function");
 		expect(typeof mod.useFileDialog).toBe("function");
+		expect(typeof mod.useFileSystemAccess).toBe("function");
 		expect(typeof mod.useFocus).toBe("function");
 		expect(typeof mod.useInterval).toBe("function");
 		expect(typeof mod.useIntervalFn).toBe("function");
@@ -146,6 +147,7 @@ describe("SSR safety", () => {
 			useFavicon,
 			useFetch,
 			useFileDialog,
+			useFileSystemAccess,
 			useMediaQuery,
 			useMouse,
 			useOnline,
@@ -236,6 +238,7 @@ describe("SSR safety", () => {
 		const eyeDropper = useEyeDropper();
 		const favicon = useFavicon("favicon.ico", { document: null });
 		const fileDialog = useFileDialog({ document: null });
+		const fileSystemAccess = useFileSystemAccess({ window: null });
 		const fetchValue = useFetch("https://example.com", {
 			fetch: async () => new Response("ok"),
 			immediate: false,
@@ -305,6 +308,14 @@ describe("SSR safety", () => {
 		expect(eyeDropper.error.value).toBeNull();
 		expect(favicon.value).toBe("favicon.ico");
 		expect(fileDialog.files.value).toBeNull();
+		expect(fileSystemAccess.isSupported.value).toBe(false);
+		expect(fileSystemAccess.data.value).toBeUndefined();
+		expect(fileSystemAccess.file.value).toBeUndefined();
+		expect(fileSystemAccess.fileName.value).toBe("");
+		expect(fileSystemAccess.fileMIME.value).toBe("");
+		expect(fileSystemAccess.fileSize.value).toBe(0);
+		expect(fileSystemAccess.fileLastModified.value).toBe(0);
+		expect(fileSystemAccess.error.value).toBeNull();
 		expect(fetchValue.data.value).toBeNull();
 		expect(sessionStorageValue.value).toBe("fallback");
 		expect(ssrMediaQuery.matches.value).toBe(true);
@@ -370,6 +381,12 @@ describe("SSR safety", () => {
 		fileDialog.open();
 		fileDialog.reset();
 		fileDialog.stop();
+		await fileSystemAccess.open();
+		await fileSystemAccess.create();
+		await fileSystemAccess.save();
+		await fileSystemAccess.saveAs();
+		await fileSystemAccess.updateData();
+		fileSystemAccess.stop();
 		expect(await fetchValue.execute()).toBeInstanceOf(Response);
 		expect(fetchValue.data.value).toBe("ok");
 		expect(fetchValue.statusCode.value).toBe(200);

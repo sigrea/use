@@ -74,6 +74,17 @@ import type {
 	EyeDropperLike,
 	EyeDropperOpenOptions,
 	EyeDropperResult,
+	FileSystemAccessAcceptType,
+	FileSystemAccessCreateWritableOptions,
+	FileSystemAccessDataType,
+	FileSystemAccessFileHandleLike,
+	FileSystemAccessPickerOptions,
+	FileSystemAccessShowOpenFileOptions,
+	FileSystemAccessShowSaveFileOptions,
+	FileSystemAccessStartInDirectory,
+	FileSystemAccessWindowLike,
+	FileSystemAccessWritableFileStreamLike,
+	FileSystemAccessWriteData,
 	FocusableElementLike,
 	IsDefinedReturn,
 	KeyFilter,
@@ -312,6 +323,10 @@ import type {
 	UseFileDialogOpenOptions,
 	UseFileDialogOptions,
 	UseFileDialogReturn,
+	UseFileSystemAccessOpenOptions,
+	UseFileSystemAccessOptions,
+	UseFileSystemAccessReturn,
+	UseFileSystemAccessSaveOptions,
 	UseFocusOptions,
 	UseMediaQueryOptions,
 	UseMouseOptions,
@@ -416,6 +431,7 @@ import {
 	useFavicon,
 	useFetch,
 	useFileDialog,
+	useFileSystemAccess,
 	useFocus,
 	useInterval,
 	useIntervalFn,
@@ -2600,6 +2616,163 @@ describe("public types", () => {
 			});
 			// @ts-expect-error returned files signal is readonly
 			dialog.files.value = null;
+		});
+	});
+
+	it("types file system access controls", () => {
+		typeOnly(() => {
+			const acceptTypes: readonly FileSystemAccessAcceptType[] = [
+				{
+					accept: {
+						"text/plain": [".txt"],
+					},
+					description: "Text",
+				},
+			];
+			const startIn = signal<FileSystemAccessStartInDirectory | undefined>(
+				"documents",
+			);
+			const writable = {} as FileSystemAccessWritableFileStreamLike;
+			const handle = {} as FileSystemAccessFileHandleLike;
+			const window = {
+				showOpenFilePicker: async (
+					options?: FileSystemAccessShowOpenFileOptions,
+				) => {
+					expectTypeOf(options).toEqualTypeOf<
+						FileSystemAccessShowOpenFileOptions | undefined
+					>();
+					return [handle] as const;
+				},
+				showSaveFilePicker: async (
+					options?: FileSystemAccessShowSaveFileOptions,
+				) => {
+					expectTypeOf(options).toEqualTypeOf<
+						FileSystemAccessShowSaveFileOptions | undefined
+					>();
+					return handle;
+				},
+			} as unknown as FileSystemAccessWindowLike<FileSystemAccessFileHandleLike>;
+			const dataType = signal<FileSystemAccessDataType>("Text");
+			const basePickerOptions: FileSystemAccessPickerOptions = {
+				excludeAcceptAllOption: true,
+				id: "notes",
+				startIn: "downloads",
+				types: acceptTypes,
+			};
+			const openOptions: UseFileSystemAccessOpenOptions = {
+				excludeAcceptAllOption: signal(false),
+				id: () => "open",
+				startIn,
+				types: signal(acceptTypes),
+			};
+			const saveOptions: UseFileSystemAccessSaveOptions = {
+				excludeAcceptAllOption: false,
+				id: "save",
+				startIn: "documents",
+				suggestedName: signal("note.txt"),
+				types: acceptTypes,
+			};
+			const options: UseFileSystemAccessOptions<
+				FileSystemAccessWindowLike<FileSystemAccessFileHandleLike>
+			> = {
+				...basePickerOptions,
+				dataType,
+				window: signal(window),
+			};
+			const access = useFileSystemAccess(options);
+			const textAccess = useFileSystemAccess({
+				dataType: "Text",
+				window,
+			});
+			const arrayBufferAccess = useFileSystemAccess({
+				dataType: "ArrayBuffer",
+				window,
+			});
+			const blobAccess = useFileSystemAccess({
+				dataType: "Blob",
+				window,
+			});
+			const fallback = useFileSystemAccess({ window: null });
+			const writeData = "content" satisfies FileSystemAccessWriteData;
+			const createWritableOptions = {
+				keepExistingData: true,
+			} satisfies FileSystemAccessCreateWritableOptions;
+
+			expectTypeOf(access).toEqualTypeOf<
+				UseFileSystemAccessReturn<string | ArrayBuffer | Blob>
+			>();
+			expectTypeOf(textAccess).toEqualTypeOf<
+				UseFileSystemAccessReturn<string>
+			>();
+			expectTypeOf(arrayBufferAccess).toEqualTypeOf<
+				UseFileSystemAccessReturn<ArrayBuffer>
+			>();
+			expectTypeOf(blobAccess).toEqualTypeOf<UseFileSystemAccessReturn<Blob>>();
+			expectTypeOf(access.data).toEqualTypeOf<
+				Signal<string | ArrayBuffer | Blob | undefined>
+			>();
+			expectTypeOf(textAccess.data).toEqualTypeOf<Signal<string | undefined>>();
+			expectTypeOf(access.file).toEqualTypeOf<
+				ReadonlySignal<File | undefined>
+			>();
+			expectTypeOf(access.fileName).toEqualTypeOf<ReadonlySignal<string>>();
+			expectTypeOf(access.fileMIME).toEqualTypeOf<ReadonlySignal<string>>();
+			expectTypeOf(access.fileSize).toEqualTypeOf<ReadonlySignal<number>>();
+			expectTypeOf(access.fileLastModified).toEqualTypeOf<
+				ReadonlySignal<number>
+			>();
+			expectTypeOf(access.isSupported).toEqualTypeOf<ReadonlySignal<boolean>>();
+			expectTypeOf(access.error).toEqualTypeOf<
+				ReadonlySignal<unknown | null>
+			>();
+			expectTypeOf(access.open(openOptions)).toEqualTypeOf<Promise<void>>();
+			expectTypeOf(access.create(saveOptions)).toEqualTypeOf<Promise<void>>();
+			expectTypeOf(access.save(saveOptions)).toEqualTypeOf<Promise<void>>();
+			expectTypeOf(access.saveAs(saveOptions)).toEqualTypeOf<Promise<void>>();
+			expectTypeOf(access.updateData()).toEqualTypeOf<Promise<void>>();
+			expectTypeOf(access.stop()).toEqualTypeOf<void>();
+			expectTypeOf(fallback.data.value).toEqualTypeOf<
+				string | ArrayBuffer | Blob | undefined
+			>();
+			expectTypeOf(writable.write(writeData)).toEqualTypeOf<Promise<void>>();
+			expectTypeOf(writable.close()).toEqualTypeOf<Promise<void>>();
+			expectTypeOf(handle.createWritable(createWritableOptions)).toEqualTypeOf<
+				Promise<FileSystemAccessWritableFileStreamLike>
+			>();
+			access.data.value = "changed";
+			textAccess.data.value = undefined;
+			// @ts-expect-error dataType must be one of the supported readers
+			useFileSystemAccess({ dataType: "Json" });
+			access.open({
+				// @ts-expect-error multiple is not part of the single-file API
+				multiple: true,
+			});
+			access.saveAs({
+				// @ts-expect-error suggestedName must be a string
+				suggestedName: 1,
+			});
+			useFileSystemAccess({
+				// @ts-expect-error types must be a readonly list
+				types: "text/plain",
+			});
+			useFileSystemAccess({
+				types: [
+					{
+						// @ts-expect-error accept entries must be readonly string arrays
+						accept: { "text/plain": ".txt" },
+					},
+				],
+			});
+			useFileSystemAccess({
+				// @ts-expect-error window must be window-like
+				window: {},
+			});
+			// @ts-expect-error file is readonly
+			access.file.value = new File([], "bad.txt");
+			// @ts-expect-error metadata is readonly
+			access.fileName.value = "bad.txt";
+			// @ts-expect-error support is readonly
+			access.isSupported.value = true;
 		});
 	});
 
