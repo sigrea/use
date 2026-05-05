@@ -1982,6 +1982,68 @@ export interface UseDevicePixelRatioReturn {
 	stop(): void;
 }
 
+export interface UseDevicesListMediaStreamTrackLike {
+	stop(): void;
+}
+
+export interface UseDevicesListMediaStreamLike {
+	getTracks(): UseDevicesListMediaStreamTrackLike[];
+}
+
+export type UseDevicesListPermissionName = "camera" | "microphone";
+
+export interface UseDevicesListPermissionStatusLike extends EventTarget {
+	readonly state: PermissionState;
+}
+
+export interface UseDevicesListMediaDevicesLike extends EventTarget {
+	enumerateDevices(): Promise<readonly MediaDeviceInfo[]>;
+	getUserMedia?(
+		constraints?: MediaStreamConstraints,
+	): Promise<UseDevicesListMediaStreamLike>;
+}
+
+export interface UseDevicesListPermissionsLike {
+	query(permissionDescriptor: {
+		readonly name: UseDevicesListPermissionName;
+	}): Promise<UseDevicesListPermissionStatusLike>;
+}
+
+export interface UseDevicesListNavigatorLike extends NavigatorLike {
+	readonly mediaDevices?: UseDevicesListMediaDevicesLike | null;
+	readonly permissions?: UseDevicesListPermissionsLike | null;
+}
+
+export interface UseDevicesListOptions<
+	TNavigator extends UseDevicesListNavigatorLike = UseDevicesListNavigatorLike,
+> {
+	/**
+	 * Media constraints passed to getUserMedia() when permission is requested.
+	 *
+	 * @default { audio: true, video: true }
+	 */
+	constraints?: MaybeValue<MediaStreamConstraints>;
+	navigator?: MaybeValue<TNavigator | null | undefined>;
+	onUpdated?: (devices: readonly MediaDeviceInfo[]) => void;
+	/**
+	 * Request camera or microphone permission during setup.
+	 *
+	 * @default false
+	 */
+	requestPermissions?: MaybeValue<boolean>;
+}
+
+export interface UseDevicesListReturn {
+	readonly devices: ReadonlySignal<readonly MediaDeviceInfo[]>;
+	readonly videoInputs: ReadonlySignal<readonly MediaDeviceInfo[]>;
+	readonly audioInputs: ReadonlySignal<readonly MediaDeviceInfo[]>;
+	readonly audioOutputs: ReadonlySignal<readonly MediaDeviceInfo[]>;
+	readonly isSupported: ReadonlySignal<boolean>;
+	readonly permissionGranted: ReadonlySignal<boolean>;
+	ensurePermissions(): Promise<boolean>;
+	stop(): void;
+}
+
 export interface UseOnlineOptions<
 	TWindow extends WindowLike = WindowLike,
 	TNavigator extends OnlineNavigatorLike = OnlineNavigatorLike,
