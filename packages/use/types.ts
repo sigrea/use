@@ -537,6 +537,14 @@ export type UseArrayMapCallback<T, U = T> = (
 
 export type UseArrayMapReturn<T = unknown> = ReadonlySignal<T[]>;
 
+export type UseArrayReduceReducer<PV, CV, R> = (
+	previousValue: PV,
+	currentValue: CV,
+	currentIndex: number,
+) => R;
+
+export type UseArrayReduceReturn<T = unknown> = ReadonlySignal<T>;
+
 export type ComputedWithControlSource<T = unknown> =
 	| WatchSource<T>
 	| DeepSignal<object>
