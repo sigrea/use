@@ -70,7 +70,7 @@ Status values:
 | `useArrayEvery` | `useArrayEvery` | Done |
 | `useArrayFilter` | `useArrayFilter` | Done |
 | `useArrayFind` | `useArrayFind` | Done |
-| `useArrayFindIndex` | `-` | Todo |
+| `useArrayFindIndex` | `useArrayFindIndex` | Done |
 | `useArrayFindLast` | `-` | Todo |
 | `useArrayIncludes` | `-` | Todo |
 | `useArrayJoin` | `-` | Todo |
