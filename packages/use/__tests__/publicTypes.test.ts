@@ -15,6 +15,15 @@ import type {
 	AsyncComputedOptions,
 	BatteryManagerLike,
 	BatteryNavigatorLike,
+	BluetoothDeviceLike,
+	BluetoothLEScanFilterLike,
+	BluetoothLike,
+	BluetoothNavigatorLike,
+	BluetoothRemoteGATTCharacteristicLike,
+	BluetoothRemoteGATTServerLike,
+	BluetoothRemoteGATTServiceLike,
+	BluetoothRequestDeviceOptionsLike,
+	BluetoothServiceUUIDLike,
 	Breakpoints,
 	ComputedEagerOptions,
 	ComputedEagerReturn,
@@ -140,6 +149,8 @@ import type {
 	UseBase64WindowLike,
 	UseBatteryOptions,
 	UseBatteryReturn,
+	UseBluetoothOptions,
+	UseBluetoothReturn,
 	UseBreakpointsOptions,
 	UseDocumentVisibilityOptions,
 	UseElementSizeOptions,
@@ -206,6 +217,7 @@ import {
 	useAsyncState,
 	useBase64,
 	useBattery,
+	useBluetooth,
 	useBreakpoints,
 	useDebounceFn,
 	useDocumentVisibility,
@@ -532,6 +544,88 @@ describe("public types", () => {
 				navigator: { getBattery: () => manager },
 			};
 			useBattery(invalidOptions);
+		});
+	});
+
+	it("types bluetooth values and options", () => {
+		typeOnly(() => {
+			class TypedCharacteristic
+				extends EventTarget
+				implements BluetoothRemoteGATTCharacteristicLike
+			{
+				readValue = () => Promise.resolve(new DataView(new ArrayBuffer(1)));
+			}
+			class TypedService implements BluetoothRemoteGATTServiceLike {
+				getCharacteristic = (_characteristic: BluetoothServiceUUIDLike) =>
+					Promise.resolve(new TypedCharacteristic());
+			}
+			class TypedServer implements BluetoothRemoteGATTServerLike {
+				connected = true;
+				connect = () => Promise.resolve(this);
+				disconnect() {}
+				getPrimaryService = (_service: BluetoothServiceUUIDLike) =>
+					Promise.resolve(new TypedService());
+			}
+			class TypedDevice extends EventTarget implements BluetoothDeviceLike {
+				id = "device";
+				name = "Device";
+				gatt = new TypedServer();
+			}
+			class TypedBluetooth extends EventTarget implements BluetoothLike {
+				getAvailability = () => Promise.resolve(true);
+				getDevices = () => Promise.resolve([new TypedDevice()]);
+				requestDevice = (_options?: BluetoothRequestDeviceOptionsLike) =>
+					Promise.resolve(new TypedDevice());
+			}
+			const filter: BluetoothLEScanFilterLike = {
+				namePrefix: "Sigrea",
+				services: ["battery_service", 0x180f],
+			};
+			const navigator: BluetoothNavigatorLike = {
+				bluetooth: new TypedBluetooth(),
+			};
+			const options: UseBluetoothOptions<BluetoothNavigatorLike> = {
+				acceptAllDevices: signal(false),
+				filters: signal([filter]),
+				navigator: signal(navigator),
+				optionalServices: ["battery_service"],
+			};
+			const result = useBluetooth(options);
+			const fallback = useBluetooth({ navigator: null });
+			const returnValue: UseBluetoothReturn = result;
+
+			expectTypeOf(result).toEqualTypeOf<UseBluetoothReturn>();
+			expectTypeOf(returnValue.isSupported).toEqualTypeOf<
+				ReadonlySignal<boolean>
+			>();
+			expectTypeOf(result.isConnected).toEqualTypeOf<ReadonlySignal<boolean>>();
+			expectTypeOf(result.device).toEqualTypeOf<
+				ReadonlySignal<BluetoothDeviceLike | undefined>
+			>();
+			expectTypeOf(result.server).toEqualTypeOf<
+				ReadonlySignal<BluetoothRemoteGATTServerLike | undefined>
+			>();
+			expectTypeOf(result.error).toEqualTypeOf<
+				ReadonlySignal<unknown | null>
+			>();
+			expectTypeOf(result.requestDevice()).toEqualTypeOf<Promise<void>>();
+			expectTypeOf(result.connect()).toEqualTypeOf<Promise<void>>();
+			expectTypeOf(result.disconnect()).toEqualTypeOf<void>();
+			expectTypeOf(result.stop()).toEqualTypeOf<void>();
+			expectTypeOf(fallback).toEqualTypeOf<UseBluetoothReturn>();
+			// @ts-expect-error returned values are readonly signals
+			result.device.value = new TypedDevice();
+			// @ts-expect-error acceptAllDevices must be boolean
+			useBluetooth({ acceptAllDevices: "true" });
+			// @ts-expect-error optional services must be service UUID values
+			useBluetooth({ optionalServices: [false] });
+			// @ts-expect-error filters must use Bluetooth scan filter fields
+			useBluetooth({ filters: [{ unknown: true }] });
+			const invalidOptions: UseBluetoothOptions<BluetoothNavigatorLike> = {
+				// @ts-expect-error requestDevice must return a promise
+				navigator: { bluetooth: { requestDevice: () => new TypedDevice() } },
+			};
+			useBluetooth(invalidOptions);
 		});
 	});
 
