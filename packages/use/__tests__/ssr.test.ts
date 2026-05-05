@@ -99,6 +99,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.useEventSource).toBe("function");
 		expect(typeof mod.useEyeDropper).toBe("function");
 		expect(typeof mod.useFavicon).toBe("function");
+		expect(typeof mod.useFetch).toBe("function");
 		expect(typeof mod.useFocus).toBe("function");
 		expect(typeof mod.useInterval).toBe("function");
 		expect(typeof mod.useIntervalFn).toBe("function");
@@ -142,6 +143,7 @@ describe("SSR safety", () => {
 			useEventSource,
 			useEyeDropper,
 			useFavicon,
+			useFetch,
 			useMediaQuery,
 			useMouse,
 			useOnline,
@@ -231,6 +233,10 @@ describe("SSR safety", () => {
 		const eventSource = useEventSource("https://example.com/events");
 		const eyeDropper = useEyeDropper();
 		const favicon = useFavicon("favicon.ico", { document: null });
+		const fetchValue = useFetch("https://example.com", {
+			fetch: async () => new Response("ok"),
+			immediate: false,
+		}).text();
 		const sessionStorageValue = useSessionStorage("session", "fallback", {
 			window: undefined,
 		});
@@ -295,6 +301,7 @@ describe("SSR safety", () => {
 		expect(eyeDropper.sRGBHex.value).toBe("");
 		expect(eyeDropper.error.value).toBeNull();
 		expect(favicon.value).toBe("favicon.ico");
+		expect(fetchValue.data.value).toBeNull();
 		expect(sessionStorageValue.value).toBe("fallback");
 		expect(ssrMediaQuery.matches.value).toBe(true);
 		expect(storageValue.value).toBe("fallback");
@@ -356,6 +363,11 @@ describe("SSR safety", () => {
 		favicon.value = "next.ico";
 		expect(favicon.value).toBe("next.ico");
 		favicon.stop();
+		expect(await fetchValue.execute()).toBeInstanceOf(Response);
+		expect(fetchValue.data.value).toBe("ok");
+		expect(fetchValue.statusCode.value).toBe(200);
+		fetchValue.abort();
+		fetchValue.stop();
 		sessionStorageValue.stop();
 		ssrMediaQuery.stop();
 		storageValue.stop();
