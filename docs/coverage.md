@@ -101,7 +101,7 @@ Status values:
 | `useDark` | `useDark` | Done |
 | `useDateFormat` | `useDateFormat` | Done |
 | `useDebounceFn` | `useDebounceFn` | Done |
-| `useDebouncedRefHistory` | `-` | Todo |
+| `useDebouncedRefHistory` | `useDebouncedRefHistory` | Done |
 | `useDeviceMotion` | `-` | Todo |
 | `useDeviceOrientation` | `-` | Todo |
 | `useDevicePixelRatio` | `-` | Todo |
