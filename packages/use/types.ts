@@ -2044,6 +2044,58 @@ export interface UseDevicesListReturn {
 	stop(): void;
 }
 
+export interface UseDisplayMediaMediaStreamTrackLike extends EventTarget {
+	stop(): void;
+}
+
+export interface UseDisplayMediaMediaStreamLike {
+	getTracks(): UseDisplayMediaMediaStreamTrackLike[];
+}
+
+export interface UseDisplayMediaMediaDevicesLike<
+	TStream extends UseDisplayMediaMediaStreamLike = MediaStream,
+> {
+	getDisplayMedia(options?: DisplayMediaStreamOptions): Promise<TStream>;
+}
+
+export interface UseDisplayMediaNavigatorLike<
+	TStream extends UseDisplayMediaMediaStreamLike = MediaStream,
+> extends NavigatorLike {
+	readonly mediaDevices?: UseDisplayMediaMediaDevicesLike<TStream> | null;
+}
+
+export interface UseDisplayMediaOptions<
+	TStream extends UseDisplayMediaMediaStreamLike = MediaStream,
+	TNavigator extends
+		UseDisplayMediaNavigatorLike<TStream> = UseDisplayMediaNavigatorLike<TStream>,
+> {
+	/**
+	 * Display media constraints passed to getDisplayMedia().
+	 *
+	 * @default { video: true }
+	 */
+	constraints?: MaybeValue<DisplayMediaStreamOptions>;
+	/**
+	 * Start or stop capture when this value changes.
+	 *
+	 * @default false
+	 */
+	enabled?: MaybeValue<boolean>;
+	navigator?: MaybeValue<TNavigator | null | undefined>;
+}
+
+export interface UseDisplayMediaReturn<
+	TStream extends UseDisplayMediaMediaStreamLike = MediaStream,
+> {
+	readonly stream: ReadonlySignal<TStream | undefined>;
+	readonly isSupported: ReadonlySignal<boolean>;
+	readonly isStarting: ReadonlySignal<boolean>;
+	readonly isStreaming: ReadonlySignal<boolean>;
+	readonly error: ReadonlySignal<unknown | null>;
+	start(): Promise<TStream | undefined>;
+	stop(): void;
+}
+
 export interface UseOnlineOptions<
 	TWindow extends WindowLike = WindowLike,
 	TNavigator extends OnlineNavigatorLike = OnlineNavigatorLike,

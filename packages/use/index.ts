@@ -69,6 +69,7 @@ export { useDeviceMotion } from "./useDeviceMotion";
 export { useDeviceOrientation } from "./useDeviceOrientation";
 export { useDevicePixelRatio } from "./useDevicePixelRatio";
 export { useDevicesList } from "./useDevicesList";
+export { useDisplayMedia } from "./useDisplayMedia";
 export { useDocumentVisibility } from "./useDocumentVisibility";
 export { useElementSize } from "./useElementSize";
 export { useEventListener } from "./useEventListener";
@@ -367,6 +368,12 @@ export type {
 	UseDevicesListPermissionStatusLike,
 	UseDevicesListPermissionsLike,
 	UseDevicesListReturn,
+	UseDisplayMediaMediaDevicesLike,
+	UseDisplayMediaMediaStreamLike,
+	UseDisplayMediaMediaStreamTrackLike,
+	UseDisplayMediaNavigatorLike,
+	UseDisplayMediaOptions,
+	UseDisplayMediaReturn,
 	UseDocumentVisibilityOptions,
 	UseDocumentVisibilityReturn,
 	UseElementSizeOptions,
