@@ -70,6 +70,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.useClipboardItems).toBe("function");
 		expect(typeof mod.useCloned).toBe("function");
 		expect(typeof mod.useColorMode).toBe("function");
+		expect(typeof mod.useConfirmDialog).toBe("function");
 		expect(typeof mod.useBreakpoints).toBe("function");
 		expect(typeof mod.useDocumentVisibility).toBe("function");
 		expect(typeof mod.useElementSize).toBe("function");
@@ -518,15 +519,26 @@ describe("SSR safety", () => {
 	});
 
 	it("creates event hooks without a window", async () => {
-		const { createEventHook } = await import("../../../index");
+		const { createEventHook, useConfirmDialog } = await import(
+			"../../../index"
+		);
 		const hook = createEventHook<string>();
 		const calls: string[] = [];
 
 		hook.on((value) => calls.push(value));
 		await hook.trigger("ready");
 
+		const dialog = useConfirmDialog<unknown, string, string>();
+		const result = dialog.open();
+		dialog.confirm("accepted");
+
 		expect(globalThis.window).toBeUndefined();
 		expect(calls).toEqual(["ready"]);
+		expect(dialog.isOpen.value).toBe(false);
+		await expect(result).resolves.toEqual({
+			data: "accepted",
+			isCanceled: false,
+		});
 	});
 
 	it("creates signals without a window", async () => {
