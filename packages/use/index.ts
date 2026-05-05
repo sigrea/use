@@ -65,6 +65,7 @@ export { useDark } from "./useDark";
 export { formatDate, normalizeDate, useDateFormat } from "./useDateFormat";
 export { useDebounceFn } from "./useDebounceFn";
 export { useDebouncedRefHistory } from "./useDebouncedRefHistory";
+export { useDeviceMotion } from "./useDeviceMotion";
 export { useDocumentVisibility } from "./useDocumentVisibility";
 export { useElementSize } from "./useElementSize";
 export { useEventListener } from "./useEventListener";
@@ -214,6 +215,8 @@ export type {
 	ExtendSignalUnwrapped,
 	DocumentLike,
 	DocumentVisibilityDocumentLike,
+	DeviceMotionEventConstructorLike,
+	DeviceMotionPermissionState,
 	ElementSize,
 	FocusableElementLike,
 	FocusMethodOptions,
@@ -341,6 +344,9 @@ export type {
 	UseDebounceFnReturn,
 	UseDebouncedRefHistoryOptions,
 	UseDebouncedRefHistoryReturn,
+	UseDeviceMotionOptions,
+	UseDeviceMotionReturn,
+	UseDeviceMotionWindowLike,
 	UseDocumentVisibilityOptions,
 	UseDocumentVisibilityReturn,
 	UseElementSizeOptions,

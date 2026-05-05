@@ -1647,6 +1647,17 @@ export interface DocumentVisibilityDocumentLike extends DocumentLike {
 	readonly visibilityState?: DocumentVisibilityState;
 }
 
+export type DeviceMotionPermissionState = "granted" | "denied";
+
+export interface DeviceMotionEventConstructorLike {
+	new (type: string, eventInitDict?: DeviceMotionEventInit): DeviceMotionEvent;
+	requestPermission?(): Promise<DeviceMotionPermissionState>;
+}
+
+export interface UseDeviceMotionWindowLike extends WindowLike {
+	readonly DeviceMotionEvent?: DeviceMotionEventConstructorLike;
+}
+
 export interface OnlineNavigatorLike extends NavigatorLike {
 	readonly onLine?: boolean;
 }
@@ -1878,6 +1889,31 @@ export interface UseDocumentVisibilityOptions<
 
 export interface UseDocumentVisibilityReturn {
 	readonly visibility: ReadonlySignal<DocumentVisibilityState>;
+	stop(): void;
+}
+
+export interface UseDeviceMotionOptions<
+	TWindow extends UseDeviceMotionWindowLike = UseDeviceMotionWindowLike,
+> {
+	/**
+	 * Request motion permission immediately when the browser exposes
+	 * DeviceMotionEvent.requestPermission().
+	 *
+	 * @default false
+	 */
+	requestPermissions?: MaybeValue<boolean>;
+	window?: MaybeTarget<TWindow>;
+}
+
+export interface UseDeviceMotionReturn {
+	readonly acceleration: ReadonlySignal<DeviceMotionEventAcceleration | null>;
+	readonly accelerationIncludingGravity: ReadonlySignal<DeviceMotionEventAcceleration | null>;
+	readonly rotationRate: ReadonlySignal<DeviceMotionEventRotationRate | null>;
+	readonly interval: ReadonlySignal<number>;
+	readonly isSupported: ReadonlySignal<boolean>;
+	readonly requirePermissions: ReadonlySignal<boolean>;
+	readonly permissionGranted: ReadonlySignal<boolean>;
+	ensurePermissions(): Promise<void>;
 	stop(): void;
 }
 
