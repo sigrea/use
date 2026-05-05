@@ -1168,6 +1168,32 @@ export interface UseCssSupportsOptions<
 
 export type UseCssSupportsReturn = ReadonlySignal<boolean>;
 
+export interface UseCssVarElementLike extends Element {
+	readonly style?: CSSStyleDeclaration;
+}
+
+export interface UseCssVarDocumentLike extends DocumentLike {
+	readonly documentElement?: UseCssVarElementLike;
+}
+
+export interface UseCssVarWindowLike extends WindowLike {
+	readonly document?: UseCssVarDocumentLike;
+	getComputedStyle?(element: Element): CSSStyleDeclaration;
+	readonly MutationObserver?: typeof MutationObserver;
+}
+
+export interface UseCssVarOptions<
+	TWindow extends UseCssVarWindowLike = UseCssVarWindowLike,
+> {
+	initialValue?: string;
+	observe?: boolean;
+	window?: MaybeTarget<TWindow>;
+}
+
+export type UseCssVarReturn = Computed<string | null | undefined> & {
+	stop(): void;
+};
+
 export interface ComputedEagerOptions {
 	flush?: WatchOptions["flush"];
 	onTrack?: WatchOptions["onTrack"];
