@@ -39,6 +39,7 @@ import type {
 	ClipboardLike,
 	ClipboardNavigatorLike,
 	ClipboardTextareaLike,
+	CloneFn,
 	ComputedEagerOptions,
 	ComputedEagerReturn,
 	ComputedWithControlOptions,
@@ -183,6 +184,9 @@ import type {
 	UseClipboardReturn,
 	UseClipboardTextSource,
 	UseClipboardWindowLike,
+	UseClonedCloneFn,
+	UseClonedOptions,
+	UseClonedReturn,
 	UseDocumentVisibilityOptions,
 	UseElementSizeOptions,
 	UseFocusOptions,
@@ -197,6 +201,7 @@ import type {
 } from "../../../index";
 import {
 	StorageSerializers,
+	cloneStructured,
 	computedAsync,
 	computedEager,
 	computedWithControl,
@@ -255,6 +260,7 @@ import {
 	useCached,
 	useClipboard,
 	useClipboardItems,
+	useCloned,
 	useDebounceFn,
 	useDocumentVisibility,
 	useElementSize,
@@ -1046,6 +1052,68 @@ describe("public types", () => {
 			// @ts-expect-error navigator.clipboard.write must return a promise
 			const invalidClipboard: ClipboardLike = { write: (_items) => {} };
 			expectTypeOf(invalidClipboard).toEqualTypeOf<ClipboardLike>();
+		});
+	});
+
+	it("types cloned values and options", () => {
+		typeOnly(() => {
+			const source = signal({ count: 1 });
+			const historyClone: CloneFn<PromiseLike<number>> = (value) => value;
+			const clonedClone: UseClonedCloneFn<{ count: number }> = (value) => value;
+			const options: UseClonedOptions<
+				{ count: number },
+				{ count: number; copied: boolean }
+			> = {
+				clone: (value) => ({ ...value, copied: true }),
+				deep: true,
+				flush: "sync",
+				manual: true,
+			};
+			const result = useCloned(source, options);
+			const rawResult = useCloned({ count: 1 });
+			const getterResult = useCloned(() => source.value);
+			const structured = cloneStructured({ count: 1 });
+			const returnValue: UseClonedReturn<{
+				count: number;
+				copied: boolean;
+			}> = result;
+
+			expectTypeOf(result).toEqualTypeOf<
+				UseClonedReturn<{ count: number; copied: boolean }>
+			>();
+			expectTypeOf(rawResult.cloned).toEqualTypeOf<Signal<{ count: number }>>();
+			expectTypeOf(getterResult.cloned).toEqualTypeOf<
+				Signal<{ count: number }>
+			>();
+			expectTypeOf(returnValue.isModified).toEqualTypeOf<
+				ReadonlySignal<boolean>
+			>();
+			expectTypeOf(result.cloned).toEqualTypeOf<
+				Signal<{ count: number; copied: boolean }>
+			>();
+			expectTypeOf(result.cloned.value.copied).toEqualTypeOf<boolean>();
+			expectTypeOf(result.sync()).toEqualTypeOf<void>();
+			expectTypeOf(result.stop()).toEqualTypeOf<void>();
+			expectTypeOf(structured).toEqualTypeOf<{ count: number }>();
+			expectTypeOf(historyClone).toEqualTypeOf<CloneFn<PromiseLike<number>>>();
+			expectTypeOf(clonedClone).toEqualTypeOf<
+				UseClonedCloneFn<{ count: number }>
+			>();
+
+			result.cloned.value = { count: 2, copied: false };
+			// @ts-expect-error isModified is readonly
+			result.isModified.value = true;
+			// @ts-expect-error clone must be synchronous
+			useCloned(source, { clone: async (value) => value });
+			const invalidOptions: UseClonedOptions<{ count: number }> = {
+				// @ts-expect-error immediate is intentionally not part of the Sigrea API
+				immediate: false,
+			};
+			expectTypeOf(invalidOptions).toEqualTypeOf<
+				UseClonedOptions<{ count: number }>
+			>();
+			// @ts-expect-error Vue ref name is not part of the Sigrea API
+			result.ref;
 		});
 	});
 
