@@ -42,6 +42,7 @@ export { useArrayMap } from "./useArrayMap";
 export { useArrayReduce } from "./useArrayReduce";
 export { useArraySome } from "./useArraySome";
 export { useArrayUnique } from "./useArrayUnique";
+export { useAsyncQueue } from "./useAsyncQueue";
 export { useBreakpoints } from "./useBreakpoints";
 export { useCounter } from "./useCounter";
 export { useDebounceFn } from "./useDebounceFn";
@@ -76,6 +77,12 @@ export type {
 	AsyncComputedOnCancel,
 	AsyncComputedOptions,
 	AsyncComputedOptionsOrSignal,
+	UseAsyncQueueOptions,
+	UseAsyncQueueResult,
+	UseAsyncQueueResultList,
+	UseAsyncQueueResultState,
+	UseAsyncQueueReturn,
+	UseAsyncQueueTask,
 	Arrayable,
 	Breakpoints,
 	CloneFn,
