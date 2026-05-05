@@ -851,17 +851,30 @@ export interface ClipboardLike {
 		listener: (event: Event) => void,
 		options?: boolean | AddEventListenerOptions,
 	): void;
+	read?(): Promise<ClipboardItemLike[]>;
 	readText?(): Promise<string>;
 	removeEventListener?(
 		type: "clipboardchange",
 		listener: (event: Event) => void,
 		options?: boolean | EventListenerOptions,
 	): void;
+	write?(data: ClipboardItemLike[]): Promise<void>;
 	writeText?(data: string): Promise<void>;
 }
 
 export interface ClipboardNavigatorLike extends NavigatorLike {
 	readonly clipboard?: ClipboardLike | null;
+}
+
+export type ClipboardItemPresentationStyleLike =
+	| "unspecified"
+	| "inline"
+	| "attachment";
+
+export interface ClipboardItemLike {
+	readonly presentationStyle?: ClipboardItemPresentationStyleLike;
+	readonly types: readonly string[];
+	getType(type: string): Promise<Blob>;
 }
 
 export interface ClipboardTextareaLike {
@@ -931,6 +944,50 @@ export interface UseClipboardReturn<Optional extends boolean = false> {
 	readonly error: ReadonlySignal<unknown | null>;
 	copy: UseClipboardCopyFn<Optional>;
 	read(): Promise<string | undefined>;
+	stop(): void;
+}
+
+export interface UseClipboardItemsWindowLike extends WindowLike {}
+
+export type UseClipboardItemsSource = MaybeValue<
+	readonly ClipboardItemLike[] | null | undefined
+>;
+
+export interface UseClipboardItemsOptions<
+	Source extends UseClipboardItemsSource | undefined = undefined,
+	TNavigator extends ClipboardNavigatorLike = ClipboardNavigatorLike,
+	TWindow extends UseClipboardItemsWindowLike = UseClipboardItemsWindowLike,
+> {
+	/**
+	 * Milliseconds before copied resets to false.
+	 *
+	 * @default 1500
+	 */
+	copiedDuring?: MaybeValue<number>;
+	/**
+	 * Read clipboard items when copy or cut events are observed on the configured window.
+	 *
+	 * @default false
+	 */
+	read?: boolean;
+	source?: Source;
+	navigator?: MaybeValue<TNavigator | null | undefined>;
+	window?: MaybeTarget<TWindow>;
+}
+
+export type UseClipboardItemsCopyFn<Optional extends boolean> =
+	Optional extends true
+		? (items?: UseClipboardItemsSource) => Promise<void>
+		: (items: UseClipboardItemsSource) => Promise<void>;
+
+export interface UseClipboardItemsReturn<Optional extends boolean = false> {
+	readonly isSupported: ReadonlySignal<boolean>;
+	readonly items: ReadonlySignal<readonly ClipboardItemLike[]>;
+	readonly copied: ReadonlySignal<boolean>;
+	readonly isCopying: ReadonlySignal<boolean>;
+	readonly error: ReadonlySignal<unknown | null>;
+	copy: UseClipboardItemsCopyFn<Optional>;
+	read(): Promise<readonly ClipboardItemLike[] | undefined>;
 	stop(): void;
 }
 
