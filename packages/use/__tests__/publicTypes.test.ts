@@ -83,6 +83,10 @@ import type {
 	SyncSignalsReturn,
 	ToDeepSignalReturn,
 	TryOnScopeDisposeReturn,
+	UntilArrayInstance,
+	UntilBaseInstance,
+	UntilToMatchOptions,
+	UntilValueInstance,
 	UseBreakpointsOptions,
 	UseDocumentVisibilityOptions,
 	UseElementSizeOptions,
@@ -130,6 +134,7 @@ import {
 	syncSignals,
 	toDeepSignal,
 	tryOnScopeDispose,
+	until,
 	useBreakpoints,
 	useDebounceFn,
 	useDocumentVisibility,
@@ -977,6 +982,49 @@ describe("public types", () => {
 			expectTypeOf(result).toEqualTypeOf<boolean>();
 			// @ts-expect-error cleanup must be callable
 			tryOnScopeDispose("cleanup");
+		});
+	});
+
+	it("types promised watch conditions", () => {
+		typeOnly(() => {
+			const count = signal<0 | 1 | 2>(0);
+			const values = signal([1, 2] as number[]);
+			const options: UntilToMatchOptions = {
+				deep: true,
+				flush: "sync",
+				throwOnTimeout: true,
+				timeout: 100,
+			};
+			const sourceList = until([signal(1), computed(() => 2)]);
+			const value = until(count);
+			const array = until(values);
+			const isOne = (input: 0 | 1 | 2): input is 1 => input === 1;
+
+			expectTypeOf(value).toEqualTypeOf<UntilValueInstance<0 | 1 | 2>>();
+			expectTypeOf(value).toMatchTypeOf<UntilBaseInstance<0 | 1 | 2>>();
+			expectTypeOf(value.toBe(1 as const, options)).toEqualTypeOf<Promise<1>>();
+			expectTypeOf(value.not.toBe(1)).toEqualTypeOf<Promise<0 | 1 | 2>>();
+			expectTypeOf(value.toBeTruthy()).toEqualTypeOf<Promise<1 | 2>>();
+			expectTypeOf(value.toBeUndefined()).toEqualTypeOf<Promise<undefined>>();
+			expectTypeOf(value.not.toBeUndefined()).toEqualTypeOf<
+				Promise<0 | 1 | 2>
+			>();
+			expectTypeOf(value.toMatch(isOne)).toEqualTypeOf<Promise<1>>();
+			expectTypeOf(value.not.toMatch(isOne)).toEqualTypeOf<Promise<0 | 2>>();
+			expectTypeOf(array).toEqualTypeOf<UntilArrayInstance<number[]>>();
+			expectTypeOf(array.toContains(signal(2))).toEqualTypeOf<
+				Promise<number[]>
+			>();
+			expectTypeOf(sourceList.toContains(1)).toEqualTypeOf<
+				Promise<[number, number]>
+			>();
+
+			// @ts-expect-error condition must be callable
+			value.toMatch(1);
+			// @ts-expect-error timeout must be numeric
+			value.toBe(1, { timeout: "100" });
+			// @ts-expect-error contained value must match the array element type
+			array.toContains("2");
 		});
 	});
 
