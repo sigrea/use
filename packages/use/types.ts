@@ -991,6 +991,101 @@ export interface UseClipboardItemsReturn<Optional extends boolean = false> {
 	stop(): void;
 }
 
+export type BasicColorMode = "light" | "dark";
+
+export type ColorModeSelection<T extends string = BasicColorMode> =
+	| T
+	| BasicColorMode
+	| "auto";
+
+export interface UseColorModeWindowLike extends StorageWindowLike {
+	getComputedStyle?(element: Element): CSSStyleDeclaration;
+}
+
+export interface UseColorModeDocumentLike extends DocumentLike {
+	readonly documentElement?: Element;
+	readonly head?: HTMLHeadElement;
+	createElement?(tagName: "style"): HTMLStyleElement;
+	querySelector?(selectors: string): Element | null;
+}
+
+export type UseColorModeDefaultHandler<T extends string = BasicColorMode> = (
+	mode: T | BasicColorMode,
+) => void;
+
+export interface UseColorModeOptions<T extends string = BasicColorMode> {
+	/**
+	 * Target element used for class or attribute updates.
+	 *
+	 * @default document.documentElement
+	 */
+	target?: MaybeTarget<Element>;
+	/**
+	 * CSS selector used when target is omitted.
+	 *
+	 * @default "html"
+	 */
+	selector?: MaybeValue<string>;
+	/**
+	 * HTML attribute updated on the target element.
+	 *
+	 * @default "class"
+	 */
+	attribute?: MaybeValue<string>;
+	/**
+	 * Initial selected color mode.
+	 *
+	 * @default "auto"
+	 */
+	initialValue?: MaybeValue<ColorModeSelection<T>>;
+	/**
+	 * DOM values for each selected mode.
+	 */
+	modes?: MaybeValue<Partial<Record<ColorModeSelection<T>, string>>>;
+	/**
+	 * Called when the resolved color mode changes.
+	 */
+	onChanged?: (
+		mode: T | BasicColorMode,
+		defaultHandler: UseColorModeDefaultHandler<T>,
+	) => void;
+	/**
+	 * Writable signal used instead of useStorage.
+	 */
+	storageSignal?: Signal<ColorModeSelection<T> | null>;
+	/**
+	 * Storage key for persisted selected mode. Pass null to disable persistence.
+	 *
+	 * @default "sigrea-color-scheme"
+	 */
+	storageKey?: string | null;
+	/**
+	 * Storage implementation. Defaults to window.localStorage.
+	 */
+	storage?: MaybeValue<StorageLike | null | undefined>;
+	/**
+	 * Listen to storage updates from other documents.
+	 *
+	 * @default true
+	 */
+	listenToStorageChanges?: boolean;
+	/**
+	 * Temporarily suppress CSS transitions while the mode is applied.
+	 *
+	 * @default true
+	 */
+	disableTransition?: boolean;
+	window?: MaybeTarget<UseColorModeWindowLike>;
+	document?: MaybeTarget<UseColorModeDocumentLike>;
+}
+
+export interface UseColorModeReturn<T extends string = BasicColorMode> {
+	readonly mode: Computed<ColorModeSelection<T>>;
+	readonly system: ReadonlySignal<BasicColorMode>;
+	readonly resolvedMode: ReadonlySignal<T | BasicColorMode>;
+	stop(): void;
+}
+
 export interface ComputedEagerOptions {
 	flush?: WatchOptions["flush"];
 	onTrack?: WatchOptions["onTrack"];
