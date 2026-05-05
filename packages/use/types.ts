@@ -756,6 +756,34 @@ export interface UseBluetoothReturn {
 	stop(): void;
 }
 
+export interface BroadcastChannelLike extends EventTarget {
+	readonly name?: string;
+	close(): void;
+	postMessage(message: unknown): void;
+}
+
+export interface BroadcastChannelWindowLike extends WindowLike {
+	readonly BroadcastChannel?: { new (name: string): BroadcastChannelLike };
+}
+
+export interface UseBroadcastChannelOptions<
+	TWindow extends BroadcastChannelWindowLike = BroadcastChannelWindowLike,
+> {
+	name: MaybeValue<string>;
+	window?: MaybeTarget<TWindow>;
+}
+
+export interface UseBroadcastChannelReturn<Data = unknown, Payload = Data> {
+	readonly isSupported: ReadonlySignal<boolean>;
+	readonly isClosed: ReadonlySignal<boolean>;
+	readonly channel: ReadonlySignal<BroadcastChannelLike | undefined>;
+	readonly data: ReadonlySignal<Data | undefined>;
+	readonly error: ReadonlySignal<Event | null>;
+	postMessage(data: Payload): void;
+	close(): void;
+	stop(): void;
+}
+
 export interface ComputedEagerOptions {
 	flush?: WatchOptions["flush"];
 	onTrack?: WatchOptions["onTrack"];
