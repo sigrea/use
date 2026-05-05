@@ -54,6 +54,8 @@ import type {
 	DeviceOrientationEventConstructorLike,
 	DeviceOrientationPermissionState,
 	DocumentVisibilityDocumentLike,
+	EventBusKey,
+	EventBusListener,
 	EventHook,
 	EventHookArgs,
 	EventHookCallback,
@@ -277,6 +279,7 @@ import type {
 	UseElementVisibilityOptions,
 	UseElementVisibilityReturn,
 	UseElementVisibilityWindowLike,
+	UseEventBusReturn,
 	UseFocusOptions,
 	UseMediaQueryOptions,
 	UseMouseOptions,
@@ -374,6 +377,7 @@ import {
 	useElementHover,
 	useElementSize,
 	useElementVisibility,
+	useEventBus,
 	useEventListener,
 	useFocus,
 	useInterval,
@@ -2102,6 +2106,78 @@ describe("public types", () => {
 			readonlyArray.trigger("ready", "done");
 			// @ts-expect-error payload type must match
 			single.trigger("ready");
+		});
+	});
+
+	it("types event buses", () => {
+		typeOnly(() => {
+			const userKey: EventBusKey<{ readonly id: string }> = Symbol(
+				"user",
+			) as EventBusKey<{ readonly id: string }>;
+			const news = useEventBus<string>("news");
+			const keyed = useEventBus(userKey);
+			const tuple =
+				useEventBus<
+					[event: "inc" | "dec", payload: { readonly amount: number }]
+				>("counter");
+			const loose = useEventBus("loose");
+			const listener: EventBusListener<string> = (event) => {
+				expectTypeOf(event).toEqualTypeOf<string>();
+			};
+
+			news.on(listener);
+			news.on((event, extra) => {
+				expectTypeOf(event).toEqualTypeOf<string>();
+				expectTypeOf(extra).toEqualTypeOf<unknown>();
+			});
+			keyed.on((event) => {
+				expectTypeOf(event).toEqualTypeOf<{ readonly id: string }>();
+				// @ts-expect-error keyed event remains readonly
+				event.id = "next";
+			});
+			tuple.on((event, payload) => {
+				expectTypeOf(event).toEqualTypeOf<"inc" | "dec">();
+				expectTypeOf(payload).toEqualTypeOf<{
+					readonly amount: number;
+				}>();
+				// @ts-expect-error payload remains readonly
+				payload.amount = 2;
+			});
+			loose.on((...args) => {
+				expectTypeOf(args).toEqualTypeOf<unknown[]>();
+				// @ts-expect-error unknown event must be narrowed before property access
+				args[0].id;
+			});
+
+			expectTypeOf(news).toEqualTypeOf<UseEventBusReturn<string>>();
+			expectTypeOf(news.on(listener)).toEqualTypeOf<{ off: () => void }>();
+			expectTypeOf(news.once(listener)).toEqualTypeOf<{ off: () => void }>();
+			expectTypeOf(news.emit("ready")).toEqualTypeOf<Promise<unknown[]>>();
+			expectTypeOf(news.emit("ready", "extra")).toEqualTypeOf<
+				Promise<unknown[]>
+			>();
+			expectTypeOf(news.off(listener)).toEqualTypeOf<void>();
+			expectTypeOf(news.reset()).toEqualTypeOf<void>();
+			expectTypeOf(tuple.emit("inc", { amount: 1 })).toEqualTypeOf<
+				Promise<unknown[]>
+			>();
+			expectTypeOf(keyed.emit({ id: "u1" })).toEqualTypeOf<
+				Promise<unknown[]>
+			>();
+			useEventBus<string>(1);
+			useEventBus(userKey);
+			// @ts-expect-error string event bus requires the first argument
+			news.emit();
+			// @ts-expect-error event type must match
+			news.emit(1);
+			// @ts-expect-error tuple bus requires all tuple arguments
+			tuple.emit("inc");
+			// @ts-expect-error payload type must match
+			tuple.emit("inc", { amount: "1" });
+			// @ts-expect-error keyed event type must match
+			keyed.emit({ id: 1 });
+			// @ts-expect-error plain symbols are not typed event bus identifiers
+			useEventBus<string>(Symbol("plain"));
 		});
 	});
 
