@@ -108,7 +108,7 @@ Status values:
 | `useDevicesList` | `useDevicesList` | Done |
 | `useDisplayMedia` | `useDisplayMedia` | Done |
 | `useDocumentVisibility` | `useDocumentVisibility` | Done |
-| `useDraggable` | `-` | Todo |
+| `useDraggable` | `useDraggable` | Done |
 | `useDropZone` | `-` | Todo |
 | `useElementBounding` | `-` | Todo |
 | `useElementByPoint` | `-` | Todo |
