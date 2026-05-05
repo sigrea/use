@@ -27,6 +27,11 @@ import type {
 	Breakpoints,
 	BroadcastChannelLike,
 	BroadcastChannelWindowLike,
+	BrowserLocationHistoryLike,
+	BrowserLocationLike,
+	BrowserLocationTrigger,
+	BrowserLocationWindowLike,
+	BrowserLocationWritableProperty,
 	ComputedEagerOptions,
 	ComputedEagerReturn,
 	ComputedWithControlOptions,
@@ -156,6 +161,8 @@ import type {
 	UseBreakpointsOptions,
 	UseBroadcastChannelOptions,
 	UseBroadcastChannelReturn,
+	UseBrowserLocationOptions,
+	UseBrowserLocationReturn,
 	UseDocumentVisibilityOptions,
 	UseElementSizeOptions,
 	UseFocusOptions,
@@ -224,6 +231,7 @@ import {
 	useBluetooth,
 	useBreakpoints,
 	useBroadcastChannel,
+	useBrowserLocation,
 	useDebounceFn,
 	useDocumentVisibility,
 	useElementSize,
@@ -695,6 +703,88 @@ describe("public types", () => {
 					window: { BroadcastChannel: () => new TypedBroadcastChannel("x") },
 				};
 			useBroadcastChannel(invalidOptions);
+		});
+	});
+
+	it("types browser location values and options", () => {
+		typeOnly(() => {
+			const location: BrowserLocationLike = {
+				hash: "#start",
+				host: "example.com",
+				hostname: "example.com",
+				href: "https://example.com/start#start",
+				origin: "https://example.com",
+				pathname: "/start",
+				port: "",
+				protocol: "https:",
+				search: "",
+			};
+			const history: BrowserLocationHistoryLike = {
+				state: { page: "start" },
+				length: 2,
+			};
+			const property: BrowserLocationWritableProperty = "href";
+			const trigger: BrowserLocationTrigger = "load";
+			const windowTarget: BrowserLocationWindowLike = {
+				location,
+				history,
+			} as BrowserLocationWindowLike;
+			const options: UseBrowserLocationOptions<BrowserLocationWindowLike> = {
+				window: signal(windowTarget),
+			};
+			const result = useBrowserLocation(options);
+			const fallback = useBrowserLocation({ window: null });
+			const returnValue: UseBrowserLocationReturn = result;
+
+			expectTypeOf(property).toMatchTypeOf<BrowserLocationWritableProperty>();
+			expectTypeOf(trigger).toMatchTypeOf<BrowserLocationTrigger>();
+			expectTypeOf(result).toEqualTypeOf<UseBrowserLocationReturn>();
+			expectTypeOf(fallback).toEqualTypeOf<UseBrowserLocationReturn>();
+			expectTypeOf(returnValue.trigger).toEqualTypeOf<
+				ReadonlySignal<BrowserLocationTrigger>
+			>();
+			expectTypeOf(result.state).toEqualTypeOf<
+				ReadonlySignal<unknown | undefined>
+			>();
+			expectTypeOf(result.length).toEqualTypeOf<
+				ReadonlySignal<number | undefined>
+			>();
+			expectTypeOf(result.origin).toEqualTypeOf<
+				ReadonlySignal<string | undefined>
+			>();
+			expectTypeOf(result.hash).toEqualTypeOf<Computed<string | undefined>>();
+			expectTypeOf(result.host).toEqualTypeOf<Computed<string | undefined>>();
+			expectTypeOf(result.hostname).toEqualTypeOf<
+				Computed<string | undefined>
+			>();
+			expectTypeOf(result.href).toEqualTypeOf<Computed<string | undefined>>();
+			expectTypeOf(result.pathname).toEqualTypeOf<
+				Computed<string | undefined>
+			>();
+			expectTypeOf(result.port).toEqualTypeOf<Computed<string | undefined>>();
+			expectTypeOf(result.protocol).toEqualTypeOf<
+				Computed<string | undefined>
+			>();
+			expectTypeOf(result.search).toEqualTypeOf<Computed<string | undefined>>();
+			expectTypeOf(result.stop()).toEqualTypeOf<void>();
+
+			result.hash.value = "#next";
+			result.href.value = "https://example.com/next";
+			// @ts-expect-error returned trigger is a readonly signal
+			result.trigger.value = "popstate";
+			// @ts-expect-error origin is a readonly signal
+			result.origin.value = "https://example.org";
+			// @ts-expect-error origin is not a writable location property
+			const invalidProperty: BrowserLocationWritableProperty = "origin";
+			expectTypeOf(
+				invalidProperty,
+			).toEqualTypeOf<BrowserLocationWritableProperty>();
+			const invalidLocation: BrowserLocationLike = {
+				...location,
+				// @ts-expect-error writable location fields must be strings
+				hash: 1,
+			};
+			expectTypeOf(invalidLocation).toEqualTypeOf<BrowserLocationLike>();
 		});
 	});
 
