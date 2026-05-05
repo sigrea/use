@@ -109,7 +109,7 @@ Status values:
 | `useDisplayMedia` | `useDisplayMedia` | Done |
 | `useDocumentVisibility` | `useDocumentVisibility` | Done |
 | `useDraggable` | `useDraggable` | Done |
-| `useDropZone` | `-` | Todo |
+| `useDropZone` | `useDropZone` | Done |
 | `useElementBounding` | `-` | Todo |
 | `useElementByPoint` | `-` | Todo |
 | `useElementHover` | `-` | Todo |
