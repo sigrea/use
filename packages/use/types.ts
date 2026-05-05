@@ -1966,6 +1966,22 @@ export interface UseDeviceOrientationReturn {
 	stop(): void;
 }
 
+export interface UseDevicePixelRatioWindowLike extends WindowLike {
+	readonly devicePixelRatio?: number;
+}
+
+export interface UseDevicePixelRatioOptions<
+	TWindow extends UseDevicePixelRatioWindowLike = UseDevicePixelRatioWindowLike,
+> {
+	initialValue?: number;
+	window?: MaybeTarget<TWindow>;
+}
+
+export interface UseDevicePixelRatioReturn {
+	readonly pixelRatio: ReadonlySignal<number>;
+	stop(): void;
+}
+
 export interface UseOnlineOptions<
 	TWindow extends WindowLike = WindowLike,
 	TNavigator extends OnlineNavigatorLike = OnlineNavigatorLike,
