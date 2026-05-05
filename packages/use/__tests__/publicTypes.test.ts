@@ -85,6 +85,7 @@ import type {
 	FileSystemAccessWindowLike,
 	FileSystemAccessWritableFileStreamLike,
 	FileSystemAccessWriteData,
+	FocusWithinElementLike,
 	FocusableElementLike,
 	IsDefinedReturn,
 	KeyFilter,
@@ -328,6 +329,7 @@ import type {
 	UseFileSystemAccessReturn,
 	UseFileSystemAccessSaveOptions,
 	UseFocusOptions,
+	UseFocusWithinReturn,
 	UseMediaQueryOptions,
 	UseMouseOptions,
 	UseOnlineOptions,
@@ -433,6 +435,7 @@ import {
 	useFileDialog,
 	useFileSystemAccess,
 	useFocus,
+	useFocusWithin,
 	useInterval,
 	useIntervalFn,
 	useLocalStorage,
@@ -5075,6 +5078,27 @@ describe("public types", () => {
 		focus.focused.value = true;
 		expectTypeOf(focus.focused.value).toEqualTypeOf<boolean>();
 		focus.stop();
+	});
+
+	it("types readonly focused state for focus within", () => {
+		const target = signal<FocusWithinElementLike | null>(
+			document.createElement("form"),
+		);
+		const focusWithin = useFocusWithin(target);
+		const focusWithinReturn: UseFocusWithinReturn = focusWithin;
+
+		expectTypeOf(focusWithin).toEqualTypeOf<UseFocusWithinReturn>();
+		expectTypeOf(focusWithinReturn.focused).toEqualTypeOf<
+			ReadonlySignal<boolean>
+		>();
+		expectTypeOf(focusWithin.stop()).toEqualTypeOf<void>();
+		typeOnly(() => {
+			// @ts-expect-error returned values are readonly signals
+			focusWithin.focused.value = true;
+			// @ts-expect-error target must be an EventTarget
+			useFocusWithin({ matches: () => true });
+		});
+		focusWithin.stop();
 	});
 
 	it("accepts ResizeObserver windows for element size", () => {

@@ -103,6 +103,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.useFileDialog).toBe("function");
 		expect(typeof mod.useFileSystemAccess).toBe("function");
 		expect(typeof mod.useFocus).toBe("function");
+		expect(typeof mod.useFocusWithin).toBe("function");
 		expect(typeof mod.useInterval).toBe("function");
 		expect(typeof mod.useIntervalFn).toBe("function");
 		expect(typeof mod.useLocalStorage).toBe("function");
@@ -149,6 +150,7 @@ describe("SSR safety", () => {
 			useFileDialog,
 			useFileSystemAccess,
 			useMediaQuery,
+			useFocusWithin,
 			useMouse,
 			useOnline,
 			usePreferredDark,
@@ -193,6 +195,7 @@ describe("SSR safety", () => {
 		const longPress = onLongPress(null, () => {});
 		const startTyping = onStartTyping(() => {});
 		const focus = useFocus(null);
+		const focusWithin = useFocusWithin(null);
 		const mouse = useMouse();
 		const mediaQuery = useMediaQuery("(min-width: 640px)");
 		const online = useOnline();
@@ -266,6 +269,7 @@ describe("SSR safety", () => {
 		expect(visibility.visibility.value).toBe("visible");
 		expect(localStorageValue.value).toBe("fallback");
 		expect(focus.focused.value).toBe(false);
+		expect(focusWithin.focused.value).toBe(false);
 		expect(mouse.x.value).toBe(0);
 		expect(mouse.y.value).toBe(0);
 		expect(mediaQuery.matches.value).toBe(false);
@@ -347,6 +351,7 @@ describe("SSR safety", () => {
 		longPress();
 		startTyping();
 		focus.stop();
+		focusWithin.stop();
 		mouse.stop();
 		mediaQuery.stop();
 		online.stop();
