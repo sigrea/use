@@ -99,7 +99,7 @@ Status values:
 | `useCurrentElement` | `-` | Out of scope |
 | `useCycleList` | `useCycleList` | Done |
 | `useDark` | `useDark` | Done |
-| `useDateFormat` | `-` | Todo |
+| `useDateFormat` | `useDateFormat` | Done |
 | `useDebounceFn` | `useDebounceFn` | Done |
 | `useDebouncedRefHistory` | `-` | Todo |
 | `useDeviceMotion` | `-` | Todo |
