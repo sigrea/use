@@ -122,7 +122,7 @@ Status values:
 | `useFavicon` | `useFavicon` | Done |
 | `useFetch` | `useFetch` | Done |
 | `useFileDialog` | `useFileDialog` | Done |
-| `useFileSystemAccess` | `-` | Todo |
+| `useFileSystemAccess` | `useFileSystemAccess` | Done |
 | `useFocus` | `useFocus` | Done |
 | `useFocusWithin` | `-` | Todo |
 | `useFps` | `-` | Todo |
