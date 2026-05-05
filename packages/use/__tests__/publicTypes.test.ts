@@ -34,6 +34,8 @@ import type {
 	BrowserLocationWritableProperty,
 	ClipboardDocumentBodyLike,
 	ClipboardDocumentLike,
+	ClipboardItemLike,
+	ClipboardItemPresentationStyleLike,
 	ClipboardLike,
 	ClipboardNavigatorLike,
 	ClipboardTextareaLike,
@@ -172,6 +174,11 @@ import type {
 	UseCachedOptions,
 	UseCachedReturn,
 	UseClipboardCopyFn,
+	UseClipboardItemsCopyFn,
+	UseClipboardItemsOptions,
+	UseClipboardItemsReturn,
+	UseClipboardItemsSource,
+	UseClipboardItemsWindowLike,
 	UseClipboardOptions,
 	UseClipboardReturn,
 	UseClipboardTextSource,
@@ -247,6 +254,7 @@ import {
 	useBrowserLocation,
 	useCached,
 	useClipboard,
+	useClipboardItems,
 	useDebounceFn,
 	useDocumentVisibility,
 	useElementSize,
@@ -950,6 +958,93 @@ describe("public types", () => {
 			result.copyPending;
 			// @ts-expect-error navigator.clipboard.writeText must return a promise
 			const invalidClipboard: ClipboardLike = { writeText: (_data) => {} };
+			expectTypeOf(invalidClipboard).toEqualTypeOf<ClipboardLike>();
+		});
+	});
+
+	it("types clipboard item values and options", () => {
+		typeOnly(() => {
+			class TypedWindow
+				extends EventTarget
+				implements UseClipboardItemsWindowLike {}
+			const presentationStyle: ClipboardItemPresentationStyleLike = "inline";
+			const item: ClipboardItemLike = {
+				presentationStyle,
+				types: ["text/plain"] as const,
+				getType: async (type) => new Blob(["copy me"], { type }),
+			};
+			const clipboard: ClipboardLike = {
+				read: async () => [item],
+				write: async (_items) => {},
+			};
+			const navigator: ClipboardNavigatorLike = {
+				clipboard,
+			};
+			const source = signal([item] as const);
+			const itemSource: UseClipboardItemsSource = source;
+			const options: UseClipboardItemsOptions<
+				UseClipboardItemsSource,
+				ClipboardNavigatorLike,
+				TypedWindow
+			> = {
+				copiedDuring: signal(100),
+				navigator: signal(navigator),
+				read: true,
+				source: itemSource,
+				window: new TypedWindow(),
+			};
+			const result = useClipboardItems(options);
+			const requiredCopy = useClipboardItems({ navigator: null });
+			const returnValue: UseClipboardItemsReturn<true> = result;
+			const optionalCopy: UseClipboardItemsCopyFn<true> = result.copy;
+			const requiredCopyFn: UseClipboardItemsCopyFn<false> = requiredCopy.copy;
+
+			expectTypeOf(result).toEqualTypeOf<UseClipboardItemsReturn<true>>();
+			expectTypeOf(requiredCopy).toEqualTypeOf<
+				UseClipboardItemsReturn<false>
+			>();
+			expectTypeOf(returnValue.isSupported).toEqualTypeOf<
+				ReadonlySignal<boolean>
+			>();
+			expectTypeOf(result.items).toEqualTypeOf<
+				ReadonlySignal<readonly ClipboardItemLike[]>
+			>();
+			expectTypeOf(result.copied).toEqualTypeOf<ReadonlySignal<boolean>>();
+			expectTypeOf(result.isCopying).toEqualTypeOf<ReadonlySignal<boolean>>();
+			expectTypeOf(result.error).toEqualTypeOf<
+				ReadonlySignal<unknown | null>
+			>();
+			expectTypeOf(result.copy()).toEqualTypeOf<Promise<void>>();
+			expectTypeOf(optionalCopy()).toEqualTypeOf<Promise<void>>();
+			expectTypeOf(requiredCopy.copy([item])).toEqualTypeOf<Promise<void>>();
+			expectTypeOf(requiredCopyFn([item])).toEqualTypeOf<Promise<void>>();
+			expectTypeOf(result.read()).toEqualTypeOf<
+				Promise<readonly ClipboardItemLike[] | undefined>
+			>();
+			expectTypeOf(result.stop()).toEqualTypeOf<void>();
+
+			// @ts-expect-error copied state is readonly
+			result.copied.value = true;
+			// @ts-expect-error VueUse content name is not part of the Sigrea API
+			result.content;
+			// @ts-expect-error Vue copyPending name is not part of the Sigrea API
+			result.copyPending;
+			// @ts-expect-error source-less clipboard item copy needs items
+			requiredCopy.copy();
+			// @ts-expect-error text values are handled by useClipboard
+			result.copy("text");
+			// @ts-expect-error legacy fallback is not available for ClipboardItem data
+			useClipboardItems({ legacy: true, navigator });
+			// @ts-expect-error document fallback is not available for ClipboardItem data
+			useClipboardItems({ document: {}, navigator });
+			const invalidItem: ClipboardItemLike = {
+				types: ["text/plain"],
+				// @ts-expect-error getType must return a promise
+				getType: (_type) => new Blob(),
+			};
+			expectTypeOf(invalidItem).toEqualTypeOf<ClipboardItemLike>();
+			// @ts-expect-error navigator.clipboard.write must return a promise
+			const invalidClipboard: ClipboardLike = { write: (_items) => {} };
 			expectTypeOf(invalidClipboard).toEqualTypeOf<ClipboardLike>();
 		});
 	});

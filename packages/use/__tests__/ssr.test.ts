@@ -67,6 +67,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.useBrowserLocation).toBe("function");
 		expect(typeof mod.useCached).toBe("function");
 		expect(typeof mod.useClipboard).toBe("function");
+		expect(typeof mod.useClipboardItems).toBe("function");
 		expect(typeof mod.useBreakpoints).toBe("function");
 		expect(typeof mod.useDocumentVisibility).toBe("function");
 		expect(typeof mod.useElementSize).toBe("function");
@@ -452,6 +453,29 @@ describe("SSR safety", () => {
 		await result.copy("hello");
 
 		expect(result.text.value).toBe("");
+		expect(result.copied.value).toBe(false);
+		result.stop();
+	});
+
+	it("creates useClipboardItems without a window", async () => {
+		const { useClipboardItems } = await import("../../../index");
+		const item = {
+			types: ["text/plain"] as const,
+			getType: async (type: string) => new Blob(["hello"], { type }),
+		};
+		const result = useClipboardItems();
+
+		expect(globalThis.window).toBeUndefined();
+		expect(result.isSupported.value).toBe(false);
+		expect(result.items.value).toEqual([]);
+		expect(result.copied.value).toBe(false);
+		expect(result.isCopying.value).toBe(false);
+		expect(result.error.value).toBeNull();
+
+		await result.copy([item]);
+		await expect(result.read()).resolves.toBeUndefined();
+
+		expect(result.items.value).toEqual([]);
 		expect(result.copied.value).toBe(false);
 		result.stop();
 	});
