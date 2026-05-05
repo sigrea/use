@@ -295,6 +295,9 @@ import type {
 	UseEyeDropperOptions,
 	UseEyeDropperReturn,
 	UseEyeDropperWindowLike,
+	UseFaviconDocumentLike,
+	UseFaviconOptions,
+	UseFaviconReturn,
 	UseFocusOptions,
 	UseMediaQueryOptions,
 	UseMouseOptions,
@@ -396,6 +399,7 @@ import {
 	useEventListener,
 	useEventSource,
 	useEyeDropper,
+	useFavicon,
 	useFocus,
 	useInterval,
 	useIntervalFn,
@@ -2349,6 +2353,50 @@ describe("public types", () => {
 			eyeDropper.sRGBHex.value = "#ffffff";
 			// @ts-expect-error isOpen is readonly
 			eyeDropper.isOpen.value = true;
+		});
+	});
+
+	it("types favicons", () => {
+		typeOnly(() => {
+			const source = signal<string | null | undefined>("favicon.ico");
+			const customDocument = {} as UseFaviconDocumentLike;
+			const documentTarget = signal<UseFaviconDocumentLike | null>(
+				customDocument,
+			);
+			const options: UseFaviconOptions<UseFaviconDocumentLike> = {
+				baseUrl: "/icons/",
+				document: documentTarget,
+				media: "(prefers-color-scheme: dark)",
+				rel: "icon",
+				sizes: "any",
+				type: "image/svg+xml",
+			};
+			const favicon = useFavicon(source, options);
+			const fallback = useFavicon("fallback.ico", { document: null });
+
+			useFavicon(() => "getter.ico", { document: customDocument });
+			expectTypeOf(favicon).toEqualTypeOf<UseFaviconReturn>();
+			expectTypeOf(favicon).toEqualTypeOf<
+				Computed<string | null | undefined> & { stop(): void }
+			>();
+			expectTypeOf(favicon.value).toEqualTypeOf<string | null | undefined>();
+			expectTypeOf(fallback.value).toEqualTypeOf<string | null | undefined>();
+			expectTypeOf(favicon.stop()).toEqualTypeOf<void>();
+			favicon.value = "next.ico";
+			favicon.value = null;
+			favicon.value = undefined;
+			// @ts-expect-error icon must be a string or nullish value
+			useFavicon(1);
+			useFavicon("favicon.ico", {
+				// @ts-expect-error rel must be a string
+				rel: 1,
+			});
+			useFavicon("favicon.ico", {
+				// @ts-expect-error document must be a document-like target
+				document: {},
+			});
+			// @ts-expect-error favicon value must be string, null, or undefined
+			favicon.value = 1;
 		});
 	});
 
