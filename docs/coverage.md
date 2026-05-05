@@ -104,7 +104,7 @@ Status values:
 | `useDebouncedRefHistory` | `useDebouncedRefHistory` | Done |
 | `useDeviceMotion` | `useDeviceMotion` | Done |
 | `useDeviceOrientation` | `useDeviceOrientation` | Done |
-| `useDevicePixelRatio` | `-` | Todo |
+| `useDevicePixelRatio` | `useDevicePixelRatio` | Done |
 | `useDevicesList` | `-` | Todo |
 | `useDisplayMedia` | `-` | Todo |
 | `useDocumentVisibility` | `useDocumentVisibility` | Done |
