@@ -102,6 +102,8 @@ import type {
 	UseArrayEveryReturn,
 	UseArrayFilterPredicate,
 	UseArrayFilterReturn,
+	UseArrayFindPredicate,
+	UseArrayFindReturn,
 	UseBreakpointsOptions,
 	UseDocumentVisibilityOptions,
 	UseElementSizeOptions,
@@ -155,6 +157,7 @@ import {
 	useArrayDifference,
 	useArrayEvery,
 	useArrayFilter,
+	useArrayFind,
 	useBreakpoints,
 	useDebounceFn,
 	useDocumentVisibility,
@@ -399,6 +402,62 @@ describe("public types", () => {
 				signal((value: number) => value > 0),
 			);
 			useArrayFilter(
+				signal([1]),
+				// @ts-expect-error predicate is a raw function, not a computed value
+				computed(() => (value: number) => value > 0),
+			);
+		});
+	});
+
+	it("types array find values", () => {
+		typeOnly(() => {
+			const first = signal<number | null>(1);
+			const second = computed<number | null>(() => null);
+			const third = signal<number | null>(3);
+			const list = signal([first, second, () => third.value]);
+			const rawList: Array<number | string> = [1, "ready"];
+			const predicate: UseArrayFindPredicate<number | null> = (
+				element,
+				index,
+				array,
+			) => {
+				expectTypeOf(element).toEqualTypeOf<number | null>();
+				expectTypeOf(index).toEqualTypeOf<number>();
+				expectTypeOf(array).toEqualTypeOf<
+					readonly MaybeValue<number | null>[]
+				>();
+				return element != null;
+			};
+			const result = useArrayFind(list, predicate);
+			const narrowed = useArrayFind(rawList, (value): value is number => {
+				return typeof value === "number";
+			});
+			const getterResult = useArrayFind(
+				() => [1, 2, 3],
+				(value) => value > 1,
+			);
+			const readonlyResult = useArrayFind(readonly(list), predicate);
+
+			expectTypeOf(result).toEqualTypeOf<UseArrayFindReturn<number | null>>();
+			expectTypeOf(result).toEqualTypeOf<
+				ReadonlySignal<number | null | undefined>
+			>();
+			expectTypeOf(narrowed).toEqualTypeOf<UseArrayFindReturn<number>>();
+			expectTypeOf(narrowed.value).toEqualTypeOf<number | undefined>();
+			expectTypeOf(getterResult).toEqualTypeOf<UseArrayFindReturn<number>>();
+			expectTypeOf(readonlyResult).toEqualTypeOf<
+				UseArrayFindReturn<number | null>
+			>();
+			// @ts-expect-error returned value is readonly
+			result.value = 1;
+			// @ts-expect-error predicate element type must match the array item type
+			useArrayFind(signal([1]), (value: string) => value.length > 0);
+			useArrayFind(
+				signal([1]),
+				// @ts-expect-error predicate is a raw function, not a signal
+				signal((value: number) => value > 0),
+			);
+			useArrayFind(
 				signal([1]),
 				// @ts-expect-error predicate is a raw function, not a computed value
 				computed(() => (value: number) => value > 0),
