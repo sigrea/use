@@ -103,7 +103,7 @@ Status values:
 | `useDebounceFn` | `useDebounceFn` | Done |
 | `useDebouncedRefHistory` | `useDebouncedRefHistory` | Done |
 | `useDeviceMotion` | `useDeviceMotion` | Done |
-| `useDeviceOrientation` | `-` | Todo |
+| `useDeviceOrientation` | `useDeviceOrientation` | Done |
 | `useDevicePixelRatio` | `-` | Todo |
 | `useDevicesList` | `-` | Todo |
 | `useDisplayMedia` | `-` | Todo |
