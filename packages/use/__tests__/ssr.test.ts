@@ -87,6 +87,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.useDisplayMedia).toBe("function");
 		expect(typeof mod.useBreakpoints).toBe("function");
 		expect(typeof mod.useDocumentVisibility).toBe("function");
+		expect(typeof mod.useDraggable).toBe("function");
 		expect(typeof mod.useElementSize).toBe("function");
 		expect(typeof mod.useEventListener).toBe("function");
 		expect(typeof mod.useFocus).toBe("function");
@@ -122,6 +123,7 @@ describe("SSR safety", () => {
 			useDark,
 			useDevicesList,
 			useDisplayMedia,
+			useDraggable,
 			useLocalStorage,
 			useMediaQuery,
 			useMouse,
@@ -184,6 +186,7 @@ describe("SSR safety", () => {
 		});
 		const devicesList = useDevicesList({ navigator: null });
 		const displayMedia = useDisplayMedia({ navigator: null });
+		const draggable = useDraggable(null, { initialValue: { x: 10, y: 20 } });
 		const sessionStorageValue = useSessionStorage("session", "fallback", {
 			window: undefined,
 		});
@@ -219,6 +222,8 @@ describe("SSR safety", () => {
 		expect(devicesList.devices.value).toEqual([]);
 		expect(displayMedia.isSupported.value).toBe(false);
 		expect(displayMedia.stream.value).toBeUndefined();
+		expect(draggable.position.value).toEqual({ x: 10, y: 20 });
+		expect(draggable.isDragging.value).toBe(false);
 		expect(sessionStorageValue.value).toBe("fallback");
 		expect(ssrMediaQuery.matches.value).toBe(true);
 		expect(storageValue.value).toBe("fallback");
@@ -260,6 +265,7 @@ describe("SSR safety", () => {
 		devicesList.stop();
 		expect(await displayMedia.start()).toBeUndefined();
 		displayMedia.stop();
+		draggable.stop();
 		sessionStorageValue.stop();
 		ssrMediaQuery.stop();
 		storageValue.stop();
@@ -569,6 +575,19 @@ describe("SSR safety", () => {
 		expect(result.stream.value).toBeUndefined();
 		expect(result.error.value).toBeNull();
 		expect(await result.start()).toBeUndefined();
+		result.stop();
+	});
+
+	it("creates useDraggable without a window", async () => {
+		const { useDraggable } = await import("../../../index");
+		const result = useDraggable(null, { initialValue: { x: 10, y: 20 } });
+
+		expect(globalThis.window).toBeUndefined();
+		expect(result.x.value).toBe(10);
+		expect(result.y.value).toBe(20);
+		expect(result.position.value).toEqual({ x: 10, y: 20 });
+		expect(result.isDragging.value).toBe(false);
+		expect(result.style.value).toBe("left: 10px; top: 20px;");
 		result.stop();
 	});
 
