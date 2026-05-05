@@ -457,6 +457,22 @@ export interface ComputedEagerOptions {
 
 export type ComputedEagerReturn<T> = ReadonlySignal<T>;
 
+export interface UseArrayDifferenceOptions {
+	/**
+	 * Include values that only exist in the second array.
+	 *
+	 * @default false
+	 */
+	symmetric?: boolean;
+}
+
+export type UseArrayDifferenceCompareFn<T> = (
+	value: T,
+	otherValue: T,
+) => boolean;
+
+export type UseArrayDifferenceReturn<T = unknown> = ReadonlySignal<T[]>;
+
 export type ComputedWithControlSource<T = unknown> =
 	| WatchSource<T>
 	| DeepSignal<object>

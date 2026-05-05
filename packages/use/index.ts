@@ -30,6 +30,7 @@ export { tryOnScopeDispose } from "./tryOnScopeDispose";
 export { until } from "./until";
 export { useActiveElement } from "./useActiveElement";
 export { useAnimate } from "./useAnimate";
+export { useArrayDifference } from "./useArrayDifference";
 export { useBreakpoints } from "./useBreakpoints";
 export { useCounter } from "./useCounter";
 export { useDebounceFn } from "./useDebounceFn";
@@ -178,6 +179,9 @@ export type {
 	UseAnimateOptions,
 	UseAnimateReturn,
 	UseAnimateWindowLike,
+	UseArrayDifferenceCompareFn,
+	UseArrayDifferenceOptions,
+	UseArrayDifferenceReturn,
 	UseBreakpointsOptions,
 	UseBreakpointsReturn,
 	UseCounterOptions,
