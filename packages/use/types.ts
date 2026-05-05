@@ -2901,6 +2901,30 @@ export interface UseFocusWithinReturn {
 	stop(): void;
 }
 
+export interface UseFpsPerformanceLike {
+	now(): number;
+}
+
+export interface UseFpsWindowLike extends WindowLike {
+	readonly performance?: UseFpsPerformanceLike;
+	requestAnimationFrame?(callback: FrameRequestCallback): number;
+	cancelAnimationFrame?(handle: number): void;
+}
+
+export interface UseFpsOptions<
+	TWindow extends UseFpsWindowLike = UseFpsWindowLike,
+> {
+	/**
+	 * Calculate the FPS on every x frames.
+	 *
+	 * @default 10
+	 */
+	every?: MaybeValue<number>;
+	window?: MaybeTarget<TWindow>;
+}
+
+export type UseFpsReturn = ReadonlySignal<number>;
+
 export interface ElementSize {
 	width: number;
 	height: number;
