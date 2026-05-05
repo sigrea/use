@@ -53,6 +53,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.useArrayFindIndex).toBe("function");
 		expect(typeof mod.useArrayFindLast).toBe("function");
 		expect(typeof mod.useArrayIncludes).toBe("function");
+		expect(typeof mod.useArrayJoin).toBe("function");
 		expect(typeof mod.useBreakpoints).toBe("function");
 		expect(typeof mod.useDocumentVisibility).toBe("function");
 		expect(typeof mod.useElementSize).toBe("function");
@@ -267,6 +268,14 @@ describe("SSR safety", () => {
 
 		expect(globalThis.window).toBeUndefined();
 		expect(result.value).toBe(true);
+	});
+
+	it("creates useArrayJoin without a window", async () => {
+		const { useArrayJoin } = await import("../../../index");
+		const result = useArrayJoin([1, 2, 3], "-");
+
+		expect(globalThis.window).toBeUndefined();
+		expect(result.value).toBe("1-2-3");
 	});
 
 	it("creates event hooks without a window", async () => {
