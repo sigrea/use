@@ -118,6 +118,8 @@ import type {
 	UseArrayReduceReturn,
 	UseArraySomePredicate,
 	UseArraySomeReturn,
+	UseArrayUniqueCompareFn,
+	UseArrayUniqueReturn,
 	UseBreakpointsOptions,
 	UseDocumentVisibilityOptions,
 	UseElementSizeOptions,
@@ -179,6 +181,7 @@ import {
 	useArrayMap,
 	useArrayReduce,
 	useArraySome,
+	useArrayUnique,
 	useBreakpoints,
 	useDebounceFn,
 	useDocumentVisibility,
@@ -422,6 +425,59 @@ describe("public types", () => {
 				signal([1]),
 				// @ts-expect-error predicate is a raw function, not a computed value
 				computed(() => (value: number) => value > 0),
+			);
+		});
+	});
+
+	it("types array unique values", () => {
+		typeOnly(() => {
+			interface Item {
+				id: number;
+				name: string;
+			}
+			const first = signal<Item>({ id: 1, name: "foo" });
+			const second = computed<Item>(() => ({ id: 2, name: "bar" }));
+			const third = signal<Item>({ id: 1, name: "baz" });
+			const list = signal([first, second, () => third.value]);
+			const rawList: Item[] = [
+				{ id: 1, name: "foo" },
+				{ id: 1, name: "bar" },
+			];
+			const compare: UseArrayUniqueCompareFn<Item> = (
+				value,
+				otherValue,
+				array,
+			) => {
+				expectTypeOf(value).toEqualTypeOf<Item>();
+				expectTypeOf(otherValue).toEqualTypeOf<Item>();
+				expectTypeOf(array).toEqualTypeOf<Item[]>();
+				return value.id === otherValue.id;
+			};
+			const result = useArrayUnique(list, compare);
+			const getterResult = useArrayUnique(() => rawList, compare);
+			const rawResult = useArrayUnique(rawList);
+			const readonlyResult = useArrayUnique(readonly(list), compare);
+
+			expectTypeOf(result).toEqualTypeOf<UseArrayUniqueReturn<Item>>();
+			expectTypeOf(result).toEqualTypeOf<ReadonlySignal<Item[]>>();
+			expectTypeOf(getterResult).toEqualTypeOf<UseArrayUniqueReturn<Item>>();
+			expectTypeOf(rawResult).toEqualTypeOf<UseArrayUniqueReturn<Item>>();
+			expectTypeOf(readonlyResult).toEqualTypeOf<UseArrayUniqueReturn<Item>>();
+			// @ts-expect-error returned value is readonly
+			result.value = [];
+			// @ts-expect-error comparison function must return boolean
+			useArrayUnique(signal([1]), () => "matched");
+			useArrayUnique(
+				signal([1]),
+				// @ts-expect-error comparison is a raw function, not a signal
+				signal((value: number, otherValue: number) => value === otherValue),
+			);
+			useArrayUnique(
+				signal([1]),
+				// @ts-expect-error comparison is a raw function, not a computed value
+				computed(() => (value: number, otherValue: number) => {
+					return value === otherValue;
+				}),
 			);
 		});
 	});
