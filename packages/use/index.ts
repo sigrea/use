@@ -62,6 +62,7 @@ export { useCssSupports } from "./useCssSupports";
 export { useCssVar } from "./useCssVar";
 export { useCycleList } from "./useCycleList";
 export { useDark } from "./useDark";
+export { formatDate, normalizeDate, useDateFormat } from "./useDateFormat";
 export { useDebounceFn } from "./useDebounceFn";
 export { useDocumentVisibility } from "./useDocumentVisibility";
 export { useElementSize } from "./useElementSize";
@@ -332,6 +333,9 @@ export type {
 	UseCycleListReturn,
 	UseDarkOptions,
 	UseDarkReturn,
+	DateLike,
+	UseDateFormatOptions,
+	UseDateFormatReturn,
 	UseDebounceFnOptions,
 	UseDebounceFnReturn,
 	UseDocumentVisibilityOptions,
