@@ -69,6 +69,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.useClipboard).toBe("function");
 		expect(typeof mod.useClipboardItems).toBe("function");
 		expect(typeof mod.useCloned).toBe("function");
+		expect(typeof mod.useColorMode).toBe("function");
 		expect(typeof mod.useBreakpoints).toBe("function");
 		expect(typeof mod.useDocumentVisibility).toBe("function");
 		expect(typeof mod.useElementSize).toBe("function");
@@ -100,6 +101,7 @@ describe("SSR safety", () => {
 			useElementSize,
 			useEventListener,
 			useFocus,
+			useColorMode,
 			useLocalStorage,
 			useMediaQuery,
 			useMouse,
@@ -122,6 +124,11 @@ describe("SSR safety", () => {
 		const active = useActiveElement();
 		const animation = useAnimate(null, null);
 		const breakpoints = useBreakpoints({ md: 768 }, { ssrWidth: 800 });
+		const colorMode = useColorMode({
+			document: null,
+			initialValue: "dark",
+			window: null,
+		});
 		const visibility = useDocumentVisibility();
 		const listener = useEventListener("resize", () => {});
 		const localStorageValue = useLocalStorage("local", "fallback", {
@@ -156,6 +163,9 @@ describe("SSR safety", () => {
 		expect(animation.isSupported.value).toBe(false);
 		expect(animation.animate.value).toBeUndefined();
 		expect(breakpoints.md.matches.value).toBe(true);
+		expect(colorMode.mode.value).toBe("dark");
+		expect(colorMode.system.value).toBe("light");
+		expect(colorMode.resolvedMode.value).toBe("dark");
 		expect(visibility.visibility.value).toBe("visible");
 		expect(localStorageValue.value).toBe("fallback");
 		expect(focus.focused.value).toBe(false);
@@ -180,6 +190,7 @@ describe("SSR safety", () => {
 		animation.cancel();
 		animation.stop();
 		breakpoints.md.stop();
+		colorMode.stop();
 		visibility.stop();
 		listener.stop();
 		localStorageValue.stop();

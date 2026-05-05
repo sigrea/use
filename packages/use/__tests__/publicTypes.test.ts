@@ -13,6 +13,7 @@ import { describe, expectTypeOf, it } from "vitest";
 import type {
 	Arrayable,
 	AsyncComputedOptions,
+	BasicColorMode,
 	BatteryManagerLike,
 	BatteryNavigatorLike,
 	BluetoothDeviceLike,
@@ -40,6 +41,7 @@ import type {
 	ClipboardNavigatorLike,
 	ClipboardTextareaLike,
 	CloneFn,
+	ColorModeSelection,
 	ComputedEagerOptions,
 	ComputedEagerReturn,
 	ComputedWithControlOptions,
@@ -187,6 +189,11 @@ import type {
 	UseClonedCloneFn,
 	UseClonedOptions,
 	UseClonedReturn,
+	UseColorModeDefaultHandler,
+	UseColorModeDocumentLike,
+	UseColorModeOptions,
+	UseColorModeReturn,
+	UseColorModeWindowLike,
 	UseDocumentVisibilityOptions,
 	UseElementSizeOptions,
 	UseFocusOptions,
@@ -261,6 +268,7 @@ import {
 	useClipboard,
 	useClipboardItems,
 	useCloned,
+	useColorMode,
 	useDebounceFn,
 	useDocumentVisibility,
 	useElementSize,
@@ -308,6 +316,10 @@ interface MutationWindow extends OnElementRemovalWindowLike {
 }
 
 interface StorageOnlyWindow extends StorageWindowLike {
+	readonly label: string;
+}
+
+interface ColorModeOnlyWindow extends UseColorModeWindowLike {
 	readonly label: string;
 }
 
@@ -3275,11 +3287,71 @@ describe("public types", () => {
 		} satisfies Breakpoints<"sm" | "md">;
 		const breakpoints = useBreakpoints(points, mediaOptions);
 		const preferredDark = usePreferredDark(mediaOptions);
+		const colorStorage = {
+			getItem: (_key: string) => null,
+			removeItem: (_key: string) => {},
+			setItem: (_key: string, _value: string) => {},
+		};
+		const colorWindow = new EventTarget() as ColorModeOnlyWindow;
+		Object.defineProperties(colorWindow, {
+			document: { value: document },
+			getComputedStyle: {
+				value: (_element: Element) => ({ opacity: "1" }) as CSSStyleDeclaration,
+			},
+			label: { value: "color-mode" },
+			localStorage: { value: colorStorage },
+		});
+		const colorStorageSignal = signal<ColorModeSelection<"sepia"> | null>(
+			"auto",
+		);
+		const colorOptions: UseColorModeOptions<"sepia"> = {
+			attribute: "data-theme",
+			document: signal(document as UseColorModeDocumentLike),
+			initialValue: "auto",
+			modes: {
+				sepia: "theme-sepia",
+			},
+			onChanged: (mode, defaultHandler) => {
+				expectTypeOf(mode).toEqualTypeOf<BasicColorMode | "sepia">();
+				expectTypeOf(defaultHandler).toEqualTypeOf<
+					UseColorModeDefaultHandler<"sepia">
+				>();
+				defaultHandler(mode);
+			},
+			selector: "html",
+			storage: colorStorage,
+			storageKey: "theme",
+			storageSignal: colorStorageSignal,
+			target: signal<Element | null>(document.documentElement),
+			window: signal(colorWindow),
+		};
+		const colorMode = useColorMode<"sepia">(colorOptions);
 
 		expectTypeOf(breakpoints.md.matches.value).toEqualTypeOf<boolean>();
 		expectTypeOf(breakpoints.active().value).toEqualTypeOf<"sm" | "md" | "">();
 		expectTypeOf(breakpoints.stop).toEqualTypeOf<() => void>();
 		expectTypeOf(preferredDark.matches.value).toEqualTypeOf<boolean>();
+		expectTypeOf(colorMode).toEqualTypeOf<UseColorModeReturn<"sepia">>();
+		expectTypeOf(colorMode.mode).toEqualTypeOf<
+			Computed<ColorModeSelection<"sepia">>
+		>();
+		expectTypeOf(colorMode.mode.value).toEqualTypeOf<
+			ColorModeSelection<"sepia">
+		>();
+		expectTypeOf(colorMode.system.value).toEqualTypeOf<BasicColorMode>();
+		expectTypeOf(colorMode.resolvedMode.value).toEqualTypeOf<
+			BasicColorMode | "sepia"
+		>();
+		colorMode.mode.value = "sepia";
+		colorMode.mode.value = "auto";
+		typeOnly(() => {
+			// @ts-expect-error custom modes must be declared in the generic
+			colorMode.mode.value = "dim";
+			// @ts-expect-error system is readonly
+			colorMode.system.value = "dark";
+			// @ts-expect-error resolvedMode is readonly
+			colorMode.resolvedMode.value = "dark";
+		});
 
 		const visibilityDocument =
 			new EventTarget() as DocumentVisibilityDocumentLike;
@@ -3316,6 +3388,7 @@ describe("public types", () => {
 		active.stop();
 		defaultActive.stop();
 		animated.stop();
+		colorMode.stop();
 		visibility.stop();
 		online.stop();
 	});
