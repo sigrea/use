@@ -71,6 +71,7 @@ export { useDevicePixelRatio } from "./useDevicePixelRatio";
 export { useDevicesList } from "./useDevicesList";
 export { useDisplayMedia } from "./useDisplayMedia";
 export { useDocumentVisibility } from "./useDocumentVisibility";
+export { useDraggable } from "./useDraggable";
 export { useElementSize } from "./useElementSize";
 export { useEventListener } from "./useEventListener";
 export { useFocus } from "./useFocus";
@@ -376,6 +377,12 @@ export type {
 	UseDisplayMediaReturn,
 	UseDocumentVisibilityOptions,
 	UseDocumentVisibilityReturn,
+	UseDraggableAxis,
+	UseDraggableDraggingElement,
+	UseDraggableElement,
+	UseDraggableOptions,
+	UseDraggablePointerType,
+	UseDraggableReturn,
 	UseElementSizeOptions,
 	UseElementSizeReturn,
 	UseEventListenerOptions,
