@@ -90,6 +90,7 @@ export { useFocus } from "./useFocus";
 export { useFocusWithin } from "./useFocusWithin";
 export { useFps } from "./useFps";
 export { useFullscreen } from "./useFullscreen";
+export { useGamepad } from "./useGamepad";
 export { useInterval } from "./useInterval";
 export { useIntervalFn } from "./useIntervalFn";
 export { useLocalStorage } from "./useLocalStorage";
@@ -497,6 +498,14 @@ export type {
 	UseFullscreenOptions,
 	UseFullscreenReturn,
 	UseFullscreenRootLike,
+	UseGamepadButtonLike,
+	UseGamepadGamepadLike,
+	UseGamepadGamepadSnapshot,
+	UseGamepadHapticActuatorLike,
+	UseGamepadNavigatorLike,
+	UseGamepadOptions,
+	UseGamepadReturn,
+	UseGamepadWindowLike,
 	UseIntervalControlsReturn,
 	UseIntervalFnOptions,
 	UseIntervalFnReturn,

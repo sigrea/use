@@ -2985,6 +2985,71 @@ export interface UseFullscreenReturn {
 	stop(): void;
 }
 
+export interface UseGamepadButtonLike {
+	readonly pressed: boolean;
+	readonly touched: boolean;
+	readonly value: number;
+}
+
+export interface UseGamepadHapticActuatorLike {
+	playEffect?(type: string, params?: Record<string, unknown>): Promise<unknown>;
+	reset?(): Promise<unknown>;
+}
+
+export interface UseGamepadGamepadLike {
+	readonly axes: ArrayLike<number>;
+	readonly buttons: ArrayLike<UseGamepadButtonLike>;
+	readonly connected: boolean;
+	readonly hapticActuators?: ArrayLike<UseGamepadHapticActuatorLike> | null;
+	readonly id: string;
+	readonly index: number;
+	readonly mapping: string;
+	readonly timestamp: number;
+	readonly vibrationActuator?: UseGamepadHapticActuatorLike | null;
+}
+
+export interface UseGamepadGamepadSnapshot {
+	readonly axes: readonly number[];
+	readonly buttons: readonly UseGamepadButtonLike[];
+	readonly connected: boolean;
+	readonly hapticActuators: readonly UseGamepadHapticActuatorLike[];
+	readonly id: string;
+	readonly index: number;
+	readonly mapping: string;
+	readonly timestamp: number;
+	readonly vibrationActuator: UseGamepadHapticActuatorLike | null;
+}
+
+export interface UseGamepadNavigatorLike extends NavigatorLike {
+	getGamepads(): readonly (UseGamepadGamepadLike | null | undefined)[];
+}
+
+export interface UseGamepadWindowLike extends WindowLike {
+	readonly navigator?: UseGamepadNavigatorLike;
+	requestAnimationFrame?(callback: FrameRequestCallback): number;
+	cancelAnimationFrame?(handle: number): void;
+}
+
+export interface UseGamepadOptions<
+	TNavigator extends UseGamepadNavigatorLike = UseGamepadNavigatorLike,
+	TWindow extends UseGamepadWindowLike = UseGamepadWindowLike,
+> {
+	immediate?: boolean;
+	navigator?: MaybeTarget<TNavigator | null | undefined>;
+	window?: MaybeTarget<TWindow | null | undefined>;
+}
+
+export interface UseGamepadReturn {
+	readonly isSupported: ReadonlySignal<boolean>;
+	readonly gamepads: ReadonlySignal<readonly UseGamepadGamepadSnapshot[]>;
+	onConnected: EventHookOn<number>;
+	onDisconnected: EventHookOn<number>;
+	readonly isActive: ReadonlySignal<boolean>;
+	pause(): void;
+	resume(): void;
+	stop(): void;
+}
+
 export interface ElementSize {
 	width: number;
 	height: number;
