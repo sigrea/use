@@ -359,6 +359,74 @@ export type ToDeepSignalReturn<T extends object> = DeepSignal<
 
 export type TryOnScopeDisposeReturn = boolean;
 
+export interface UntilToMatchOptions {
+	/**
+	 * Milliseconds before the promise resolves or rejects.
+	 *
+	 * 0 times out on the next timer tick.
+	 */
+	timeout?: number;
+	/**
+	 * Reject with "Timeout" instead of resolving with the current value.
+	 */
+	throwOnTimeout?: boolean;
+	/**
+	 * Deep option passed to the internal Sigrea watch.
+	 */
+	deep?: WatchOptions["deep"];
+	/**
+	 * Flush option passed to the internal Sigrea watch.
+	 */
+	flush?: WatchOptions["flush"];
+}
+
+export interface UntilBaseInstance<T, Not extends boolean = false> {
+	toMatch: (<U extends T = T>(
+		condition: (value: T) => value is U,
+		options?: UntilToMatchOptions,
+	) => Not extends true ? Promise<Exclude<T, U>> : Promise<U>) &
+		((
+			condition: (value: T) => boolean,
+			options?: UntilToMatchOptions,
+		) => Promise<T>);
+	changed(options?: UntilToMatchOptions): Promise<T>;
+	changedTimes(count?: number, options?: UntilToMatchOptions): Promise<T>;
+}
+
+type Falsy = false | void | null | undefined | 0 | 0n | "";
+
+export interface UntilValueInstance<T, Not extends boolean = false>
+	extends UntilBaseInstance<T, Not> {
+	readonly not: UntilValueInstance<T, Not extends true ? false : true>;
+
+	toBe<P = T>(
+		value: MaybeValue<P>,
+		options?: UntilToMatchOptions,
+	): Not extends true ? Promise<T> : Promise<P>;
+	toBeTruthy(
+		options?: UntilToMatchOptions,
+	): Not extends true ? Promise<T & Falsy> : Promise<Exclude<T, Falsy>>;
+	toBeNull(
+		options?: UntilToMatchOptions,
+	): Not extends true ? Promise<Exclude<T, null>> : Promise<null>;
+	toBeUndefined(
+		options?: UntilToMatchOptions,
+	): Not extends true ? Promise<Exclude<T, undefined>> : Promise<undefined>;
+	toBeNaN(options?: UntilToMatchOptions): Promise<T>;
+}
+
+type ArrayElement<T> = T extends readonly (infer Value)[] ? Value : unknown;
+
+export interface UntilArrayInstance<T extends readonly unknown[]>
+	extends UntilBaseInstance<T> {
+	readonly not: UntilArrayInstance<T>;
+
+	toContains(
+		value: MaybeValue<ArrayElement<T>>,
+		options?: UntilToMatchOptions,
+	): Promise<T>;
+}
+
 export type AsyncComputedCancelCallback = () => void;
 
 export type AsyncComputedOnCancel = (
