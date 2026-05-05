@@ -1586,6 +1586,53 @@ export interface UseEventSourceReturn<
 	stop(): void;
 }
 
+export interface EyeDropperOpenOptions {
+	signal?: AbortSignal;
+}
+
+export interface EyeDropperResult {
+	readonly sRGBHex: string;
+}
+
+export interface EyeDropperLike {
+	open(options?: EyeDropperOpenOptions): Promise<EyeDropperResult>;
+}
+
+export interface EyeDropperConstructorLike<
+	TEyeDropper extends EyeDropperLike = EyeDropperLike,
+> {
+	new (): TEyeDropper;
+}
+
+export interface UseEyeDropperWindowLike<
+	TEyeDropper extends EyeDropperLike = EyeDropperLike,
+> extends WindowLike {
+	readonly EyeDropper?: EyeDropperConstructorLike<TEyeDropper>;
+}
+
+export interface UseEyeDropperOptions<
+	TEyeDropper extends EyeDropperLike = EyeDropperLike,
+	TWindow extends
+		UseEyeDropperWindowLike<TEyeDropper> = UseEyeDropperWindowLike<TEyeDropper>,
+> {
+	initialValue?: string;
+	window?: MaybeTarget<TWindow>;
+}
+
+export interface UseEyeDropperReturn<
+	TEyeDropper extends EyeDropperLike = EyeDropperLike,
+> {
+	readonly isSupported: ReadonlySignal<boolean>;
+	readonly isOpen: ReadonlySignal<boolean>;
+	readonly sRGBHex: ReadonlySignal<string>;
+	readonly error: ReadonlySignal<unknown | null>;
+	open(
+		openOptions?: EyeDropperOpenOptions,
+	): Promise<EyeDropperResult | undefined>;
+	abort(): void;
+	stop(): void;
+}
+
 export interface Position {
 	x: number;
 	y: number;

@@ -81,6 +81,7 @@ export { useElementVisibility } from "./useElementVisibility";
 export { useEventBus } from "./useEventBus";
 export { useEventListener } from "./useEventListener";
 export { useEventSource } from "./useEventSource";
+export { useEyeDropper } from "./useEyeDropper";
 export { useFocus } from "./useFocus";
 export { useInterval } from "./useInterval";
 export { useIntervalFn } from "./useIntervalFn";
@@ -229,6 +230,10 @@ export type {
 	EventSourceLike,
 	EventSourceStatus,
 	EventSourceWindowLike,
+	EyeDropperConstructorLike,
+	EyeDropperLike,
+	EyeDropperOpenOptions,
+	EyeDropperResult,
 	ExtendSignalOptions,
 	ExtendSignalReturn,
 	ExtendSignalSource,
@@ -432,6 +437,9 @@ export type {
 	UseEventSourceReturn,
 	UseEventSourceSerializer,
 	UseEventSourceStatus,
+	UseEyeDropperOptions,
+	UseEyeDropperReturn,
+	UseEyeDropperWindowLike,
 	UseFocusOptions,
 	UseFocusReturn,
 	UseIntervalControlsReturn,
