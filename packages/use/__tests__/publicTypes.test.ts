@@ -196,6 +196,9 @@ import type {
 	UseColorModeWindowLike,
 	UseConfirmDialogResult,
 	UseConfirmDialogReturn,
+	UseCountdownOptions,
+	UseCountdownReturn,
+	UseCountdownScheduler,
 	UseDocumentVisibilityOptions,
 	UseElementSizeOptions,
 	UseFocusOptions,
@@ -272,6 +275,7 @@ import {
 	useCloned,
 	useColorMode,
 	useConfirmDialog,
+	useCountdown,
 	useDebounceFn,
 	useDocumentVisibility,
 	useElementSize,
@@ -3494,6 +3498,50 @@ describe("public types", () => {
 		expectTypeOf(timeout.isPending).toEqualTypeOf<ReadonlySignal<boolean>>();
 		timeout.start();
 		timeout.stop();
+	});
+
+	it("types countdown controls and options", () => {
+		typeOnly(() => {
+			const initial = signal(3);
+			const interval = signal(100);
+			const scheduler: UseCountdownScheduler = (callback) =>
+				useIntervalFn(callback, 100, { immediate: false });
+			const options: UseCountdownOptions = {
+				immediate: false,
+				interval,
+				onComplete: () => {},
+				onTick: (remaining) => {
+					expectTypeOf(remaining).toEqualTypeOf<number>();
+				},
+				scheduler,
+			};
+			const countdown = useCountdown(initial, options);
+
+			expectTypeOf(countdown).toEqualTypeOf<UseCountdownReturn>();
+			expectTypeOf(countdown.remaining).toEqualTypeOf<ReadonlySignal<number>>();
+			expectTypeOf(countdown.isActive).toEqualTypeOf<ReadonlySignal<boolean>>();
+
+			countdown.pause();
+			countdown.resume();
+			countdown.start();
+			countdown.start(signal(2));
+			countdown.stop();
+			countdown.reset();
+			countdown.reset(() => 4);
+
+			// @ts-expect-error remaining is readonly
+			countdown.remaining.value = 1;
+			// @ts-expect-error countdown values must be numeric
+			countdown.start("1");
+			// @ts-expect-error countdown values must be numeric
+			countdown.reset("1");
+			// @ts-expect-error custom schedulers must return pausable controls
+			const invalidScheduler: UseCountdownScheduler = (_callback) => ({
+				pause() {},
+				resume() {},
+			});
+			invalidScheduler;
+		});
 	});
 
 	it("allows the default interval duration", () => {
