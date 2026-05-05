@@ -77,6 +77,7 @@ export { useElementBounding } from "./useElementBounding";
 export { useElementByPoint } from "./useElementByPoint";
 export { useElementHover } from "./useElementHover";
 export { useElementSize } from "./useElementSize";
+export { useElementVisibility } from "./useElementVisibility";
 export { useEventListener } from "./useEventListener";
 export { useFocus } from "./useFocus";
 export { useInterval } from "./useInterval";
@@ -411,6 +412,9 @@ export type {
 	UseElementHoverWindowLike,
 	UseElementSizeOptions,
 	UseElementSizeReturn,
+	UseElementVisibilityOptions,
+	UseElementVisibilityReturn,
+	UseElementVisibilityWindowLike,
 	UseEventListenerOptions,
 	UseEventListenerReturn,
 	UseFocusOptions,

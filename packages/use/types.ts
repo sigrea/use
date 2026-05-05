@@ -2594,6 +2594,41 @@ export interface UseElementSizeReturn {
 	stop(): void;
 }
 
+export interface UseElementVisibilityWindowLike extends WindowLike {
+	readonly IntersectionObserver?: typeof IntersectionObserver;
+}
+
+export interface UseElementVisibilityOptions<
+	TWindow extends
+		UseElementVisibilityWindowLike = UseElementVisibilityWindowLike,
+> {
+	/**
+	 * Initial visibility value until IntersectionObserver reports the first state.
+	 *
+	 * @default false
+	 */
+	initialValue?: boolean;
+	/**
+	 * The element or document used as the viewport for checking visibility.
+	 */
+	root?: MaybeTarget<Element | Document>;
+	/**
+	 * Stop tracking when visibility changes for the first time.
+	 *
+	 * @default false
+	 */
+	once?: boolean;
+	rootMargin?: MaybeValue<IntersectionObserverInit["rootMargin"]>;
+	threshold?: MaybeValue<IntersectionObserverInit["threshold"]>;
+	window?: MaybeTarget<TWindow>;
+}
+
+export interface UseElementVisibilityReturn {
+	readonly isVisible: ReadonlySignal<boolean>;
+	readonly isSupported: ReadonlySignal<boolean>;
+	stop(): void;
+}
+
 export type CloneFn<T> = (value: T) => T;
 
 export type UseClonedCloneFn<T, Cloned = T> = (
