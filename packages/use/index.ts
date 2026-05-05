@@ -44,6 +44,7 @@ export { useArraySome } from "./useArraySome";
 export { useArrayUnique } from "./useArrayUnique";
 export { useAsyncQueue } from "./useAsyncQueue";
 export { useAsyncState } from "./useAsyncState";
+export { useBase64 } from "./useBase64";
 export { useBreakpoints } from "./useBreakpoints";
 export { useCounter } from "./useCounter";
 export { useDebounceFn } from "./useDebounceFn";
@@ -88,6 +89,13 @@ export type {
 	UseAsyncStateReturn,
 	UseAsyncStateReturnBase,
 	UseAsyncStateSource,
+	UseBase64DocumentLike,
+	UseBase64ImageOptions,
+	UseBase64ObjectOptions,
+	UseBase64Options,
+	UseBase64Return,
+	UseBase64Source,
+	UseBase64WindowLike,
 	Arrayable,
 	Breakpoints,
 	CloneFn,

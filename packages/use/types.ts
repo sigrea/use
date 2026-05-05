@@ -564,6 +564,69 @@ export type UseAsyncStateReturn<
 > = UseAsyncStateReturnBase<Data, Params> &
 	PromiseLike<UseAsyncStateReturnBase<Data, Params>>;
 
+export interface UseBase64DocumentLike extends DocumentLike {
+	createElement(tagName: "canvas"): HTMLCanvasElement;
+}
+
+export interface UseBase64WindowLike extends WindowLike {
+	readonly document?: UseBase64DocumentLike;
+	readonly FileReader?: { new (): FileReader };
+	readonly HTMLCanvasElement?: { new (): HTMLCanvasElement };
+	readonly HTMLImageElement?: { new (): HTMLImageElement };
+	btoa?(data: string): string;
+}
+
+export type UseBase64Source =
+	| string
+	| Blob
+	| ArrayBuffer
+	| HTMLCanvasElement
+	| HTMLImageElement
+	| Record<string, unknown>
+	| Map<string, unknown>
+	| Set<unknown>
+	| readonly unknown[]
+	| null
+	| undefined;
+
+export interface UseBase64Options<
+	TWindow extends UseBase64WindowLike = UseBase64WindowLike,
+> {
+	/**
+	 * Output as Data URL format.
+	 *
+	 * @default true
+	 */
+	dataUrl?: boolean;
+	window?: MaybeTarget<TWindow>;
+}
+
+export interface UseBase64ImageOptions<
+	TWindow extends UseBase64WindowLike = UseBase64WindowLike,
+> extends UseBase64Options<TWindow> {
+	/**
+	 * MIME type used by canvas and image conversion.
+	 */
+	type?: string;
+	/**
+	 * Image quality for jpeg and webp conversion.
+	 */
+	quality?: number;
+}
+
+export interface UseBase64ObjectOptions<
+	T,
+	TWindow extends UseBase64WindowLike = UseBase64WindowLike,
+> extends UseBase64Options<TWindow> {
+	serializer?: (value: T) => string;
+}
+
+export interface UseBase64Return {
+	readonly base64: ReadonlySignal<string>;
+	readonly promise: ReadonlySignal<Promise<string> | undefined>;
+	execute(): Promise<string>;
+}
+
 export interface ComputedEagerOptions {
 	flush?: WatchOptions["flush"];
 	onTrack?: WatchOptions["onTrack"];
