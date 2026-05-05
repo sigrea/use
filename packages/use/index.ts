@@ -73,6 +73,7 @@ export { useDisplayMedia } from "./useDisplayMedia";
 export { useDocumentVisibility } from "./useDocumentVisibility";
 export { useDraggable } from "./useDraggable";
 export { useDropZone } from "./useDropZone";
+export { useElementBounding } from "./useElementBounding";
 export { useElementSize } from "./useElementSize";
 export { useEventListener } from "./useEventListener";
 export { useFocus } from "./useFocus";
@@ -391,6 +392,10 @@ export type {
 	UseDropZoneOptions,
 	UseDropZoneReturn,
 	UseDropZoneTarget,
+	UseElementBoundingOptions,
+	UseElementBoundingReturn,
+	UseElementBoundingUpdateTiming,
+	UseElementBoundingWindowLike,
 	UseElementSizeOptions,
 	UseElementSizeReturn,
 	UseEventListenerOptions,
