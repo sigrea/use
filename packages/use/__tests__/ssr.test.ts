@@ -152,6 +152,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.useRefHistory).toBe("function");
 		expect(typeof mod.useResizeObserver).toBe("function");
 		expect(typeof mod.useScreenOrientation).toBe("function");
+		expect(typeof mod.useScreenSafeArea).toBe("function");
 		expect(typeof mod.useSessionStorage).toBe("function");
 		expect(typeof mod.useStorage).toBe("function");
 		expect(typeof mod.useTimeout).toBe("function");
@@ -226,6 +227,7 @@ describe("SSR safety", () => {
 			useRafFn,
 			useResizeObserver,
 			useScreenOrientation,
+			useScreenSafeArea,
 			onElementRemoval,
 			onKeyDown,
 			onKeyPressed,
@@ -306,6 +308,7 @@ describe("SSR safety", () => {
 			window: null,
 		});
 		const screenOrientation = useScreenOrientation({ window: null });
+		const screenSafeArea = useScreenSafeArea({ window: null });
 		const cssSupports = useCssSupports("display", "grid", { window: null });
 		const initialCssSupports = useCssSupports("display: grid", {
 			initialValue: true,
@@ -449,6 +452,10 @@ describe("SSR safety", () => {
 		expect(screenOrientation.isSupported.value).toBe(false);
 		expect(screenOrientation.orientation.value).toBeUndefined();
 		expect(screenOrientation.angle.value).toBe(0);
+		expect(screenSafeArea.top.value).toBe("");
+		expect(screenSafeArea.right.value).toBe("");
+		expect(screenSafeArea.bottom.value).toBe("");
+		expect(screenSafeArea.left.value).toBe("");
 		expect(cssSupports.value).toBe(false);
 		expect(initialCssSupports.value).toBe(true);
 		expect(cssVar.value).toBe("red");
@@ -593,6 +600,8 @@ describe("SSR safety", () => {
 		).rejects.toThrow("Screen Orientation API is not supported");
 		screenOrientation.unlockOrientation();
 		screenOrientation.stop();
+		screenSafeArea.update();
+		screenSafeArea.stop();
 		cssVar.value = "blue";
 		expect(cssVar.value).toBe("blue");
 		cssVar.stop();
