@@ -132,7 +132,7 @@ Status values:
 | `useIdle` | `useIdle` | Done |
 | `useImage` | `useImage` | Done |
 | `useInfiniteScroll` | `useInfiniteScroll` | Done |
-| `useIntersectionObserver` | `-` | Todo |
+| `useIntersectionObserver` | `useIntersectionObserver` | Done |
 | `useInterval` | `useInterval` | Done |
 | `useIntervalFn` | `useIntervalFn` | Done |
 | `useKeyModifier` | `-` | Todo |
