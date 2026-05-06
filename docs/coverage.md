@@ -166,7 +166,7 @@ Status values:
 | `usePreferredColorScheme` | `usePreferredColorScheme` | Done |
 | `usePreferredContrast` | `usePreferredContrast` | Done |
 | `usePreferredDark` | `usePreferredDark` | Done |
-| `usePreferredLanguages` | `-` | Todo |
+| `usePreferredLanguages` | `usePreferredLanguages` | Done |
 | `usePreferredReducedMotion` | `-` | Todo |
 | `usePreferredReducedTransparency` | `-` | Todo |
 | `usePrevious` | `usePrevious` | Done |
