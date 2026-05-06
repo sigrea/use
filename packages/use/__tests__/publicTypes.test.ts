@@ -362,6 +362,13 @@ import type {
 	UseImageOptions,
 	UseImageReturn,
 	UseImageWindowLike,
+	UseInfiniteScrollArrivedState,
+	UseInfiniteScrollDirection,
+	UseInfiniteScrollDirections,
+	UseInfiniteScrollOptions,
+	UseInfiniteScrollReturn,
+	UseInfiniteScrollState,
+	UseInfiniteScrollWindowLike,
 	UseMediaQueryOptions,
 	UseMouseOptions,
 	UseOnlineOptions,
@@ -474,6 +481,7 @@ import {
 	useGeolocation,
 	useIdle,
 	useImage,
+	useInfiniteScroll,
 	useInterval,
 	useIntervalFn,
 	useLocalStorage,
@@ -565,6 +573,10 @@ interface IdleWindow extends UseIdleWindowLike {
 }
 
 interface ImageWindow extends UseImageWindowLike {
+	readonly label: string;
+}
+
+interface InfiniteScrollWindow extends UseInfiniteScrollWindowLike {
 	readonly label: string;
 }
 
@@ -5502,6 +5514,80 @@ describe("public types", () => {
 				useImage(options, {
 					// @ts-expect-error window must expose Image constructor
 					window: new EventTarget(),
+				});
+			});
+		});
+	});
+
+	it("types infinite scroll controls", () => {
+		typeOnly(() => {
+			const element = document.createElement("div");
+			const infiniteWindow = Object.assign(new EventTarget(), {
+				IntersectionObserver,
+				getComputedStyle: () => document.body.style,
+				label: "window",
+			}) as InfiniteScrollWindow;
+			const direction: UseInfiniteScrollDirection = "bottom";
+			const options: UseInfiniteScrollOptions<
+				HTMLElement,
+				InfiniteScrollWindow
+			> = {
+				canLoadMore: (target) => target.scrollHeight > 0,
+				direction,
+				distance: 16,
+				eventListenerOptions: { passive: true },
+				idle: 200,
+				interval: 100,
+				offset: { bottom: 16 },
+				onError: (error) => {
+					expectTypeOf(error).toEqualTypeOf<unknown>();
+				},
+				onScroll: (event) => {
+					expectTypeOf(event).toEqualTypeOf<Event>();
+				},
+				onStop: (event) => {
+					expectTypeOf(event).toEqualTypeOf<Event>();
+				},
+				throttle: 50,
+				window: signal(infiniteWindow),
+			};
+			const infinite = useInfiniteScroll(
+				element,
+				(state) => {
+					const scrollState: UseInfiniteScrollState = state;
+					const arrived: UseInfiniteScrollArrivedState =
+						scrollState.arrivedState.value;
+					const directions: UseInfiniteScrollDirections =
+						scrollState.directions.value;
+
+					expectTypeOf(scrollState.x).toEqualTypeOf<ReadonlySignal<number>>();
+					expectTypeOf(scrollState.y).toEqualTypeOf<ReadonlySignal<number>>();
+					expectTypeOf(scrollState.isScrolling).toEqualTypeOf<
+						ReadonlySignal<boolean>
+					>();
+					expectTypeOf(arrived.bottom).toEqualTypeOf<boolean>();
+					expectTypeOf(directions.top).toEqualTypeOf<boolean>();
+					expectTypeOf(scrollState.measure()).toEqualTypeOf<void>();
+				},
+				options,
+			);
+			const infiniteReturn: UseInfiniteScrollReturn = infinite;
+
+			expectTypeOf(infinite).toEqualTypeOf<UseInfiniteScrollReturn>();
+			expectTypeOf(infiniteReturn.isLoading).toEqualTypeOf<
+				ReadonlySignal<boolean>
+			>();
+			expectTypeOf(infinite.error).toEqualTypeOf<
+				ReadonlySignal<unknown | undefined>
+			>();
+			expectTypeOf(infinite.reset()).toEqualTypeOf<void>();
+			expectTypeOf(infinite.stop()).toEqualTypeOf<void>();
+			typeOnly(() => {
+				// @ts-expect-error isLoading is readonly
+				infinite.isLoading.value = true;
+				useInfiniteScroll(element, () => {}, {
+					// @ts-expect-error direction must be one of the supported edges
+					direction: "middle",
 				});
 			});
 		});
