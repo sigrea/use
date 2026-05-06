@@ -137,6 +137,15 @@ import type {
 	SignalDefaultReturn,
 	SignalManualResetReturn,
 	SignalThrottledReturn,
+	SpeechRecognitionAlternativeLike,
+	SpeechRecognitionConstructorLike,
+	SpeechRecognitionErrorCode,
+	SpeechRecognitionErrorEventLike,
+	SpeechRecognitionEventLike,
+	SpeechRecognitionForWindow,
+	SpeechRecognitionLike,
+	SpeechRecognitionResultLike,
+	SpeechRecognitionResultListLike,
 	StorageSerializer,
 	StorageWindowLike,
 	SyncSignalDirection,
@@ -526,6 +535,10 @@ import type {
 	UseSortedOptions,
 	UseSortedReturn,
 	UseSortedSortFn,
+	UseSpeechRecognitionOptions,
+	UseSpeechRecognitionReturn,
+	UseSpeechRecognitionWindowLike,
+	UseSpeechRecognitionWindowOptions,
 	UseStorageOptions,
 	UseToggleOptions,
 	UseWindowSizeOptions,
@@ -685,6 +698,7 @@ import {
 	useSessionStorage,
 	useShare,
 	useSorted,
+	useSpeechRecognition,
 	useStorage,
 	useThrottleFn,
 	useTimeout,
@@ -7383,6 +7397,124 @@ describe("public types", () => {
 					// @ts-expect-error window must be window-like or nullish
 					window: 1,
 				});
+			});
+		});
+	});
+
+	it("types speech recognition controls", () => {
+		typeOnly(() => {
+			class TypedSpeechRecognition
+				extends EventTarget
+				implements SpeechRecognitionLike
+			{
+				continuous = true;
+				interimResults = true;
+				lang = "en-US";
+				maxAlternatives = 1;
+				start(): void {}
+				stop(): void {}
+				abort(): void {}
+			}
+
+			const SpeechRecognitionCtor: SpeechRecognitionConstructorLike<TypedSpeechRecognition> =
+				TypedSpeechRecognition;
+			const speechAlternative: SpeechRecognitionAlternativeLike = {
+				confidence: 1,
+				transcript: "hello",
+			};
+			const speechResult: SpeechRecognitionResultLike = {
+				0: speechAlternative,
+				isFinal: true,
+				item: () => speechAlternative,
+				length: 1,
+			};
+			const speechResultList: SpeechRecognitionResultListLike = {
+				0: speechResult,
+				item: () => speechResult,
+				length: 1,
+			};
+			const speechEvent = Object.assign(new Event("result"), {
+				resultIndex: 0,
+				results: speechResultList,
+			}) satisfies SpeechRecognitionEventLike;
+			const speechErrorEvent = Object.assign(new Event("error"), {
+				error: "network" as SpeechRecognitionErrorCode,
+				message: "failed",
+			}) satisfies SpeechRecognitionErrorEventLike;
+			const speechWindow = Object.assign(new EventTarget(), {
+				webkitSpeechRecognition: SpeechRecognitionCtor,
+			}) as UseSpeechRecognitionWindowLike<TypedSpeechRecognition>;
+			const windowOptions: UseSpeechRecognitionWindowOptions<
+				typeof speechWindow
+			> = {
+				window: signal(speechWindow),
+			};
+			const options: UseSpeechRecognitionOptions<TypedSpeechRecognition> = {
+				continuous: false,
+				interimResults: true,
+				lang: signal("ja-JP"),
+				maxAlternatives: 2,
+				window: signal(speechWindow),
+			};
+			const speech = useSpeechRecognition(options);
+			const directSpeech = useSpeechRecognition({
+				lang: signal("en-US"),
+				window: signal(speechWindow),
+			});
+			const windowOptionsSpeech = useSpeechRecognition(windowOptions);
+			const fallback = useSpeechRecognition({ window: null });
+			const speechReturn: UseSpeechRecognitionReturn<TypedSpeechRecognition> =
+				speech;
+
+			expectTypeOf(speech).toEqualTypeOf<
+				UseSpeechRecognitionReturn<TypedSpeechRecognition>
+			>();
+			expectTypeOf(speechReturn.isSupported).toEqualTypeOf<
+				ReadonlySignal<boolean>
+			>();
+			expectTypeOf(speech.isListening).toEqualTypeOf<ReadonlySignal<boolean>>();
+			expectTypeOf(speech.isFinal).toEqualTypeOf<ReadonlySignal<boolean>>();
+			expectTypeOf(speech.recognition).toEqualTypeOf<
+				ReadonlySignal<TypedSpeechRecognition | undefined>
+			>();
+			expectTypeOf(directSpeech.recognition).toEqualTypeOf<
+				ReadonlySignal<TypedSpeechRecognition | undefined>
+			>();
+			expectTypeOf(windowOptionsSpeech.recognition).toEqualTypeOf<
+				ReadonlySignal<TypedSpeechRecognition | undefined>
+			>();
+			expectTypeOf<
+				SpeechRecognitionForWindow<typeof speechWindow>
+			>().toEqualTypeOf<TypedSpeechRecognition>();
+			expectTypeOf(speech.result).toEqualTypeOf<ReadonlySignal<string>>();
+			expectTypeOf(speech.error).toEqualTypeOf<
+				ReadonlySignal<unknown | null>
+			>();
+			expectTypeOf(speech.start()).toEqualTypeOf<void>();
+			expectTypeOf(speech.stop()).toEqualTypeOf<void>();
+			expectTypeOf(speech.abort()).toEqualTypeOf<void>();
+			expectTypeOf(speech.toggle()).toEqualTypeOf<void>();
+			expectTypeOf(speech.toggle(true)).toEqualTypeOf<void>();
+			expectTypeOf(fallback).toEqualTypeOf<UseSpeechRecognitionReturn>();
+			expectTypeOf(
+				speechEvent.results,
+			).toEqualTypeOf<SpeechRecognitionResultListLike>();
+			expectTypeOf(
+				speechErrorEvent.error,
+			).toEqualTypeOf<SpeechRecognitionErrorCode>();
+			typeOnly(() => {
+				// @ts-expect-error returned values are readonly signals
+				speech.result.value = "next";
+				// @ts-expect-error continuous must be boolean
+				useSpeechRecognition({ continuous: "true" });
+				// @ts-expect-error lang must resolve to string
+				useSpeechRecognition({ lang: 1 });
+				useSpeechRecognition({
+					// @ts-expect-error window must be window-like or nullish
+					window: 1,
+				});
+				// @ts-expect-error toggle value must be boolean
+				speech.toggle("true");
 			});
 		});
 	});
