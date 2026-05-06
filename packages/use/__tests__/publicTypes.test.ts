@@ -458,6 +458,11 @@ import type {
 	UsePermissionReturn,
 	UsePermissionSource,
 	UsePermissionStatusLike,
+	UsePointerLockDocumentLike,
+	UsePointerLockElementLike,
+	UsePointerLockOptions,
+	UsePointerLockReturn,
+	UsePointerLockRootLike,
 	UsePointerOptions,
 	UsePointerReturn,
 	UsePointerState,
@@ -602,6 +607,7 @@ import {
 	usePerformanceObserver,
 	usePermission,
 	usePointer,
+	usePointerLock,
 	usePreferredDark,
 	usePrevious,
 	useRefHistory,
@@ -5534,6 +5540,29 @@ describe("public types", () => {
 		};
 		const pointer = usePointer(pointerOptions);
 		const pointerReturn: UsePointerReturn = pointer;
+		const pointerLockElement = Object.assign(new EventTarget(), {
+			requestPointerLock: (_options?: PointerLockOptions) => Promise.resolve(),
+		}) as UsePointerLockElementLike;
+		const pointerLockRoot: UsePointerLockRootLike = {
+			pointerLockElement,
+		};
+		const pointerLockDocument = Object.assign(new EventTarget(), {
+			documentElement: pointerLockElement,
+			exitPointerLock: () => {},
+			pointerLockElement: null,
+		}) as UsePointerLockDocumentLike;
+		const pointerLockOptions: UsePointerLockOptions<
+			typeof pointerLockDocument
+		> = {
+			autoUnlock: true,
+			document: signal(pointerLockDocument),
+		};
+		const pointerLock = usePointerLock(
+			signal(pointerLockElement),
+			pointerLockOptions,
+		);
+		const pointerLockReturn: UsePointerLockReturn<typeof pointerLockElement> =
+			pointerLock;
 
 		expectTypeOf(online.isOnline.value).toEqualTypeOf<boolean>();
 		expectTypeOf(pageLeave).toEqualTypeOf<UsePageLeaveReturn>();
@@ -5589,6 +5618,25 @@ describe("public types", () => {
 		expectTypeOf(pointer.twist.value).toEqualTypeOf<number>();
 		expectTypeOf(pointer.width.value).toEqualTypeOf<number>();
 		expectTypeOf(pointer.stop()).toEqualTypeOf<void>();
+		expectTypeOf(pointerLockRoot.pointerLockElement).toEqualTypeOf<
+			UsePointerLockElementLike | null | undefined
+		>();
+		expectTypeOf(pointerLock).toEqualTypeOf<
+			UsePointerLockReturn<typeof pointerLockElement>
+		>();
+		expectTypeOf(pointerLockReturn.isSupported.value).toEqualTypeOf<boolean>();
+		expectTypeOf(pointerLock.isLocked.value).toEqualTypeOf<boolean>();
+		expectTypeOf(pointerLock.element.value).toEqualTypeOf<
+			typeof pointerLockElement | UsePointerLockElementLike | null
+		>();
+		expectTypeOf(pointerLock.lock).toEqualTypeOf<
+			(options?: PointerLockOptions) => Promise<void>
+		>();
+		expectTypeOf(pointerLock.unlock).toEqualTypeOf<() => Promise<void>>();
+		expectTypeOf(pointerLock.toggle).toEqualTypeOf<
+			(options?: PointerLockOptions) => Promise<void>
+		>();
+		expectTypeOf(pointerLock.stop).toEqualTypeOf<() => void>();
 		typeOnly(() => {
 			usePerformanceObserver(
 				// @ts-expect-error entryTypes cannot be used with type
@@ -5627,6 +5675,20 @@ describe("public types", () => {
 				// @ts-expect-error pointerTypes must be an array
 				pointerTypes: "mouse",
 			});
+			// @ts-expect-error target must be EventTarget-like
+			usePointerLock(1, pointerLockOptions);
+			usePointerLock(pointerLockElement, {
+				// @ts-expect-error document must be document-like
+				document: 1,
+			});
+			usePointerLock(pointerLockElement, {
+				// @ts-expect-error unknown options are rejected
+				autoExit: true,
+			});
+			pointerLock.lock({
+				// @ts-expect-error unadjustedMovement must be boolean
+				unadjustedMovement: "true",
+			});
 		});
 
 		breakpoints.stop();
@@ -5646,6 +5708,7 @@ describe("public types", () => {
 		performance.stop();
 		permission.stop();
 		pointer.stop();
+		pointerLock.stop();
 	});
 
 	it("forwards timeout start arguments", () => {
