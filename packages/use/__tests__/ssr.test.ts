@@ -111,6 +111,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.useIdle).toBe("function");
 		expect(typeof mod.useImage).toBe("function");
 		expect(typeof mod.useInfiniteScroll).toBe("function");
+		expect(typeof mod.useIntersectionObserver).toBe("function");
 		expect(typeof mod.useInterval).toBe("function");
 		expect(typeof mod.useIntervalFn).toBe("function");
 		expect(typeof mod.useLocalStorage).toBe("function");
@@ -165,6 +166,7 @@ describe("SSR safety", () => {
 			useIdle,
 			useImage,
 			useInfiniteScroll,
+			useIntersectionObserver,
 			useMouse,
 			useOnline,
 			usePreferredDark,
@@ -268,6 +270,9 @@ describe("SSR safety", () => {
 		const infiniteScroll = useInfiniteScroll(null, async () => {}, {
 			window: null,
 		});
+		const intersectionObserver = useIntersectionObserver(null, () => {}, {
+			window: null,
+		});
 		const fetchValue = useFetch("https://example.com", {
 			fetch: async () => new Response("ok"),
 			immediate: false,
@@ -365,6 +370,8 @@ describe("SSR safety", () => {
 		expect(image.error.value).toBeUndefined();
 		expect(infiniteScroll.isLoading.value).toBe(false);
 		expect(infiniteScroll.error.value).toBeUndefined();
+		expect(intersectionObserver.isSupported.value).toBe(false);
+		expect(intersectionObserver.isActive.value).toBe(true);
 		expect(fetchValue.data.value).toBeNull();
 		expect(sessionStorageValue.value).toBe("fallback");
 		expect(ssrMediaQuery.matches.value).toBe(true);
@@ -452,6 +459,9 @@ describe("SSR safety", () => {
 		idle.stop();
 		infiniteScroll.reset();
 		infiniteScroll.stop();
+		intersectionObserver.pause();
+		intersectionObserver.resume();
+		intersectionObserver.stop();
 		expect(await fetchValue.execute()).toBeInstanceOf(Response);
 		expect(fetchValue.data.value).toBe("ok");
 		expect(fetchValue.statusCode.value).toBe(200);

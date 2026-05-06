@@ -369,6 +369,10 @@ import type {
 	UseInfiniteScrollReturn,
 	UseInfiniteScrollState,
 	UseInfiniteScrollWindowLike,
+	UseIntersectionObserverOptions,
+	UseIntersectionObserverReturn,
+	UseIntersectionObserverTarget,
+	UseIntersectionObserverWindowLike,
 	UseMediaQueryOptions,
 	UseMouseOptions,
 	UseOnlineOptions,
@@ -482,6 +486,7 @@ import {
 	useIdle,
 	useImage,
 	useInfiniteScroll,
+	useIntersectionObserver,
 	useInterval,
 	useIntervalFn,
 	useLocalStorage,
@@ -577,6 +582,10 @@ interface ImageWindow extends UseImageWindowLike {
 }
 
 interface InfiniteScrollWindow extends UseInfiniteScrollWindowLike {
+	readonly label: string;
+}
+
+interface IntersectionObserverWindow extends UseIntersectionObserverWindowLike {
 	readonly label: string;
 }
 
@@ -5588,6 +5597,63 @@ describe("public types", () => {
 				useInfiniteScroll(element, () => {}, {
 					// @ts-expect-error direction must be one of the supported edges
 					direction: "middle",
+				});
+			});
+		});
+	});
+
+	it("types intersection observer controls", () => {
+		typeOnly(() => {
+			const first = document.createElement("div");
+			const second = document.createElement("section");
+			const root = document.createElement("main");
+			const observerWindow = Object.assign(new EventTarget(), {
+				IntersectionObserver,
+				label: "window",
+			}) as IntersectionObserverWindow;
+			const target: UseIntersectionObserverTarget<HTMLElement> = [
+				first,
+				null,
+				second,
+			];
+			const options: UseIntersectionObserverOptions<IntersectionObserverWindow> =
+				{
+					immediate: false,
+					root: signal(root),
+					rootMargin: signal("0px"),
+					threshold: signal([0, 0.5, 1]),
+					window: signal(observerWindow),
+				};
+			const observer = useIntersectionObserver(
+				target,
+				(entries, intersectionObserver) => {
+					expectTypeOf(entries).toEqualTypeOf<IntersectionObserverEntry[]>();
+					expectTypeOf(
+						intersectionObserver,
+					).toEqualTypeOf<IntersectionObserver>();
+				},
+				options,
+			);
+			const observerReturn: UseIntersectionObserverReturn = observer;
+
+			expectTypeOf(observer).toEqualTypeOf<UseIntersectionObserverReturn>();
+			expectTypeOf(observerReturn.isSupported).toEqualTypeOf<
+				ReadonlySignal<boolean>
+			>();
+			expectTypeOf(observer.isActive).toEqualTypeOf<ReadonlySignal<boolean>>();
+			expectTypeOf(observer.pause()).toEqualTypeOf<void>();
+			expectTypeOf(observer.resume()).toEqualTypeOf<void>();
+			expectTypeOf(observer.stop()).toEqualTypeOf<void>();
+			typeOnly(() => {
+				// @ts-expect-error isActive is readonly
+				observer.isActive.value = false;
+				useIntersectionObserver(first, () => {}, {
+					// @ts-expect-error immediate must be boolean
+					immediate: "yes",
+				});
+				useIntersectionObserver(first, () => {}, {
+					// @ts-expect-error rootMargin must be a string when provided
+					rootMargin: 10,
 				});
 			});
 		});
