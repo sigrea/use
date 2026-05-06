@@ -178,7 +178,7 @@ Status values:
 | `useScreenSafeArea` | `useScreenSafeArea` | Done |
 | `useScriptTag` | `useScriptTag` | Done |
 | `useScroll` | `useScroll` | Done |
-| `useScrollLock` | `-` | Todo |
+| `useScrollLock` | `useScrollLock` | Done |
 | `useSessionStorage` | `useSessionStorage` | Done |
 | `useShare` | `-` | Todo |
 | `useSorted` | `-` | Todo |
