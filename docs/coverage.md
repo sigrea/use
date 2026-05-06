@@ -131,7 +131,7 @@ Status values:
 | `useGeolocation` | `useGeolocation` | Done |
 | `useIdle` | `useIdle` | Done |
 | `useImage` | `useImage` | Done |
-| `useInfiniteScroll` | `-` | Todo |
+| `useInfiniteScroll` | `useInfiniteScroll` | Done |
 | `useIntersectionObserver` | `-` | Todo |
 | `useInterval` | `useInterval` | Done |
 | `useIntervalFn` | `useIntervalFn` | Done |
