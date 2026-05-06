@@ -115,6 +115,7 @@ export { useMutationObserver } from "./useMutationObserver";
 export { useNavigatorLanguage } from "./useNavigatorLanguage";
 export { useNetwork } from "./useNetwork";
 export { useNow } from "./useNow";
+export { useObjectUrl } from "./useObjectUrl";
 export { useOnline } from "./useOnline";
 export { usePreferredDark } from "./usePreferredDark";
 export { usePrevious } from "./usePrevious";
@@ -619,6 +620,11 @@ export type {
 	UseNowReturn,
 	UseNowScheduler,
 	UseNowWindowLike,
+	UseObjectUrlObject,
+	UseObjectUrlOptions,
+	UseObjectUrlReturn,
+	UseObjectUrlWindowLike,
+	UseObjectUrlUrlLike,
 	UseOnlineOptions,
 	UseOnlineReturn,
 	UseRefHistoryOptions,
