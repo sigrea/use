@@ -137,6 +137,7 @@ export { useRefHistory } from "./useRefHistory";
 export { useResizeObserver } from "./useResizeObserver";
 export { useScreenOrientation } from "./useScreenOrientation";
 export { useScreenSafeArea } from "./useScreenSafeArea";
+export { useScriptTag } from "./useScriptTag";
 export { useSessionStorage } from "./useSessionStorage";
 export {
 	customStorageEventName,
@@ -715,6 +716,9 @@ export type {
 	UseScreenSafeAreaReturn,
 	UseScreenSafeAreaVisualViewportLike,
 	UseScreenSafeAreaWindowLike,
+	UseScriptTagDocumentLike,
+	UseScriptTagOptions,
+	UseScriptTagReturn,
 	UseStorageOptions,
 	UseThrottleFnReturn,
 	UseTimeoutControlsReturn,
