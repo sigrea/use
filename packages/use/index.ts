@@ -98,6 +98,7 @@ export { useInfiniteScroll } from "./useInfiniteScroll";
 export { useIntersectionObserver } from "./useIntersectionObserver";
 export { useKeyModifier } from "./useKeyModifier";
 export { useLastChanged } from "./useLastChanged";
+export { DefaultMagicKeysAliasMap, useMagicKeys } from "./useMagicKeys";
 export { useInterval } from "./useInterval";
 export { useIntervalFn } from "./useIntervalFn";
 export { useLocalStorage } from "./useLocalStorage";
@@ -547,6 +548,10 @@ export type {
 	UseKeyModifierReturn,
 	UseLastChangedOptions,
 	UseLastChangedReturn,
+	MagicKeysInternal,
+	UseMagicKeysOptions,
+	UseMagicKeysReturn,
+	UseMagicKeysWindowLike,
 	UseIntervalControlsReturn,
 	UseIntervalFnOptions,
 	UseIntervalFnReturn,
