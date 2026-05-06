@@ -121,6 +121,7 @@ export { useOnline } from "./useOnline";
 export { usePageLeave } from "./usePageLeave";
 export { useParallax } from "./useParallax";
 export { usePerformanceObserver } from "./usePerformanceObserver";
+export { usePermission } from "./usePermission";
 export { usePreferredDark } from "./usePreferredDark";
 export { usePrevious } from "./usePrevious";
 export { useRefHistory } from "./useRefHistory";
@@ -646,6 +647,14 @@ export type {
 	UsePerformanceObserverObserveOptions,
 	UsePerformanceObserverReturn,
 	UsePerformanceObserverWindowLike,
+	UsePermissionDescriptor,
+	UsePermissionName,
+	UsePermissionNavigatorLike,
+	UsePermissionOptions,
+	UsePermissionPermissionsLike,
+	UsePermissionReturn,
+	UsePermissionSource,
+	UsePermissionStatusLike,
 	UseRefHistoryOptions,
 	UseRefHistoryRecord,
 	UseRefHistoryReturn,
