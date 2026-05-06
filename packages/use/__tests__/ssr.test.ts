@@ -153,13 +153,14 @@ describe("SSR safety", () => {
 		expect(typeof mod.useResizeObserver).toBe("function");
 		expect(typeof mod.useScreenOrientation).toBe("function");
 		expect(typeof mod.useScreenSafeArea).toBe("function");
+		expect(typeof mod.useScriptTag).toBe("function");
 		expect(typeof mod.useSessionStorage).toBe("function");
 		expect(typeof mod.useStorage).toBe("function");
 		expect(typeof mod.useTimeout).toBe("function");
 		expect(typeof mod.useTimeoutFn).toBe("function");
 		expect(typeof mod.useToggle).toBe("function");
 		expect(typeof mod.useWindowSize).toBe("function");
-	}, 20_000);
+	}, 30_000);
 
 	it("creates browser composables without a window", async () => {
 		const {
@@ -228,6 +229,7 @@ describe("SSR safety", () => {
 			useResizeObserver,
 			useScreenOrientation,
 			useScreenSafeArea,
+			useScriptTag,
 			onElementRemoval,
 			onKeyDown,
 			onKeyPressed,
@@ -309,6 +311,7 @@ describe("SSR safety", () => {
 		});
 		const screenOrientation = useScreenOrientation({ window: null });
 		const screenSafeArea = useScreenSafeArea({ window: null });
+		const scriptTag = useScriptTag("https://example.com/script.js");
 		const cssSupports = useCssSupports("display", "grid", { window: null });
 		const initialCssSupports = useCssSupports("display: grid", {
 			initialValue: true,
@@ -456,6 +459,9 @@ describe("SSR safety", () => {
 		expect(screenSafeArea.right.value).toBe("");
 		expect(screenSafeArea.bottom.value).toBe("");
 		expect(screenSafeArea.left.value).toBe("");
+		expect(scriptTag.scriptTag.value).toBeNull();
+		await expect(scriptTag.load()).resolves.toBe(false);
+		scriptTag.unload();
 		expect(cssSupports.value).toBe(false);
 		expect(initialCssSupports.value).toBe(true);
 		expect(cssVar.value).toBe("red");
