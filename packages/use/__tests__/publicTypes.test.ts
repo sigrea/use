@@ -61,6 +61,7 @@ import type {
 	EventHook,
 	EventHookArgs,
 	EventHookCallback,
+	EventHookOn,
 	EventHookReturn,
 	EventSourceConstructorLike,
 	EventSourceLike,
@@ -384,6 +385,12 @@ import type {
 	UseMagicKeysOptions,
 	UseMagicKeysReturn,
 	UseMagicKeysWindowLike,
+	UseMediaControlsDocumentLike,
+	UseMediaControlsOptions,
+	UseMediaControlsReturn,
+	UseMediaControlsSource,
+	UseMediaControlsTextTrack,
+	UseMediaControlsTextTrackSource,
 	UseMediaQueryOptions,
 	UseMouseOptions,
 	UseOnlineOptions,
@@ -506,6 +513,7 @@ import {
 	useLocalStorage,
 	useMagicKeys,
 	useManualRefHistory,
+	useMediaControls,
 	useMediaQuery,
 	useMouse,
 	useOnline,
@@ -609,6 +617,10 @@ interface KeyModifierDocument extends UseKeyModifierDocumentLike {
 }
 
 interface MagicKeysWindow extends UseMagicKeysWindowLike {
+	readonly label: string;
+}
+
+interface MediaControlsDocument extends UseMediaControlsDocumentLike {
 	readonly label: string;
 }
 
@@ -4305,6 +4317,100 @@ describe("public types", () => {
 					// @ts-expect-error window must be an EventTarget-compatible object
 					window: {},
 				});
+			});
+		});
+	});
+
+	it("types media controls", () => {
+		typeOnly(() => {
+			const video = document.createElement("video");
+			const documentTarget = Object.assign(document, {
+				label: "document",
+			}) as MediaControlsDocument;
+			const source: UseMediaControlsSource = {
+				media: "(min-width: 1px)",
+				src: "video.mp4",
+				type: "video/mp4",
+			};
+			const trackSource: UseMediaControlsTextTrackSource = {
+				default: true,
+				kind: "subtitles",
+				label: "English",
+				src: "subtitles.vtt",
+				srcLang: "en",
+			};
+			const options: UseMediaControlsOptions<MediaControlsDocument> = {
+				document: signal(documentTarget),
+				src: signal([source]),
+				tracks: signal([trackSource]),
+			};
+			const controls = useMediaControls(
+				signal<HTMLMediaElement | null>(video),
+				options,
+			);
+			const returnValue: UseMediaControlsReturn = controls;
+			const textTrack: UseMediaControlsTextTrack = {
+				activeCues: null,
+				cues: null,
+				id: 0,
+				inBandMetadataTrackDispatchType: "",
+				kind: "subtitles",
+				label: "English",
+				language: "en",
+				mode: "disabled",
+			};
+
+			expectTypeOf(returnValue).toEqualTypeOf<UseMediaControlsReturn>();
+			expectTypeOf(controls.currentTime).toEqualTypeOf<Computed<number>>();
+			expectTypeOf(controls.playing).toEqualTypeOf<Computed<boolean>>();
+			expectTypeOf(controls.volume).toEqualTypeOf<Computed<number>>();
+			expectTypeOf(controls.muted).toEqualTypeOf<Computed<boolean>>();
+			expectTypeOf(controls.rate).toEqualTypeOf<Computed<number>>();
+			expectTypeOf(controls.duration).toEqualTypeOf<ReadonlySignal<number>>();
+			expectTypeOf(controls.buffered.value).toEqualTypeOf<[number, number][]>();
+			expectTypeOf(controls.tracks.value).toEqualTypeOf<
+				UseMediaControlsTextTrack[]
+			>();
+			expectTypeOf(controls.selectedTrack.value).toEqualTypeOf<number>();
+			expectTypeOf(
+				controls.supportsPictureInPicture.value,
+			).toEqualTypeOf<boolean>();
+			expectTypeOf(controls.isPictureInPicture.value).toEqualTypeOf<boolean>();
+			expectTypeOf(controls.onSourceError).toEqualTypeOf<EventHookOn<Event>>();
+			expectTypeOf(controls.onPlaybackError).toEqualTypeOf<
+				EventHookOn<unknown>
+			>();
+			expectTypeOf(controls.togglePictureInPicture()).toEqualTypeOf<
+				Promise<PictureInPictureWindow | void>
+			>();
+			expectTypeOf(controls.enableTrack(textTrack)).toEqualTypeOf<void>();
+			expectTypeOf(controls.disableTrack(0)).toEqualTypeOf<void>();
+			expectTypeOf(controls.stop()).toEqualTypeOf<void>();
+
+			controls.currentTime.value = 10;
+			controls.playing.value = true;
+			controls.volume.value = 0.5;
+			controls.muted.value = true;
+			controls.rate.value = 1.25;
+
+			typeOnly(() => {
+				// @ts-expect-error duration is readonly
+				controls.duration.value = 10;
+				// @ts-expect-error tracks is readonly
+				controls.tracks.value = [];
+				// @ts-expect-error source objects require src
+				const invalidSource: UseMediaControlsSource = { type: "video/mp4" };
+				expectTypeOf(invalidSource).toEqualTypeOf<UseMediaControlsSource>();
+				const invalidTrack: UseMediaControlsTextTrackSource = {
+					kind: "subtitles",
+					label: "English",
+					src: "subtitles.vtt",
+					// @ts-expect-error text track sources require srcLang
+					srclang: "en",
+				};
+				expectTypeOf(
+					invalidTrack,
+				).toEqualTypeOf<UseMediaControlsTextTrackSource>();
 			});
 		});
 	});
