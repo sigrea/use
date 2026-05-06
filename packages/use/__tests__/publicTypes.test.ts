@@ -440,6 +440,12 @@ import type {
 	UseOnlineOptions,
 	UsePageLeaveOptions,
 	UsePageLeaveReturn,
+	UseParallaxAdjust,
+	UseParallaxOptions,
+	UseParallaxReturn,
+	UseParallaxScreenOrientationLike,
+	UseParallaxSource,
+	UseParallaxWindowLike,
 	UseRefHistoryRecord,
 	UseStorageOptions,
 	UseToggleOptions,
@@ -576,6 +582,7 @@ import {
 	useOffsetPagination,
 	useOnline,
 	usePageLeave,
+	useParallax,
 	usePreferredDark,
 	usePrevious,
 	useRefHistory,
@@ -5430,11 +5437,38 @@ describe("public types", () => {
 		};
 		const pageLeave = usePageLeave(pageLeaveOptions);
 		const pageLeaveReturn: UsePageLeaveReturn = pageLeave;
+		const parallaxWindow = onlineWindow as Window & UseParallaxWindowLike;
+		const parallaxAdjust: UseParallaxAdjust = (value) => value;
+		const screenOrientation =
+			new EventTarget() as UseParallaxScreenOrientationLike;
+		const parallaxOptions: UseParallaxOptions<typeof parallaxWindow> = {
+			absolute: true,
+			deviceOrientationRollAdjust: parallaxAdjust,
+			deviceOrientationTiltAdjust: parallaxAdjust,
+			mouseRollAdjust: parallaxAdjust,
+			mouseTiltAdjust: parallaxAdjust,
+			requestPermissions: false,
+			window: signal(parallaxWindow),
+		};
+		const parallax = useParallax(document.body, parallaxOptions);
+		const parallaxReturn: UseParallaxReturn = parallax;
 
 		expectTypeOf(online.isOnline.value).toEqualTypeOf<boolean>();
 		expectTypeOf(pageLeave).toEqualTypeOf<UsePageLeaveReturn>();
 		expectTypeOf(pageLeaveReturn.isLeft.value).toEqualTypeOf<boolean>();
 		expectTypeOf(pageLeave.stop()).toEqualTypeOf<void>();
+		expectTypeOf(screenOrientation.type).toEqualTypeOf<
+			OrientationType | undefined
+		>();
+		expectTypeOf(parallax).toEqualTypeOf<UseParallaxReturn>();
+		expectTypeOf(parallaxReturn.roll.value).toEqualTypeOf<number>();
+		expectTypeOf(parallax.tilt.value).toEqualTypeOf<number>();
+		expectTypeOf(parallax.source.value).toEqualTypeOf<UseParallaxSource>();
+		expectTypeOf(parallax.ensurePermissions()).toEqualTypeOf<Promise<void>>();
+		expectTypeOf(parallax.ensurePermissions(true)).toEqualTypeOf<
+			Promise<void>
+		>();
+		expectTypeOf(parallax.stop()).toEqualTypeOf<void>();
 
 		breakpoints.stop();
 		preferredDark.stop();
@@ -5449,6 +5483,7 @@ describe("public types", () => {
 		visibility.stop();
 		online.stop();
 		pageLeave.stop();
+		parallax.stop();
 	});
 
 	it("forwards timeout start arguments", () => {
