@@ -156,6 +156,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.useScriptTag).toBe("function");
 		expect(typeof mod.useScroll).toBe("function");
 		expect(typeof mod.useScrollLock).toBe("function");
+		expect(typeof mod.useShare).toBe("function");
 		expect(typeof mod.useSessionStorage).toBe("function");
 		expect(typeof mod.useStorage).toBe("function");
 		expect(typeof mod.useTimeout).toBe("function");
@@ -234,6 +235,7 @@ describe("SSR safety", () => {
 			useScriptTag,
 			useScroll,
 			useScrollLock,
+			useShare,
 			onElementRemoval,
 			onKeyDown,
 			onKeyPressed,
@@ -318,6 +320,7 @@ describe("SSR safety", () => {
 		const scriptTag = useScriptTag("https://example.com/script.js");
 		const scroll = useScroll(null, { window: null });
 		const scrollLock = useScrollLock(null, true, { window: null });
+		const share = useShare({ text: "ssr" }, { navigator: null });
 		const cssSupports = useCssSupports("display", "grid", { window: null });
 		const initialCssSupports = useCssSupports("display: grid", {
 			initialValue: true,
@@ -483,6 +486,10 @@ describe("SSR safety", () => {
 		scrollLock.value = false;
 		expect(scrollLock.value).toBe(false);
 		scrollLock.stop();
+		expect(share.isSupported.value).toBe(false);
+		expect(share.canShare()).toBe(false);
+		await expect(share.share()).resolves.toBeUndefined();
+		share.stop();
 		expect(cssSupports.value).toBe(false);
 		expect(initialCssSupports.value).toBe(true);
 		expect(cssVar.value).toBe("red");
