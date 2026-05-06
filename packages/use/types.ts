@@ -1013,6 +1013,13 @@ export type UsePreferredReducedMotionReturn =
 		stop(): void;
 	};
 
+export type UsePreferredReducedTransparency = "reduce" | "no-preference";
+
+export type UsePreferredReducedTransparencyReturn =
+	Computed<UsePreferredReducedTransparency> & {
+		stop(): void;
+	};
+
 export type ColorModeSelection<T extends string = BasicColorMode> =
 	| T
 	| BasicColorMode
