@@ -522,6 +522,10 @@ import type {
 	UseShareNavigatorLike,
 	UseShareOptions,
 	UseShareReturn,
+	UseSortedCompareFn,
+	UseSortedOptions,
+	UseSortedReturn,
+	UseSortedSortFn,
 	UseStorageOptions,
 	UseToggleOptions,
 	UseWindowSizeOptions,
@@ -680,6 +684,7 @@ import {
 	useScrollLock,
 	useSessionStorage,
 	useShare,
+	useSorted,
 	useStorage,
 	useThrottleFn,
 	useTimeout,
@@ -2321,6 +2326,65 @@ describe("public types", () => {
 				// @ts-expect-error reducer accumulator type must match the initial value type
 				"start",
 			);
+		});
+	});
+
+	it("types sorted array values", () => {
+		typeOnly(() => {
+			interface Item {
+				age: number;
+				name: string;
+			}
+			const first = signal<Item>({ age: 40, name: "John" });
+			const second = computed<Item>(() => ({ age: 20, name: "Jane" }));
+			const third = signal<Item>({ age: 30, name: "Joe" });
+			const list = signal([first, second, () => third.value]);
+			const rawList: Item[] = [
+				{ age: 40, name: "John" },
+				{ age: 20, name: "Jane" },
+			];
+			const compare: UseSortedCompareFn<Item> = (value, otherValue) => {
+				expectTypeOf(value).toEqualTypeOf<Item>();
+				expectTypeOf(otherValue).toEqualTypeOf<Item>();
+				return value.age - otherValue.age;
+			};
+			const sortFn: UseSortedSortFn<Item> = (array, compareFn) => {
+				expectTypeOf(array).toEqualTypeOf<Item[]>();
+				expectTypeOf(compareFn).toEqualTypeOf<UseSortedCompareFn<Item>>();
+				return array.sort(compareFn);
+			};
+			const options: UseSortedOptions<Item> = {
+				compareFn: compare,
+				sortFn,
+			};
+			const result = useSorted(list, compare);
+			const optionsResult = useSorted(rawList, options);
+			const getterResult = useSorted(() => rawList, {
+				compareFn: compare,
+			});
+			const overloadResult = useSorted(rawList, compare, { sortFn });
+
+			expectTypeOf(result).toEqualTypeOf<UseSortedReturn<Item>>();
+			expectTypeOf(result).toEqualTypeOf<ReadonlySignal<Item[]>>();
+			expectTypeOf(optionsResult).toEqualTypeOf<UseSortedReturn<Item>>();
+			expectTypeOf(getterResult).toEqualTypeOf<UseSortedReturn<Item>>();
+			expectTypeOf(overloadResult.value).toEqualTypeOf<Item[]>();
+			// @ts-expect-error returned value is readonly
+			result.value = [];
+			// @ts-expect-error compare function must return a number
+			useSorted(signal([1]), () => true);
+			useSorted(signal([1]), {
+				// @ts-expect-error options compare function must return a number
+				compareFn: () => true,
+			});
+			useSorted(signal([1]), undefined, {
+				// @ts-expect-error sort function must return an array
+				sortFn: () => 1,
+			});
+			useSorted(signal([1]), {
+				// @ts-expect-error dirty mode is intentionally not part of the Sigrea API
+				dirty: true,
+			});
 		});
 	});
 
