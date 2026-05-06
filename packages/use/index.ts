@@ -120,6 +120,7 @@ export { useOffsetPagination } from "./useOffsetPagination";
 export { useOnline } from "./useOnline";
 export { usePageLeave } from "./usePageLeave";
 export { useParallax } from "./useParallax";
+export { usePerformanceObserver } from "./usePerformanceObserver";
 export { usePreferredDark } from "./usePreferredDark";
 export { usePrevious } from "./usePrevious";
 export { useRefHistory } from "./useRefHistory";
@@ -641,6 +642,10 @@ export type {
 	UseParallaxScreenOrientationLike,
 	UseParallaxSource,
 	UseParallaxWindowLike,
+	UsePerformanceObserverOptions,
+	UsePerformanceObserverObserveOptions,
+	UsePerformanceObserverReturn,
+	UsePerformanceObserverWindowLike,
 	UseRefHistoryOptions,
 	UseRefHistoryRecord,
 	UseRefHistoryReturn,
