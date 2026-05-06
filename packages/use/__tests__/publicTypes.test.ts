@@ -474,6 +474,8 @@ import type {
 	UsePointerType,
 	UsePreferredColorScheme,
 	UsePreferredColorSchemeReturn,
+	UsePreferredContrast,
+	UsePreferredContrastReturn,
 	UseRefHistoryRecord,
 	UseStorageOptions,
 	UseToggleOptions,
@@ -617,6 +619,7 @@ import {
 	usePointerLock,
 	usePointerSwipe,
 	usePreferredColorScheme,
+	usePreferredContrast,
 	usePreferredDark,
 	usePrevious,
 	useRefHistory,
@@ -4927,6 +4930,7 @@ describe("public types", () => {
 		} satisfies Breakpoints<"sm" | "md">;
 		const breakpoints = useBreakpoints(points, mediaOptions);
 		const preferredColorScheme = usePreferredColorScheme(mediaOptions);
+		const preferredContrast = usePreferredContrast(mediaOptions);
 		const preferredDark = usePreferredDark(mediaOptions);
 		const colorStorage = {
 			getItem: (_key: string) => null,
@@ -4981,6 +4985,9 @@ describe("public types", () => {
 			"light" | "dark" | "no-preference"
 		>();
 		expectTypeOf(preferredColorScheme.stop).toEqualTypeOf<() => void>();
+		expectTypeOf(preferredContrast).toEqualTypeOf<UsePreferredContrastReturn>();
+		expectTypeOf(preferredContrast.value).toEqualTypeOf<UsePreferredContrast>();
+		expectTypeOf(preferredContrast.stop).toEqualTypeOf<() => void>();
 		expectTypeOf(preferredDark.matches.value).toEqualTypeOf<boolean>();
 		expectTypeOf(colorMode).toEqualTypeOf<UseColorModeReturn<"sepia">>();
 		expectTypeOf(colorMode.mode).toEqualTypeOf<
