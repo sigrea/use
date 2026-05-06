@@ -507,6 +507,13 @@ import type {
 	UseScriptTagDocumentLike,
 	UseScriptTagOptions,
 	UseScriptTagReturn,
+	UseScrollArrivedState,
+	UseScrollDirection,
+	UseScrollDirections,
+	UseScrollDocumentLike,
+	UseScrollOptions,
+	UseScrollReturn,
+	UseScrollWindowLike,
 	UseStorageOptions,
 	UseToggleOptions,
 	UseWindowSizeOptions,
@@ -661,6 +668,7 @@ import {
 	useScreenOrientation,
 	useScreenSafeArea,
 	useScriptTag,
+	useScroll,
 	useSessionStorage,
 	useStorage,
 	useThrottleFn,
@@ -787,6 +795,15 @@ interface ImageWindow extends UseImageWindowLike {
 }
 
 interface InfiniteScrollWindow extends UseInfiniteScrollWindowLike {
+	readonly label: string;
+}
+
+interface ScrollDocument extends UseScrollDocumentLike {
+	readonly label: string;
+}
+
+interface ScrollWindow extends UseScrollWindowLike {
+	readonly document: ScrollDocument;
 	readonly label: string;
 }
 
@@ -7184,6 +7201,74 @@ describe("public types", () => {
 				useInfiniteScroll(element, () => {}, {
 					// @ts-expect-error direction must be one of the supported edges
 					direction: "middle",
+				});
+			});
+		});
+	});
+
+	it("types scroll controls", () => {
+		typeOnly(() => {
+			const element = document.createElement("div");
+			const scrollDocument = Object.assign(document, {
+				label: "document",
+			}) as ScrollDocument;
+			const scrollWindow = Object.assign(new EventTarget(), {
+				MutationObserver,
+				document: scrollDocument,
+				getComputedStyle: () => document.body.style,
+				label: "window",
+				scrollTo: (_options?: ScrollToOptions) => {},
+			}) as ScrollWindow;
+			const direction: UseScrollDirection = "bottom";
+			const options: UseScrollOptions<HTMLElement, ScrollWindow> = {
+				behavior: computed(() => "smooth" as ScrollBehavior),
+				eventListenerOptions: { passive: true },
+				idle: 200,
+				offset: { [direction]: 16 },
+				onError: (error) => {
+					expectTypeOf(error).toEqualTypeOf<unknown>();
+				},
+				onScroll: (event) => {
+					expectTypeOf(event).toEqualTypeOf<Event>();
+				},
+				onStop: (event) => {
+					expectTypeOf(event).toEqualTypeOf<Event>();
+				},
+				observe: { mutation: true },
+				throttle: 50,
+				window: signal(scrollWindow),
+			};
+			const scroll = useScroll(element, options);
+			const documentScroll = useScroll(scrollDocument, {
+				window: scrollWindow,
+			});
+			const arrived: UseScrollArrivedState = scroll.arrivedState.value;
+			const directions: UseScrollDirections = scroll.directions.value;
+			const scrollReturn: UseScrollReturn = scroll;
+
+			expectTypeOf(scroll).toEqualTypeOf<UseScrollReturn>();
+			expectTypeOf(scrollReturn.x).toEqualTypeOf<Computed<number>>();
+			expectTypeOf(scroll.y).toEqualTypeOf<Computed<number>>();
+			expectTypeOf(scroll.isScrolling).toEqualTypeOf<ReadonlySignal<boolean>>();
+			expectTypeOf(arrived.bottom).toEqualTypeOf<boolean>();
+			expectTypeOf(directions.top).toEqualTypeOf<boolean>();
+			expectTypeOf(scroll.measure()).toEqualTypeOf<void>();
+			expectTypeOf(scroll.scrollTo()).toEqualTypeOf<void>();
+			expectTypeOf(scroll.scrollTo({ left: 1, top: 2 })).toEqualTypeOf<void>();
+			expectTypeOf(scroll.stop()).toEqualTypeOf<void>();
+			expectTypeOf(documentScroll).toEqualTypeOf<UseScrollReturn>();
+			typeOnly(() => {
+				scroll.x.value = 10;
+				scroll.y.value = 20;
+				// @ts-expect-error isScrolling is readonly
+				scroll.isScrolling.value = true;
+				useScroll(element, {
+					// @ts-expect-error behavior must be a scroll behavior
+					behavior: "slow",
+				});
+				useScroll(element, {
+					// @ts-expect-error offset keys must be scroll edges
+					offset: { middle: 16 },
 				});
 			});
 		});
