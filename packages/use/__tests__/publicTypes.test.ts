@@ -406,6 +406,10 @@ import type {
 	UseMouseInElementReturn,
 	UseMouseInElementWindowLike,
 	UseMouseOptions,
+	UseMousePressedOptions,
+	UseMousePressedReturn,
+	UseMousePressedSourceEvent,
+	UseMousePressedWindowLike,
 	UseOnlineOptions,
 	UseRefHistoryRecord,
 	UseStorageOptions,
@@ -533,6 +537,7 @@ import {
 	useMounted,
 	useMouse,
 	useMouseInElement,
+	useMousePressed,
 	useOnline,
 	usePreferredDark,
 	usePrevious,
@@ -573,6 +578,10 @@ interface MouseWindow extends EventTarget {
 }
 
 interface MouseInElementWindow extends UseMouseInElementWindowLike {
+	readonly label: string;
+}
+
+interface MousePressedWindow extends UseMousePressedWindowLike {
 	readonly label: string;
 }
 
@@ -5657,6 +5666,50 @@ describe("public types", () => {
 				useMouseInElement(document.createElement("div"), {
 					// @ts-expect-error windowScroll must be boolean
 					windowScroll: "true",
+				});
+			});
+		});
+	});
+
+	it("types mouse pressed values and options", () => {
+		typeOnly(() => {
+			const mouseWindow = new EventTarget() as MousePressedWindow;
+			const target = signal<EventTarget | null>(new EventTarget());
+			const options: UseMousePressedOptions<MousePressedWindow> = {
+				capture: true,
+				drag: false,
+				initialValue: true,
+				onPressed(event) {
+					expectTypeOf(event).toEqualTypeOf<UseMousePressedSourceEvent>();
+				},
+				onReleased(event) {
+					expectTypeOf(event).toEqualTypeOf<UseMousePressedSourceEvent>();
+				},
+				target,
+				touch: false,
+				window: signal(mouseWindow),
+			};
+			const state = useMousePressed(options);
+			const stateReturn: UseMousePressedReturn = state;
+
+			expectTypeOf(state).toEqualTypeOf<UseMousePressedReturn>();
+			expectTypeOf(stateReturn.pressed).toEqualTypeOf<
+				ReadonlySignal<boolean>
+			>();
+			expectTypeOf(state.sourceType).toEqualTypeOf<
+				ReadonlySignal<"mouse" | "touch" | null>
+			>();
+			expectTypeOf(state.stop()).toEqualTypeOf<void>();
+			typeOnly(() => {
+				// @ts-expect-error returned values are readonly signals
+				state.pressed.value = true;
+				useMousePressed({
+					// @ts-expect-error touch must be boolean
+					touch: "false",
+				});
+				useMousePressed({
+					// @ts-expect-error target must be an event target
+					target: "button",
 				});
 			});
 		});
