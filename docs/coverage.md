@@ -130,7 +130,7 @@ Status values:
 | `useGamepad` | `useGamepad` | Done |
 | `useGeolocation` | `useGeolocation` | Done |
 | `useIdle` | `useIdle` | Done |
-| `useImage` | `-` | Todo |
+| `useImage` | `useImage` | Done |
 | `useInfiniteScroll` | `-` | Todo |
 | `useIntersectionObserver` | `-` | Todo |
 | `useInterval` | `useInterval` | Done |
