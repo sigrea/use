@@ -162,7 +162,7 @@ Status values:
 | `usePermission` | `usePermission` | Done |
 | `usePointer` | `usePointer` | Done |
 | `usePointerLock` | `usePointerLock` | Done |
-| `usePointerSwipe` | `-` | Todo |
+| `usePointerSwipe` | `usePointerSwipe` | Done |
 | `usePreferredColorScheme` | `-` | Todo |
 | `usePreferredContrast` | `-` | Todo |
 | `usePreferredDark` | `usePreferredDark` | Done |
