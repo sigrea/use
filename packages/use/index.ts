@@ -122,6 +122,7 @@ export { usePageLeave } from "./usePageLeave";
 export { useParallax } from "./useParallax";
 export { usePerformanceObserver } from "./usePerformanceObserver";
 export { usePermission } from "./usePermission";
+export { usePointer } from "./usePointer";
 export { usePreferredDark } from "./usePreferredDark";
 export { usePrevious } from "./usePrevious";
 export { useRefHistory } from "./useRefHistory";
@@ -655,6 +656,10 @@ export type {
 	UsePermissionReturn,
 	UsePermissionSource,
 	UsePermissionStatusLike,
+	UsePointerOptions,
+	UsePointerReturn,
+	UsePointerState,
+	UsePointerType,
 	UseRefHistoryOptions,
 	UseRefHistoryRecord,
 	UseRefHistoryReturn,

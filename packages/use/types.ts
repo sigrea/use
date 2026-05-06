@@ -3360,6 +3360,44 @@ export interface UsePermissionReturn<
 	stop(): void;
 }
 
+export type UsePointerType = "mouse" | "pen" | "touch" | (string & {});
+
+export interface UsePointerState extends Position {
+	height: number;
+	pointerId: number;
+	pointerType: UsePointerType | null;
+	pressure: number;
+	tiltX: number;
+	tiltY: number;
+	twist: number;
+	width: number;
+}
+
+export interface UsePointerOptions<
+	TWindow extends WindowLike = WindowLike,
+	TTarget extends EventTarget = EventTarget,
+> {
+	initialValue?: MaybeValue<Partial<UsePointerState>>;
+	pointerTypes?: MaybeValue<readonly UsePointerType[]>;
+	target?: MaybeTarget<TTarget | null | undefined>;
+	window?: MaybeTarget<TWindow | null | undefined>;
+}
+
+export interface UsePointerReturn {
+	readonly x: ReadonlySignal<number>;
+	readonly y: ReadonlySignal<number>;
+	readonly height: ReadonlySignal<number>;
+	readonly isInside: ReadonlySignal<boolean>;
+	readonly pointerId: ReadonlySignal<number>;
+	readonly pointerType: ReadonlySignal<UsePointerType | null>;
+	readonly pressure: ReadonlySignal<number>;
+	readonly tiltX: ReadonlySignal<number>;
+	readonly tiltY: ReadonlySignal<number>;
+	readonly twist: ReadonlySignal<number>;
+	readonly width: ReadonlySignal<number>;
+	stop(): void;
+}
+
 export type UseMousePressedSourceEvent = MouseEvent | TouchEvent | DragEvent;
 
 export interface UseMousePressedWindowLike extends WindowLike {}
