@@ -148,6 +148,7 @@ export { useSpeechSynthesis } from "./useSpeechSynthesis";
 export { useStepper } from "./useStepper";
 export { useStyleTag } from "./useStyleTag";
 export { useSupported } from "./useSupported";
+export { useSwipe } from "./useSwipe";
 export {
 	customStorageEventName,
 	StorageSerializers,
@@ -793,6 +794,10 @@ export type {
 	UseStyleTagOptions,
 	UseStyleTagReturn,
 	UseSupportedReturn,
+	UseSwipeDirection,
+	UseSwipeOptions,
+	UseSwipeReturn,
+	UseSwipeWindowLike,
 	UseStorageAsyncOptions,
 	UseStorageAsyncReturn,
 	UseStorageOptions,
