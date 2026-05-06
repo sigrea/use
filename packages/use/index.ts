@@ -92,6 +92,7 @@ export { useFps } from "./useFps";
 export { useFullscreen } from "./useFullscreen";
 export { useGamepad } from "./useGamepad";
 export { useGeolocation } from "./useGeolocation";
+export { useIdle } from "./useIdle";
 export { useInterval } from "./useInterval";
 export { useIntervalFn } from "./useIntervalFn";
 export { useLocalStorage } from "./useLocalStorage";
@@ -513,6 +514,11 @@ export type {
 	UseGeolocationOptions,
 	UseGeolocationPositionLike,
 	UseGeolocationReturn,
+	UseIdleDocumentLike,
+	UseIdleEventName,
+	UseIdleOptions,
+	UseIdleReturn,
+	UseIdleWindowLike,
 	UseIntervalControlsReturn,
 	UseIntervalFnOptions,
 	UseIntervalFnReturn,
