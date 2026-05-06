@@ -554,6 +554,13 @@ import type {
 	UseSpeechSynthesisReturn,
 	UseSpeechSynthesisWindowLike,
 	UseSpeechSynthesisWindowOptions,
+	UseStepperArrayStep,
+	UseStepperObjectStepName,
+	UseStepperObjectStepValue,
+	UseStepperObjectSteps,
+	UseStepperResolvedObject,
+	UseStepperResolvedStep,
+	UseStepperReturn,
 	UseStorageOptions,
 	UseToggleOptions,
 	UseWindowSizeOptions,
@@ -715,6 +722,7 @@ import {
 	useSorted,
 	useSpeechRecognition,
 	useSpeechSynthesis,
+	useStepper,
 	useStorage,
 	useThrottleFn,
 	useTimeout,
@@ -2463,6 +2471,154 @@ describe("public types", () => {
 			useCycleList(list, { fallbackIndex: "0" });
 			// @ts-expect-error getIndexOf must return a number
 			useCycleList(list, { getIndexOf: () => "0" });
+		});
+	});
+
+	it("types stepper values", () => {
+		typeOnly(() => {
+			const arraySteps = useStepper(["first", "second"] as const, "second");
+			const numberSteps = useStepper([1, 2, 3] as const, 2);
+			const title = signal("First");
+			const objectSteps = useStepper(
+				{
+					first: title,
+					second: computed(() => ({ label: "Second" })),
+				},
+				"first",
+			);
+			const arrayReturn: UseStepperReturn<
+				"first" | "second",
+				("first" | "second")[],
+				"first" | "second"
+			> = arraySteps;
+			const objectReturn: UseStepperReturn<
+				"first" | "second",
+				{
+					first: string;
+					second: {
+						label: string;
+					};
+				},
+				| string
+				| {
+						label: string;
+				  }
+			> = objectSteps;
+			const objectSource: UseStepperObjectSteps = {
+				first: signal("First"),
+			};
+			const symbolStep = Symbol("step");
+			const objectWithSymbol = useStepper({
+				first: "First",
+				[symbolStep]: signal("Symbol"),
+			});
+			const objectWithNumberKey = useStepper(
+				{
+					1: "One",
+					second: "Second",
+				} as const,
+				"1",
+			);
+			const resolvedStep: UseStepperResolvedStep<typeof title> = "First";
+			const resolvedObject: UseStepperResolvedObject<typeof objectSource> = {
+				first: "First",
+			};
+
+			expectTypeOf(arraySteps.steps).toEqualTypeOf<
+				ReadonlySignal<("first" | "second")[]>
+			>();
+			expectTypeOf(arraySteps.stepNames).toEqualTypeOf<
+				ReadonlySignal<("first" | "second")[]>
+			>();
+			expectTypeOf(arraySteps.index).toEqualTypeOf<Computed<number>>();
+			expectTypeOf(arraySteps.current).toEqualTypeOf<
+				ReadonlySignal<"first" | "second" | undefined>
+			>();
+			expectTypeOf(arraySteps.next).toEqualTypeOf<
+				ReadonlySignal<"first" | "second" | undefined>
+			>();
+			expectTypeOf(arraySteps.at(0)).toEqualTypeOf<
+				"first" | "second" | undefined
+			>();
+			expectTypeOf(arraySteps.get("first")).toEqualTypeOf<
+				"first" | "second" | undefined
+			>();
+			expectTypeOf(arraySteps.goTo("first")).toEqualTypeOf<void>();
+			expectTypeOf(arraySteps.goToNext()).toEqualTypeOf<void>();
+			expectTypeOf(arraySteps.goToPrevious()).toEqualTypeOf<void>();
+			expectTypeOf(arraySteps.goBackTo("first")).toEqualTypeOf<void>();
+			expectTypeOf(arraySteps.isCurrent("first")).toEqualTypeOf<boolean>();
+			expectTypeOf(arraySteps.isBefore("first")).toEqualTypeOf<boolean>();
+			expectTypeOf(arraySteps.isAfter("first")).toEqualTypeOf<boolean>();
+			expectTypeOf(numberSteps.current).toEqualTypeOf<
+				ReadonlySignal<1 | 2 | 3 | undefined>
+			>();
+			expectTypeOf(objectSteps.steps).toEqualTypeOf<
+				ReadonlySignal<{
+					first: string;
+					second: {
+						label: string;
+					};
+				}>
+			>();
+			expectTypeOf(objectSteps.stepNames).toEqualTypeOf<
+				ReadonlySignal<("first" | "second")[]>
+			>();
+			expectTypeOf(objectSteps.current).toEqualTypeOf<
+				ReadonlySignal<
+					| string
+					| {
+							label: string;
+					  }
+					| undefined
+				>
+			>();
+
+			arraySteps.index.value = 0;
+			arrayReturn.goTo("first");
+			objectReturn.goTo("second");
+			expectTypeOf<UseStepperArrayStep>().toEqualTypeOf<string | number>();
+			expectTypeOf(resolvedStep).toEqualTypeOf<string>();
+			expectTypeOf(resolvedObject).toEqualTypeOf<
+				UseStepperResolvedObject<typeof objectSource>
+			>();
+			expectTypeOf(objectWithSymbol.steps.value).toEqualTypeOf<{
+				first: string;
+			}>();
+			expectTypeOf(objectWithNumberKey.stepNames).toEqualTypeOf<
+				ReadonlySignal<("1" | "second")[]>
+			>();
+			expectTypeOf(objectWithNumberKey.steps.value).toEqualTypeOf<{
+				1: "One";
+				second: "Second";
+			}>();
+			expectTypeOf(objectWithNumberKey.current).toEqualTypeOf<
+				ReadonlySignal<"One" | "Second" | undefined>
+			>();
+			expectTypeOf<
+				UseStepperObjectStepName<{ 1: "One"; second: "Second" }>
+			>().toEqualTypeOf<"1" | "second">();
+			expectTypeOf<
+				UseStepperObjectStepValue<{ 1: "One"; second: "Second" }, "1">
+			>().toEqualTypeOf<"One">();
+			// @ts-expect-error symbol keys are not part of Object.keys step output
+			objectWithSymbol.steps.value[symbolStep];
+			// @ts-expect-error array steps must resolve to string or number
+			useStepper([{ id: 1 }]);
+			// @ts-expect-error initial array step must match a step value
+			useStepper(["first", "second"] as const, "third");
+			// @ts-expect-error object initial step must match a string key
+			useStepper({ first: "First" }, "second");
+			// @ts-expect-error object step names are string keys
+			useStepper({ first: "First" }).goTo(1);
+			// @ts-expect-error number keys are exposed as Object.keys strings
+			objectWithNumberKey.goTo(1);
+			// @ts-expect-error step name must match array values
+			arraySteps.goTo("third");
+			// @ts-expect-error steps is readonly
+			arraySteps.steps.value = ["first"];
+			// @ts-expect-error current is readonly
+			arraySteps.current.value = "first";
 		});
 	});
 
