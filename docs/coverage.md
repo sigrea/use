@@ -177,7 +177,7 @@ Status values:
 | `useScreenOrientation` | `useScreenOrientation` | Done |
 | `useScreenSafeArea` | `useScreenSafeArea` | Done |
 | `useScriptTag` | `useScriptTag` | Done |
-| `useScroll` | `-` | Todo |
+| `useScroll` | `useScroll` | Done |
 | `useScrollLock` | `-` | Todo |
 | `useSessionStorage` | `useSessionStorage` | Done |
 | `useShare` | `-` | Todo |
