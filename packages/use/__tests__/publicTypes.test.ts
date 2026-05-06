@@ -373,6 +373,11 @@ import type {
 	UseIntersectionObserverReturn,
 	UseIntersectionObserverTarget,
 	UseIntersectionObserverWindowLike,
+	UseKeyModifier,
+	UseKeyModifierDocumentLike,
+	UseKeyModifierEventName,
+	UseKeyModifierOptions,
+	UseKeyModifierReturn,
 	UseMediaQueryOptions,
 	UseMouseOptions,
 	UseOnlineOptions,
@@ -489,6 +494,7 @@ import {
 	useIntersectionObserver,
 	useInterval,
 	useIntervalFn,
+	useKeyModifier,
 	useLocalStorage,
 	useManualRefHistory,
 	useMediaQuery,
@@ -586,6 +592,10 @@ interface InfiniteScrollWindow extends UseInfiniteScrollWindowLike {
 }
 
 interface IntersectionObserverWindow extends UseIntersectionObserverWindowLike {
+	readonly label: string;
+}
+
+interface KeyModifierDocument extends UseKeyModifierDocumentLike {
 	readonly label: string;
 }
 
@@ -4115,6 +4125,46 @@ describe("public types", () => {
 			expectTypeOf(stopUp).toEqualTypeOf<OnKeyStrokeReturn>();
 			// @ts-expect-error keyboard stroke event names are limited
 			onKeyStroke("Enter", handler, { eventName: "click" });
+		});
+	});
+
+	it("types key modifier state", () => {
+		typeOnly(() => {
+			const documentTarget = Object.assign(new EventTarget(), {
+				label: "document",
+			}) as KeyModifierDocument;
+			const modifier: UseKeyModifier = "CapsLock";
+			const eventName: UseKeyModifierEventName = "keydown";
+			const options: UseKeyModifierOptions<false, KeyModifierDocument> = {
+				document: signal(documentTarget),
+				events: [eventName, "keyup"],
+				initial: false,
+			};
+			const nullableModifier = useKeyModifier(modifier, {
+				document: signal(documentTarget),
+			});
+			const booleanModifier = useKeyModifier("Shift", options);
+			const nullableReturn: UseKeyModifierReturn = nullableModifier;
+			const booleanReturn: UseKeyModifierReturn<false> = booleanModifier;
+
+			expectTypeOf(nullableReturn.value).toEqualTypeOf<boolean | null>();
+			expectTypeOf(booleanReturn.value).toEqualTypeOf<boolean>();
+			expectTypeOf(nullableModifier.stop()).toEqualTypeOf<void>();
+			expectTypeOf(booleanModifier.stop()).toEqualTypeOf<void>();
+			typeOnly(() => {
+				// @ts-expect-error modifier is readonly
+				nullableModifier.value = true;
+				// @ts-expect-error modifier names are limited
+				useKeyModifier("Hyper");
+				useKeyModifier("Shift", {
+					// @ts-expect-error event names must be document event names
+					events: ["unknown-event"],
+				});
+				useKeyModifier("Shift", {
+					// @ts-expect-error initial must be boolean or null
+					initial: "false",
+				});
+			});
 		});
 	});
 
