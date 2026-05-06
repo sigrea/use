@@ -14,6 +14,8 @@ import type {
 	AfterFetchContext,
 	Arrayable,
 	AsyncComputedOptions,
+	AsyncStorageLike,
+	AsyncStorageSerializer,
 	BasicColorMode,
 	BatteryManagerLike,
 	BatteryNavigatorLike,
@@ -561,6 +563,8 @@ import type {
 	UseStepperResolvedObject,
 	UseStepperResolvedStep,
 	UseStepperReturn,
+	UseStorageAsyncOptions,
+	UseStorageAsyncReturn,
 	UseStorageOptions,
 	UseToggleOptions,
 	UseWindowSizeOptions,
@@ -724,6 +728,7 @@ import {
 	useSpeechSynthesis,
 	useStepper,
 	useStorage,
+	useStorageAsync,
 	useThrottleFn,
 	useTimeout,
 	useTimeoutFn,
@@ -8330,12 +8335,17 @@ describe("public types", () => {
 	it("returns removable writable storage signals", () => {
 		typeOnly(() => {
 			const storage = useStorage("key", 1);
+			const asyncStorage = useStorageAsync("key", 1);
 
 			storage.value = 2;
 			storage.value = null;
 			storage.remove();
+			asyncStorage.value = 2;
+			asyncStorage.value = null;
+			asyncStorage.remove();
 
 			expectTypeOf(storage).toEqualTypeOf<RemovableSignal<number | null>>();
+			expectTypeOf(asyncStorage).toEqualTypeOf<UseStorageAsyncReturn<number>>();
 		});
 	});
 
@@ -8377,16 +8387,51 @@ describe("public types", () => {
 					return JSON.stringify(value);
 				},
 			};
+			const asyncObjectSerializer: AsyncStorageSerializer<{ count: number }> =
+				objectSerializer;
 			const stored = useStorage<{ count: number }>("key", null, undefined, {
 				serializer: objectSerializer,
 			});
+			const asyncStored = useStorageAsync<{ count: number }>(
+				"key",
+				null,
+				undefined,
+				{
+					serializer: asyncObjectSerializer,
+				},
+			);
 
 			stored.value = { count: 1 };
 			stored.value = null;
+			asyncStored.value = { count: 1 };
+			asyncStored.value = null;
 
 			expectTypeOf(stored).toEqualTypeOf<
 				RemovableSignal<{ count: number } | null>
 			>();
+			expectTypeOf(asyncStored).toEqualTypeOf<
+				UseStorageAsyncReturn<{ count: number }>
+			>();
+		});
+	});
+
+	it("accepts sync storage for async storage", () => {
+		typeOnly(() => {
+			const syncStorage = {
+				getItem: (_key: string) => null,
+				removeItem: (_key: string) => {},
+				setItem: (_key: string, _value: string) => {},
+			};
+			const asyncStorage: AsyncStorageLike = syncStorage;
+			const options: UseStorageAsyncOptions<string> = {
+				onReady(value) {
+					expectTypeOf(value).toEqualTypeOf<string | null>();
+				},
+			};
+
+			const stored = useStorageAsync("async", "value", asyncStorage, options);
+
+			expectTypeOf(stored).toEqualTypeOf<UseStorageAsyncReturn<string>>();
 		});
 	});
 

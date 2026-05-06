@@ -163,6 +163,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.useStepper).toBe("function");
 		expect(typeof mod.useSessionStorage).toBe("function");
 		expect(typeof mod.useStorage).toBe("function");
+		expect(typeof mod.useStorageAsync).toBe("function");
 		expect(typeof mod.useTimeout).toBe("function");
 		expect(typeof mod.useTimeoutFn).toBe("function");
 		expect(typeof mod.useToggle).toBe("function");
@@ -253,6 +254,7 @@ describe("SSR safety", () => {
 			onStartTyping,
 			useSessionStorage,
 			useStorage,
+			useStorageAsync,
 			useWindowSize,
 			useActiveElement,
 			useAnimate,
@@ -406,6 +408,14 @@ describe("SSR safety", () => {
 		const storageValue = useStorage("storage", "fallback", undefined, {
 			window: undefined,
 		});
+		const asyncStorageValue = useStorageAsync(
+			"async-storage",
+			"fallback",
+			undefined,
+			{
+				window: undefined,
+			},
+		);
 		const elementSize = useElementSize(null, { width: 10, height: 20 });
 		const size = useWindowSize();
 
@@ -601,6 +611,7 @@ describe("SSR safety", () => {
 		expect(sessionStorageValue.value).toBe("fallback");
 		expect(ssrMediaQuery.matches.value).toBe(true);
 		expect(storageValue.value).toBe("fallback");
+		expect(asyncStorageValue.value).toBe("fallback");
 		expect(elementSize.width.value).toBe(10);
 		expect(elementSize.height.value).toBe(20);
 		expect(size.width.value).toBe(0);
@@ -746,6 +757,7 @@ describe("SSR safety", () => {
 		sessionStorageValue.stop();
 		ssrMediaQuery.stop();
 		storageValue.stop();
+		asyncStorageValue.stop();
 		elementSize.stop();
 		size.stop();
 	});
