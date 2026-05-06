@@ -3133,6 +3133,25 @@ export interface UseMutationObserverReturn {
 	takeRecords(): MutationRecord[] | undefined;
 }
 
+export interface UseNavigatorLanguageNavigatorLike extends NavigatorLike {
+	readonly language?: string;
+}
+
+export interface UseNavigatorLanguageOptions<
+	TWindow extends WindowLike = WindowLike,
+	TNavigator extends
+		UseNavigatorLanguageNavigatorLike = UseNavigatorLanguageNavigatorLike,
+> {
+	window?: MaybeTarget<TWindow | null | undefined>;
+	navigator?: MaybeValue<TNavigator | null | undefined>;
+}
+
+export interface UseNavigatorLanguageReturn {
+	readonly isSupported: ReadonlySignal<boolean>;
+	readonly language: ReadonlySignal<string | undefined>;
+	stop(): void;
+}
+
 export type UseDraggableAxis = "x" | "y" | "both";
 export type UseDraggablePointerType = "mouse" | "pen" | "touch" | (string & {});
 export type UseDraggableElement = HTMLElement | SVGElement;
