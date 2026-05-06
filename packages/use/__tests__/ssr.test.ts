@@ -113,6 +113,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.useInfiniteScroll).toBe("function");
 		expect(typeof mod.useIntersectionObserver).toBe("function");
 		expect(typeof mod.useKeyModifier).toBe("function");
+		expect(typeof mod.useLastChanged).toBe("function");
 		expect(typeof mod.useInterval).toBe("function");
 		expect(typeof mod.useIntervalFn).toBe("function");
 		expect(typeof mod.useLocalStorage).toBe("function");
@@ -842,6 +843,18 @@ describe("SSR safety", () => {
 		source.value = 2;
 
 		expect(cached.value).toBe(2);
+	});
+
+	it("creates useLastChanged without a window", async () => {
+		const { signal } = await import("@sigrea/core");
+		const { useLastChanged } = await import("../../../index");
+		const source = signal(1);
+		const lastChanged = useLastChanged(source, {
+			initialValue: 123,
+		});
+
+		expect(globalThis.window).toBeUndefined();
+		expect(lastChanged.value).toBe(123);
 	});
 
 	it("creates useClipboard without a window", async () => {
