@@ -417,6 +417,12 @@ import type {
 	UseNavigatorLanguageNavigatorLike,
 	UseNavigatorLanguageOptions,
 	UseNavigatorLanguageReturn,
+	UseNetworkConnectionLike,
+	UseNetworkEffectiveType,
+	UseNetworkNavigatorLike,
+	UseNetworkOptions,
+	UseNetworkReturn,
+	UseNetworkType,
 	UseOnlineOptions,
 	UseRefHistoryRecord,
 	UseStorageOptions,
@@ -548,6 +554,7 @@ import {
 	useMousePressed,
 	useMutationObserver,
 	useNavigatorLanguage,
+	useNetwork,
 	useOnline,
 	usePreferredDark,
 	usePrevious,
@@ -601,6 +608,10 @@ interface MutationObserverWindow extends UseMutationObserverWindowLike {
 
 interface NavigatorLanguageWindow extends EventTarget, WindowLike {
 	readonly navigator?: UseNavigatorLanguageNavigatorLike;
+}
+
+interface NetworkWindow extends EventTarget, WindowLike {
+	readonly navigator?: UseNetworkNavigatorLike;
 }
 
 interface ResizeWindow extends EventTarget {
@@ -5813,6 +5824,61 @@ describe("public types", () => {
 				useNavigatorLanguage({
 					// @ts-expect-error navigator must be navigator-like
 					navigator: "en-US",
+				});
+			});
+		});
+	});
+
+	it("types network values and options", () => {
+		typeOnly(() => {
+			const connectionTarget: UseNetworkConnectionLike = Object.assign(
+				new EventTarget(),
+				{
+					downlink: 10,
+					effectiveType: "4g" as UseNetworkEffectiveType,
+					type: "wifi" as UseNetworkType,
+				},
+			);
+			const navigatorTarget: UseNetworkNavigatorLike = {
+				connection: connectionTarget,
+				onLine: true,
+			};
+			const networkWindow = new EventTarget() as NetworkWindow;
+			const options: UseNetworkOptions<NetworkWindow, UseNetworkNavigatorLike> =
+				{
+					navigator: signal(navigatorTarget),
+					window: signal(networkWindow),
+				};
+			const network = useNetwork(options);
+			const networkReturn: UseNetworkReturn = network;
+
+			expectTypeOf(network).toEqualTypeOf<UseNetworkReturn>();
+			expectTypeOf(networkReturn.isSupported).toEqualTypeOf<
+				ReadonlySignal<boolean>
+			>();
+			expectTypeOf(network.isOnline).toEqualTypeOf<ReadonlySignal<boolean>>();
+			expectTypeOf(network.offlineAt).toEqualTypeOf<
+				ReadonlySignal<number | undefined>
+			>();
+			expectTypeOf(network.downlink).toEqualTypeOf<
+				ReadonlySignal<number | undefined>
+			>();
+			expectTypeOf(network.effectiveType).toEqualTypeOf<
+				ReadonlySignal<UseNetworkEffectiveType | undefined>
+			>();
+			expectTypeOf(network.saveData).toEqualTypeOf<
+				ReadonlySignal<boolean | undefined>
+			>();
+			expectTypeOf(network.type).toEqualTypeOf<
+				ReadonlySignal<UseNetworkType>
+			>();
+			expectTypeOf(network.stop()).toEqualTypeOf<void>();
+			typeOnly(() => {
+				// @ts-expect-error returned values are readonly signals
+				network.type.value = "cellular";
+				useNetwork({
+					// @ts-expect-error navigator must be network navigator-like
+					navigator: "online",
 				});
 			});
 		});
