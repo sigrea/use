@@ -174,7 +174,7 @@ Status values:
 | `useRefHistory` | `useRefHistory` | Done |
 | `useResizeObserver` | `useResizeObserver` | Done |
 | `useSSRWidth` | `-` | Out of scope |
-| `useScreenOrientation` | `-` | Todo |
+| `useScreenOrientation` | `useScreenOrientation` | Done |
 | `useScreenSafeArea` | `-` | Todo |
 | `useScriptTag` | `-` | Todo |
 | `useScroll` | `-` | Todo |
