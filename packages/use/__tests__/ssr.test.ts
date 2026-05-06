@@ -108,6 +108,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.useFullscreen).toBe("function");
 		expect(typeof mod.useGamepad).toBe("function");
 		expect(typeof mod.useGeolocation).toBe("function");
+		expect(typeof mod.useIdle).toBe("function");
 		expect(typeof mod.useInterval).toBe("function");
 		expect(typeof mod.useIntervalFn).toBe("function");
 		expect(typeof mod.useLocalStorage).toBe("function");
@@ -159,6 +160,7 @@ describe("SSR safety", () => {
 			useFullscreen,
 			useGamepad,
 			useGeolocation,
+			useIdle,
 			useMouse,
 			useOnline,
 			usePreferredDark,
@@ -254,6 +256,7 @@ describe("SSR safety", () => {
 		const fullscreen = useFullscreen(undefined, { document: null });
 		const gamepad = useGamepad({ navigator: null, window: null });
 		const geolocation = useGeolocation({ navigator: null });
+		const idle = useIdle(1000, { window: null });
 		const fetchValue = useFetch("https://example.com", {
 			fetch: async () => new Response("ok"),
 			immediate: false,
@@ -343,6 +346,9 @@ describe("SSR safety", () => {
 		expect(geolocation.coords.value).toBeNull();
 		expect(geolocation.locatedAt.value).toBeNull();
 		expect(geolocation.error.value).toBeNull();
+		expect(idle.idle.value).toBe(false);
+		expect(idle.isPending.value).toBe(false);
+		expect(typeof idle.lastActive.value).toBe("number");
 		expect(fetchValue.data.value).toBeNull();
 		expect(sessionStorageValue.value).toBe("fallback");
 		expect(ssrMediaQuery.matches.value).toBe(true);
@@ -425,6 +431,9 @@ describe("SSR safety", () => {
 		geolocation.resume();
 		geolocation.pause();
 		geolocation.stop();
+		idle.start();
+		idle.reset();
+		idle.stop();
 		expect(await fetchValue.execute()).toBeInstanceOf(Response);
 		expect(fetchValue.data.value).toBe("ok");
 		expect(fetchValue.statusCode.value).toBe(200);
