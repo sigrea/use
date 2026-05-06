@@ -181,7 +181,7 @@ Status values:
 | `useScrollLock` | `useScrollLock` | Done |
 | `useSessionStorage` | `useSessionStorage` | Done |
 | `useShare` | `useShare` | Done |
-| `useSorted` | `-` | Todo |
+| `useSorted` | `useSorted` | Done |
 | `useSpeechRecognition` | `-` | Todo |
 | `useSpeechSynthesis` | `-` | Todo |
 | `useStepper` | `-` | Todo |
