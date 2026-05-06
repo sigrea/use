@@ -458,6 +458,10 @@ import type {
 	UsePermissionReturn,
 	UsePermissionSource,
 	UsePermissionStatusLike,
+	UsePointerOptions,
+	UsePointerReturn,
+	UsePointerState,
+	UsePointerType,
 	UseRefHistoryRecord,
 	UseStorageOptions,
 	UseToggleOptions,
@@ -597,6 +601,7 @@ import {
 	useParallax,
 	usePerformanceObserver,
 	usePermission,
+	usePointer,
 	usePreferredDark,
 	usePrevious,
 	useRefHistory,
@@ -5514,6 +5519,21 @@ describe("public types", () => {
 			};
 		const permission = usePermission(permissionDescriptor, permissionOptions);
 		const permissionReturn: UsePermissionReturn = permission;
+		const pointerTarget = new EventTarget();
+		const pointerType: UsePointerType = "pen";
+		const pointerInitialState: Partial<UsePointerState> = {
+			x: 1,
+			y: 2,
+			pointerType,
+		};
+		const pointerOptions: UsePointerOptions<Window, typeof pointerTarget> = {
+			initialValue: signal(pointerInitialState),
+			pointerTypes: signal([pointerType] as const),
+			target: pointerTarget,
+			window,
+		};
+		const pointer = usePointer(pointerOptions);
+		const pointerReturn: UsePointerReturn = pointer;
 
 		expectTypeOf(online.isOnline.value).toEqualTypeOf<boolean>();
 		expectTypeOf(pageLeave).toEqualTypeOf<UsePageLeaveReturn>();
@@ -5554,6 +5574,21 @@ describe("public types", () => {
 		>();
 		expectTypeOf(permission.stop()).toEqualTypeOf<void>();
 		usePermission(permissionSource, permissionOptions);
+		expectTypeOf(pointer).toEqualTypeOf<UsePointerReturn>();
+		expectTypeOf(pointerReturn.x.value).toEqualTypeOf<number>();
+		expectTypeOf(pointer.y.value).toEqualTypeOf<number>();
+		expectTypeOf(pointer.height.value).toEqualTypeOf<number>();
+		expectTypeOf(pointer.isInside.value).toEqualTypeOf<boolean>();
+		expectTypeOf(pointer.pointerId.value).toEqualTypeOf<number>();
+		expectTypeOf(
+			pointer.pointerType.value,
+		).toEqualTypeOf<UsePointerType | null>();
+		expectTypeOf(pointer.pressure.value).toEqualTypeOf<number>();
+		expectTypeOf(pointer.tiltX.value).toEqualTypeOf<number>();
+		expectTypeOf(pointer.tiltY.value).toEqualTypeOf<number>();
+		expectTypeOf(pointer.twist.value).toEqualTypeOf<number>();
+		expectTypeOf(pointer.width.value).toEqualTypeOf<number>();
+		expectTypeOf(pointer.stop()).toEqualTypeOf<void>();
 		typeOnly(() => {
 			usePerformanceObserver(
 				// @ts-expect-error entryTypes cannot be used with type
@@ -5588,6 +5623,10 @@ describe("public types", () => {
 				// @ts-expect-error navigator must be navigator-like or nullish
 				navigator: "navigator",
 			});
+			usePointer({
+				// @ts-expect-error pointerTypes must be an array
+				pointerTypes: "mouse",
+			});
 		});
 
 		breakpoints.stop();
@@ -5606,6 +5645,7 @@ describe("public types", () => {
 		parallax.stop();
 		performance.stop();
 		permission.stop();
+		pointer.stop();
 	});
 
 	it("forwards timeout start arguments", () => {
