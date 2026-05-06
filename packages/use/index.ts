@@ -105,6 +105,7 @@ export { useIntervalFn } from "./useIntervalFn";
 export { useLocalStorage } from "./useLocalStorage";
 export { useManualRefHistory } from "./useManualRefHistory";
 export { useMediaQuery } from "./useMediaQuery";
+export { useMemoize } from "./useMemoize";
 export { useMouse } from "./useMouse";
 export { useOnline } from "./useOnline";
 export { usePreferredDark } from "./usePreferredDark";
@@ -559,6 +560,10 @@ export type {
 	UseMediaControlsSource,
 	UseMediaControlsTextTrack,
 	UseMediaControlsTextTrackSource,
+	UseMemoizeCache,
+	UseMemoizeCacheKey,
+	UseMemoizeOptions,
+	UseMemoizeReturn,
 	UseIntervalControlsReturn,
 	UseIntervalFnOptions,
 	UseIntervalFnReturn,
