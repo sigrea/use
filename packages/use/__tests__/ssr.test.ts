@@ -151,6 +151,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.useRafFn).toBe("function");
 		expect(typeof mod.useRefHistory).toBe("function");
 		expect(typeof mod.useResizeObserver).toBe("function");
+		expect(typeof mod.useScreenOrientation).toBe("function");
 		expect(typeof mod.useSessionStorage).toBe("function");
 		expect(typeof mod.useStorage).toBe("function");
 		expect(typeof mod.useTimeout).toBe("function");
@@ -224,6 +225,7 @@ describe("SSR safety", () => {
 			usePreferredReducedTransparency,
 			useRafFn,
 			useResizeObserver,
+			useScreenOrientation,
 			onElementRemoval,
 			onKeyDown,
 			onKeyPressed,
@@ -303,6 +305,7 @@ describe("SSR safety", () => {
 		const resizeObserver = useResizeObserver(null, () => {}, {
 			window: null,
 		});
+		const screenOrientation = useScreenOrientation({ window: null });
 		const cssSupports = useCssSupports("display", "grid", { window: null });
 		const initialCssSupports = useCssSupports("display: grid", {
 			initialValue: true,
@@ -443,6 +446,9 @@ describe("SSR safety", () => {
 		expect(preferredReducedTransparency.value).toBe("no-preference");
 		expect(raf.isActive.value).toBe(false);
 		expect(resizeObserver.isSupported.value).toBe(false);
+		expect(screenOrientation.isSupported.value).toBe(false);
+		expect(screenOrientation.orientation.value).toBeUndefined();
+		expect(screenOrientation.angle.value).toBe(0);
 		expect(cssSupports.value).toBe(false);
 		expect(initialCssSupports.value).toBe(true);
 		expect(cssVar.value).toBe("red");
@@ -582,6 +588,11 @@ describe("SSR safety", () => {
 		raf.resume();
 		raf.pause();
 		resizeObserver.stop();
+		await expect(
+			screenOrientation.lockOrientation("portrait-primary"),
+		).rejects.toThrow("Screen Orientation API is not supported");
+		screenOrientation.unlockOrientation();
+		screenOrientation.stop();
 		cssVar.value = "blue";
 		expect(cssVar.value).toBe("blue");
 		cssVar.stop();

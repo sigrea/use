@@ -115,6 +115,8 @@ import type {
 	OnStartTypingOptions,
 	OnStartTypingReturn,
 	OnlineNavigatorLike,
+	OrientationLockType,
+	OrientationType,
 	Position,
 	ReactifyNested,
 	ReactifyObjectOptions,
@@ -492,6 +494,10 @@ import type {
 	UseResizeObserverOptions,
 	UseResizeObserverReturn,
 	UseResizeObserverTarget,
+	UseScreenOrientationOptions,
+	UseScreenOrientationReturn,
+	UseScreenOrientationScreenOrientationLike,
+	UseScreenOrientationWindowLike,
 	UseStorageOptions,
 	UseToggleOptions,
 	UseWindowSizeOptions,
@@ -643,6 +649,7 @@ import {
 	useRafFn,
 	useRefHistory,
 	useResizeObserver,
+	useScreenOrientation,
 	useSessionStorage,
 	useStorage,
 	useThrottleFn,
@@ -5534,6 +5541,32 @@ describe("public types", () => {
 		};
 		const pageLeave = usePageLeave(pageLeaveOptions);
 		const pageLeaveReturn: UsePageLeaveReturn = pageLeave;
+		const orientationType: OrientationType = "portrait-primary";
+		const orientationLockType: OrientationLockType = "landscape";
+		const screenOrientationApi = Object.assign(new EventTarget(), {
+			angle: 0,
+			lock: async (type: OrientationLockType) => {
+				expectTypeOf(type).toEqualTypeOf<OrientationLockType>();
+			},
+			type: orientationType,
+			unlock: () => {},
+		}) as UseScreenOrientationScreenOrientationLike;
+		const screenOrientationWindow = Object.assign(new EventTarget(), {
+			screen: {
+				orientation: screenOrientationApi,
+			},
+		}) as UseScreenOrientationWindowLike;
+		const screenOrientationOptions: UseScreenOrientationOptions<
+			typeof screenOrientationWindow
+		> = {
+			window: signal(screenOrientationWindow),
+		};
+		const screenOrientationResult = useScreenOrientation(
+			screenOrientationOptions,
+		);
+		const screenOrientationFallback = useScreenOrientation({ window: null });
+		const screenOrientationReturn: UseScreenOrientationReturn =
+			screenOrientationResult;
 		const parallaxWindow = onlineWindow as Window & UseParallaxWindowLike;
 		const parallaxAdjust: UseParallaxAdjust = (value) => value;
 		const screenOrientation =
@@ -5670,6 +5703,28 @@ describe("public types", () => {
 		expectTypeOf(pageLeave).toEqualTypeOf<UsePageLeaveReturn>();
 		expectTypeOf(pageLeaveReturn.isLeft.value).toEqualTypeOf<boolean>();
 		expectTypeOf(pageLeave.stop()).toEqualTypeOf<void>();
+		expectTypeOf(orientationType).toMatchTypeOf<OrientationType>();
+		expectTypeOf(orientationLockType).toMatchTypeOf<OrientationLockType>();
+		expectTypeOf(
+			screenOrientationResult,
+		).toEqualTypeOf<UseScreenOrientationReturn>();
+		expectTypeOf(screenOrientationReturn.isSupported).toEqualTypeOf<
+			ReadonlySignal<boolean>
+		>();
+		expectTypeOf(screenOrientationResult.orientation.value).toEqualTypeOf<
+			OrientationType | undefined
+		>();
+		expectTypeOf(screenOrientationResult.angle.value).toEqualTypeOf<number>();
+		expectTypeOf(
+			screenOrientationResult.lockOrientation(orientationLockType),
+		).toEqualTypeOf<Promise<void>>();
+		expectTypeOf(
+			screenOrientationResult.unlockOrientation(),
+		).toEqualTypeOf<void>();
+		expectTypeOf(screenOrientationResult.stop()).toEqualTypeOf<void>();
+		expectTypeOf(
+			screenOrientationFallback,
+		).toEqualTypeOf<UseScreenOrientationReturn>();
 		expectTypeOf(screenOrientation.type).toEqualTypeOf<
 			OrientationType | undefined
 		>();
@@ -5682,6 +5737,10 @@ describe("public types", () => {
 			Promise<void>
 		>();
 		expectTypeOf(parallax.stop()).toEqualTypeOf<void>();
+		typeOnly(() => {
+			// @ts-expect-error lockOrientation only accepts spec lock types
+			screenOrientationResult.lockOrientation("sideways");
+		});
 		expectTypeOf(performance).toEqualTypeOf<UsePerformanceObserverReturn>();
 		expectTypeOf(performanceReturn.isSupported.value).toEqualTypeOf<boolean>();
 		expectTypeOf(performance.start()).toEqualTypeOf<void>();
@@ -5830,6 +5889,8 @@ describe("public types", () => {
 		visibility.stop();
 		online.stop();
 		pageLeave.stop();
+		screenOrientationResult.stop();
+		screenOrientationFallback.stop();
 		parallax.stop();
 		performance.stop();
 		permission.stop();
