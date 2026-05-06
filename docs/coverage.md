@@ -189,7 +189,7 @@ Status values:
 | `useStorageAsync` | `useStorageAsync` | Done |
 | `useStyleTag` | `useStyleTag` | Done |
 | `useSupported` | `useSupported` | Done |
-| `useSwipe` | `-` | Todo |
+| `useSwipe` | `useSwipe` | Done |
 | `useTemplateRefsList` | `-` | Out of scope |
 | `useTextDirection` | `-` | Todo |
 | `useTextSelection` | `-` | Todo |
