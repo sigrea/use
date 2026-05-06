@@ -4322,6 +4322,149 @@ export interface UseShareReturn {
 	stop(): void;
 }
 
+export type SpeechRecognitionErrorCode =
+	| "no-speech"
+	| "aborted"
+	| "audio-capture"
+	| "network"
+	| "not-allowed"
+	| "service-not-allowed"
+	| "language-not-supported"
+	| "phrases-not-supported";
+
+export interface SpeechRecognitionAlternativeLike {
+	readonly transcript: string;
+	readonly confidence: number;
+}
+
+export interface SpeechRecognitionResultLike {
+	readonly length: number;
+	readonly isFinal: boolean;
+	readonly [index: number]: SpeechRecognitionAlternativeLike | undefined;
+	item(index: number): SpeechRecognitionAlternativeLike;
+}
+
+export interface SpeechRecognitionResultListLike {
+	readonly length: number;
+	readonly [index: number]: SpeechRecognitionResultLike | undefined;
+	item(index: number): SpeechRecognitionResultLike;
+}
+
+export interface SpeechRecognitionEventLike extends Event {
+	readonly resultIndex: number;
+	readonly results: SpeechRecognitionResultListLike;
+}
+
+export interface SpeechRecognitionErrorEventLike extends Event {
+	readonly error: SpeechRecognitionErrorCode;
+	readonly message: string;
+}
+
+export interface SpeechRecognitionLike extends EventTarget {
+	continuous: boolean;
+	interimResults: boolean;
+	lang: string;
+	maxAlternatives: number;
+	start(): void;
+	stop(): void;
+	abort(): void;
+}
+
+export interface SpeechRecognitionConstructorLike<
+	TSpeechRecognition extends SpeechRecognitionLike = SpeechRecognitionLike,
+> {
+	new (): TSpeechRecognition;
+}
+
+export interface UseSpeechRecognitionWindowLike<
+	TSpeechRecognition extends SpeechRecognitionLike = SpeechRecognitionLike,
+> extends WindowLike {
+	readonly SpeechRecognition?: SpeechRecognitionConstructorLike<TSpeechRecognition>;
+	readonly webkitSpeechRecognition?: SpeechRecognitionConstructorLike<TSpeechRecognition>;
+}
+
+export type SpeechRecognitionForWindow<TWindow> =
+	TWindow extends UseSpeechRecognitionWindowLike<infer TSpeechRecognition>
+		? TSpeechRecognition
+		: SpeechRecognitionLike;
+
+export interface UseSpeechRecognitionOptions<
+	TSpeechRecognition extends SpeechRecognitionLike = SpeechRecognitionLike,
+	TWindow extends
+		UseSpeechRecognitionWindowLike<TSpeechRecognition> = UseSpeechRecognitionWindowLike<TSpeechRecognition>,
+> {
+	/**
+	 * Controls whether continuous results are returned for each recognition.
+	 *
+	 * @default true
+	 */
+	continuous?: boolean;
+	/**
+	 * Controls whether interim results are returned.
+	 *
+	 * @default true
+	 */
+	interimResults?: boolean;
+	/**
+	 * Language for SpeechRecognition.
+	 *
+	 * @default "en-US"
+	 */
+	lang?: MaybeValue<string>;
+	/**
+	 * Maximum returned alternatives for each result.
+	 *
+	 * @default 1
+	 */
+	maxAlternatives?: number;
+	window?: MaybeTarget<TWindow>;
+}
+
+export type UseSpeechRecognitionWindowOptions<
+	TWindow extends UseSpeechRecognitionWindowLike<SpeechRecognitionLike>,
+> = {
+	/**
+	 * Controls whether continuous results are returned for each recognition.
+	 *
+	 * @default true
+	 */
+	continuous?: boolean;
+	/**
+	 * Controls whether interim results are returned.
+	 *
+	 * @default true
+	 */
+	interimResults?: boolean;
+	/**
+	 * Language for SpeechRecognition.
+	 *
+	 * @default "en-US"
+	 */
+	lang?: MaybeValue<string>;
+	/**
+	 * Maximum returned alternatives for each result.
+	 *
+	 * @default 1
+	 */
+	maxAlternatives?: number;
+	window: MaybeTarget<TWindow>;
+};
+
+export interface UseSpeechRecognitionReturn<
+	TSpeechRecognition extends SpeechRecognitionLike = SpeechRecognitionLike,
+> {
+	readonly isSupported: ReadonlySignal<boolean>;
+	readonly isListening: ReadonlySignal<boolean>;
+	readonly isFinal: ReadonlySignal<boolean>;
+	readonly recognition: ReadonlySignal<TSpeechRecognition | undefined>;
+	readonly result: ReadonlySignal<string>;
+	readonly error: ReadonlySignal<unknown | null>;
+	start(): void;
+	stop(): void;
+	abort(): void;
+	toggle(value?: boolean): void;
+}
+
 export type UseInfiniteScrollDirection = "top" | "bottom" | "left" | "right";
 
 export type UseInfiniteScrollElement =
