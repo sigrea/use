@@ -1000,6 +1000,12 @@ export type UsePreferredColorSchemeReturn =
 		stop(): void;
 	};
 
+export type UsePreferredContrast = "more" | "less" | "custom" | "no-preference";
+
+export type UsePreferredContrastReturn = Computed<UsePreferredContrast> & {
+	stop(): void;
+};
+
 export type ColorModeSelection<T extends string = BasicColorMode> =
 	| T
 	| BasicColorMode
