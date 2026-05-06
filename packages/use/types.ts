@@ -2426,6 +2426,44 @@ export interface UseNowControlsReturn extends UseIntervalFnReturn {
 export type UseNowReturn<Controls extends boolean = false> =
 	Controls extends true ? UseNowControlsReturn : ReadonlySignal<Date>;
 
+export interface UseRafFnCallbackArguments {
+	readonly delta: number;
+	readonly timestamp: DOMHighResTimeStamp;
+}
+
+export type UseRafFnCallback = (args: UseRafFnCallbackArguments) => void;
+
+export interface UseRafFnWindowLike extends WindowLike {
+	requestAnimationFrame?(callback: FrameRequestCallback): number;
+	cancelAnimationFrame?(handle: number): void;
+}
+
+export interface UseRafFnOptions<
+	TWindow extends UseRafFnWindowLike = UseRafFnWindowLike,
+> {
+	/**
+	 * Start the loop immediately.
+	 *
+	 * @default true
+	 */
+	immediate?: boolean;
+	/**
+	 * Maximum callback frequency. `null` disables the limit.
+	 *
+	 * @default null
+	 */
+	fpsLimit?: MaybeValue<number | null>;
+	/**
+	 * Stop after the first callback.
+	 *
+	 * @default false
+	 */
+	once?: boolean;
+	window?: MaybeTarget<TWindow>;
+}
+
+export type UseRafFnReturn = UseIntervalFnReturn;
+
 export type UseObjectUrlObject = Blob | MediaSource;
 
 export interface UseObjectUrlUrlLike {
