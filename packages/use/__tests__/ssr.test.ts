@@ -141,6 +141,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.usePointer).toBe("function");
 		expect(typeof mod.usePointerLock).toBe("function");
 		expect(typeof mod.usePointerSwipe).toBe("function");
+		expect(typeof mod.usePreferredColorScheme).toBe("function");
 		expect(typeof mod.usePreferredDark).toBe("function");
 		expect(typeof mod.usePrevious).toBe("function");
 		expect(typeof mod.useRefHistory).toBe("function");
@@ -209,6 +210,7 @@ describe("SSR safety", () => {
 			usePointer,
 			usePointerLock,
 			usePointerSwipe,
+			usePreferredColorScheme,
 			usePreferredDark,
 			onElementRemoval,
 			onKeyDown,
@@ -279,6 +281,7 @@ describe("SSR safety", () => {
 		const targetlessPointer = usePointer({ target: null });
 		const pointerLock = usePointerLock(undefined, { document: null });
 		const pointerSwipe = usePointerSwipe(null);
+		const preferredColorScheme = usePreferredColorScheme();
 		const preferredDark = usePreferredDark();
 		const cssSupports = useCssSupports("display", "grid", { window: null });
 		const initialCssSupports = useCssSupports("display: grid", {
@@ -411,6 +414,7 @@ describe("SSR safety", () => {
 		expect(pointerSwipe.direction.value).toBe("none");
 		expect(pointerSwipe.posStart.value).toEqual({ x: 0, y: 0 });
 		expect(pointerSwipe.posEnd.value).toEqual({ x: 0, y: 0 });
+		expect(preferredColorScheme.value).toBe("light");
 		expect(preferredDark.matches.value).toBe(false);
 		expect(cssSupports.value).toBe(false);
 		expect(initialCssSupports.value).toBe(true);
@@ -542,6 +546,7 @@ describe("SSR safety", () => {
 		await pointerLock.toggle();
 		pointerLock.stop();
 		pointerSwipe.stop();
+		preferredColorScheme.stop();
 		preferredDark.stop();
 		cssVar.value = "blue";
 		expect(cssVar.value).toBe("blue");
