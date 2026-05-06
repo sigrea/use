@@ -2920,6 +2920,37 @@ export type UseMemoizeOptions<
 		: { getKey: (...args: Args) => Key }
 	: { getKey: (...args: Args) => Key });
 
+export interface UseMemoryInfo {
+	readonly jsHeapSizeLimit: number;
+	readonly totalJSHeapSize: number;
+	readonly usedJSHeapSize: number;
+	readonly [Symbol.toStringTag]?: "MemoryInfo";
+}
+
+export interface UseMemoryPerformanceLike {
+	memory?: UseMemoryInfo;
+}
+
+export interface UseMemoryWindowLike extends WindowLike {
+	readonly performance?: UseMemoryPerformanceLike;
+}
+
+export interface UseMemoryOptions<
+	TWindow extends UseMemoryWindowLike = UseMemoryWindowLike,
+> extends UseIntervalFnOptions {
+	interval?: MaybeValue<number>;
+	window?: MaybeTarget<TWindow | null | undefined>;
+}
+
+export interface UseMemoryReturn {
+	readonly isSupported: ReadonlySignal<boolean>;
+	readonly memory: ReadonlySignal<UseMemoryInfo | undefined>;
+	readonly isActive: ReadonlySignal<boolean>;
+	pause(): void;
+	resume(): void;
+	stop(): void;
+}
+
 export interface OnLongPressModifiers {
 	stop?: boolean;
 	once?: boolean;

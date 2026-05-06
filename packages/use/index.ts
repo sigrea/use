@@ -106,6 +106,7 @@ export { useLocalStorage } from "./useLocalStorage";
 export { useManualRefHistory } from "./useManualRefHistory";
 export { useMediaQuery } from "./useMediaQuery";
 export { useMemoize } from "./useMemoize";
+export { useMemory } from "./useMemory";
 export { useMouse } from "./useMouse";
 export { useOnline } from "./useOnline";
 export { usePreferredDark } from "./usePreferredDark";
@@ -564,6 +565,11 @@ export type {
 	UseMemoizeCacheKey,
 	UseMemoizeOptions,
 	UseMemoizeReturn,
+	UseMemoryInfo,
+	UseMemoryOptions,
+	UseMemoryPerformanceLike,
+	UseMemoryReturn,
+	UseMemoryWindowLike,
 	UseIntervalControlsReturn,
 	UseIntervalFnOptions,
 	UseIntervalFnReturn,
