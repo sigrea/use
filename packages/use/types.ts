@@ -2419,6 +2419,51 @@ export interface UseObjectUrlReturn {
 	stop(): void;
 }
 
+export interface UseOffsetPaginationChangePayload {
+	readonly currentPage: number;
+	readonly currentPageSize: number;
+	readonly pageCount: number;
+	readonly isFirstPage: boolean;
+	readonly isLastPage: boolean;
+	prev(): void;
+	next(): void;
+}
+
+export interface UseOffsetPaginationOptions {
+	/**
+	 * Total number of items.
+	 *
+	 * @default Number.POSITIVE_INFINITY
+	 */
+	total?: MaybeValue<number>;
+	/**
+	 * Number of items per page.
+	 *
+	 * @default 10
+	 */
+	pageSize?: MaybeValue<number>;
+	/**
+	 * Current page number.
+	 *
+	 * @default 1
+	 */
+	page?: MaybeValue<number>;
+	onPageChange?: (value: UseOffsetPaginationChangePayload) => unknown;
+	onPageSizeChange?: (value: UseOffsetPaginationChangePayload) => unknown;
+	onPageCountChange?: (value: UseOffsetPaginationChangePayload) => unknown;
+}
+
+export interface UseOffsetPaginationReturn {
+	readonly currentPage: Computed<number>;
+	readonly currentPageSize: Computed<number>;
+	readonly pageCount: ReadonlySignal<number>;
+	readonly isFirstPage: ReadonlySignal<boolean>;
+	readonly isLastPage: ReadonlySignal<boolean>;
+	prev(): void;
+	next(): void;
+	stop(): void;
+}
+
 export interface UseDebounceFnOptions {
 	maxWait?: MaybeValue<number>;
 	rejectOnCancel?: boolean;
