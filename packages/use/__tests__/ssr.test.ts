@@ -123,6 +123,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.useMediaQuery).toBe("function");
 		expect(typeof mod.useMemoize).toBe("function");
 		expect(typeof mod.useMemory).toBe("function");
+		expect(typeof mod.useMounted).toBe("function");
 		expect(typeof mod.useMouse).toBe("function");
 		expect(typeof mod.useOnline).toBe("function");
 		expect(typeof mod.usePreferredDark).toBe("function");
@@ -905,6 +906,14 @@ describe("SSR safety", () => {
 		expect(memory.isActive.value).toBe(false);
 		memory.pause();
 		memory.stop();
+	});
+
+	it("creates useMounted without a window", async () => {
+		const { useMounted } = await import("../../../index");
+		const mounted = useMounted();
+
+		expect(globalThis.window).toBeUndefined();
+		expect(mounted.value).toBe(false);
 	});
 
 	it("creates useLastChanged without a window", async () => {

@@ -401,6 +401,7 @@ import type {
 	UseMemoryPerformanceLike,
 	UseMemoryReturn,
 	UseMemoryWindowLike,
+	UseMountedReturn,
 	UseMouseOptions,
 	UseOnlineOptions,
 	UseRefHistoryRecord,
@@ -526,6 +527,7 @@ import {
 	useMediaQuery,
 	useMemoize,
 	useMemory,
+	useMounted,
 	useMouse,
 	useOnline,
 	usePreferredDark,
@@ -4543,6 +4545,22 @@ describe("public types", () => {
 					// @ts-expect-error window must be EventTarget-like
 					window: { performance: performanceTarget },
 				});
+			});
+		});
+	});
+
+	it("types mounted state", () => {
+		typeOnly(() => {
+			const mounted = useMounted();
+			const mountedReturn: UseMountedReturn = mounted;
+
+			expectTypeOf(mounted).toEqualTypeOf<UseMountedReturn>();
+			expectTypeOf(mountedReturn).toEqualTypeOf<ReadonlySignal<boolean>>();
+			expectTypeOf(mounted.value).toEqualTypeOf<boolean>();
+
+			typeOnly(() => {
+				// @ts-expect-error mounted state is readonly
+				mounted.value = true;
 			});
 		});
 	});
