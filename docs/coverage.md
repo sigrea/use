@@ -136,7 +136,7 @@ Status values:
 | `useInterval` | `useInterval` | Done |
 | `useIntervalFn` | `useIntervalFn` | Done |
 | `useKeyModifier` | `useKeyModifier` | Done |
-| `useLastChanged` | `-` | Todo |
+| `useLastChanged` | `useLastChanged` | Done |
 | `useLocalStorage` | `useLocalStorage` | Done |
 | `useMagicKeys` | `-` | Todo |
 | `useManualRefHistory` | `useManualRefHistory` | Done |
