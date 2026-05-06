@@ -483,6 +483,11 @@ import type {
 	UsePreferredReducedMotionReturn,
 	UsePreferredReducedTransparency,
 	UsePreferredReducedTransparencyReturn,
+	UseRafFnCallback,
+	UseRafFnCallbackArguments,
+	UseRafFnOptions,
+	UseRafFnReturn,
+	UseRafFnWindowLike,
 	UseRefHistoryRecord,
 	UseStorageOptions,
 	UseToggleOptions,
@@ -632,6 +637,7 @@ import {
 	usePreferredReducedMotion,
 	usePreferredReducedTransparency,
 	usePrevious,
+	useRafFn,
 	useRefHistory,
 	useSessionStorage,
 	useStorage,
@@ -693,6 +699,10 @@ interface NetworkWindow extends EventTarget, WindowLike {
 }
 
 interface NowWindow extends EventTarget, UseNowWindowLike {
+	readonly label: string;
+}
+
+interface RafWindow extends EventTarget, UseRafFnWindowLike {
 	readonly label: string;
 }
 
@@ -6367,6 +6377,47 @@ describe("public types", () => {
 				useNow({
 					// @ts-expect-error window must provide animation frame methods when present
 					window: { requestAnimationFrame: true },
+				});
+			});
+		});
+	});
+
+	it("types requestAnimationFrame controls", () => {
+		typeOnly(() => {
+			const callback: UseRafFnCallback = (args) => {
+				const callbackArgs: UseRafFnCallbackArguments = args;
+				expectTypeOf(callbackArgs.delta).toEqualTypeOf<number>();
+				expectTypeOf(callbackArgs.timestamp).toEqualTypeOf<number>();
+			};
+			const fpsLimit = signal<number | null>(30);
+			const rafWindow = Object.assign(new EventTarget(), {
+				cancelAnimationFrame: (_handle: number) => {},
+				label: "raf",
+				requestAnimationFrame: (_callback: FrameRequestCallback) => 1,
+			}) as RafWindow;
+			const options: UseRafFnOptions<RafWindow> = {
+				fpsLimit,
+				immediate: false,
+				once: true,
+				window: signal(rafWindow),
+			};
+			const raf = useRafFn(callback, options);
+			const rafReturn: UseRafFnReturn = raf;
+
+			expectTypeOf(raf).toEqualTypeOf<UseRafFnReturn>();
+			expectTypeOf(rafReturn.isActive).toEqualTypeOf<ReadonlySignal<boolean>>();
+			expectTypeOf(raf.pause()).toEqualTypeOf<void>();
+			expectTypeOf(raf.resume()).toEqualTypeOf<void>();
+			typeOnly(() => {
+				// @ts-expect-error returned values are readonly signals
+				raf.isActive.value = true;
+				useRafFn(callback, {
+					// @ts-expect-error window must provide requestAnimationFrame when present
+					window: { requestAnimationFrame: true },
+				});
+				useRafFn(callback, {
+					// @ts-expect-error fpsLimit must be numeric or null
+					fpsLimit: "30",
 				});
 			});
 		});
