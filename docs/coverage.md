@@ -180,7 +180,7 @@ Status values:
 | `useScroll` | `useScroll` | Done |
 | `useScrollLock` | `useScrollLock` | Done |
 | `useSessionStorage` | `useSessionStorage` | Done |
-| `useShare` | `-` | Todo |
+| `useShare` | `useShare` | Done |
 | `useSorted` | `-` | Todo |
 | `useSpeechRecognition` | `-` | Todo |
 | `useSpeechSynthesis` | `-` | Todo |
