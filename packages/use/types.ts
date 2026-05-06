@@ -2158,6 +2158,51 @@ export interface UseDeviceOrientationWindowLike extends WindowLike {
 	readonly DeviceOrientationEvent?: DeviceOrientationEventConstructorLike;
 }
 
+export type OrientationType =
+	| "portrait-primary"
+	| "portrait-secondary"
+	| "landscape-primary"
+	| "landscape-secondary";
+
+export type OrientationLockType =
+	| "any"
+	| "natural"
+	| "landscape"
+	| "portrait"
+	| "portrait-primary"
+	| "portrait-secondary"
+	| "landscape-primary"
+	| "landscape-secondary";
+
+export interface UseScreenOrientationScreenOrientationLike extends EventTarget {
+	readonly type?: OrientationType;
+	readonly angle?: number;
+	lock?(type: OrientationLockType): Promise<void>;
+	unlock?(): void;
+}
+
+export interface UseScreenOrientationWindowLike extends WindowLike {
+	readonly screen?: {
+		readonly orientation?: UseScreenOrientationScreenOrientationLike | null;
+	};
+}
+
+export interface UseScreenOrientationOptions<
+	TWindow extends
+		UseScreenOrientationWindowLike = UseScreenOrientationWindowLike,
+> {
+	window?: MaybeTarget<TWindow | null | undefined>;
+}
+
+export interface UseScreenOrientationReturn {
+	readonly isSupported: ReadonlySignal<boolean>;
+	readonly orientation: ReadonlySignal<OrientationType | undefined>;
+	readonly angle: ReadonlySignal<number>;
+	lockOrientation(type: OrientationLockType): Promise<void>;
+	unlockOrientation(): void;
+	stop(): void;
+}
+
 export interface OnlineNavigatorLike extends NavigatorLike {
 	readonly onLine?: boolean;
 }
