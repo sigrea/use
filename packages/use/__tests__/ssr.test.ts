@@ -150,6 +150,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.usePrevious).toBe("function");
 		expect(typeof mod.useRafFn).toBe("function");
 		expect(typeof mod.useRefHistory).toBe("function");
+		expect(typeof mod.useResizeObserver).toBe("function");
 		expect(typeof mod.useSessionStorage).toBe("function");
 		expect(typeof mod.useStorage).toBe("function");
 		expect(typeof mod.useTimeout).toBe("function");
@@ -222,6 +223,7 @@ describe("SSR safety", () => {
 			usePreferredReducedMotion,
 			usePreferredReducedTransparency,
 			useRafFn,
+			useResizeObserver,
 			onElementRemoval,
 			onKeyDown,
 			onKeyPressed,
@@ -298,6 +300,9 @@ describe("SSR safety", () => {
 		const preferredReducedMotion = usePreferredReducedMotion();
 		const preferredReducedTransparency = usePreferredReducedTransparency();
 		const raf = useRafFn(() => {}, { window: null });
+		const resizeObserver = useResizeObserver(null, () => {}, {
+			window: null,
+		});
 		const cssSupports = useCssSupports("display", "grid", { window: null });
 		const initialCssSupports = useCssSupports("display: grid", {
 			initialValue: true,
@@ -437,6 +442,7 @@ describe("SSR safety", () => {
 		expect(preferredReducedMotion.value).toBe("no-preference");
 		expect(preferredReducedTransparency.value).toBe("no-preference");
 		expect(raf.isActive.value).toBe(false);
+		expect(resizeObserver.isSupported.value).toBe(false);
 		expect(cssSupports.value).toBe(false);
 		expect(initialCssSupports.value).toBe(true);
 		expect(cssVar.value).toBe("red");
@@ -575,6 +581,7 @@ describe("SSR safety", () => {
 		preferredReducedTransparency.stop();
 		raf.resume();
 		raf.pause();
+		resizeObserver.stop();
 		cssVar.value = "blue";
 		expect(cssVar.value).toBe("blue");
 		cssVar.stop();

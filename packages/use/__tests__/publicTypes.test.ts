@@ -489,6 +489,9 @@ import type {
 	UseRafFnReturn,
 	UseRafFnWindowLike,
 	UseRefHistoryRecord,
+	UseResizeObserverOptions,
+	UseResizeObserverReturn,
+	UseResizeObserverTarget,
 	UseStorageOptions,
 	UseToggleOptions,
 	UseWindowSizeOptions,
@@ -639,6 +642,7 @@ import {
 	usePrevious,
 	useRafFn,
 	useRefHistory,
+	useResizeObserver,
 	useSessionStorage,
 	useStorage,
 	useThrottleFn,
@@ -6203,6 +6207,52 @@ describe("public types", () => {
 				useMutationObserver(
 					// @ts-expect-error target must resolve to a node
 					"node",
+					() => {},
+				);
+			});
+		});
+	});
+
+	it("types resize observer values and options", () => {
+		typeOnly(() => {
+			const resizeWindow = new EventTarget() as ResizeWindow;
+			const first = document.createElement("div");
+			const second = document.createElement("section");
+			const target: UseResizeObserverTarget<HTMLElement> = [
+				signal(first),
+				null,
+				second,
+			];
+			const box = signal<ResizeObserverBoxOptions>("border-box");
+			const options: UseResizeObserverOptions<ResizeWindow> = {
+				box,
+				window: signal(resizeWindow),
+			};
+			const observer = useResizeObserver(
+				target,
+				(entries, resizeObserver) => {
+					expectTypeOf(entries).toEqualTypeOf<ResizeObserverEntry[]>();
+					expectTypeOf(resizeObserver).toEqualTypeOf<ResizeObserver>();
+				},
+				options,
+			);
+			const observerReturn: UseResizeObserverReturn = observer;
+
+			expectTypeOf(observer).toEqualTypeOf<UseResizeObserverReturn>();
+			expectTypeOf(observerReturn.isSupported).toEqualTypeOf<
+				ReadonlySignal<boolean>
+			>();
+			expectTypeOf(observer.stop()).toEqualTypeOf<void>();
+			typeOnly(() => {
+				// @ts-expect-error returned values are readonly signals
+				observer.isSupported.value = true;
+				useResizeObserver(first, () => {}, {
+					// @ts-expect-error box must be a ResizeObserver box option
+					box: "margin-box",
+				});
+				useResizeObserver(
+					// @ts-expect-error target must resolve to an element
+					"element",
 					() => {},
 				);
 			});
