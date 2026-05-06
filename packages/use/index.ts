@@ -96,6 +96,7 @@ export { useIdle } from "./useIdle";
 export { useImage } from "./useImage";
 export { useInfiniteScroll } from "./useInfiniteScroll";
 export { useIntersectionObserver } from "./useIntersectionObserver";
+export { useKeyModifier } from "./useKeyModifier";
 export { useInterval } from "./useInterval";
 export { useIntervalFn } from "./useIntervalFn";
 export { useLocalStorage } from "./useLocalStorage";
@@ -538,6 +539,11 @@ export type {
 	UseIntersectionObserverReturn,
 	UseIntersectionObserverTarget,
 	UseIntersectionObserverWindowLike,
+	UseKeyModifier,
+	UseKeyModifierDocumentLike,
+	UseKeyModifierEventName,
+	UseKeyModifierOptions,
+	UseKeyModifierReturn,
 	UseIntervalControlsReturn,
 	UseIntervalFnOptions,
 	UseIntervalFnReturn,
