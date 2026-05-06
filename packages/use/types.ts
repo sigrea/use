@@ -4154,6 +4154,93 @@ export type UseImageReturn = UseAsyncStateReturn<
 	[]
 >;
 
+export type UseScrollDirection = "top" | "bottom" | "left" | "right";
+
+export interface UseScrollArrivedState {
+	readonly left: boolean;
+	readonly right: boolean;
+	readonly top: boolean;
+	readonly bottom: boolean;
+}
+
+export interface UseScrollDirections {
+	readonly left: boolean;
+	readonly right: boolean;
+	readonly top: boolean;
+	readonly bottom: boolean;
+}
+
+export interface UseScrollDocumentLike extends DocumentLike {
+	readonly documentElement?: HTMLElement | null;
+	readonly body?: HTMLElement | null;
+}
+
+export interface UseScrollWindowLike extends UseMutationObserverWindowLike {
+	readonly document?: UseScrollDocumentLike;
+	getComputedStyle?(
+		element: Element,
+		pseudoElt?: string | null,
+	): CSSStyleDeclaration;
+	scrollTo?(options?: ScrollToOptions): void;
+}
+
+export type UseScrollElement =
+	| HTMLElement
+	| SVGElement
+	| UseScrollWindowLike
+	| UseScrollDocumentLike
+	| null
+	| undefined;
+
+export interface UseScrollOptions<
+	TElement extends UseScrollElement = UseScrollElement,
+	TWindow extends UseScrollWindowLike = UseScrollWindowLike,
+> {
+	/**
+	 * Throttle time for scroll events.
+	 *
+	 * @default 0
+	 */
+	throttle?: number;
+	/**
+	 * Time to wait after scroll events before reporting scrolling as stopped.
+	 *
+	 * @default 200
+	 */
+	idle?: number;
+	/**
+	 * Offset arrived states by pixels.
+	 */
+	offset?: Partial<Record<UseScrollDirection, number>>;
+	/**
+	 * Observe DOM mutations and recalculate the scroll state.
+	 *
+	 * @default { mutation: false }
+	 */
+	observe?:
+		| boolean
+		| {
+				mutation?: boolean;
+		  };
+	onScroll?: (event: Event) => void;
+	onStop?: (event: Event) => void;
+	onError?: (error: unknown) => void;
+	eventListenerOptions?: boolean | AddEventListenerOptions;
+	behavior?: MaybeValue<ScrollBehavior>;
+	window?: MaybeTarget<TWindow | null | undefined>;
+}
+
+export interface UseScrollReturn {
+	readonly x: Computed<number>;
+	readonly y: Computed<number>;
+	readonly isScrolling: ReadonlySignal<boolean>;
+	readonly arrivedState: ReadonlySignal<UseScrollArrivedState>;
+	readonly directions: ReadonlySignal<UseScrollDirections>;
+	measure(): void;
+	scrollTo(options?: ScrollToOptions): void;
+	stop(): void;
+}
+
 export type UseInfiniteScrollDirection = "top" | "bottom" | "left" | "right";
 
 export type UseInfiniteScrollElement =
