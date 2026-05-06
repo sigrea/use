@@ -164,7 +164,7 @@ Status values:
 | `usePointerLock` | `usePointerLock` | Done |
 | `usePointerSwipe` | `usePointerSwipe` | Done |
 | `usePreferredColorScheme` | `usePreferredColorScheme` | Done |
-| `usePreferredContrast` | `-` | Todo |
+| `usePreferredContrast` | `usePreferredContrast` | Done |
 | `usePreferredDark` | `usePreferredDark` | Done |
 | `usePreferredLanguages` | `-` | Todo |
 | `usePreferredReducedMotion` | `-` | Todo |
