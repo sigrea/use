@@ -155,7 +155,7 @@ Status values:
 | `useObjectUrl` | `useObjectUrl` | Done |
 | `useOffsetPagination` | `useOffsetPagination` | Done |
 | `useOnline` | `useOnline` | Done |
-| `usePageLeave` | `-` | Todo |
+| `usePageLeave` | `usePageLeave` | Done |
 | `useParallax` | `-` | Todo |
 | `useParentElement` | `-` | Needs design |
 | `usePerformanceObserver` | `-` | Todo |
