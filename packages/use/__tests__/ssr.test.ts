@@ -109,6 +109,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.useGamepad).toBe("function");
 		expect(typeof mod.useGeolocation).toBe("function");
 		expect(typeof mod.useIdle).toBe("function");
+		expect(typeof mod.useImage).toBe("function");
 		expect(typeof mod.useInterval).toBe("function");
 		expect(typeof mod.useIntervalFn).toBe("function");
 		expect(typeof mod.useLocalStorage).toBe("function");
@@ -161,6 +162,7 @@ describe("SSR safety", () => {
 			useGamepad,
 			useGeolocation,
 			useIdle,
+			useImage,
 			useMouse,
 			useOnline,
 			usePreferredDark,
@@ -257,6 +259,10 @@ describe("SSR safety", () => {
 		const gamepad = useGamepad({ navigator: null, window: null });
 		const geolocation = useGeolocation({ navigator: null });
 		const idle = useIdle(1000, { window: null });
+		const image = useImage(
+			{ src: "https://example.com/image.png" },
+			{ immediate: false, window: null },
+		);
 		const fetchValue = useFetch("https://example.com", {
 			fetch: async () => new Response("ok"),
 			immediate: false,
@@ -349,6 +355,9 @@ describe("SSR safety", () => {
 		expect(idle.idle.value).toBe(false);
 		expect(idle.isPending.value).toBe(false);
 		expect(typeof idle.lastActive.value).toBe("number");
+		expect(image.state.value).toBeUndefined();
+		expect(image.isLoading.value).toBe(false);
+		expect(image.error.value).toBeUndefined();
 		expect(fetchValue.data.value).toBeNull();
 		expect(sessionStorageValue.value).toBe("fallback");
 		expect(ssrMediaQuery.matches.value).toBe(true);
