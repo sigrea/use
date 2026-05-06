@@ -183,7 +183,7 @@ Status values:
 | `useShare` | `useShare` | Done |
 | `useSorted` | `useSorted` | Done |
 | `useSpeechRecognition` | `useSpeechRecognition` | Done |
-| `useSpeechSynthesis` | `-` | Todo |
+| `useSpeechSynthesis` | `useSpeechSynthesis` | Done |
 | `useStepper` | `-` | Todo |
 | `useStorage` | `useStorage` | Done |
 | `useStorageAsync` | `-` | Todo |
