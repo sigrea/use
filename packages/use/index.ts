@@ -118,6 +118,7 @@ export { useNow } from "./useNow";
 export { useObjectUrl } from "./useObjectUrl";
 export { useOffsetPagination } from "./useOffsetPagination";
 export { useOnline } from "./useOnline";
+export { usePageLeave } from "./usePageLeave";
 export { usePreferredDark } from "./usePreferredDark";
 export { usePrevious } from "./usePrevious";
 export { useRefHistory } from "./useRefHistory";
@@ -631,6 +632,8 @@ export type {
 	UseOffsetPaginationReturn,
 	UseOnlineOptions,
 	UseOnlineReturn,
+	UsePageLeaveOptions,
+	UsePageLeaveReturn,
 	UseRefHistoryOptions,
 	UseRefHistoryRecord,
 	UseRefHistoryReturn,
