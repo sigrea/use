@@ -146,7 +146,7 @@ Status values:
 | `useMemory` | `useMemory` | Done |
 | `useMounted` | `useMounted` | Done |
 | `useMouse` | `useMouse` | Done |
-| `useMouseInElement` | `-` | Todo |
+| `useMouseInElement` | `useMouseInElement` | Done |
 | `useMousePressed` | `-` | Todo |
 | `useMutationObserver` | `-` | Todo |
 | `useNavigatorLanguage` | `-` | Todo |
