@@ -1006,6 +1006,13 @@ export type UsePreferredContrastReturn = Computed<UsePreferredContrast> & {
 	stop(): void;
 };
 
+export type UsePreferredReducedMotion = "reduce" | "no-preference";
+
+export type UsePreferredReducedMotionReturn =
+	Computed<UsePreferredReducedMotion> & {
+		stop(): void;
+	};
+
 export type ColorModeSelection<T extends string = BasicColorMode> =
 	| T
 	| BasicColorMode
