@@ -136,6 +136,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.useOnline).toBe("function");
 		expect(typeof mod.usePageLeave).toBe("function");
 		expect(typeof mod.useParallax).toBe("function");
+		expect(typeof mod.usePerformanceObserver).toBe("function");
 		expect(typeof mod.usePreferredDark).toBe("function");
 		expect(typeof mod.usePrevious).toBe("function");
 		expect(typeof mod.useRefHistory).toBe("function");
@@ -199,6 +200,7 @@ describe("SSR safety", () => {
 			useOnline,
 			usePageLeave,
 			useParallax,
+			usePerformanceObserver,
 			usePreferredDark,
 			onElementRemoval,
 			onKeyDown,
@@ -260,6 +262,10 @@ describe("SSR safety", () => {
 		const online = useOnline();
 		const pageLeave = usePageLeave({ window: null });
 		const parallax = useParallax(null, { window: null });
+		const performanceObserver = usePerformanceObserver(
+			{ entryTypes: ["mark"], window: null },
+			() => {},
+		);
 		const preferredDark = usePreferredDark();
 		const cssSupports = useCssSupports("display", "grid", { window: null });
 		const initialCssSupports = useCssSupports("display: grid", {
@@ -376,6 +382,7 @@ describe("SSR safety", () => {
 		expect(parallax.source.value).toBe("mouse");
 		expect(parallax.roll.value).toBe(0);
 		expect(parallax.tilt.value).toBe(0);
+		expect(performanceObserver.isSupported.value).toBe(false);
 		expect(preferredDark.matches.value).toBe(false);
 		expect(cssSupports.value).toBe(false);
 		expect(initialCssSupports.value).toBe(true);
@@ -496,6 +503,8 @@ describe("SSR safety", () => {
 		online.stop();
 		pageLeave.stop();
 		parallax.stop();
+		performanceObserver.start();
+		performanceObserver.stop();
 		preferredDark.stop();
 		cssVar.value = "blue";
 		expect(cssVar.value).toBe("blue");
@@ -598,6 +607,18 @@ describe("SSR safety", () => {
 
 		expect(globalThis.window).toBeUndefined();
 		expect(value.value).toBe("ready");
+	});
+
+	it("does not use Node PerformanceObserver without a window", async () => {
+		const { usePerformanceObserver } = await import("../../../index");
+		const observer = usePerformanceObserver({ entryTypes: ["mark"] }, () => {});
+
+		expect(globalThis.window).toBeUndefined();
+		expect(observer.isSupported.value).toBe(false);
+
+		observer.start();
+		expect(observer.isSupported.value).toBe(false);
+		observer.stop();
 	});
 
 	it("creates useArrayDifference without a window", async () => {
