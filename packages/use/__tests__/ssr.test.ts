@@ -144,6 +144,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.usePreferredColorScheme).toBe("function");
 		expect(typeof mod.usePreferredContrast).toBe("function");
 		expect(typeof mod.usePreferredDark).toBe("function");
+		expect(typeof mod.usePreferredLanguages).toBe("function");
 		expect(typeof mod.usePrevious).toBe("function");
 		expect(typeof mod.useRefHistory).toBe("function");
 		expect(typeof mod.useSessionStorage).toBe("function");
@@ -214,6 +215,7 @@ describe("SSR safety", () => {
 			usePreferredColorScheme,
 			usePreferredContrast,
 			usePreferredDark,
+			usePreferredLanguages,
 			onElementRemoval,
 			onKeyDown,
 			onKeyPressed,
@@ -286,6 +288,7 @@ describe("SSR safety", () => {
 		const preferredColorScheme = usePreferredColorScheme();
 		const preferredContrast = usePreferredContrast();
 		const preferredDark = usePreferredDark();
+		const preferredLanguages = usePreferredLanguages({ window: null });
 		const cssSupports = useCssSupports("display", "grid", { window: null });
 		const initialCssSupports = useCssSupports("display: grid", {
 			initialValue: true,
@@ -420,6 +423,8 @@ describe("SSR safety", () => {
 		expect(preferredColorScheme.value).toBe("no-preference");
 		expect(preferredContrast.value).toBe("no-preference");
 		expect(preferredDark.matches.value).toBe(false);
+		expect(preferredLanguages.isSupported.value).toBe(false);
+		expect(preferredLanguages.languages.value).toEqual([]);
 		expect(cssSupports.value).toBe(false);
 		expect(initialCssSupports.value).toBe(true);
 		expect(cssVar.value).toBe("red");
@@ -553,6 +558,7 @@ describe("SSR safety", () => {
 		preferredColorScheme.stop();
 		preferredContrast.stop();
 		preferredDark.stop();
+		preferredLanguages.stop();
 		cssVar.value = "blue";
 		expect(cssVar.value).toBe("blue");
 		cssVar.stop();

@@ -476,6 +476,9 @@ import type {
 	UsePreferredColorSchemeReturn,
 	UsePreferredContrast,
 	UsePreferredContrastReturn,
+	UsePreferredLanguagesNavigatorLike,
+	UsePreferredLanguagesOptions,
+	UsePreferredLanguagesReturn,
 	UseRefHistoryRecord,
 	UseStorageOptions,
 	UseToggleOptions,
@@ -621,6 +624,7 @@ import {
 	usePreferredColorScheme,
 	usePreferredContrast,
 	usePreferredDark,
+	usePreferredLanguages,
 	usePrevious,
 	useRefHistory,
 	useSessionStorage,
@@ -672,6 +676,10 @@ interface MutationObserverWindow extends UseMutationObserverWindowLike {
 
 interface NavigatorLanguageWindow extends EventTarget, WindowLike {
 	readonly navigator?: UseNavigatorLanguageNavigatorLike;
+}
+
+interface PreferredLanguagesWindow extends EventTarget, WindowLike {
+	readonly navigator?: UsePreferredLanguagesNavigatorLike;
 }
 
 interface NetworkWindow extends EventTarget, WindowLike {
@@ -6198,6 +6206,41 @@ describe("public types", () => {
 				useNavigatorLanguage({
 					// @ts-expect-error navigator must be navigator-like
 					navigator: "en-US",
+				});
+			});
+		});
+	});
+
+	it("types preferred languages values and options", () => {
+		typeOnly(() => {
+			const navigatorTarget: UsePreferredLanguagesNavigatorLike = {
+				languages: ["en-US", "en"],
+			};
+			const languageWindow = new EventTarget() as PreferredLanguagesWindow;
+			const options: UsePreferredLanguagesOptions<
+				PreferredLanguagesWindow,
+				UsePreferredLanguagesNavigatorLike
+			> = {
+				navigator: signal(navigatorTarget),
+				window: signal(languageWindow),
+			};
+			const preferred = usePreferredLanguages(options);
+			const preferredReturn: UsePreferredLanguagesReturn = preferred;
+
+			expectTypeOf(preferred).toEqualTypeOf<UsePreferredLanguagesReturn>();
+			expectTypeOf(preferredReturn.isSupported).toEqualTypeOf<
+				ReadonlySignal<boolean>
+			>();
+			expectTypeOf(preferred.languages).toEqualTypeOf<
+				ReadonlySignal<readonly string[]>
+			>();
+			expectTypeOf(preferred.stop()).toEqualTypeOf<void>();
+			typeOnly(() => {
+				// @ts-expect-error returned values are readonly signals
+				preferred.languages.value = ["ja-JP"];
+				usePreferredLanguages({
+					// @ts-expect-error navigator must be navigator-like
+					navigator: ["en-US"],
 				});
 			});
 		});
