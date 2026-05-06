@@ -129,7 +129,7 @@ Status values:
 | `useFullscreen` | `useFullscreen` | Done |
 | `useGamepad` | `useGamepad` | Done |
 | `useGeolocation` | `useGeolocation` | Done |
-| `useIdle` | `-` | Todo |
+| `useIdle` | `useIdle` | Done |
 | `useImage` | `-` | Todo |
 | `useInfiniteScroll` | `-` | Todo |
 | `useIntersectionObserver` | `-` | Todo |
