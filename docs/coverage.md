@@ -170,7 +170,7 @@ Status values:
 | `usePreferredReducedMotion` | `usePreferredReducedMotion` | Done |
 | `usePreferredReducedTransparency` | `usePreferredReducedTransparency` | Done |
 | `usePrevious` | `usePrevious` | Done |
-| `useRafFn` | `-` | Todo |
+| `useRafFn` | `useRafFn` | Done |
 | `useRefHistory` | `useRefHistory` | Done |
 | `useResizeObserver` | `-` | Todo |
 | `useSSRWidth` | `-` | Out of scope |
