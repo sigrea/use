@@ -109,6 +109,7 @@ export { useMemoize } from "./useMemoize";
 export { useMemory } from "./useMemory";
 export { useMounted } from "./useMounted";
 export { useMouse } from "./useMouse";
+export { useMouseInElement } from "./useMouseInElement";
 export { useOnline } from "./useOnline";
 export { usePreferredDark } from "./usePreferredDark";
 export { usePrevious } from "./usePrevious";
@@ -583,6 +584,10 @@ export type {
 	UseMediaQueryReturn,
 	UseMouseCoordType,
 	UseMouseEventExtractor,
+	UseMouseInElementDocumentLike,
+	UseMouseInElementOptions,
+	UseMouseInElementReturn,
+	UseMouseInElementWindowLike,
 	UseMouseOptions,
 	UseMouseReturn,
 	UseMouseSourceType,
