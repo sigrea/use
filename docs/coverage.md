@@ -175,7 +175,7 @@ Status values:
 | `useResizeObserver` | `useResizeObserver` | Done |
 | `useSSRWidth` | `-` | Out of scope |
 | `useScreenOrientation` | `useScreenOrientation` | Done |
-| `useScreenSafeArea` | `-` | Todo |
+| `useScreenSafeArea` | `useScreenSafeArea` | Done |
 | `useScriptTag` | `-` | Todo |
 | `useScroll` | `-` | Todo |
 | `useScrollLock` | `-` | Todo |
