@@ -511,6 +511,10 @@ import type {
 	UseScrollDirection,
 	UseScrollDirections,
 	UseScrollDocumentLike,
+	UseScrollLockElement,
+	UseScrollLockOptions,
+	UseScrollLockReturn,
+	UseScrollLockWindowLike,
 	UseScrollOptions,
 	UseScrollReturn,
 	UseScrollWindowLike,
@@ -669,6 +673,7 @@ import {
 	useScreenSafeArea,
 	useScriptTag,
 	useScroll,
+	useScrollLock,
 	useSessionStorage,
 	useStorage,
 	useThrottleFn,
@@ -7269,6 +7274,45 @@ describe("public types", () => {
 				useScroll(element, {
 					// @ts-expect-error offset keys must be scroll edges
 					offset: { middle: 16 },
+				});
+			});
+		});
+	});
+
+	it("types scroll lock controls", () => {
+		typeOnly(() => {
+			const element = document.createElement("div");
+			const target = signal<UseScrollLockElement>(element);
+			const scrollLockWindow = Object.assign(new EventTarget(), {
+				document,
+				getComputedStyle: (_element: Element) => document.body.style,
+				label: "window",
+				navigator: {
+					maxTouchPoints: 1,
+					platform: "iPhone",
+					userAgent: "",
+				},
+			}) as UseScrollLockWindowLike;
+			const options: UseScrollLockOptions<typeof scrollLockWindow> = {
+				window: signal(scrollLockWindow),
+			};
+			const scrollLock = useScrollLock(target, true, options);
+			const scrollLockReturn: UseScrollLockReturn = scrollLock;
+
+			expectTypeOf(scrollLock).toEqualTypeOf<UseScrollLockReturn>();
+			expectTypeOf(scrollLockReturn.value).toEqualTypeOf<boolean>();
+			expectTypeOf(scrollLock.stop()).toEqualTypeOf<void>();
+			scrollLock.value = false;
+			useScrollLock(document, false, { window: scrollLockWindow });
+			useScrollLock(scrollLockWindow, false, { window: null });
+			typeOnly(() => {
+				// @ts-expect-error target must be element, document, window, or nullish
+				useScrollLock(1);
+				// @ts-expect-error initialState must be boolean
+				useScrollLock(element, "true");
+				useScrollLock(element, false, {
+					// @ts-expect-error window must be window-like or nullish
+					window: 1,
 				});
 			});
 		});

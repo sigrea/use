@@ -155,6 +155,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.useScreenSafeArea).toBe("function");
 		expect(typeof mod.useScriptTag).toBe("function");
 		expect(typeof mod.useScroll).toBe("function");
+		expect(typeof mod.useScrollLock).toBe("function");
 		expect(typeof mod.useSessionStorage).toBe("function");
 		expect(typeof mod.useStorage).toBe("function");
 		expect(typeof mod.useTimeout).toBe("function");
@@ -232,6 +233,7 @@ describe("SSR safety", () => {
 			useScreenSafeArea,
 			useScriptTag,
 			useScroll,
+			useScrollLock,
 			onElementRemoval,
 			onKeyDown,
 			onKeyPressed,
@@ -315,6 +317,7 @@ describe("SSR safety", () => {
 		const screenSafeArea = useScreenSafeArea({ window: null });
 		const scriptTag = useScriptTag("https://example.com/script.js");
 		const scroll = useScroll(null, { window: null });
+		const scrollLock = useScrollLock(null, true, { window: null });
 		const cssSupports = useCssSupports("display", "grid", { window: null });
 		const initialCssSupports = useCssSupports("display: grid", {
 			initialValue: true,
@@ -476,6 +479,10 @@ describe("SSR safety", () => {
 		});
 		scroll.scrollTo({ left: 1, top: 2 });
 		scroll.stop();
+		expect(scrollLock.value).toBe(true);
+		scrollLock.value = false;
+		expect(scrollLock.value).toBe(false);
+		scrollLock.stop();
 		expect(cssSupports.value).toBe(false);
 		expect(initialCssSupports.value).toBe(true);
 		expect(cssVar.value).toBe("red");
