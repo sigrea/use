@@ -3111,6 +3111,28 @@ export interface UseMousePressedReturn {
 	stop(): void;
 }
 
+export type UseMutationObserverTarget<TNode extends Node = Node> =
+	| MaybeTarget<TNode | null | undefined>
+	| readonly MaybeTarget<TNode | null | undefined>[]
+	| null
+	| undefined;
+
+export interface UseMutationObserverWindowLike extends WindowLike {
+	readonly MutationObserver?: typeof MutationObserver;
+}
+
+export interface UseMutationObserverOptions<
+	TWindow extends UseMutationObserverWindowLike = UseMutationObserverWindowLike,
+> extends MutationObserverInit {
+	window?: MaybeTarget<TWindow | null | undefined>;
+}
+
+export interface UseMutationObserverReturn {
+	readonly isSupported: ReadonlySignal<boolean>;
+	stop(): void;
+	takeRecords(): MutationRecord[] | undefined;
+}
+
 export type UseDraggableAxis = "x" | "y" | "both";
 export type UseDraggablePointerType = "mouse" | "pen" | "touch" | (string & {});
 export type UseDraggableElement = HTMLElement | SVGElement;

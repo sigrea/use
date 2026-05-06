@@ -111,6 +111,7 @@ export { useMounted } from "./useMounted";
 export { useMouse } from "./useMouse";
 export { useMouseInElement } from "./useMouseInElement";
 export { useMousePressed } from "./useMousePressed";
+export { useMutationObserver } from "./useMutationObserver";
 export { useOnline } from "./useOnline";
 export { usePreferredDark } from "./usePreferredDark";
 export { usePrevious } from "./usePrevious";
@@ -596,6 +597,10 @@ export type {
 	UseMousePressedWindowLike,
 	UseMouseReturn,
 	UseMouseSourceType,
+	UseMutationObserverOptions,
+	UseMutationObserverReturn,
+	UseMutationObserverTarget,
+	UseMutationObserverWindowLike,
 	UseOnlineOptions,
 	UseOnlineReturn,
 	UseRefHistoryOptions,
