@@ -140,7 +140,7 @@ Status values:
 | `useLocalStorage` | `useLocalStorage` | Done |
 | `useMagicKeys` | `useMagicKeys` | Done |
 | `useManualRefHistory` | `useManualRefHistory` | Done |
-| `useMediaControls` | `-` | Todo |
+| `useMediaControls` | `useMediaControls` | Done |
 | `useMediaQuery` | `useMediaQuery` | Done |
 | `useMemoize` | `-` | Todo |
 | `useMemory` | `-` | Todo |
