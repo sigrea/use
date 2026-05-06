@@ -143,7 +143,7 @@ Status values:
 | `useMediaControls` | `useMediaControls` | Done |
 | `useMediaQuery` | `useMediaQuery` | Done |
 | `useMemoize` | `useMemoize` | Done |
-| `useMemory` | `-` | Todo |
+| `useMemory` | `useMemory` | Done |
 | `useMounted` | `-` | Needs design |
 | `useMouse` | `useMouse` | Done |
 | `useMouseInElement` | `-` | Todo |
