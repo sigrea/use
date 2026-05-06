@@ -2951,6 +2951,8 @@ export interface UseMemoryReturn {
 	stop(): void;
 }
 
+export type UseMountedReturn = ReadonlySignal<boolean>;
+
 export interface OnLongPressModifiers {
 	stop?: boolean;
 	once?: boolean;

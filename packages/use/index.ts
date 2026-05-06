@@ -107,6 +107,7 @@ export { useManualRefHistory } from "./useManualRefHistory";
 export { useMediaQuery } from "./useMediaQuery";
 export { useMemoize } from "./useMemoize";
 export { useMemory } from "./useMemory";
+export { useMounted } from "./useMounted";
 export { useMouse } from "./useMouse";
 export { useOnline } from "./useOnline";
 export { usePreferredDark } from "./usePreferredDark";
@@ -570,6 +571,7 @@ export type {
 	UseMemoryPerformanceLike,
 	UseMemoryReturn,
 	UseMemoryWindowLike,
+	UseMountedReturn,
 	UseIntervalControlsReturn,
 	UseIntervalFnOptions,
 	UseIntervalFnReturn,
