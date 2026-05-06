@@ -429,6 +429,11 @@ import type {
 	UseNowReturn,
 	UseNowScheduler,
 	UseNowWindowLike,
+	UseObjectUrlObject,
+	UseObjectUrlOptions,
+	UseObjectUrlReturn,
+	UseObjectUrlUrlLike,
+	UseObjectUrlWindowLike,
 	UseOnlineOptions,
 	UseRefHistoryRecord,
 	UseStorageOptions,
@@ -562,6 +567,7 @@ import {
 	useNavigatorLanguage,
 	useNetwork,
 	useNow,
+	useObjectUrl,
 	useOnline,
 	usePreferredDark,
 	usePrevious,
@@ -5938,6 +5944,47 @@ describe("public types", () => {
 				useNow({
 					// @ts-expect-error window must provide animation frame methods when present
 					window: { requestAnimationFrame: true },
+				});
+			});
+		});
+	});
+
+	it("types object URLs", () => {
+		typeOnly(() => {
+			const source = signal<UseObjectUrlObject | null>(new Blob(["hello"]));
+			const urlApi: UseObjectUrlUrlLike = {
+				createObjectURL: (_object) => "blob:mock",
+				revokeObjectURL: (_objectURL) => {},
+			};
+			const windowTarget = Object.assign(new EventTarget(), {
+				URL: urlApi,
+			}) as UseObjectUrlWindowLike;
+			const options: UseObjectUrlOptions = {
+				window: signal(windowTarget),
+			};
+			const objectUrl = useObjectUrl(source, options);
+			const objectUrlReturn: UseObjectUrlReturn = objectUrl;
+
+			expectTypeOf(objectUrl).toEqualTypeOf<UseObjectUrlReturn>();
+			expectTypeOf(objectUrlReturn.url).toEqualTypeOf<
+				ReadonlySignal<string | undefined>
+			>();
+			expectTypeOf(objectUrl.stop()).toEqualTypeOf<void>();
+			typeOnly(() => {
+				// @ts-expect-error returned values are readonly signals
+				objectUrl.url.value = "blob:next";
+				useObjectUrl({
+					// @ts-expect-error object must be a Blob, File, MediaSource, or signal/getter for one
+					src: "blob:source",
+				});
+				useObjectUrl(source, {
+					window: {
+						URL: {
+							createObjectURL: (_object) => "blob:mock",
+							// @ts-expect-error revokeObjectURL receives a string
+							revokeObjectURL: (_objectURL: number) => {},
+						},
+					},
 				});
 			});
 		});
