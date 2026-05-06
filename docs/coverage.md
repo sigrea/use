@@ -156,7 +156,7 @@ Status values:
 | `useOffsetPagination` | `useOffsetPagination` | Done |
 | `useOnline` | `useOnline` | Done |
 | `usePageLeave` | `usePageLeave` | Done |
-| `useParallax` | `-` | Todo |
+| `useParallax` | `useParallax` | Done |
 | `useParentElement` | `-` | Needs design |
 | `usePerformanceObserver` | `-` | Todo |
 | `usePermission` | `-` | Todo |
