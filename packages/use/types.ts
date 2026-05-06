@@ -2203,6 +2203,37 @@ export interface UseScreenOrientationReturn {
 	stop(): void;
 }
 
+export interface UseScreenSafeAreaElementLike extends Element {
+	readonly style?: CSSStyleDeclaration;
+}
+
+export interface UseScreenSafeAreaDocumentLike extends DocumentLike {
+	readonly documentElement?: UseScreenSafeAreaElementLike | null;
+}
+
+export interface UseScreenSafeAreaVisualViewportLike extends EventTarget {}
+
+export interface UseScreenSafeAreaWindowLike extends WindowLike {
+	readonly document?: UseScreenSafeAreaDocumentLike;
+	readonly visualViewport?: UseScreenSafeAreaVisualViewportLike | null;
+	getComputedStyle?(element: Element): CSSStyleDeclaration;
+}
+
+export interface UseScreenSafeAreaOptions<
+	TWindow extends UseScreenSafeAreaWindowLike = UseScreenSafeAreaWindowLike,
+> {
+	window?: MaybeTarget<TWindow | null | undefined>;
+}
+
+export interface UseScreenSafeAreaReturn {
+	readonly top: ReadonlySignal<string>;
+	readonly right: ReadonlySignal<string>;
+	readonly bottom: ReadonlySignal<string>;
+	readonly left: ReadonlySignal<string>;
+	update(): void;
+	stop(): void;
+}
+
 export interface OnlineNavigatorLike extends NavigatorLike {
 	readonly onLine?: boolean;
 }
