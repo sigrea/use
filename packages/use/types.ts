@@ -3067,6 +3067,50 @@ export interface UseMouseInElementReturn extends UseMouseReturn {
 	readonly isOutside: ReadonlySignal<boolean>;
 }
 
+export type UseMousePressedSourceEvent = MouseEvent | TouchEvent | DragEvent;
+
+export interface UseMousePressedWindowLike extends WindowLike {}
+
+export interface UseMousePressedOptions<
+	TWindow extends UseMousePressedWindowLike = UseMousePressedWindowLike,
+	TTarget extends EventTarget = EventTarget,
+> {
+	/**
+	 * Listen to touchstart, touchend, and touchcancel.
+	 *
+	 * @default true
+	 */
+	touch?: boolean;
+	/**
+	 * Listen to dragstart, drop, and dragend.
+	 *
+	 * @default true
+	 */
+	drag?: boolean;
+	/**
+	 * Register event listeners in the capture phase.
+	 *
+	 * @default false
+	 */
+	capture?: boolean;
+	/**
+	 * Initial pressed state.
+	 *
+	 * @default false
+	 */
+	initialValue?: boolean;
+	target?: MaybeTarget<TTarget | null | undefined>;
+	window?: MaybeTarget<TWindow | null | undefined>;
+	onPressed?: (event: UseMousePressedSourceEvent) => void;
+	onReleased?: (event: UseMousePressedSourceEvent) => void;
+}
+
+export interface UseMousePressedReturn {
+	readonly pressed: ReadonlySignal<boolean>;
+	readonly sourceType: ReadonlySignal<UseMouseSourceType>;
+	stop(): void;
+}
+
 export type UseDraggableAxis = "x" | "y" | "both";
 export type UseDraggablePointerType = "mouse" | "pen" | "touch" | (string & {});
 export type UseDraggableElement = HTMLElement | SVGElement;

@@ -110,6 +110,7 @@ export { useMemory } from "./useMemory";
 export { useMounted } from "./useMounted";
 export { useMouse } from "./useMouse";
 export { useMouseInElement } from "./useMouseInElement";
+export { useMousePressed } from "./useMousePressed";
 export { useOnline } from "./useOnline";
 export { usePreferredDark } from "./usePreferredDark";
 export { usePrevious } from "./usePrevious";
@@ -589,6 +590,10 @@ export type {
 	UseMouseInElementReturn,
 	UseMouseInElementWindowLike,
 	UseMouseOptions,
+	UseMousePressedOptions,
+	UseMousePressedReturn,
+	UseMousePressedSourceEvent,
+	UseMousePressedWindowLike,
 	UseMouseReturn,
 	UseMouseSourceType,
 	UseOnlineOptions,
