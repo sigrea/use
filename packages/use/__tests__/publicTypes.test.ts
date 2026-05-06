@@ -481,6 +481,8 @@ import type {
 	UsePreferredLanguagesReturn,
 	UsePreferredReducedMotion,
 	UsePreferredReducedMotionReturn,
+	UsePreferredReducedTransparency,
+	UsePreferredReducedTransparencyReturn,
 	UseRefHistoryRecord,
 	UseStorageOptions,
 	UseToggleOptions,
@@ -628,6 +630,7 @@ import {
 	usePreferredDark,
 	usePreferredLanguages,
 	usePreferredReducedMotion,
+	usePreferredReducedTransparency,
 	usePrevious,
 	useRefHistory,
 	useSessionStorage,
@@ -4944,6 +4947,8 @@ describe("public types", () => {
 		const preferredContrast = usePreferredContrast(mediaOptions);
 		const preferredDark = usePreferredDark(mediaOptions);
 		const preferredReducedMotion = usePreferredReducedMotion(mediaOptions);
+		const preferredReducedTransparency =
+			usePreferredReducedTransparency(mediaOptions);
 		const colorStorage = {
 			getItem: (_key: string) => null,
 			removeItem: (_key: string) => {},
@@ -5008,6 +5013,13 @@ describe("public types", () => {
 			preferredReducedMotion.value,
 		).toEqualTypeOf<UsePreferredReducedMotion>();
 		expectTypeOf(preferredReducedMotion.stop).toEqualTypeOf<() => void>();
+		expectTypeOf(
+			preferredReducedTransparency,
+		).toEqualTypeOf<UsePreferredReducedTransparencyReturn>();
+		expectTypeOf(
+			preferredReducedTransparency.value,
+		).toEqualTypeOf<UsePreferredReducedTransparency>();
+		expectTypeOf(preferredReducedTransparency.stop).toEqualTypeOf<() => void>();
 		expectTypeOf(colorMode).toEqualTypeOf<UseColorModeReturn<"sepia">>();
 		expectTypeOf(colorMode.mode).toEqualTypeOf<
 			Computed<ColorModeSelection<"sepia">>
