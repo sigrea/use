@@ -145,6 +145,7 @@ export { useShare } from "./useShare";
 export { useSorted } from "./useSorted";
 export { useSpeechRecognition } from "./useSpeechRecognition";
 export { useSpeechSynthesis } from "./useSpeechSynthesis";
+export { useStepper } from "./useStepper";
 export {
 	customStorageEventName,
 	StorageSerializers,
@@ -772,6 +773,13 @@ export type {
 	UseSpeechSynthesisReturn,
 	UseSpeechSynthesisWindowLike,
 	UseSpeechSynthesisWindowOptions,
+	UseStepperArrayStep,
+	UseStepperObjectStepName,
+	UseStepperObjectStepValue,
+	UseStepperObjectSteps,
+	UseStepperResolvedObject,
+	UseStepperResolvedStep,
+	UseStepperReturn,
 	UseScriptTagDocumentLike,
 	UseScriptTagOptions,
 	UseScriptTagReturn,
