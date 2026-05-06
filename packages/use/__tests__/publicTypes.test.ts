@@ -438,6 +438,8 @@ import type {
 	UseOffsetPaginationOptions,
 	UseOffsetPaginationReturn,
 	UseOnlineOptions,
+	UsePageLeaveOptions,
+	UsePageLeaveReturn,
 	UseRefHistoryRecord,
 	UseStorageOptions,
 	UseToggleOptions,
@@ -573,6 +575,7 @@ import {
 	useObjectUrl,
 	useOffsetPagination,
 	useOnline,
+	usePageLeave,
 	usePreferredDark,
 	usePrevious,
 	useRefHistory,
@@ -5422,8 +5425,16 @@ describe("public types", () => {
 			window: signal(onlineWindow),
 		};
 		const online = useOnline(onlineOptions);
+		const pageLeaveOptions: UsePageLeaveOptions<typeof onlineWindow> = {
+			window: onlineWindow,
+		};
+		const pageLeave = usePageLeave(pageLeaveOptions);
+		const pageLeaveReturn: UsePageLeaveReturn = pageLeave;
 
 		expectTypeOf(online.isOnline.value).toEqualTypeOf<boolean>();
+		expectTypeOf(pageLeave).toEqualTypeOf<UsePageLeaveReturn>();
+		expectTypeOf(pageLeaveReturn.isLeft.value).toEqualTypeOf<boolean>();
+		expectTypeOf(pageLeave.stop()).toEqualTypeOf<void>();
 
 		breakpoints.stop();
 		preferredDark.stop();
@@ -5437,6 +5448,7 @@ describe("public types", () => {
 		pixelRatioFallback.stop();
 		visibility.stop();
 		online.stop();
+		pageLeave.stop();
 	});
 
 	it("forwards timeout start arguments", () => {
