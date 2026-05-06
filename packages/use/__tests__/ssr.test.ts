@@ -130,6 +130,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.useMutationObserver).toBe("function");
 		expect(typeof mod.useNavigatorLanguage).toBe("function");
 		expect(typeof mod.useNetwork).toBe("function");
+		expect(typeof mod.useNow).toBe("function");
 		expect(typeof mod.useOnline).toBe("function");
 		expect(typeof mod.usePreferredDark).toBe("function");
 		expect(typeof mod.usePrevious).toBe("function");
@@ -188,6 +189,7 @@ describe("SSR safety", () => {
 			useMutationObserver,
 			useNavigatorLanguage,
 			useNetwork,
+			useNow,
 			useOnline,
 			usePreferredDark,
 			onElementRemoval,
@@ -240,6 +242,10 @@ describe("SSR safety", () => {
 		});
 		const navigatorLanguage = useNavigatorLanguage({ window: null });
 		const network = useNetwork({ window: null });
+		const now = useNow({
+			controls: true,
+			window: null,
+		});
 		const mediaQuery = useMediaQuery("(min-width: 640px)");
 		const online = useOnline();
 		const preferredDark = usePreferredDark();
@@ -346,6 +352,8 @@ describe("SSR safety", () => {
 		expect(network.isOnline.value).toBe(true);
 		expect(network.downlink.value).toBeUndefined();
 		expect(network.type.value).toBe("unknown");
+		expect(now.now.value).toBeInstanceOf(Date);
+		expect(now.isActive.value).toBe(false);
 		expect(mediaQuery.matches.value).toBe(false);
 		expect(online.isOnline.value).toBe(true);
 		expect(preferredDark.matches.value).toBe(false);
@@ -461,6 +469,7 @@ describe("SSR safety", () => {
 		mutationObserver.stop();
 		navigatorLanguage.stop();
 		network.stop();
+		now.pause();
 		mediaQuery.stop();
 		online.stop();
 		preferredDark.stop();
