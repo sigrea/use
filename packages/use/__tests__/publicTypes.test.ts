@@ -410,6 +410,10 @@ import type {
 	UseMousePressedReturn,
 	UseMousePressedSourceEvent,
 	UseMousePressedWindowLike,
+	UseMutationObserverOptions,
+	UseMutationObserverReturn,
+	UseMutationObserverTarget,
+	UseMutationObserverWindowLike,
 	UseOnlineOptions,
 	UseRefHistoryRecord,
 	UseStorageOptions,
@@ -538,6 +542,7 @@ import {
 	useMouse,
 	useMouseInElement,
 	useMousePressed,
+	useMutationObserver,
 	useOnline,
 	usePreferredDark,
 	usePrevious,
@@ -582,6 +587,10 @@ interface MouseInElementWindow extends UseMouseInElementWindowLike {
 }
 
 interface MousePressedWindow extends UseMousePressedWindowLike {
+	readonly label: string;
+}
+
+interface MutationObserverWindow extends UseMutationObserverWindowLike {
 	readonly label: string;
 }
 
@@ -5711,6 +5720,56 @@ describe("public types", () => {
 					// @ts-expect-error target must be an event target
 					target: "button",
 				});
+			});
+		});
+	});
+
+	it("types mutation observer values and options", () => {
+		typeOnly(() => {
+			const mutationWindow = new EventTarget() as MutationObserverWindow;
+			const node = document.createTextNode("content");
+			const element = document.createElement("div");
+			const target: UseMutationObserverTarget<Node> = [
+				signal(node),
+				null,
+				element,
+			];
+			const options: UseMutationObserverOptions<MutationObserverWindow> = {
+				attributeFilter: ["id"],
+				attributes: true,
+				childList: true,
+				window: signal(mutationWindow),
+			};
+			const observer = useMutationObserver(
+				target,
+				(records, observer) => {
+					expectTypeOf(records).toEqualTypeOf<MutationRecord[]>();
+					expectTypeOf(observer).toEqualTypeOf<MutationObserver>();
+				},
+				options,
+			);
+			const observerReturn: UseMutationObserverReturn = observer;
+
+			expectTypeOf(observer).toEqualTypeOf<UseMutationObserverReturn>();
+			expectTypeOf(observerReturn.isSupported).toEqualTypeOf<
+				ReadonlySignal<boolean>
+			>();
+			expectTypeOf(observer.takeRecords()).toEqualTypeOf<
+				MutationRecord[] | undefined
+			>();
+			expectTypeOf(observer.stop()).toEqualTypeOf<void>();
+			typeOnly(() => {
+				// @ts-expect-error returned values are readonly signals
+				observer.isSupported.value = true;
+				useMutationObserver(document.createElement("div"), () => {}, {
+					// @ts-expect-error attributes must be boolean
+					attributes: "true",
+				});
+				useMutationObserver(
+					// @ts-expect-error target must resolve to a node
+					"node",
+					() => {},
+				);
 			});
 		});
 	});

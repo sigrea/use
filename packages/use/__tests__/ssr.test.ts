@@ -127,6 +127,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.useMouse).toBe("function");
 		expect(typeof mod.useMouseInElement).toBe("function");
 		expect(typeof mod.useMousePressed).toBe("function");
+		expect(typeof mod.useMutationObserver).toBe("function");
 		expect(typeof mod.useOnline).toBe("function");
 		expect(typeof mod.usePreferredDark).toBe("function");
 		expect(typeof mod.usePrevious).toBe("function");
@@ -182,6 +183,7 @@ describe("SSR safety", () => {
 			useMouse,
 			useMouseInElement,
 			useMousePressed,
+			useMutationObserver,
 			useOnline,
 			usePreferredDark,
 			onElementRemoval,
@@ -229,6 +231,9 @@ describe("SSR safety", () => {
 		const mouse = useMouse();
 		const mouseInElement = useMouseInElement(null, { window: null });
 		const mousePressed = useMousePressed({ window: null });
+		const mutationObserver = useMutationObserver(null, () => {}, {
+			window: null,
+		});
 		const mediaQuery = useMediaQuery("(min-width: 640px)");
 		const online = useOnline();
 		const preferredDark = usePreferredDark();
@@ -327,6 +332,8 @@ describe("SSR safety", () => {
 		expect(mouseInElement.isOutside.value).toBe(true);
 		expect(mousePressed.pressed.value).toBe(false);
 		expect(mousePressed.sourceType.value).toBeNull();
+		expect(mutationObserver.isSupported.value).toBe(false);
+		expect(mutationObserver.takeRecords()).toBeUndefined();
 		expect(mediaQuery.matches.value).toBe(false);
 		expect(online.isOnline.value).toBe(true);
 		expect(preferredDark.matches.value).toBe(false);
@@ -439,6 +446,7 @@ describe("SSR safety", () => {
 		mouse.stop();
 		mouseInElement.stop();
 		mousePressed.stop();
+		mutationObserver.stop();
 		mediaQuery.stop();
 		online.stop();
 		preferredDark.stop();
