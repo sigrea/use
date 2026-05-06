@@ -2815,6 +2815,76 @@ export type UseMagicKeysReturn<Reactive extends boolean = false> = Readonly<
 		MagicKeysInternal<Reactive>
 >;
 
+export interface UseMediaControlsSource {
+	src: string;
+	type?: string;
+	media?: string;
+}
+
+export interface UseMediaControlsTextTrackSource {
+	default?: boolean;
+	kind: TextTrackKind;
+	label: string;
+	src: string;
+	srcLang: string;
+}
+
+export interface UseMediaControlsTextTrack {
+	readonly id: number;
+	readonly label: string;
+	readonly language: string;
+	readonly mode: TextTrackMode;
+	readonly kind: TextTrackKind;
+	readonly inBandMetadataTrackDispatchType: string;
+	readonly cues: TextTrackCueList | null;
+	readonly activeCues: TextTrackCueList | null;
+}
+
+export interface UseMediaControlsDocumentLike extends DocumentLike {
+	readonly pictureInPictureEnabled?: boolean;
+	createElement(tagName: "source"): HTMLSourceElement;
+	createElement(tagName: "track"): HTMLTrackElement;
+	createElement(tagName: string): HTMLElement;
+	exitPictureInPicture?(): Promise<void>;
+}
+
+export interface UseMediaControlsOptions<
+	TDocument extends UseMediaControlsDocumentLike = UseMediaControlsDocumentLike,
+> {
+	src?: MaybeValue<
+		string | UseMediaControlsSource | UseMediaControlsSource[] | undefined
+	>;
+	tracks?: MaybeValue<UseMediaControlsTextTrackSource[] | undefined>;
+	document?: MaybeTarget<TDocument | null | undefined>;
+}
+
+export interface UseMediaControlsReturn {
+	readonly currentTime: Computed<number>;
+	readonly duration: ReadonlySignal<number>;
+	readonly waiting: ReadonlySignal<boolean>;
+	readonly seeking: ReadonlySignal<boolean>;
+	readonly ended: ReadonlySignal<boolean>;
+	readonly stalled: ReadonlySignal<boolean>;
+	readonly buffered: ReadonlySignal<[number, number][]>;
+	readonly playing: Computed<boolean>;
+	readonly rate: Computed<number>;
+	readonly volume: Computed<number>;
+	readonly muted: Computed<boolean>;
+	readonly tracks: ReadonlySignal<UseMediaControlsTextTrack[]>;
+	readonly selectedTrack: ReadonlySignal<number>;
+	enableTrack(
+		track: number | UseMediaControlsTextTrack,
+		disableTracks?: boolean,
+	): void;
+	disableTrack(track?: number | UseMediaControlsTextTrack): void;
+	readonly supportsPictureInPicture: ReadonlySignal<boolean>;
+	togglePictureInPicture(): Promise<PictureInPictureWindow | void>;
+	readonly isPictureInPicture: ReadonlySignal<boolean>;
+	readonly onSourceError: EventHookOn<Event>;
+	readonly onPlaybackError: EventHookOn<unknown>;
+	stop(): void;
+}
+
 export interface OnLongPressModifiers {
 	stop?: boolean;
 	once?: boolean;

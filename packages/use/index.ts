@@ -99,6 +99,7 @@ export { useIntersectionObserver } from "./useIntersectionObserver";
 export { useKeyModifier } from "./useKeyModifier";
 export { useLastChanged } from "./useLastChanged";
 export { DefaultMagicKeysAliasMap, useMagicKeys } from "./useMagicKeys";
+export { useMediaControls } from "./useMediaControls";
 export { useInterval } from "./useInterval";
 export { useIntervalFn } from "./useIntervalFn";
 export { useLocalStorage } from "./useLocalStorage";
@@ -552,6 +553,12 @@ export type {
 	UseMagicKeysOptions,
 	UseMagicKeysReturn,
 	UseMagicKeysWindowLike,
+	UseMediaControlsDocumentLike,
+	UseMediaControlsOptions,
+	UseMediaControlsReturn,
+	UseMediaControlsSource,
+	UseMediaControlsTextTrack,
+	UseMediaControlsTextTrackSource,
 	UseIntervalControlsReturn,
 	UseIntervalFnOptions,
 	UseIntervalFnReturn,
