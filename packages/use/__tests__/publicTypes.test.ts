@@ -396,6 +396,11 @@ import type {
 	UseMemoizeCacheKey,
 	UseMemoizeOptions,
 	UseMemoizeReturn,
+	UseMemoryInfo,
+	UseMemoryOptions,
+	UseMemoryPerformanceLike,
+	UseMemoryReturn,
+	UseMemoryWindowLike,
 	UseMouseOptions,
 	UseOnlineOptions,
 	UseRefHistoryRecord,
@@ -520,6 +525,7 @@ import {
 	useMediaControls,
 	useMediaQuery,
 	useMemoize,
+	useMemory,
 	useMouse,
 	useOnline,
 	usePreferredDark,
@@ -594,6 +600,15 @@ interface FpsPerformance extends UseFpsPerformanceLike {
 
 interface FpsWindow extends UseFpsWindowLike {
 	readonly label: string;
+}
+
+interface MemoryPerformance extends UseMemoryPerformanceLike {
+	readonly label: string;
+}
+
+interface MemoryWindow extends UseMemoryWindowLike {
+	readonly label: string;
+	readonly performance?: MemoryPerformance;
 }
 
 interface IdleDocument extends UseIdleDocumentLike {
@@ -4478,6 +4493,56 @@ describe("public types", () => {
 				>();
 				// @ts-expect-error non-string cache keys require getKey
 				useMemoize((id: number) => `user-${id}`, { cache: numberCache });
+			});
+		});
+	});
+
+	it("types memory polling controls and injectable window", () => {
+		typeOnly(() => {
+			const memoryInfo: UseMemoryInfo = {
+				jsHeapSizeLimit: 1000,
+				totalJSHeapSize: 200,
+				usedJSHeapSize: 100,
+			};
+			const performanceTarget: MemoryPerformance = {
+				label: "performance",
+				memory: memoryInfo,
+			};
+			const memoryWindow = Object.assign(new EventTarget(), {
+				label: "memory",
+				performance: performanceTarget,
+			}) as MemoryWindow;
+			const options: UseMemoryOptions<MemoryWindow> = {
+				immediate: false,
+				immediateCallback: true,
+				interval: signal(500),
+				window: signal(memoryWindow),
+			};
+			const memory = useMemory(options);
+			const memoryReturn: UseMemoryReturn = memory;
+
+			expectTypeOf(memoryInfo).toEqualTypeOf<UseMemoryInfo>();
+			expectTypeOf(memoryReturn).toEqualTypeOf<UseMemoryReturn>();
+			expectTypeOf(memory.isSupported).toEqualTypeOf<ReadonlySignal<boolean>>();
+			expectTypeOf(memory.memory).toEqualTypeOf<
+				ReadonlySignal<UseMemoryInfo | undefined>
+			>();
+			expectTypeOf(memory.isActive).toEqualTypeOf<ReadonlySignal<boolean>>();
+			expectTypeOf(memory.pause()).toEqualTypeOf<void>();
+			expectTypeOf(memory.resume()).toEqualTypeOf<void>();
+			expectTypeOf(memory.stop()).toEqualTypeOf<void>();
+
+			typeOnly(() => {
+				// @ts-expect-error returned memory is readonly
+				memory.memory.value = undefined;
+				useMemory({
+					// @ts-expect-error interval must be numeric
+					interval: "1000",
+				});
+				useMemory({
+					// @ts-expect-error window must be EventTarget-like
+					window: { performance: performanceTarget },
+				});
 			});
 		});
 	});
