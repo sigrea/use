@@ -162,6 +162,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.useSpeechSynthesis).toBe("function");
 		expect(typeof mod.useStepper).toBe("function");
 		expect(typeof mod.useStyleTag).toBe("function");
+		expect(typeof mod.useSupported).toBe("function");
 		expect(typeof mod.useSessionStorage).toBe("function");
 		expect(typeof mod.useStorage).toBe("function");
 		expect(typeof mod.useStorageAsync).toBe("function");
@@ -247,6 +248,7 @@ describe("SSR safety", () => {
 			useSpeechSynthesis,
 			useStepper,
 			useStyleTag,
+			useSupported,
 			onElementRemoval,
 			onKeyDown,
 			onKeyPressed,
@@ -338,6 +340,9 @@ describe("SSR safety", () => {
 		const speechSynthesis = useSpeechSynthesis("hello", { window: null });
 		const stepper = useStepper(["first", "second"], "second");
 		const styleTag = useStyleTag(".ssr { color: red; }", { document: null });
+		const supported = useSupported(
+			() => typeof window !== "undefined" && "document" in window,
+		);
 		const cssSupports = useCssSupports("display", "grid", { window: null });
 		const initialCssSupports = useCssSupports("display: grid", {
 			initialValue: true,
@@ -533,6 +538,7 @@ describe("SSR safety", () => {
 		expect(styleTag.id).toMatch(/^sigrea_style_tag_\d+$/);
 		expect(styleTag.css.value).toBe(".ssr { color: red; }");
 		expect(styleTag.isLoaded.value).toBe(false);
+		expect(supported.value).toBe(false);
 		styleTag.load();
 		styleTag.unload();
 		speechSynthesis.speak();
@@ -1199,6 +1205,16 @@ describe("SSR safety", () => {
 
 		expect(globalThis.window).toBeUndefined();
 		expect(mounted.value).toBe(false);
+	});
+
+	it("creates useSupported without a window", async () => {
+		const { useSupported } = await import("../../../index");
+		const supported = useSupported(
+			() => typeof window !== "undefined" && "document" in window,
+		);
+
+		expect(globalThis.window).toBeUndefined();
+		expect(supported.value).toBe(false);
 	});
 
 	it("creates useLastChanged without a window", async () => {
