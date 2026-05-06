@@ -4465,6 +4465,228 @@ export interface UseSpeechRecognitionReturn<
 	toggle(value?: boolean): void;
 }
 
+export type SpeechSynthesisStatus = "init" | "play" | "pause" | "end";
+
+export type SpeechSynthesisErrorCode =
+	| "canceled"
+	| "interrupted"
+	| "audio-busy"
+	| "audio-hardware"
+	| "network"
+	| "synthesis-unavailable"
+	| "synthesis-failed"
+	| "language-unavailable"
+	| "voice-unavailable"
+	| "text-too-long"
+	| "invalid-argument"
+	| "not-allowed";
+
+export interface SpeechSynthesisVoiceLike {
+	readonly default: boolean;
+	readonly lang: string;
+	readonly localService: boolean;
+	readonly name: string;
+	readonly voiceURI: string;
+}
+
+export interface SpeechSynthesisUtteranceLike<
+	TVoice extends SpeechSynthesisVoiceLike = SpeechSynthesisVoiceLike,
+> extends EventTarget {
+	lang: string;
+	pitch: number;
+	rate: number;
+	text: string;
+	voice: TVoice | null;
+	volume: number;
+}
+
+export interface SpeechSynthesisUtteranceConstructorLike<
+	TVoice extends SpeechSynthesisVoiceLike = SpeechSynthesisVoiceLike,
+	TUtterance extends
+		SpeechSynthesisUtteranceLike<TVoice> = SpeechSynthesisUtteranceLike<TVoice>,
+> {
+	new (text?: string): TUtterance;
+}
+
+export interface SpeechSynthesisLike<
+	TVoice extends SpeechSynthesisVoiceLike = SpeechSynthesisVoiceLike,
+	TUtterance extends
+		SpeechSynthesisUtteranceLike<TVoice> = SpeechSynthesisUtteranceLike<TVoice>,
+> extends EventTarget {
+	readonly paused: boolean;
+	readonly pending: boolean;
+	readonly speaking: boolean;
+	cancel(): void;
+	getVoices(): ArrayLike<TVoice>;
+	pause(): void;
+	resume(): void;
+	speak(utterance: TUtterance): void;
+}
+
+export interface SpeechSynthesisEventLike<
+	TUtterance extends
+		SpeechSynthesisUtteranceLike = SpeechSynthesisUtteranceLike,
+> extends Event {
+	readonly charIndex: number;
+	readonly charLength: number;
+	readonly elapsedTime: number;
+	readonly name: string;
+	readonly utterance: TUtterance;
+}
+
+export interface SpeechSynthesisErrorEventLike<
+	TUtterance extends
+		SpeechSynthesisUtteranceLike = SpeechSynthesisUtteranceLike,
+> extends SpeechSynthesisEventLike<TUtterance> {
+	readonly error: SpeechSynthesisErrorCode;
+}
+
+export interface UseSpeechSynthesisWindowLike<
+	TVoice extends SpeechSynthesisVoiceLike = SpeechSynthesisVoiceLike,
+	TUtterance extends
+		SpeechSynthesisUtteranceLike<TVoice> = SpeechSynthesisUtteranceLike<TVoice>,
+	TSynthesis extends SpeechSynthesisLike<
+		TVoice,
+		TUtterance
+	> = SpeechSynthesisLike<TVoice, TUtterance>,
+> extends WindowLike {
+	readonly speechSynthesis?: TSynthesis;
+	readonly SpeechSynthesisUtterance?: SpeechSynthesisUtteranceConstructorLike<
+		TVoice,
+		TUtterance
+	>;
+}
+
+export type SpeechSynthesisForWindow<TWindow> =
+	TWindow extends UseSpeechSynthesisWindowLike<
+		infer _TVoice,
+		infer _TUtterance,
+		infer TSynthesis
+	>
+		? TSynthesis
+		: SpeechSynthesisLike;
+
+export type SpeechSynthesisUtteranceForWindow<TWindow> =
+	TWindow extends UseSpeechSynthesisWindowLike<
+		infer _TVoice,
+		infer TUtterance,
+		infer _TSynthesis
+	>
+		? TUtterance
+		: SpeechSynthesisUtteranceLike;
+
+export type SpeechSynthesisVoiceForWindow<TWindow> =
+	TWindow extends UseSpeechSynthesisWindowLike<
+		infer TVoice,
+		infer _TUtterance,
+		infer _TSynthesis
+	>
+		? TVoice
+		: SpeechSynthesisVoiceLike;
+
+export interface UseSpeechSynthesisOptions<
+	TVoice extends SpeechSynthesisVoiceLike = SpeechSynthesisVoiceLike,
+	TUtterance extends
+		SpeechSynthesisUtteranceLike<TVoice> = SpeechSynthesisUtteranceLike<TVoice>,
+	TWindow extends UseSpeechSynthesisWindowLike<
+		TVoice,
+		TUtterance
+	> = UseSpeechSynthesisWindowLike<TVoice, TUtterance>,
+> {
+	/**
+	 * Language for SpeechSynthesis.
+	 *
+	 * @default "en-US"
+	 */
+	lang?: MaybeValue<string>;
+	/**
+	 * Pitch for the utterance.
+	 *
+	 * @default 1
+	 */
+	pitch?: MaybeValue<number>;
+	/**
+	 * Speaking rate for the utterance.
+	 *
+	 * @default 1
+	 */
+	rate?: MaybeValue<number>;
+	/**
+	 * Voice for the utterance.
+	 */
+	voice?: MaybeValue<TVoice | null | undefined>;
+	/**
+	 * Volume for the utterance.
+	 *
+	 * @default 1
+	 */
+	volume?: MaybeValue<number>;
+	/**
+	 * Called when the browser reports a word, sentence, or SSML mark boundary.
+	 */
+	onBoundary?: (event: SpeechSynthesisEventLike<TUtterance>) => void;
+	window?: MaybeTarget<TWindow>;
+}
+
+export type UseSpeechSynthesisWindowOptions<
+	TWindow extends UseSpeechSynthesisWindowLike,
+> = {
+	/**
+	 * Language for SpeechSynthesis.
+	 *
+	 * @default "en-US"
+	 */
+	lang?: MaybeValue<string>;
+	/**
+	 * Pitch for the utterance.
+	 *
+	 * @default 1
+	 */
+	pitch?: MaybeValue<number>;
+	/**
+	 * Speaking rate for the utterance.
+	 *
+	 * @default 1
+	 */
+	rate?: MaybeValue<number>;
+	/**
+	 * Voice for the utterance.
+	 */
+	voice?: MaybeValue<SpeechSynthesisVoiceForWindow<TWindow> | null | undefined>;
+	/**
+	 * Volume for the utterance.
+	 *
+	 * @default 1
+	 */
+	volume?: MaybeValue<number>;
+	/**
+	 * Called when the browser reports a word, sentence, or SSML mark boundary.
+	 */
+	onBoundary?: (
+		event: SpeechSynthesisEventLike<SpeechSynthesisUtteranceForWindow<TWindow>>,
+	) => void;
+	window: MaybeTarget<TWindow>;
+};
+
+export interface UseSpeechSynthesisReturn<
+	TVoice extends SpeechSynthesisVoiceLike = SpeechSynthesisVoiceLike,
+	TUtterance extends
+		SpeechSynthesisUtteranceLike<TVoice> = SpeechSynthesisUtteranceLike<TVoice>,
+> {
+	readonly isSupported: ReadonlySignal<boolean>;
+	readonly isPlaying: ReadonlySignal<boolean>;
+	readonly status: ReadonlySignal<SpeechSynthesisStatus>;
+	readonly utterance: ReadonlySignal<TUtterance | undefined>;
+	readonly error: ReadonlySignal<unknown | null>;
+	readonly voices: ReadonlySignal<readonly TVoice[]>;
+	speak(): void;
+	cancel(): void;
+	stop(): void;
+	toggle(value?: boolean): void;
+	pause(): void;
+	resume(): void;
+}
+
 export type UseInfiniteScrollDirection = "top" | "bottom" | "left" | "right";
 
 export type UseInfiniteScrollElement =
