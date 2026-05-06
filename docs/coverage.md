@@ -187,7 +187,7 @@ Status values:
 | `useStepper` | `useStepper` | Done |
 | `useStorage` | `useStorage` | Done |
 | `useStorageAsync` | `useStorageAsync` | Done |
-| `useStyleTag` | `-` | Todo |
+| `useStyleTag` | `useStyleTag` | Done |
 | `useSupported` | `-` | Todo |
 | `useSwipe` | `-` | Todo |
 | `useTemplateRefsList` | `-` | Out of scope |
