@@ -125,6 +125,7 @@ export { usePermission } from "./usePermission";
 export { usePointer } from "./usePointer";
 export { usePointerLock } from "./usePointerLock";
 export { usePointerSwipe } from "./usePointerSwipe";
+export { usePreferredColorScheme } from "./usePreferredColorScheme";
 export { usePreferredDark } from "./usePreferredDark";
 export { usePrevious } from "./usePrevious";
 export { useRefHistory } from "./useRefHistory";
@@ -672,6 +673,8 @@ export type {
 	UsePointerSwipeReturn,
 	UsePointerState,
 	UsePointerType,
+	UsePreferredColorScheme,
+	UsePreferredColorSchemeReturn,
 	UseRefHistoryOptions,
 	UseRefHistoryRecord,
 	UseRefHistoryReturn,
