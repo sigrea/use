@@ -434,6 +434,9 @@ import type {
 	UseObjectUrlReturn,
 	UseObjectUrlUrlLike,
 	UseObjectUrlWindowLike,
+	UseOffsetPaginationChangePayload,
+	UseOffsetPaginationOptions,
+	UseOffsetPaginationReturn,
 	UseOnlineOptions,
 	UseRefHistoryRecord,
 	UseStorageOptions,
@@ -568,6 +571,7 @@ import {
 	useNetwork,
 	useNow,
 	useObjectUrl,
+	useOffsetPagination,
 	useOnline,
 	usePreferredDark,
 	usePrevious,
@@ -5985,6 +5989,61 @@ describe("public types", () => {
 							revokeObjectURL: (_objectURL: number) => {},
 						},
 					},
+				});
+			});
+		});
+	});
+
+	it("types offset pagination controls", () => {
+		typeOnly(() => {
+			const page = signal(1);
+			const pageSize = signal(10);
+			const total = signal(100);
+			const options: UseOffsetPaginationOptions = {
+				onPageChange: (value) => {
+					expectTypeOf(value).toEqualTypeOf<UseOffsetPaginationChangePayload>();
+				},
+				onPageCountChange: (value) => {
+					expectTypeOf(value.pageCount).toEqualTypeOf<number>();
+				},
+				onPageSizeChange: (value) => {
+					expectTypeOf(value.currentPageSize).toEqualTypeOf<number>();
+				},
+				page,
+				pageSize,
+				total,
+			};
+			const pagination = useOffsetPagination(options);
+			const paginationReturn: UseOffsetPaginationReturn = pagination;
+
+			expectTypeOf(pagination).toEqualTypeOf<UseOffsetPaginationReturn>();
+			expectTypeOf(paginationReturn.currentPage).toEqualTypeOf<
+				Computed<number>
+			>();
+			expectTypeOf(pagination.currentPageSize).toEqualTypeOf<
+				Computed<number>
+			>();
+			expectTypeOf(pagination.pageCount).toEqualTypeOf<
+				ReadonlySignal<number>
+			>();
+			expectTypeOf(pagination.isFirstPage).toEqualTypeOf<
+				ReadonlySignal<boolean>
+			>();
+			expectTypeOf(pagination.prev()).toEqualTypeOf<void>();
+			expectTypeOf(pagination.next()).toEqualTypeOf<void>();
+			expectTypeOf(pagination.stop()).toEqualTypeOf<void>();
+			typeOnly(() => {
+				pagination.currentPage.value = 2;
+				pagination.currentPageSize.value = 20;
+				// @ts-expect-error readonly computed signal
+				pagination.pageCount.value = 5;
+				useOffsetPagination({
+					// @ts-expect-error page must resolve to a number
+					page: "1",
+				});
+				useOffsetPagination({
+					// @ts-expect-error callback receives pagination values
+					onPageChange: (value: string) => value,
 				});
 			});
 		});
