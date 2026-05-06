@@ -2135,6 +2135,32 @@ export interface OnlineNavigatorLike extends NavigatorLike {
 	readonly onLine?: boolean;
 }
 
+export type UseNetworkType =
+	| "bluetooth"
+	| "cellular"
+	| "ethernet"
+	| "mixed"
+	| "none"
+	| "wifi"
+	| "wimax"
+	| "other"
+	| "unknown";
+
+export type UseNetworkEffectiveType = "slow-2g" | "2g" | "3g" | "4g";
+
+export interface UseNetworkConnectionLike extends EventTarget {
+	readonly downlink?: number;
+	readonly downlinkMax?: number;
+	readonly effectiveType?: UseNetworkEffectiveType;
+	readonly rtt?: number;
+	readonly saveData?: boolean;
+	readonly type?: UseNetworkType;
+}
+
+export interface UseNetworkNavigatorLike extends OnlineNavigatorLike {
+	readonly connection?: UseNetworkConnectionLike | null;
+}
+
 export interface WindowSizeLike extends WindowLike {
 	readonly document?: WindowSizeDocumentLike;
 	readonly innerWidth: number;
@@ -2563,6 +2589,28 @@ export interface UseOnlineOptions<
 
 export interface UseOnlineReturn {
 	readonly isOnline: ReadonlySignal<boolean>;
+	stop(): void;
+}
+
+export interface UseNetworkOptions<
+	TWindow extends WindowLike = WindowLike,
+	TNavigator extends UseNetworkNavigatorLike = UseNetworkNavigatorLike,
+> {
+	window?: MaybeTarget<TWindow | null | undefined>;
+	navigator?: MaybeValue<TNavigator | null | undefined>;
+}
+
+export interface UseNetworkReturn {
+	readonly isSupported: ReadonlySignal<boolean>;
+	readonly isOnline: ReadonlySignal<boolean>;
+	readonly offlineAt: ReadonlySignal<number | undefined>;
+	readonly onlineAt: ReadonlySignal<number | undefined>;
+	readonly downlink: ReadonlySignal<number | undefined>;
+	readonly downlinkMax: ReadonlySignal<number | undefined>;
+	readonly effectiveType: ReadonlySignal<UseNetworkEffectiveType | undefined>;
+	readonly rtt: ReadonlySignal<number | undefined>;
+	readonly saveData: ReadonlySignal<boolean | undefined>;
+	readonly type: ReadonlySignal<UseNetworkType>;
 	stop(): void;
 }
 

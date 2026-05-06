@@ -113,6 +113,7 @@ export { useMouseInElement } from "./useMouseInElement";
 export { useMousePressed } from "./useMousePressed";
 export { useMutationObserver } from "./useMutationObserver";
 export { useNavigatorLanguage } from "./useNavigatorLanguage";
+export { useNetwork } from "./useNetwork";
 export { useOnline } from "./useOnline";
 export { usePreferredDark } from "./usePreferredDark";
 export { usePrevious } from "./usePrevious";
@@ -605,6 +606,12 @@ export type {
 	UseNavigatorLanguageNavigatorLike,
 	UseNavigatorLanguageOptions,
 	UseNavigatorLanguageReturn,
+	UseNetworkConnectionLike,
+	UseNetworkEffectiveType,
+	UseNetworkNavigatorLike,
+	UseNetworkOptions,
+	UseNetworkReturn,
+	UseNetworkType,
 	UseOnlineOptions,
 	UseOnlineReturn,
 	UseRefHistoryOptions,
