@@ -119,6 +119,7 @@ export { useObjectUrl } from "./useObjectUrl";
 export { useOffsetPagination } from "./useOffsetPagination";
 export { useOnline } from "./useOnline";
 export { usePageLeave } from "./usePageLeave";
+export { useParallax } from "./useParallax";
 export { usePreferredDark } from "./usePreferredDark";
 export { usePrevious } from "./usePrevious";
 export { useRefHistory } from "./useRefHistory";
@@ -634,6 +635,12 @@ export type {
 	UseOnlineReturn,
 	UsePageLeaveOptions,
 	UsePageLeaveReturn,
+	UseParallaxAdjust,
+	UseParallaxOptions,
+	UseParallaxReturn,
+	UseParallaxScreenOrientationLike,
+	UseParallaxSource,
+	UseParallaxWindowLike,
 	UseRefHistoryOptions,
 	UseRefHistoryRecord,
 	UseRefHistoryReturn,
