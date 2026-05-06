@@ -2362,6 +2362,43 @@ export type UseIntervalReturn =
 	| ReadonlySignal<number>
 	| UseIntervalControlsReturn;
 
+export interface UseNowWindowLike extends WindowLike {
+	requestAnimationFrame?(callback: FrameRequestCallback): number;
+	cancelAnimationFrame?(handle: number): void;
+}
+
+export type UseNowInterval = MaybeValue<number> | "requestAnimationFrame";
+
+export type UseNowScheduler = (callback: () => void) => UseIntervalFnReturn;
+
+export interface UseNowOptions<Controls extends boolean = false> {
+	controls?: Controls;
+	/**
+	 * Start updating immediately.
+	 *
+	 * @default true
+	 */
+	immediate?: boolean;
+	/**
+	 * Update interval in milliseconds, or animation frame scheduling.
+	 *
+	 * @default "requestAnimationFrame"
+	 */
+	interval?: UseNowInterval;
+	/**
+	 * Custom scheduler. When provided, it owns the update timing.
+	 */
+	scheduler?: UseNowScheduler;
+	window?: MaybeTarget<UseNowWindowLike | null | undefined>;
+}
+
+export interface UseNowControlsReturn extends UseIntervalFnReturn {
+	readonly now: ReadonlySignal<Date>;
+}
+
+export type UseNowReturn<Controls extends boolean = false> =
+	Controls extends true ? UseNowControlsReturn : ReadonlySignal<Date>;
+
 export interface UseDebounceFnOptions {
 	maxWait?: MaybeValue<number>;
 	rejectOnCancel?: boolean;

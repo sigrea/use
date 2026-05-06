@@ -114,6 +114,7 @@ export { useMousePressed } from "./useMousePressed";
 export { useMutationObserver } from "./useMutationObserver";
 export { useNavigatorLanguage } from "./useNavigatorLanguage";
 export { useNetwork } from "./useNetwork";
+export { useNow } from "./useNow";
 export { useOnline } from "./useOnline";
 export { usePreferredDark } from "./usePreferredDark";
 export { usePrevious } from "./usePrevious";
@@ -612,6 +613,12 @@ export type {
 	UseNetworkOptions,
 	UseNetworkReturn,
 	UseNetworkType,
+	UseNowControlsReturn,
+	UseNowInterval,
+	UseNowOptions,
+	UseNowReturn,
+	UseNowScheduler,
+	UseNowWindowLike,
 	UseOnlineOptions,
 	UseOnlineReturn,
 	UseRefHistoryOptions,
