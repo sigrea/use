@@ -4241,6 +4241,41 @@ export interface UseScrollReturn {
 	stop(): void;
 }
 
+export interface UseScrollLockElementLike extends Element {
+	readonly style: CSSStyleDeclaration;
+}
+
+export interface UseScrollLockDocumentLike extends DocumentLike {
+	readonly documentElement?: UseScrollLockElementLike | null;
+}
+
+export interface UseScrollLockWindowLike extends WindowLike {
+	readonly document?: UseScrollLockDocumentLike;
+	readonly navigator?: WindowLike["navigator"] & {
+		readonly maxTouchPoints?: number;
+		readonly platform?: string;
+	};
+	getComputedStyle?(element: Element): CSSStyleDeclaration;
+}
+
+export type UseScrollLockElement =
+	| HTMLElement
+	| SVGElement
+	| UseScrollLockWindowLike
+	| UseScrollLockDocumentLike
+	| null
+	| undefined;
+
+export interface UseScrollLockOptions<
+	TWindow extends UseScrollLockWindowLike = UseScrollLockWindowLike,
+> {
+	window?: MaybeTarget<TWindow | null | undefined>;
+}
+
+export type UseScrollLockReturn = Computed<boolean> & {
+	stop(): void;
+};
+
 export type UseInfiniteScrollDirection = "top" | "bottom" | "left" | "right";
 
 export type UseInfiniteScrollElement =

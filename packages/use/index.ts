@@ -139,6 +139,7 @@ export { useScreenOrientation } from "./useScreenOrientation";
 export { useScreenSafeArea } from "./useScreenSafeArea";
 export { useScriptTag } from "./useScriptTag";
 export { useScroll } from "./useScroll";
+export { useScrollLock } from "./useScrollLock";
 export { useSessionStorage } from "./useSessionStorage";
 export {
 	customStorageEventName,
@@ -722,6 +723,12 @@ export type {
 	UseScrollDirections,
 	UseScrollDocumentLike,
 	UseScrollElement,
+	UseScrollLockDocumentLike,
+	UseScrollLockElement,
+	UseScrollLockElementLike,
+	UseScrollLockOptions,
+	UseScrollLockReturn,
+	UseScrollLockWindowLike,
 	UseScrollOptions,
 	UseScrollReturn,
 	UseScrollWindowLike,
