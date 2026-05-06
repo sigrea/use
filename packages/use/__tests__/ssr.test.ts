@@ -125,6 +125,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.useMemory).toBe("function");
 		expect(typeof mod.useMounted).toBe("function");
 		expect(typeof mod.useMouse).toBe("function");
+		expect(typeof mod.useMouseInElement).toBe("function");
 		expect(typeof mod.useOnline).toBe("function");
 		expect(typeof mod.usePreferredDark).toBe("function");
 		expect(typeof mod.usePrevious).toBe("function");
@@ -178,6 +179,7 @@ describe("SSR safety", () => {
 			useMagicKeys,
 			useMediaControls,
 			useMouse,
+			useMouseInElement,
 			useOnline,
 			usePreferredDark,
 			onElementRemoval,
@@ -223,6 +225,7 @@ describe("SSR safety", () => {
 		const focus = useFocus(null);
 		const focusWithin = useFocusWithin(null);
 		const mouse = useMouse();
+		const mouseInElement = useMouseInElement(null, { window: null });
 		const mediaQuery = useMediaQuery("(min-width: 640px)");
 		const online = useOnline();
 		const preferredDark = usePreferredDark();
@@ -316,6 +319,9 @@ describe("SSR safety", () => {
 		expect(focusWithin.focused.value).toBe(false);
 		expect(mouse.x.value).toBe(0);
 		expect(mouse.y.value).toBe(0);
+		expect(mouseInElement.elementX.value).toBe(0);
+		expect(mouseInElement.elementY.value).toBe(0);
+		expect(mouseInElement.isOutside.value).toBe(true);
 		expect(mediaQuery.matches.value).toBe(false);
 		expect(online.isOnline.value).toBe(true);
 		expect(preferredDark.matches.value).toBe(false);
@@ -426,6 +432,7 @@ describe("SSR safety", () => {
 		focus.stop();
 		focusWithin.stop();
 		mouse.stop();
+		mouseInElement.stop();
 		mediaQuery.stop();
 		online.stop();
 		preferredDark.stop();
