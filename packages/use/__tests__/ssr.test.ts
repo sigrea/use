@@ -159,6 +159,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.useShare).toBe("function");
 		expect(typeof mod.useSorted).toBe("function");
 		expect(typeof mod.useSpeechRecognition).toBe("function");
+		expect(typeof mod.useSpeechSynthesis).toBe("function");
 		expect(typeof mod.useSessionStorage).toBe("function");
 		expect(typeof mod.useStorage).toBe("function");
 		expect(typeof mod.useTimeout).toBe("function");
@@ -240,6 +241,7 @@ describe("SSR safety", () => {
 			useShare,
 			useSorted,
 			useSpeechRecognition,
+			useSpeechSynthesis,
 			onElementRemoval,
 			onKeyDown,
 			onKeyPressed,
@@ -327,6 +329,7 @@ describe("SSR safety", () => {
 		const share = useShare({ text: "ssr" }, { navigator: null });
 		const sorted = useSorted([3, 1, 2]);
 		const speechRecognition = useSpeechRecognition({ window: null });
+		const speechSynthesis = useSpeechSynthesis("hello", { window: null });
 		const cssSupports = useCssSupports("display", "grid", { window: null });
 		const initialCssSupports = useCssSupports("display: grid", {
 			initialValue: true,
@@ -503,6 +506,18 @@ describe("SSR safety", () => {
 		expect(speechRecognition.recognition.value).toBeUndefined();
 		expect(speechRecognition.result.value).toBe("");
 		expect(speechRecognition.error.value).toBeNull();
+		expect(speechSynthesis.isSupported.value).toBe(false);
+		expect(speechSynthesis.isPlaying.value).toBe(false);
+		expect(speechSynthesis.status.value).toBe("init");
+		expect(speechSynthesis.utterance.value).toBeUndefined();
+		expect(speechSynthesis.error.value).toBeNull();
+		expect(speechSynthesis.voices.value).toEqual([]);
+		speechSynthesis.speak();
+		speechSynthesis.cancel();
+		speechSynthesis.pause();
+		speechSynthesis.resume();
+		speechSynthesis.toggle();
+		speechSynthesis.stop();
 		expect(cssSupports.value).toBe(false);
 		expect(initialCssSupports.value).toBe(true);
 		expect(cssVar.value).toBe("red");

@@ -146,6 +146,17 @@ import type {
 	SpeechRecognitionLike,
 	SpeechRecognitionResultLike,
 	SpeechRecognitionResultListLike,
+	SpeechSynthesisErrorCode,
+	SpeechSynthesisErrorEventLike,
+	SpeechSynthesisEventLike,
+	SpeechSynthesisForWindow,
+	SpeechSynthesisLike,
+	SpeechSynthesisStatus,
+	SpeechSynthesisUtteranceConstructorLike,
+	SpeechSynthesisUtteranceForWindow,
+	SpeechSynthesisUtteranceLike,
+	SpeechSynthesisVoiceForWindow,
+	SpeechSynthesisVoiceLike,
 	StorageSerializer,
 	StorageWindowLike,
 	SyncSignalDirection,
@@ -539,6 +550,10 @@ import type {
 	UseSpeechRecognitionReturn,
 	UseSpeechRecognitionWindowLike,
 	UseSpeechRecognitionWindowOptions,
+	UseSpeechSynthesisOptions,
+	UseSpeechSynthesisReturn,
+	UseSpeechSynthesisWindowLike,
+	UseSpeechSynthesisWindowOptions,
 	UseStorageOptions,
 	UseToggleOptions,
 	UseWindowSizeOptions,
@@ -699,6 +714,7 @@ import {
 	useShare,
 	useSorted,
 	useSpeechRecognition,
+	useSpeechSynthesis,
 	useStorage,
 	useThrottleFn,
 	useTimeout,
@@ -7510,6 +7526,198 @@ describe("public types", () => {
 				// @ts-expect-error lang must resolve to string
 				useSpeechRecognition({ lang: 1 });
 				useSpeechRecognition({
+					// @ts-expect-error window must be window-like or nullish
+					window: 1,
+				});
+				// @ts-expect-error toggle value must be boolean
+				speech.toggle("true");
+			});
+		});
+	});
+
+	it("types speech synthesis controls", () => {
+		typeOnly(() => {
+			interface TypedSpeechSynthesisVoice extends SpeechSynthesisVoiceLike {
+				readonly id: string;
+			}
+
+			class TypedSpeechSynthesisUtterance
+				extends EventTarget
+				implements SpeechSynthesisUtteranceLike<TypedSpeechSynthesisVoice>
+			{
+				lang = "";
+				pitch = 1;
+				rate = 1;
+				text = "";
+				voice: TypedSpeechSynthesisVoice | null = null;
+				volume = 1;
+			}
+
+			class TypedSpeechSynthesis
+				extends EventTarget
+				implements
+					SpeechSynthesisLike<
+						TypedSpeechSynthesisVoice,
+						TypedSpeechSynthesisUtterance
+					>
+			{
+				readonly paused = false;
+				readonly pending = false;
+				readonly speaking = false;
+				cancel(): void {}
+				getVoices(): ArrayLike<TypedSpeechSynthesisVoice> {
+					return [];
+				}
+				pause(): void {}
+				resume(): void {}
+				speak(utterance: TypedSpeechSynthesisUtterance): void {
+					expectTypeOf(
+						utterance,
+					).toEqualTypeOf<TypedSpeechSynthesisUtterance>();
+				}
+			}
+
+			const voice: TypedSpeechSynthesisVoice = {
+				default: true,
+				id: "typed",
+				lang: "en-US",
+				localService: true,
+				name: "Typed",
+				voiceURI: "typed",
+			};
+			const SpeechSynthesisUtteranceCtor: SpeechSynthesisUtteranceConstructorLike<
+				TypedSpeechSynthesisVoice,
+				TypedSpeechSynthesisUtterance
+			> = TypedSpeechSynthesisUtterance;
+			const speechWindow = Object.assign(new EventTarget(), {
+				SpeechSynthesisUtterance: SpeechSynthesisUtteranceCtor,
+				speechSynthesis: new TypedSpeechSynthesis(),
+			}) as UseSpeechSynthesisWindowLike<
+				TypedSpeechSynthesisVoice,
+				TypedSpeechSynthesisUtterance,
+				TypedSpeechSynthesis
+			>;
+			const windowOptions: UseSpeechSynthesisWindowOptions<
+				typeof speechWindow
+			> = {
+				window: signal(speechWindow),
+			};
+			const options: UseSpeechSynthesisOptions<
+				TypedSpeechSynthesisVoice,
+				TypedSpeechSynthesisUtterance
+			> = {
+				lang: signal("ja-JP"),
+				onBoundary: (event) => {
+					expectTypeOf(event).toEqualTypeOf<
+						SpeechSynthesisEventLike<TypedSpeechSynthesisUtterance>
+					>();
+				},
+				pitch: signal(1.2),
+				rate: signal(0.9),
+				voice: signal(voice),
+				volume: signal(0.8),
+				window: signal(speechWindow),
+			};
+			interface OtherSpeechSynthesisVoice extends SpeechSynthesisVoiceLike {
+				readonly otherId: string;
+			}
+
+			const otherVoice: OtherSpeechSynthesisVoice = {
+				default: false,
+				lang: "en-US",
+				localService: false,
+				name: "Other",
+				otherId: "other",
+				voiceURI: "other",
+			};
+			const mismatchedVoiceOptions: UseSpeechSynthesisOptions<
+				TypedSpeechSynthesisVoice,
+				TypedSpeechSynthesisUtterance
+			> = {
+				// @ts-expect-error voice must match the utterance voice type
+				voice: signal(otherVoice),
+				window: signal(speechWindow),
+			};
+			const speech = useSpeechSynthesis(signal("hello"), options);
+			const directSpeech = useSpeechSynthesis("hello", {
+				window: signal(speechWindow),
+			});
+			const windowOptionsSpeech = useSpeechSynthesis("hello", windowOptions);
+			const fallback = useSpeechSynthesis("hello", { window: null });
+			const speechReturn: UseSpeechSynthesisReturn<
+				TypedSpeechSynthesisVoice,
+				TypedSpeechSynthesisUtterance
+			> = speech;
+			const speechEvent = Object.assign(new Event("boundary"), {
+				charIndex: 0,
+				charLength: 5,
+				elapsedTime: 1,
+				name: "word",
+				utterance: new TypedSpeechSynthesisUtterance(),
+			}) satisfies SpeechSynthesisEventLike<TypedSpeechSynthesisUtterance>;
+			const speechErrorEvent = Object.assign(speechEvent, {
+				error: "network" as SpeechSynthesisErrorCode,
+			}) satisfies SpeechSynthesisErrorEventLike<TypedSpeechSynthesisUtterance>;
+			mismatchedVoiceOptions;
+			expectTypeOf(speech).toEqualTypeOf<
+				UseSpeechSynthesisReturn<
+					TypedSpeechSynthesisVoice,
+					TypedSpeechSynthesisUtterance
+				>
+			>();
+			expectTypeOf(speechReturn.isSupported).toEqualTypeOf<
+				ReadonlySignal<boolean>
+			>();
+			expectTypeOf(speech.isPlaying).toEqualTypeOf<ReadonlySignal<boolean>>();
+			expectTypeOf(speech.status).toEqualTypeOf<
+				ReadonlySignal<SpeechSynthesisStatus>
+			>();
+			expectTypeOf(speech.utterance).toEqualTypeOf<
+				ReadonlySignal<TypedSpeechSynthesisUtterance | undefined>
+			>();
+			expectTypeOf(directSpeech.utterance).toEqualTypeOf<
+				ReadonlySignal<TypedSpeechSynthesisUtterance | undefined>
+			>();
+			expectTypeOf(windowOptionsSpeech.utterance).toEqualTypeOf<
+				ReadonlySignal<TypedSpeechSynthesisUtterance | undefined>
+			>();
+			expectTypeOf<
+				SpeechSynthesisForWindow<typeof speechWindow>
+			>().toEqualTypeOf<TypedSpeechSynthesis>();
+			expectTypeOf<
+				SpeechSynthesisUtteranceForWindow<typeof speechWindow>
+			>().toEqualTypeOf<TypedSpeechSynthesisUtterance>();
+			expectTypeOf<
+				SpeechSynthesisVoiceForWindow<typeof speechWindow>
+			>().toEqualTypeOf<TypedSpeechSynthesisVoice>();
+			expectTypeOf(speech.error).toEqualTypeOf<
+				ReadonlySignal<unknown | null>
+			>();
+			expectTypeOf(speech.voices).toEqualTypeOf<
+				ReadonlySignal<readonly TypedSpeechSynthesisVoice[]>
+			>();
+			expectTypeOf(speech.speak()).toEqualTypeOf<void>();
+			expectTypeOf(speech.cancel()).toEqualTypeOf<void>();
+			expectTypeOf(speech.stop()).toEqualTypeOf<void>();
+			expectTypeOf(speech.toggle()).toEqualTypeOf<void>();
+			expectTypeOf(speech.toggle(true)).toEqualTypeOf<void>();
+			expectTypeOf(speech.pause()).toEqualTypeOf<void>();
+			expectTypeOf(speech.resume()).toEqualTypeOf<void>();
+			expectTypeOf(fallback).toEqualTypeOf<UseSpeechSynthesisReturn>();
+			expectTypeOf<SpeechSynthesisStatus>().toEqualTypeOf<
+				"init" | "play" | "pause" | "end"
+			>();
+			expectTypeOf(
+				speechErrorEvent.error,
+			).toEqualTypeOf<SpeechSynthesisErrorCode>();
+			typeOnly(() => {
+				// @ts-expect-error returned values are readonly signals
+				speech.status.value = "end";
+				// @ts-expect-error text must resolve to string
+				useSpeechSynthesis(1);
+				// @ts-expect-error pitch must resolve to number
+				useSpeechSynthesis("hello", { pitch: "high" });
+				useSpeechSynthesis("hello", {
 					// @ts-expect-error window must be window-like or nullish
 					window: 1,
 				});
