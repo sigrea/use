@@ -3518,6 +3518,50 @@ export interface UseVibrateReturn {
 	stop(): void;
 }
 
+export type WakeLockType = "screen";
+
+export interface UseWakeLockSentinelLike extends EventTarget {
+	readonly type: WakeLockType;
+	readonly released: boolean;
+	release(): Promise<void>;
+}
+
+export interface UseWakeLockWakeLockLike<
+	TSentinel extends UseWakeLockSentinelLike = WakeLockSentinel,
+> {
+	request(type: WakeLockType): Promise<TSentinel>;
+}
+
+export interface UseWakeLockNavigatorLike<
+	TSentinel extends UseWakeLockSentinelLike = WakeLockSentinel,
+> extends NavigatorLike {
+	readonly wakeLock?: UseWakeLockWakeLockLike<TSentinel> | null;
+}
+
+export type UseWakeLockDocumentLike = DocumentVisibilityDocumentLike;
+
+export interface UseWakeLockOptions<
+	TSentinel extends UseWakeLockSentinelLike = WakeLockSentinel,
+	TNavigator extends
+		UseWakeLockNavigatorLike<TSentinel> = UseWakeLockNavigatorLike<TSentinel>,
+	TDocument extends UseWakeLockDocumentLike = UseWakeLockDocumentLike,
+> {
+	navigator?: MaybeValue<TNavigator | null | undefined>;
+	document?: MaybeTarget<TDocument | null | undefined>;
+}
+
+export interface UseWakeLockReturn<
+	TSentinel extends UseWakeLockSentinelLike = WakeLockSentinel,
+> {
+	readonly sentinel: ReadonlySignal<TSentinel | null>;
+	readonly isSupported: ReadonlySignal<boolean>;
+	readonly isActive: Computed<boolean>;
+	request(type?: WakeLockType): Promise<void>;
+	forceRequest(type?: WakeLockType): Promise<void>;
+	release(): Promise<void>;
+	stop(): void;
+}
+
 export type UseVirtualListItemSize = number | ((index: number) => number);
 
 export interface UseVirtualListOptionsBase<
