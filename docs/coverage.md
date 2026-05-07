@@ -216,7 +216,7 @@ Status values:
 | `useWakeLock` | `useWakeLock` | Done |
 | `useWebNotification` | `useWebNotification` | Done |
 | `useWebSocket` | `useWebSocket` | Done |
-| `useWebWorker` | `-` | Todo |
+| `useWebWorker` | `useWebWorker` | Done |
 | `useWebWorkerFn` | `-` | Todo |
 | `useWindowFocus` | `-` | Todo |
 | `useWindowScroll` | `-` | Todo |
