@@ -191,6 +191,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.useUserMedia).toBe("function");
 		expect(typeof mod.useVibrate).toBe("function");
 		expect(typeof mod.useVirtualList).toBe("function");
+		expect(typeof mod.useWakeLock).toBe("function");
 		expect(typeof mod.useWindowSize).toBe("function");
 	}, 30_000);
 
@@ -296,6 +297,7 @@ describe("SSR safety", () => {
 			useUserMedia,
 			useVibrate,
 			useVirtualList,
+			useWakeLock,
 			useWindowSize,
 			useActiveElement,
 			useAnimate,
@@ -404,6 +406,10 @@ describe("SSR safety", () => {
 		const virtualList = useVirtualList(["a", "b", "c"], {
 			itemHeight: 20,
 			window: null,
+		});
+		const wakeLock = useWakeLock({
+			document: null,
+			navigator: null,
 		});
 		const draggable = useDraggable(null, { initialValue: { x: 10, y: 20 } });
 		const dropZone = useDropZone(null);
@@ -659,6 +665,9 @@ describe("SSR safety", () => {
 		expect(virtualList.wrapperStyle.value).toBe(
 			"width: 100%; height: 60px; margin-top: 0px;",
 		);
+		expect(wakeLock.sentinel.value).toBeNull();
+		expect(wakeLock.isSupported.value).toBe(false);
+		expect(wakeLock.isActive.value).toBe(false);
 		expect(draggable.position.value).toEqual({ x: 10, y: 20 });
 		expect(draggable.isDragging.value).toBe(false);
 		expect(dropZone.files.value).toBeNull();
@@ -827,6 +836,10 @@ describe("SSR safety", () => {
 		virtualList.onScroll(new Event("scroll"));
 		virtualList.scrollTo(1);
 		virtualList.stop();
+		await wakeLock.request();
+		await wakeLock.forceRequest();
+		await wakeLock.release();
+		wakeLock.stop();
 		speechRecognition.start();
 		speechRecognition.stop();
 		speechRecognition.abort();
@@ -1281,6 +1294,20 @@ describe("SSR safety", () => {
 		result.measure();
 		result.onScroll(new Event("scroll"));
 		result.scrollTo(1);
+		result.stop();
+	});
+
+	it("creates useWakeLock without a window", async () => {
+		const { useWakeLock } = await import("../../../index");
+		const result = useWakeLock();
+
+		expect(globalThis.window).toBeUndefined();
+		expect(result.sentinel.value).toBeNull();
+		expect(result.isSupported.value).toBe(false);
+		expect(result.isActive.value).toBe(false);
+		await result.request();
+		await result.forceRequest();
+		await result.release();
 		result.stop();
 	});
 
