@@ -719,6 +719,13 @@ import type {
 	WatchDeepReturn,
 	WatchDeepSource,
 	WatchDeepSourceValues,
+	WatchIgnorableCallback,
+	WatchIgnorableIgnorePrevAsyncUpdates,
+	WatchIgnorableIgnoreUpdates,
+	WatchIgnorableOptions,
+	WatchIgnorableReturn,
+	WatchIgnorableSource,
+	WatchIgnorableSourceValues,
 	WebSocketConstructorLike,
 	WebSocketLike,
 	WindowLike,
@@ -924,6 +931,7 @@ import {
 	watchAtMost,
 	watchDebounced,
 	watchDeep,
+	watchIgnorable,
 } from "../../../index";
 
 interface MatchMediaOnlyWindow extends MatchMediaWindow {
@@ -4672,6 +4680,62 @@ describe("public types", () => {
 			watchDeep(1, callback);
 			// @ts-expect-error callback value type must match the source value
 			watchDeep(signal("1"), callback);
+		});
+	});
+
+	it("types ignorable watchers", () => {
+		typeOnly(() => {
+			const count = signal(0);
+			const label = computed(() => `${count.value}`);
+			const source: WatchIgnorableSource<number> = count;
+			const options: WatchIgnorableOptions<true> = {
+				deep: true,
+				flush: "sync",
+				immediate: true,
+			};
+			const callback: WatchIgnorableCallback<number, true> = (
+				value,
+				oldValue,
+				onCleanup,
+			) => {
+				expectTypeOf(value).toEqualTypeOf<number>();
+				expectTypeOf(oldValue).toEqualTypeOf<number | undefined>();
+				onCleanup(() => {});
+			};
+			const controls = watchIgnorable(source, callback, options);
+			const sourceValues: WatchIgnorableSourceValues<
+				[typeof count, typeof label]
+			> = [1, "1"];
+			const tupleControls = watchIgnorable(
+				[count, label] as const,
+				(value, oldValue) => {
+					expectTypeOf(value).toEqualTypeOf<[number, string]>();
+					expectTypeOf(oldValue).toEqualTypeOf<[number, string]>();
+				},
+				{ flush: "sync" },
+			);
+			const watchReturn: WatchIgnorableReturn = controls;
+			const ignoreUpdates: WatchIgnorableIgnoreUpdates = controls.ignoreUpdates;
+			const ignorePrevAsyncUpdates: WatchIgnorableIgnorePrevAsyncUpdates =
+				controls.ignorePrevAsyncUpdates;
+
+			expectTypeOf(sourceValues).toEqualTypeOf<[number, string]>();
+			expectTypeOf(controls).toEqualTypeOf<WatchIgnorableReturn>();
+			expectTypeOf(tupleControls).toEqualTypeOf<WatchIgnorableReturn>();
+			expectTypeOf(controls.stop()).toEqualTypeOf<void>();
+			expectTypeOf(ignoreUpdates(() => {})).toEqualTypeOf<void>();
+			expectTypeOf(ignorePrevAsyncUpdates()).toEqualTypeOf<void>();
+			watchReturn.stop();
+			watchIgnorable(count, callback, {
+				// @ts-expect-error eventFilter is not supported without watchWithFilter
+				eventFilter(invoke: () => void) {
+					invoke();
+				},
+			});
+			// @ts-expect-error source must be watchable
+			watchIgnorable(1, callback);
+			// @ts-expect-error callback value type must match the source value
+			watchIgnorable(signal("1"), callback);
 		});
 	});
 
