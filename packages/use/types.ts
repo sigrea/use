@@ -2830,6 +2830,47 @@ export interface UseNowControlsReturn extends UseIntervalFnReturn {
 export type UseNowReturn<Controls extends boolean = false> =
 	Controls extends true ? UseNowControlsReturn : ReadonlySignal<Date>;
 
+export type UseTimestampInterval = UseNowInterval;
+
+export type UseTimestampScheduler = UseNowScheduler;
+
+export interface UseTimestampOptions<Controls extends boolean = false> {
+	controls?: Controls;
+	/**
+	 * Offset added to the timestamp.
+	 *
+	 * @default 0
+	 */
+	offset?: MaybeValue<number>;
+	/**
+	 * Start updating immediately.
+	 *
+	 * @default true
+	 */
+	immediate?: boolean;
+	/**
+	 * Update interval in milliseconds, or animation frame scheduling.
+	 *
+	 * @default "requestAnimationFrame"
+	 */
+	interval?: UseTimestampInterval;
+	/**
+	 * Custom scheduler. When provided, it owns the update timing.
+	 */
+	scheduler?: UseTimestampScheduler;
+	/**
+	 * Called after each timestamp update.
+	 */
+	callback?: (timestamp: number) => void;
+}
+
+export interface UseTimestampControlsReturn extends UseIntervalFnReturn {
+	readonly timestamp: ReadonlySignal<number>;
+}
+
+export type UseTimestampReturn<Controls extends boolean = false> =
+	Controls extends true ? UseTimestampControlsReturn : ReadonlySignal<number>;
+
 export interface UseRafFnCallbackArguments {
 	readonly delta: number;
 	readonly timestamp: DOMHighResTimeStamp;
