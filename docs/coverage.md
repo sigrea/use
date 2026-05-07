@@ -208,7 +208,7 @@ Status values:
 | `useToggle` | `useToggle` | Done |
 | `useTransition` | `useTransition` | Done |
 | `useUrlSearchParams` | `useUrlSearchParams` | Done |
-| `useUserMedia` | `-` | Todo |
+| `useUserMedia` | `useUserMedia` | Done |
 | `useVModel` | `-` | Out of scope |
 | `useVModels` | `-` | Out of scope |
 | `useVibrate` | `-` | Todo |
