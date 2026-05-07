@@ -763,6 +763,12 @@ import type {
 	WatchWithFilterSourceValues,
 	WebSocketConstructorLike,
 	WebSocketLike,
+	WheneverCallback,
+	WheneverOptions,
+	WheneverReturn,
+	WheneverSource,
+	WheneverSourceValue,
+	WheneverTruthy,
 	WindowLike,
 	WorkerConstructorLike,
 	WorkerLike,
@@ -973,6 +979,7 @@ import {
 	watchThrottled,
 	watchTriggerable,
 	watchWithFilter,
+	whenever,
 } from "../../../index";
 
 interface MatchMediaOnlyWindow extends MatchMediaWindow {
@@ -5123,6 +5130,58 @@ describe("public types", () => {
 			watchWithFilter(1, callback);
 			// @ts-expect-error callback value type must match the source value
 			watchWithFilter(signal("1"), callback);
+		});
+	});
+
+	it("types truthy watchers", () => {
+		typeOnly(() => {
+			const source = signal<0 | 1 | false | null>(0);
+			const watchSource: WheneverSource<0 | 1 | false | null> = source;
+			const options: WheneverOptions<true> = {
+				flush: "sync",
+				immediate: true,
+				once: true,
+			};
+			const callback: WheneverCallback<
+				0 | 1 | false | null,
+				0 | 1 | false | null | undefined
+			> = (value, oldValue, onCleanup) => {
+				expectTypeOf(value).toEqualTypeOf<1>();
+				expectTypeOf(oldValue).toEqualTypeOf<
+					0 | 1 | false | null | undefined
+				>();
+				onCleanup(() => {});
+			};
+			const stop = whenever(source, callback, options);
+			const deepStop = whenever(
+				deepSignal({ ready: true }),
+				(value) => {
+					expectTypeOf(value.ready).toEqualTypeOf<boolean>();
+				},
+				{ immediate: true },
+			);
+			const watchReturn: WheneverReturn = stop;
+
+			expectTypeOf(watchSource).toMatchTypeOf<
+				WheneverSource<0 | 1 | false | null>
+			>();
+			expectTypeOf<WheneverSourceValue<typeof source>>().toEqualTypeOf<
+				0 | 1 | false | null
+			>();
+			expectTypeOf<
+				WheneverTruthy<0 | 1 | false | null | "ready">
+			>().toEqualTypeOf<1 | "ready">();
+			expectTypeOf(stop).toEqualTypeOf<WheneverReturn>();
+			expectTypeOf(deepStop).toEqualTypeOf<WheneverReturn>();
+			expectTypeOf(watchReturn()).toEqualTypeOf<void>();
+			// @ts-expect-error source must be watchable
+			whenever(1, callback);
+			// @ts-expect-error source lists are not supported
+			whenever([source] as const, callback);
+			// @ts-expect-error callback value is truthy, so 0 is excluded
+			whenever(source, (value: 0) => {
+				expectTypeOf(value).toEqualTypeOf<0>();
+			});
 		});
 	});
 
