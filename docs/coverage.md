@@ -232,7 +232,7 @@ Status values:
 | `watchThrottled` | `watchThrottled` | Done |
 | `watchTriggerable` | `watchTriggerable` | Done |
 | `watchWithFilter` | `watchWithFilter` | Done |
-| `whenever` | `-` | Todo |
+| `whenever` | `whenever` | Done |
 | `math/createGenericProjection` | `-` | Todo |
 | `math/createProjection` | `-` | Todo |
 | `math/logicAnd` | `-` | Todo |
