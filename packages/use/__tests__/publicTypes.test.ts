@@ -605,6 +605,11 @@ import type {
 	UseTimeoutPollCallback,
 	UseTimeoutPollOptions,
 	UseTimeoutPollReturn,
+	UseTimestampControlsReturn,
+	UseTimestampInterval,
+	UseTimestampOptions,
+	UseTimestampReturn,
+	UseTimestampScheduler,
 	UseToggleOptions,
 	UseWindowSizeOptions,
 	WindowLike,
@@ -784,6 +789,7 @@ import {
 	useTimeout,
 	useTimeoutFn,
 	useTimeoutPoll,
+	useTimestamp,
 	useToggle,
 	useWindowSize,
 } from "../../../index";
@@ -7387,6 +7393,55 @@ describe("public types", () => {
 				useNow({
 					// @ts-expect-error window must provide animation frame methods when present
 					window: { requestAnimationFrame: true },
+				});
+			});
+		});
+	});
+
+	it("types timestamp signals and controls", () => {
+		typeOnly(() => {
+			const scheduler: UseTimestampScheduler = () => ({
+				isActive: signal(false),
+				pause: () => {},
+				resume: () => {},
+			});
+			const interval: UseTimestampInterval = signal(1000);
+			const offset = signal(100);
+			const options: UseTimestampOptions<true> = {
+				callback: (timestamp) => {
+					expectTypeOf(timestamp).toEqualTypeOf<number>();
+				},
+				controls: true,
+				interval,
+				offset,
+				scheduler,
+			};
+			const timestamp = useTimestamp();
+			const controlled = useTimestamp(options);
+			const controlledReturn: UseTimestampReturn<true> = controlled;
+
+			expectTypeOf(timestamp).toEqualTypeOf<ReadonlySignal<number>>();
+			expectTypeOf(controlled).toEqualTypeOf<UseTimestampControlsReturn>();
+			expectTypeOf(controlledReturn.timestamp).toEqualTypeOf<
+				ReadonlySignal<number>
+			>();
+			expectTypeOf(controlled.isActive).toEqualTypeOf<
+				ReadonlySignal<boolean>
+			>();
+			expectTypeOf(controlled.pause()).toEqualTypeOf<void>();
+			expectTypeOf(controlled.resume()).toEqualTypeOf<void>();
+			typeOnly(() => {
+				// @ts-expect-error returned values are readonly signals
+				timestamp.value = 1;
+				// @ts-expect-error returned values are readonly signals
+				controlled.timestamp.value = 1;
+				useTimestamp({
+					// @ts-expect-error interval must be numeric or requestAnimationFrame
+					interval: "slow",
+				});
+				useTimestamp({
+					// @ts-expect-error offset must be numeric
+					offset: "100",
 				});
 			});
 		});
