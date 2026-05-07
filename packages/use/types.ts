@@ -4183,6 +4183,53 @@ export interface WatchAtMostReturn {
 	stop(): void;
 }
 
+type WatchDebouncedDeepSource<T> = T extends object
+	? DeepSignal<T> | ReadonlyDeepSignal<T>
+	: never;
+
+export type WatchDebouncedSource<T = unknown> =
+	| WatchSource<T>
+	| WatchDebouncedDeepSource<T>;
+
+export type WatchDebouncedSourceValue<TSource> = TSource extends Signal<
+	infer Value
+>
+	? Value
+	: TSource extends ReadonlySignal<infer Value>
+		? Value
+		: TSource extends Computed<infer Value>
+			? Value
+			: TSource extends () => infer Value
+				? Value
+				: TSource extends DeepSignal<infer Value>
+					? Value
+					: TSource extends ReadonlyDeepSignal<infer Value>
+						? Value
+						: TSource;
+
+export type WatchDebouncedSourceValues<TSources extends readonly unknown[]> = {
+	[K in keyof TSources]: WatchDebouncedSourceValue<TSources[K]>;
+};
+
+export type WatchDebouncedOnCleanup = (cleanupFn: Cleanup) => void;
+
+export type WatchDebouncedCallback<
+	Value = unknown,
+	Immediate extends boolean = false,
+> = (
+	value: Value,
+	oldValue: Immediate extends true ? Value | undefined : Value,
+	onCleanup: WatchDebouncedOnCleanup,
+) => void | Cleanup | Promise<void | Cleanup>;
+
+export interface WatchDebouncedOptions<Immediate extends boolean = false>
+	extends WatchOptions<Immediate> {
+	debounce?: MaybeValue<number>;
+	maxWait?: MaybeValue<number>;
+}
+
+export type WatchDebouncedReturn = WatchStopHandle;
+
 export interface OnClickOutsideDocumentLike extends DocumentLike {
 	readonly activeElement?: Element | null;
 	querySelectorAll?(selector: string): Iterable<Element> | ArrayLike<Element>;
