@@ -181,6 +181,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.useTimeoutPoll).toBe("function");
 		expect(typeof mod.useTimestamp).toBe("function");
 		expect(typeof mod.useTitle).toBe("function");
+		expect(typeof mod.useToNumber).toBe("function");
 		expect(typeof mod.useToggle).toBe("function");
 		expect(typeof mod.useWindowSize).toBe("function");
 	}, 30_000);
@@ -279,6 +280,7 @@ describe("SSR safety", () => {
 			useTimeoutPoll,
 			useTimestamp,
 			useTitle,
+			useToNumber,
 			useWindowSize,
 			useActiveElement,
 			useAnimate,
@@ -456,6 +458,7 @@ describe("SSR safety", () => {
 		});
 		const timestamp = useTimestamp({ controls: true });
 		const title = useTitle("SSR title", { document: null });
+		const toNumber = useToNumber("123.4");
 		const elementSize = useElementSize(null, { width: 10, height: 20 });
 		const size = useWindowSize();
 
@@ -682,6 +685,7 @@ describe("SSR safety", () => {
 		expect(typeof timestamp.timestamp.value).toBe("number");
 		expect(timestamp.isActive.value).toBe(false);
 		expect(title.value).toBe("SSR title");
+		expect(toNumber.value).toBe(123.4);
 		expect(elementSize.width.value).toBe(10);
 		expect(elementSize.height.value).toBe(20);
 		expect(size.width.value).toBe(0);
