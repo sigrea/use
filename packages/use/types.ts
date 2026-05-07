@@ -1697,6 +1697,64 @@ export type UseFaviconReturn = Computed<string | null | undefined> & {
 	stop(): void;
 };
 
+export interface UseTitleDocumentLike extends DocumentLike {
+	readonly defaultView?: UseMutationObserverWindowLike | null;
+	readonly head?: HTMLHeadElement;
+	title: string;
+}
+
+export type UseTitleTemplate =
+	| string
+	| Signal<string>
+	| ReadonlySignal<string>
+	| Computed<string>
+	| ((title: string) => string);
+
+export type UseTitleRestore = (
+	originalTitle: string,
+	currentTitle: string,
+) => string | null | undefined;
+
+interface UseTitleOptionsBase<
+	TDocument extends UseTitleDocumentLike = UseTitleDocumentLike,
+> {
+	document?: MaybeTarget<TDocument | null | undefined>;
+	restoreOnUnmount?: false | UseTitleRestore;
+}
+
+export type UseTitleOptions<
+	TDocument extends UseTitleDocumentLike = UseTitleDocumentLike,
+> = UseTitleOptionsBase<TDocument> &
+	(
+		| {
+				/**
+				 * Observe external `document.title` changes.
+				 *
+				 * Cannot be used together with `titleTemplate`.
+				 *
+				 * @default false
+				 */
+				observe?: boolean;
+				titleTemplate?: never;
+		  }
+		| {
+				observe?: never;
+				/**
+				 * Template applied before writing to `document.title`.
+				 *
+				 * A string template replaces every `%s` with the current title.
+				 * A callback receives the current title and returns the document title.
+				 *
+				 * @default "%s"
+				 */
+				titleTemplate?: UseTitleTemplate;
+		  }
+	);
+
+export type UseTitleReturn = Computed<string | null | undefined> & {
+	stop(): void;
+};
+
 export type UseFetchDataType =
 	| "text"
 	| "json"
