@@ -197,12 +197,16 @@ export { watchOnce } from "./watchOnce";
 export { watchPausable } from "./watchPausable";
 export { watchThrottled } from "./watchThrottled";
 export { watchTriggerable } from "./watchTriggerable";
+export { watchWithFilter } from "./watchWithFilter";
 export type {
 	AsyncComputedCancelCallback,
 	AsyncComputedEvaluationCallback,
 	AsyncComputedOnCancel,
 	AsyncComputedOptions,
 	AsyncComputedOptionsOrSignal,
+	ConfigurableEventFilter,
+	EventFilter,
+	FunctionWrapperOptions,
 	UseAsyncQueueOptions,
 	UseAsyncQueueResult,
 	UseAsyncQueueResultList,
@@ -1050,6 +1054,13 @@ export type {
 	WatchTriggerableSourceOldValues,
 	WatchTriggerableSourceValue,
 	WatchTriggerableSourceValues,
+	WatchWithFilterCallback,
+	WatchWithFilterOnCleanup,
+	WatchWithFilterOptions,
+	WatchWithFilterReturn,
+	WatchWithFilterSource,
+	WatchWithFilterSourceValue,
+	WatchWithFilterSourceValues,
 	WindowSizeLike,
 	WritableComputedWithControlOptions,
 	WritableComputedWithControlReturn,
