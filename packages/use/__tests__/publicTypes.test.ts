@@ -691,6 +691,10 @@ import type {
 	UseWebWorkerReturn,
 	UseWebWorkerSource,
 	UseWebWorkerWindowLike,
+	UseWindowFocusDocumentLike,
+	UseWindowFocusOptions,
+	UseWindowFocusReturn,
+	UseWindowFocusWindowLike,
 	UseWindowSizeOptions,
 	WakeLockType,
 	WebSocketConstructorLike,
@@ -891,6 +895,7 @@ import {
 	useWebSocket,
 	useWebWorker,
 	useWebWorkerFn,
+	useWindowFocus,
 	useWindowSize,
 } from "../../../index";
 
@@ -913,6 +918,10 @@ interface CssVarOnlyWindow extends UseCssVarWindowLike {
 interface SizedWindow extends EventTarget {
 	readonly innerWidth: number;
 	readonly innerHeight: number;
+}
+
+interface FocusWindow extends EventTarget {
+	readonly document: UseWindowFocusDocumentLike;
 }
 
 interface MouseWindow extends EventTarget {
@@ -7067,6 +7076,20 @@ describe("public types", () => {
 		};
 		const pageLeave = usePageLeave(pageLeaveOptions);
 		const pageLeaveReturn: UsePageLeaveReturn = pageLeave;
+		const focusDocument: UseWindowFocusDocumentLike = Object.assign(
+			new EventTarget(),
+			{
+				hasFocus: () => true,
+			},
+		);
+		const focusWindow: FocusWindow = Object.assign(new EventTarget(), {
+			document: focusDocument,
+		});
+		const focusOptions: UseWindowFocusOptions<typeof focusWindow> = {
+			window: signal(focusWindow),
+		};
+		const windowFocus = useWindowFocus(focusOptions);
+		const windowFocusReturn: UseWindowFocusReturn = windowFocus;
 		const orientationType: OrientationType = "portrait-primary";
 		const orientationLockType: OrientationLockType = "landscape";
 		const screenOrientationApi = Object.assign(new EventTarget(), {
@@ -7264,6 +7287,9 @@ describe("public types", () => {
 		expectTypeOf(pageLeave).toEqualTypeOf<UsePageLeaveReturn>();
 		expectTypeOf(pageLeaveReturn.isLeft.value).toEqualTypeOf<boolean>();
 		expectTypeOf(pageLeave.stop()).toEqualTypeOf<void>();
+		expectTypeOf(windowFocus).toEqualTypeOf<UseWindowFocusReturn>();
+		expectTypeOf(windowFocusReturn.focused.value).toEqualTypeOf<boolean>();
+		expectTypeOf(windowFocus.stop()).toEqualTypeOf<void>();
 		expectTypeOf(orientationType).toMatchTypeOf<OrientationType>();
 		expectTypeOf(orientationLockType).toMatchTypeOf<OrientationLockType>();
 		expectTypeOf(
