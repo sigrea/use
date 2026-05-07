@@ -4458,6 +4458,51 @@ export interface WatchPausableReturn {
 	stop(): void;
 }
 
+type WatchThrottledDeepSource<T> = T extends object
+	? DeepSignal<T> | ReadonlyDeepSignal<T>
+	: never;
+
+export type WatchThrottledSource<T = unknown> =
+	| WatchSource<T>
+	| WatchThrottledDeepSource<T>;
+
+export type WatchThrottledSourceValue<TSource> = TSource extends Signal<
+	infer Value
+>
+	? Value
+	: TSource extends ReadonlySignal<infer Value>
+		? Value
+		: TSource extends Computed<infer Value>
+			? Value
+			: TSource extends () => infer Value
+				? Value
+				: TSource extends DeepSignal<infer Value>
+					? Value
+					: TSource extends ReadonlyDeepSignal<infer Value>
+						? Value
+						: TSource;
+
+export type WatchThrottledSourceValues<TSources extends readonly unknown[]> = {
+	[K in keyof TSources]: WatchThrottledSourceValue<TSources[K]>;
+};
+
+export type WatchThrottledOnCleanup = (cleanupFn: Cleanup) => void;
+
+export type WatchThrottledCallback<Value = unknown, OldValue = Value> = (
+	value: Value,
+	oldValue: OldValue,
+	onCleanup: WatchThrottledOnCleanup,
+) => void | Cleanup | Promise<void | Cleanup>;
+
+export interface WatchThrottledOptions<Immediate extends boolean = false>
+	extends WatchOptions<Immediate> {
+	throttle?: MaybeValue<number>;
+	trailing?: boolean;
+	leading?: boolean;
+}
+
+export type WatchThrottledReturn = WatchStopHandle;
+
 export interface OnClickOutsideDocumentLike extends DocumentLike {
 	readonly activeElement?: Element | null;
 	querySelectorAll?(selector: string): Iterable<Element> | ArrayLike<Element>;
