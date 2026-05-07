@@ -726,6 +726,11 @@ import type {
 	WatchIgnorableReturn,
 	WatchIgnorableSource,
 	WatchIgnorableSourceValues,
+	WatchImmediateCallback,
+	WatchImmediateOptions,
+	WatchImmediateReturn,
+	WatchImmediateSource,
+	WatchImmediateSourceValues,
 	WebSocketConstructorLike,
 	WebSocketLike,
 	WindowLike,
@@ -932,6 +937,7 @@ import {
 	watchDebounced,
 	watchDeep,
 	watchIgnorable,
+	watchImmediate,
 } from "../../../index";
 
 interface MatchMediaOnlyWindow extends MatchMediaWindow {
@@ -4736,6 +4742,51 @@ describe("public types", () => {
 			watchIgnorable(1, callback);
 			// @ts-expect-error callback value type must match the source value
 			watchIgnorable(signal("1"), callback);
+		});
+	});
+
+	it("types immediate watchers", () => {
+		typeOnly(() => {
+			const count = signal(0);
+			const label = computed(() => `${count.value}`);
+			const source: WatchImmediateSource<number> = count;
+			const options: WatchImmediateOptions = {
+				deep: true,
+				flush: "sync",
+			};
+			const callback: WatchImmediateCallback<number> = (
+				value,
+				oldValue,
+				onCleanup,
+			) => {
+				expectTypeOf(value).toEqualTypeOf<number>();
+				expectTypeOf(oldValue).toEqualTypeOf<number | undefined>();
+				onCleanup(() => {});
+			};
+			const stop = watchImmediate(source, callback, options);
+			const sourceValues: WatchImmediateSourceValues<
+				[typeof count, typeof label]
+			> = [1, "1"];
+			const tupleStop = watchImmediate(
+				[count, label] as const,
+				(value, oldValue) => {
+					expectTypeOf(value).toEqualTypeOf<[number, string]>();
+					expectTypeOf(oldValue).toEqualTypeOf<[number, string] | []>();
+				},
+				{ flush: "sync" },
+			);
+			const watchReturn: WatchImmediateReturn = stop;
+
+			expectTypeOf(sourceValues).toEqualTypeOf<[number, string]>();
+			expectTypeOf(stop).toEqualTypeOf<WatchImmediateReturn>();
+			expectTypeOf(tupleStop).toEqualTypeOf<WatchImmediateReturn>();
+			expectTypeOf(watchReturn()).toEqualTypeOf<void>();
+			// @ts-expect-error immediate is always enabled by this helper
+			watchImmediate(count, callback, { immediate: false });
+			// @ts-expect-error source must be watchable
+			watchImmediate(1, callback);
+			// @ts-expect-error callback value type must match the source value
+			watchImmediate(signal("1"), callback);
 		});
 	});
 
