@@ -3647,6 +3647,140 @@ export interface UseWebNotificationReturn<
 	stop(): void;
 }
 
+export type UseWebSocketStatus = "CONNECTING" | "OPEN" | "CLOSED";
+
+export type UseWebSocketSendData =
+	| string
+	| Blob
+	| ArrayBufferLike
+	| ArrayBufferView;
+
+export type UseWebSocketHeartbeatMessage = UseWebSocketSendData;
+
+export interface WebSocketLike extends EventTarget {
+	binaryType: BinaryType;
+	readonly readyState: number;
+	close(code?: number, reason?: string): void;
+	send(data: UseWebSocketSendData): void;
+}
+
+export interface WebSocketConstructorLike<
+	TWebSocket extends WebSocketLike = WebSocketLike,
+> {
+	new (url: string | URL, protocols?: string | readonly string[]): TWebSocket;
+	readonly CONNECTING?: 0;
+	readonly OPEN?: 1;
+	readonly CLOSING?: 2;
+	readonly CLOSED?: 3;
+}
+
+export interface UseWebSocketWindowLike<
+	TWebSocket extends WebSocketLike = WebSocketLike,
+> extends WindowLike {
+	readonly WebSocket?: WebSocketConstructorLike<TWebSocket> | null;
+}
+
+export type UseWebSocketHeartbeatScheduler = (
+	callback: () => void,
+) => UseIntervalFnReturn;
+
+export interface UseWebSocketHeartbeatOptions {
+	/**
+	 * Message sent on each heartbeat tick.
+	 *
+	 * @default "ping"
+	 */
+	message?: MaybeValue<UseWebSocketHeartbeatMessage>;
+	/**
+	 * Message treated as the heartbeat response. Defaults to message.
+	 */
+	responseMessage?: MaybeValue<UseWebSocketHeartbeatMessage>;
+	/**
+	 * Heartbeat interval in milliseconds.
+	 *
+	 * @default 1000
+	 */
+	interval?: MaybeValue<number>;
+	/**
+	 * Custom scheduler. When provided, it owns the heartbeat interval.
+	 */
+	scheduler?: UseWebSocketHeartbeatScheduler;
+	/**
+	 * Milliseconds to wait for a heartbeat response before closing the socket.
+	 *
+	 * @default 1000
+	 */
+	pongTimeout?: MaybeValue<number>;
+}
+
+export interface UseWebSocketAutoReconnectOptions {
+	/**
+	 * Maximum retry count. -1 retries forever.
+	 *
+	 * @default -1
+	 */
+	retries?: number | ((retried: number) => boolean);
+	/**
+	 * Reconnect delay in milliseconds.
+	 *
+	 * @default 1000
+	 */
+	delay?: number | ((retried: number) => number);
+	onFailed?: () => void;
+}
+
+export interface UseWebSocketOptions<
+	TWebSocket extends WebSocketLike = WebSocketLike,
+	TWindow extends
+		UseWebSocketWindowLike<TWebSocket> = UseWebSocketWindowLike<TWebSocket>,
+> {
+	onConnected?: (socket: TWebSocket) => void;
+	onDisconnected?: (socket: TWebSocket, event: CloseEvent) => void;
+	onError?: (socket: TWebSocket, event: Event) => void;
+	onMessage?: (socket: TWebSocket, event: MessageEvent) => void;
+	heartbeat?: boolean | UseWebSocketHeartbeatOptions;
+	autoReconnect?: boolean | UseWebSocketAutoReconnectOptions;
+	/**
+	 * Open the socket during setup.
+	 *
+	 * @default true
+	 */
+	immediate?: boolean;
+	/**
+	 * Reconnect when the URL changes.
+	 *
+	 * @default true
+	 */
+	autoConnect?: boolean;
+	/**
+	 * Close on beforeunload and scope disposal.
+	 *
+	 * @default true
+	 */
+	autoClose?: boolean;
+	protocols?: MaybeValue<string | readonly string[] | undefined>;
+	binaryType?: MaybeValue<BinaryType | undefined>;
+	window?: MaybeTarget<TWindow | null | undefined>;
+	webSocket?: MaybeValue<
+		WebSocketConstructorLike<TWebSocket> | null | undefined
+	>;
+}
+
+export interface UseWebSocketReturn<
+	Data = unknown,
+	TWebSocket extends WebSocketLike = WebSocketLike,
+> {
+	readonly data: ReadonlySignal<Data | null>;
+	readonly status: ReadonlySignal<UseWebSocketStatus>;
+	readonly ws: ReadonlySignal<TWebSocket | undefined>;
+	readonly isSupported: ReadonlySignal<boolean>;
+	readonly error: ReadonlySignal<unknown | null>;
+	open(): void;
+	close(code?: number, reason?: string): void;
+	send(data: UseWebSocketSendData, useBuffer?: boolean): boolean;
+	stop(): void;
+}
+
 export type UseVirtualListItemSize = number | ((index: number) => number);
 
 export interface UseVirtualListOptionsBase<

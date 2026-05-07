@@ -181,6 +181,7 @@ export { useVibrate } from "./useVibrate";
 export { useVirtualList } from "./useVirtualList";
 export { useWakeLock } from "./useWakeLock";
 export { useWebNotification } from "./useWebNotification";
+export { useWebSocket } from "./useWebSocket";
 export { useWindowSize } from "./useWindowSize";
 export type {
 	AsyncComputedCancelCallback,
@@ -512,6 +513,17 @@ export type {
 	UseWebNotificationOptionsBase,
 	UseWebNotificationReturn,
 	UseWebNotificationWindowLike,
+	UseWebSocketAutoReconnectOptions,
+	UseWebSocketHeartbeatMessage,
+	UseWebSocketHeartbeatOptions,
+	UseWebSocketHeartbeatScheduler,
+	UseWebSocketOptions,
+	UseWebSocketReturn,
+	UseWebSocketSendData,
+	UseWebSocketStatus,
+	UseWebSocketWindowLike,
+	WebSocketConstructorLike,
+	WebSocketLike,
 	WakeLockType,
 	UseDocumentVisibilityOptions,
 	UseDocumentVisibilityReturn,
