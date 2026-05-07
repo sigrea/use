@@ -185,6 +185,7 @@ export { useWebSocket } from "./useWebSocket";
 export { useWebWorker } from "./useWebWorker";
 export { useWebWorkerFn } from "./useWebWorkerFn";
 export { useWindowFocus } from "./useWindowFocus";
+export { useWindowScroll } from "./useWindowScroll";
 export { useWindowSize } from "./useWindowSize";
 export type {
 	AsyncComputedCancelCallback,
@@ -964,6 +965,8 @@ export type {
 	UseWindowFocusOptions,
 	UseWindowFocusReturn,
 	UseWindowFocusWindowLike,
+	UseWindowScrollOptions,
+	UseWindowScrollReturn,
 	WindowSizeLike,
 	WritableComputedWithControlOptions,
 	WritableComputedWithControlReturn,

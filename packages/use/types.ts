@@ -5532,6 +5532,17 @@ export interface UseScrollReturn {
 	stop(): void;
 }
 
+export interface UseWindowScrollOptions<
+	TWindow extends UseScrollWindowLike = UseScrollWindowLike,
+> extends Omit<
+		UseScrollOptions<TWindow | null | undefined, TWindow>,
+		"window"
+	> {
+	window?: MaybeTarget<TWindow | null | undefined>;
+}
+
+export type UseWindowScrollReturn = UseScrollReturn;
+
 export interface UseScrollLockElementLike extends Element {
 	readonly style: CSSStyleDeclaration;
 }
