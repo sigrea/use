@@ -4003,6 +4003,25 @@ export interface UsePageLeaveReturn {
 	stop(): void;
 }
 
+export interface UseWindowFocusDocumentLike extends DocumentLike {
+	hasFocus?(): boolean;
+}
+
+export interface UseWindowFocusWindowLike extends WindowLike {
+	readonly document?: UseWindowFocusDocumentLike;
+}
+
+export interface UseWindowFocusOptions<
+	TWindow extends UseWindowFocusWindowLike = UseWindowFocusWindowLike,
+> {
+	window?: MaybeTarget<TWindow | null | undefined>;
+}
+
+export interface UseWindowFocusReturn {
+	readonly focused: ReadonlySignal<boolean>;
+	stop(): void;
+}
+
 export interface UseNetworkOptions<
 	TWindow extends WindowLike = WindowLike,
 	TNavigator extends UseNetworkNavigatorLike = UseNetworkNavigatorLike,

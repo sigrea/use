@@ -184,6 +184,7 @@ export { useWebNotification } from "./useWebNotification";
 export { useWebSocket } from "./useWebSocket";
 export { useWebWorker } from "./useWebWorker";
 export { useWebWorkerFn } from "./useWebWorkerFn";
+export { useWindowFocus } from "./useWindowFocus";
 export { useWindowSize } from "./useWindowSize";
 export type {
 	AsyncComputedCancelCallback,
@@ -959,6 +960,10 @@ export type {
 	UseUrlSearchParamsWriteMode,
 	ValueGetter,
 	WindowLike,
+	UseWindowFocusDocumentLike,
+	UseWindowFocusOptions,
+	UseWindowFocusReturn,
+	UseWindowFocusWindowLike,
 	WindowSizeLike,
 	WritableComputedWithControlOptions,
 	WritableComputedWithControlReturn,
