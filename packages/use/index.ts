@@ -2,6 +2,7 @@ export { computedAsync } from "./computedAsync";
 export { computedEager } from "./computedEager";
 export { computedWithControl } from "./computedWithControl";
 export { createEventHook } from "./createEventHook";
+export { createGenericProjection } from "./createGenericProjection";
 export { createSignal } from "./createSignal";
 export { createResolveValueFn } from "./createResolveValueFn";
 export { extendSignal } from "./extendSignal";
@@ -387,6 +388,7 @@ export type {
 	OnStartTypingReturn,
 	Position,
 	PromisifyFn,
+	ProjectorFunction,
 	ReactifyReturn,
 	ReactifyNested,
 	ReactifyObjectOptions,
@@ -802,6 +804,7 @@ export type {
 	UsePointerSwipeReturn,
 	UsePointerState,
 	UsePointerType,
+	UseProjection,
 	UsePreferredColorScheme,
 	UsePreferredColorSchemeReturn,
 	UsePreferredContrast,

@@ -43,6 +43,14 @@ export type WatchTargetCallback<TTarget> = SharedWatchTargetCallback<TTarget>;
 export type WatchTargetOptions = SharedWatchTargetOptions;
 export type WindowLike = SharedWindowLike;
 export type Arrayable<T> = T | readonly T[];
+export type ProjectorFunction<From, To> = (
+	input: From,
+	from: readonly [From, From],
+	to: readonly [To, To],
+) => To;
+export type UseProjection<From, To> = (
+	input: MaybeValue<From>,
+) => ReadonlySignal<To>;
 export type FunctionArgs<
 	TArgs extends unknown[] = unknown[],
 	TReturn = unknown,
