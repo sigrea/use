@@ -211,7 +211,7 @@ Status values:
 | `useUserMedia` | `useUserMedia` | Done |
 | `useVModel` | `-` | Out of scope |
 | `useVModels` | `-` | Out of scope |
-| `useVibrate` | `-` | Todo |
+| `useVibrate` | `useVibrate` | Done |
 | `useVirtualList` | `-` | Needs design |
 | `useWakeLock` | `-` | Todo |
 | `useWebNotification` | `-` | Todo |
