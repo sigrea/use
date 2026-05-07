@@ -602,6 +602,9 @@ import type {
 	UseTimeAgoReturn,
 	UseTimeAgoUnit,
 	UseTimeAgoUnitNamesDefault,
+	UseTimeoutPollCallback,
+	UseTimeoutPollOptions,
+	UseTimeoutPollReturn,
 	UseToggleOptions,
 	UseWindowSizeOptions,
 	WindowLike,
@@ -780,6 +783,7 @@ import {
 	useTimeAgoIntl,
 	useTimeout,
 	useTimeoutFn,
+	useTimeoutPoll,
 	useToggle,
 	useWindowSize,
 } from "../../../index";
@@ -6639,6 +6643,30 @@ describe("public types", () => {
 		expectTypeOf(timeout.isPending).toEqualTypeOf<ReadonlySignal<boolean>>();
 		timeout.start();
 		timeout.stop();
+	});
+
+	it("types timeout poll controls and options", () => {
+		typeOnly(() => {
+			const interval = signal(100);
+			const callback: UseTimeoutPollCallback = async () => {};
+			const options: UseTimeoutPollOptions = {
+				immediate: false,
+				immediateCallback: true,
+			};
+			const poll = useTimeoutPoll(callback, interval, options);
+			const returnValue: UseTimeoutPollReturn = poll;
+
+			expectTypeOf(returnValue.isActive).toEqualTypeOf<
+				ReadonlySignal<boolean>
+			>();
+			poll.pause();
+			poll.resume();
+
+			// @ts-expect-error returned value is readonly
+			poll.isActive.value = false;
+			// @ts-expect-error interval must be a number-like MaybeValue
+			useTimeoutPoll(callback, "1000");
+		});
 	});
 
 	it("types countdown controls and options", () => {

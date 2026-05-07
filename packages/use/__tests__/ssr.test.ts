@@ -178,6 +178,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.useStorageAsync).toBe("function");
 		expect(typeof mod.useTimeout).toBe("function");
 		expect(typeof mod.useTimeoutFn).toBe("function");
+		expect(typeof mod.useTimeoutPoll).toBe("function");
 		expect(typeof mod.useToggle).toBe("function");
 		expect(typeof mod.useWindowSize).toBe("function");
 	}, 30_000);
@@ -273,6 +274,7 @@ describe("SSR safety", () => {
 			useSessionStorage,
 			useStorage,
 			useStorageAsync,
+			useTimeoutPoll,
 			useWindowSize,
 			useActiveElement,
 			useAnimate,
@@ -445,6 +447,9 @@ describe("SSR safety", () => {
 				window: undefined,
 			},
 		);
+		const timeoutPoll = useTimeoutPoll(async () => {}, 100, {
+			immediate: false,
+		});
 		const elementSize = useElementSize(null, { width: 10, height: 20 });
 		const size = useWindowSize();
 
@@ -667,6 +672,7 @@ describe("SSR safety", () => {
 		expect(ssrMediaQuery.matches.value).toBe(true);
 		expect(storageValue.value).toBe("fallback");
 		expect(asyncStorageValue.value).toBe("fallback");
+		expect(timeoutPoll.isActive.value).toBe(false);
 		expect(elementSize.width.value).toBe(10);
 		expect(elementSize.height.value).toBe(20);
 		expect(size.width.value).toBe(0);
@@ -813,6 +819,9 @@ describe("SSR safety", () => {
 		ssrMediaQuery.stop();
 		storageValue.stop();
 		asyncStorageValue.stop();
+		timeoutPoll.resume();
+		expect(timeoutPoll.isActive.value).toBe(true);
+		timeoutPoll.pause();
 		elementSize.stop();
 		size.stop();
 	});
