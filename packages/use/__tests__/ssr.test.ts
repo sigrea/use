@@ -188,6 +188,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.useTransition).toBe("function");
 		expect(typeof mod.useToggle).toBe("function");
 		expect(typeof mod.useUrlSearchParams).toBe("function");
+		expect(typeof mod.useUserMedia).toBe("function");
 		expect(typeof mod.useWindowSize).toBe("function");
 	}, 30_000);
 
@@ -290,6 +291,7 @@ describe("SSR safety", () => {
 			transition,
 			useTransition,
 			useUrlSearchParams,
+			useUserMedia,
 			useWindowSize,
 			useActiveElement,
 			useAnimate,
@@ -393,6 +395,7 @@ describe("SSR safety", () => {
 		});
 		const devicesList = useDevicesList({ navigator: null });
 		const displayMedia = useDisplayMedia({ navigator: null });
+		const userMedia = useUserMedia({ navigator: null });
 		const draggable = useDraggable(null, { initialValue: { x: 10, y: 20 } });
 		const dropZone = useDropZone(null);
 		const bounding = useElementBounding(null, {
@@ -631,6 +634,13 @@ describe("SSR safety", () => {
 		expect(devicesList.devices.value).toEqual([]);
 		expect(displayMedia.isSupported.value).toBe(false);
 		expect(displayMedia.stream.value).toBeUndefined();
+		expect(userMedia.isSupported.value).toBe(false);
+		expect(userMedia.stream.value).toBeUndefined();
+		expect(userMedia.isStarting.value).toBe(false);
+		expect(userMedia.isStreaming.value).toBe(false);
+		expect(userMedia.error.value).toBeNull();
+		expect(userMedia.enabled.value).toBe(false);
+		expect(userMedia.autoSwitch.value).toBe(true);
 		expect(draggable.position.value).toEqual({ x: 10, y: 20 });
 		expect(draggable.isDragging.value).toBe(false);
 		expect(dropZone.files.value).toBeNull();
@@ -787,6 +797,12 @@ describe("SSR safety", () => {
 		devicesList.stop();
 		expect(await displayMedia.start()).toBeUndefined();
 		displayMedia.stop();
+		expect(await userMedia.start()).toBeUndefined();
+		expect(await userMedia.restart()).toBeUndefined();
+		userMedia.enabled.value = false;
+		userMedia.autoSwitch.value = false;
+		userMedia.constraints.value = { audio: true };
+		userMedia.stop();
 		speechRecognition.start();
 		speechRecognition.stop();
 		speechRecognition.abort();
@@ -1192,6 +1208,23 @@ describe("SSR safety", () => {
 		expect(result.stream.value).toBeUndefined();
 		expect(result.error.value).toBeNull();
 		expect(await result.start()).toBeUndefined();
+		result.stop();
+	});
+
+	it("creates useUserMedia without a window", async () => {
+		const { useUserMedia } = await import("../../../index");
+		const result = useUserMedia();
+
+		expect(globalThis.window).toBeUndefined();
+		expect(result.isSupported.value).toBe(false);
+		expect(result.isStarting.value).toBe(false);
+		expect(result.isStreaming.value).toBe(false);
+		expect(result.stream.value).toBeUndefined();
+		expect(result.error.value).toBeNull();
+		expect(result.enabled.value).toBe(false);
+		expect(result.autoSwitch.value).toBe(true);
+		expect(await result.start()).toBeUndefined();
+		expect(await result.restart()).toBeUndefined();
 		result.stop();
 	});
 
