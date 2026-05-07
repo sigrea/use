@@ -151,6 +151,7 @@ export { useSupported } from "./useSupported";
 export { useSwipe } from "./useSwipe";
 export { useTextDirection } from "./useTextDirection";
 export { useTextSelection } from "./useTextSelection";
+export { useTextareaAutosize } from "./useTextareaAutosize";
 export {
 	customStorageEventName,
 	StorageSerializers,
@@ -808,6 +809,11 @@ export type {
 	UseTextSelectionOptions,
 	UseTextSelectionReturn,
 	UseTextSelectionWindowLike,
+	UseTextareaAutosizeOptions,
+	UseTextareaAutosizeReturn,
+	UseTextareaAutosizeStyleProp,
+	UseTextareaAutosizeWatchSource,
+	UseTextareaAutosizeWindowLike,
 	UseStorageAsyncOptions,
 	UseStorageAsyncReturn,
 	UseStorageOptions,

@@ -3843,6 +3843,56 @@ export interface UseTextSelectionReturn {
 	stop(): void;
 }
 
+export type UseTextareaAutosizeStyleProp = "height" | "minHeight";
+
+export type UseTextareaAutosizeWatchSource =
+	| WatchSource
+	| readonly WatchSource[];
+
+export interface UseTextareaAutosizeWindowLike
+	extends ResizeObserverWindowLike {
+	requestAnimationFrame?(callback: FrameRequestCallback): number;
+	cancelAnimationFrame?(handle: number): void;
+}
+
+export interface UseTextareaAutosizeOptions<
+	TTextarea extends HTMLTextAreaElement = HTMLTextAreaElement,
+	TStyleTarget extends HTMLElement = HTMLElement,
+	TWindow extends UseTextareaAutosizeWindowLike = UseTextareaAutosizeWindowLike,
+> {
+	/** Textarea element to autosize. */
+	element?: MaybeTarget<TTextarea | null | undefined>;
+	/** Textarea content source. */
+	input?: MaybeValue<string>;
+	/** Maximum autosized height in pixels. */
+	maxHeight?: number;
+	/** Watch sources that should trigger a textarea resize. */
+	watch?: UseTextareaAutosizeWatchSource;
+	/** Function called when the textarea scroll height changes. */
+	onResize?: () => void;
+	/**
+	 * Style target to apply the height based on textarea content.
+	 * Defaults to the textarea element.
+	 */
+	styleTarget?: MaybeTarget<TStyleTarget | null | undefined>;
+	/**
+	 * Style property used to manipulate height.
+	 *
+	 * @default "height"
+	 */
+	styleProp?: UseTextareaAutosizeStyleProp;
+	window?: MaybeTarget<TWindow | null | undefined>;
+}
+
+export interface UseTextareaAutosizeReturn<
+	TTextarea extends HTMLTextAreaElement = HTMLTextAreaElement,
+> {
+	readonly textarea: Signal<TTextarea | null | undefined>;
+	readonly input: Signal<string>;
+	triggerResize(): void;
+	stop(): void;
+}
+
 export interface UsePointerLockElementLike extends EventTarget {
 	getRootNode?(): UsePointerLockRootLike | Node;
 	requestPointerLock?(options?: PointerLockOptions): Promise<void> | void;
