@@ -168,6 +168,7 @@ export {
 } from "./useTimeAgoIntl";
 export { useTimeout } from "./useTimeout";
 export { useTimeoutFn } from "./useTimeoutFn";
+export { useTimeoutPoll } from "./useTimeoutPoll";
 export { useToggle } from "./useToggle";
 export { useWindowSize } from "./useWindowSize";
 export type {
@@ -846,6 +847,9 @@ export type {
 	UseTimeoutFnOptions,
 	UseTimeoutFnReturn,
 	UseTimeoutOptions,
+	UseTimeoutPollCallback,
+	UseTimeoutPollOptions,
+	UseTimeoutPollReturn,
 	UseTimeoutReturn,
 	UseToggleOptions,
 	UseToggleReturn,
