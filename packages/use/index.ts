@@ -160,6 +160,7 @@ export {
 } from "./useStorage";
 export { useStorageAsync } from "./useStorageAsync";
 export { useThrottleFn } from "./useThrottleFn";
+export { formatTimeAgo, useTimeAgo } from "./useTimeAgo";
 export { useTimeout } from "./useTimeout";
 export { useTimeoutFn } from "./useTimeoutFn";
 export { useToggle } from "./useToggle";
@@ -821,6 +822,15 @@ export type {
 	UseStorageAsyncReturn,
 	UseStorageOptions,
 	UseThrottleFnReturn,
+	UseTimeAgoControlsReturn,
+	UseTimeAgoFormatOptions,
+	UseTimeAgoFormatter,
+	UseTimeAgoMessages,
+	UseTimeAgoMessagesBuiltIn,
+	UseTimeAgoOptions,
+	UseTimeAgoReturn,
+	UseTimeAgoUnit,
+	UseTimeAgoUnitNamesDefault,
 	UseTimeoutControlsReturn,
 	UseTimeoutFnOptions,
 	UseTimeoutFnReturn,
