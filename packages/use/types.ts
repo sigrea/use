@@ -1755,6 +1755,30 @@ export type UseTitleReturn = Computed<string | null | undefined> & {
 	stop(): void;
 };
 
+export interface UseToNumberOptions {
+	/**
+	 * Method to use to convert the value to a number.
+	 *
+	 * Or a custom function for the conversion.
+	 *
+	 * @default "parseFloat"
+	 */
+	method?: "parseFloat" | "parseInt" | ((value: string | number) => number);
+
+	/**
+	 * The base in mathematical numeral systems passed to `parseInt`.
+	 * Only works with `method: "parseInt"`.
+	 */
+	radix?: number;
+
+	/**
+	 * Replace NaN with zero.
+	 *
+	 * @default false
+	 */
+	nanToZero?: boolean;
+}
+
 export type UseFetchDataType =
 	| "text"
 	| "json"
