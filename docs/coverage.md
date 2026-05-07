@@ -222,7 +222,7 @@ Status values:
 | `useWindowScroll` | `useWindowScroll` | Done |
 | `useWindowSize` | `useWindowSize` | Done |
 | `watchArray` | `watchArray` | Done |
-| `watchAtMost` | `-` | Todo |
+| `watchAtMost` | `watchAtMost` | Done |
 | `watchDebounced` | `-` | Todo |
 | `watchDeep` | `-` | Todo |
 | `watchIgnorable` | `-` | Todo |
