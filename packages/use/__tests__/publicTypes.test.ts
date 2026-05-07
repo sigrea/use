@@ -100,6 +100,7 @@ import type {
 	KeyFilter,
 	KeyPredicate,
 	KeyStrokeEventName,
+	LogicAndReturn,
 	MagicKeysInternal,
 	MatchMediaWindow,
 	MaybeTransitionEasing,
@@ -795,6 +796,7 @@ import {
 	formatTimeAgoIntl,
 	formatTimeAgoIntlParts,
 	isDefined,
+	logicAnd,
 	makeDestructurable,
 	normalizeDate,
 	onClickOutside,
@@ -5635,6 +5637,20 @@ describe("public types", () => {
 			if (isDefined(factory)) {
 				expectTypeOf(factory.value).toEqualTypeOf<() => string>();
 			}
+		});
+	});
+
+	it("types logical AND", () => {
+		typeOnly(() => {
+			const result = logicAnd(signal(true), true, () => "ready");
+			const empty = logicAnd();
+			const logicReturn: LogicAndReturn = result;
+
+			expectTypeOf(result).toEqualTypeOf<LogicAndReturn>();
+			expectTypeOf(empty.value).toEqualTypeOf<boolean>();
+			expectTypeOf(logicReturn.value).toEqualTypeOf<boolean>();
+			// @ts-expect-error logical result is readonly
+			result.value = false;
 		});
 	});
 
