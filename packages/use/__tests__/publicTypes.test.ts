@@ -699,6 +699,10 @@ import type {
 	UseWindowScrollReturn,
 	UseWindowSizeOptions,
 	WakeLockType,
+	WatchArrayCallback,
+	WatchArrayOptions,
+	WatchArrayReturn,
+	WatchArraySource,
 	WebSocketConstructorLike,
 	WebSocketLike,
 	WindowLike,
@@ -900,6 +904,7 @@ import {
 	useWindowFocus,
 	useWindowScroll,
 	useWindowSize,
+	watchArray,
 } from "../../../index";
 
 interface MatchMediaOnlyWindow extends MatchMediaWindow {
@@ -4436,6 +4441,49 @@ describe("public types", () => {
 			value.toBe(1, { timeout: "100" });
 			// @ts-expect-error contained value must match the array element type
 			array.toContains("2");
+		});
+	});
+
+	it("types array watchers", () => {
+		typeOnly(() => {
+			const values = signal([1, 2] as number[]);
+			const source: WatchArraySource<number> = values;
+			const options: WatchArrayOptions<true> = {
+				deep: true,
+				flush: "sync",
+				immediate: true,
+			};
+			const callback: WatchArrayCallback<number> = (
+				value,
+				oldValue,
+				added,
+				removed,
+				onCleanup,
+			) => {
+				expectTypeOf(value).toEqualTypeOf<readonly number[]>();
+				expectTypeOf(oldValue).toEqualTypeOf<readonly number[]>();
+				expectTypeOf(added).toEqualTypeOf<number[]>();
+				expectTypeOf(removed).toEqualTypeOf<number[]>();
+				onCleanup(() => {});
+
+				// @ts-expect-error added values keep the source item type
+				added.push("3");
+			};
+			const stop = watchArray(source, callback, options);
+			const getterStop = watchArray(() => values.value, callback);
+			const rawStop = watchArray([1, 2, 3], callback, {
+				immediate: true,
+			});
+			const watchReturn: WatchArrayReturn = stop;
+
+			expectTypeOf(stop).toEqualTypeOf<WatchArrayReturn>();
+			expectTypeOf(getterStop).toEqualTypeOf<WatchArrayReturn>();
+			expectTypeOf(rawStop).toEqualTypeOf<WatchArrayReturn>();
+			watchReturn();
+			// @ts-expect-error source must resolve to an array
+			watchArray(signal(1), callback);
+			// @ts-expect-error callback item type must match source items
+			watchArray(signal(["1"]), callback);
 		});
 	});
 
