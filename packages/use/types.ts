@@ -3787,6 +3787,41 @@ export interface UseSwipeReturn {
 	stop(): void;
 }
 
+export type UseTextDirectionValue = "ltr" | "rtl" | "auto";
+
+export interface UseTextDirectionDocumentLike extends DocumentLike {
+	readonly defaultView?: UseMutationObserverWindowLike | null;
+	querySelector?(selectors: string): Element | null;
+}
+
+export interface UseTextDirectionOptions<
+	TDocument extends UseTextDirectionDocumentLike = UseTextDirectionDocumentLike,
+> {
+	document?: MaybeTarget<TDocument | null | undefined>;
+	/**
+	 * CSS selector for the target element.
+	 *
+	 * @default "html"
+	 */
+	selector?: MaybeValue<string>;
+	/**
+	 * Observe target element attribute changes.
+	 *
+	 * @default false
+	 */
+	observe?: MaybeValue<boolean>;
+	/**
+	 * Direction returned when the target element has no dir attribute.
+	 *
+	 * @default "ltr"
+	 */
+	initialValue?: MaybeValue<UseTextDirectionValue>;
+}
+
+export type UseTextDirectionReturn = Computed<UseTextDirectionValue> & {
+	stop(): void;
+};
+
 export interface UsePointerLockElementLike extends EventTarget {
 	getRootNode?(): UsePointerLockRootLike | Node;
 	requestPointerLock?(options?: PointerLockOptions): Promise<void> | void;
