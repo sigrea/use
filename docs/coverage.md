@@ -228,7 +228,7 @@ Status values:
 | `watchIgnorable` | `watchIgnorable` | Done |
 | `watchImmediate` | `watchImmediate` | Done |
 | `watchOnce` | `watchOnce` | Done |
-| `watchPausable` | `-` | Todo |
+| `watchPausable` | `watchPausable` | Done |
 | `watchThrottled` | `-` | Todo |
 | `watchTriggerable` | `-` | Todo |
 | `watchWithFilter` | `-` | Todo |
