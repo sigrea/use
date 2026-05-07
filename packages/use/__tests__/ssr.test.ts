@@ -192,6 +192,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.useVibrate).toBe("function");
 		expect(typeof mod.useVirtualList).toBe("function");
 		expect(typeof mod.useWakeLock).toBe("function");
+		expect(typeof mod.useWebNotification).toBe("function");
 		expect(typeof mod.useWindowSize).toBe("function");
 	}, 30_000);
 
@@ -298,6 +299,7 @@ describe("SSR safety", () => {
 			useVibrate,
 			useVirtualList,
 			useWakeLock,
+			useWebNotification,
 			useWindowSize,
 			useActiveElement,
 			useAnimate,
@@ -411,6 +413,7 @@ describe("SSR safety", () => {
 			document: null,
 			navigator: null,
 		});
+		const webNotification = useWebNotification({ window: null });
 		const draggable = useDraggable(null, { initialValue: { x: 10, y: 20 } });
 		const dropZone = useDropZone(null);
 		const bounding = useElementBounding(null, {
@@ -668,6 +671,10 @@ describe("SSR safety", () => {
 		expect(wakeLock.sentinel.value).toBeNull();
 		expect(wakeLock.isSupported.value).toBe(false);
 		expect(wakeLock.isActive.value).toBe(false);
+		expect(webNotification.notification.value).toBeNull();
+		expect(webNotification.isSupported.value).toBe(false);
+		expect(webNotification.permissionGranted.value).toBe(false);
+		expect(webNotification.error.value).toBeNull();
 		expect(draggable.position.value).toEqual({ x: 10, y: 20 });
 		expect(draggable.isDragging.value).toBe(false);
 		expect(dropZone.files.value).toBeNull();
@@ -840,6 +847,10 @@ describe("SSR safety", () => {
 		await wakeLock.forceRequest();
 		await wakeLock.release();
 		wakeLock.stop();
+		expect(await webNotification.ensurePermissions()).toBe(false);
+		expect(await webNotification.show()).toBeUndefined();
+		webNotification.close();
+		webNotification.stop();
 		speechRecognition.start();
 		speechRecognition.stop();
 		speechRecognition.abort();

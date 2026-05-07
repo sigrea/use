@@ -660,6 +660,13 @@ import type {
 	UseWakeLockReturn,
 	UseWakeLockSentinelLike,
 	UseWakeLockWakeLockLike,
+	UseWebNotificationConstructorLike,
+	UseWebNotificationConstructorOptions,
+	UseWebNotificationNotificationLike,
+	UseWebNotificationOptions,
+	UseWebNotificationOptionsBase,
+	UseWebNotificationReturn,
+	UseWebNotificationWindowLike,
 	UseWindowSizeOptions,
 	WakeLockType,
 	WindowLike,
@@ -852,6 +859,7 @@ import {
 	useVibrate,
 	useVirtualList,
 	useWakeLock,
+	useWebNotification,
 	useWindowSize,
 } from "../../../index";
 
@@ -6422,6 +6430,106 @@ describe("public types", () => {
 				useWakeLock({ navigator: { wakeLock: {} } });
 				// @ts-expect-error sentinel must be an EventTarget-like object
 				useWakeLock({ navigator: { wakeLock: { request: async () => ({}) } } });
+			});
+		});
+
+		typeOnly(() => {
+			class TypeWebNotification
+				extends EventTarget
+				implements UseWebNotificationNotificationLike
+			{
+				close() {}
+			}
+			const notificationConstructor = class extends TypeWebNotification {
+				static readonly permission: NotificationPermission = "granted";
+				static requestPermission(): Promise<NotificationPermission> {
+					return Promise.resolve("granted");
+				}
+
+				constructor(
+					readonly title: string,
+					readonly options?: UseWebNotificationConstructorOptions,
+				) {
+					super();
+				}
+			} satisfies UseWebNotificationConstructorLike<TypeWebNotification>;
+			const notificationWindow: UseWebNotificationWindowLike<TypeWebNotification> =
+				Object.assign(new EventTarget(), {
+					Notification: notificationConstructor,
+				});
+			const notificationOptions: UseWebNotificationOptions<
+				TypeWebNotification,
+				UseWebNotificationWindowLike<TypeWebNotification>
+			> = {
+				body: "body",
+				requestPermissions: signal(false),
+				title: "title",
+				vibrate: [100, 50, 100] as const,
+				window: signal(notificationWindow),
+			};
+			const notificationOverride: UseWebNotificationOptionsBase = {
+				body: "override",
+			};
+			const webNotification = useWebNotification(notificationOptions);
+			const fallbackWebNotification =
+				useWebNotification<UseWebNotificationNotificationLike>({
+					window: null,
+				});
+			const webNotificationReturn: UseWebNotificationReturn<TypeWebNotification> =
+				webNotification;
+
+			expectTypeOf(webNotification).toEqualTypeOf<
+				UseWebNotificationReturn<TypeWebNotification>
+			>();
+			expectTypeOf(webNotificationReturn.notification).toEqualTypeOf<
+				ReadonlySignal<TypeWebNotification | null>
+			>();
+			expectTypeOf(webNotification.isSupported).toEqualTypeOf<
+				ReadonlySignal<boolean>
+			>();
+			expectTypeOf(webNotification.permissionGranted).toEqualTypeOf<
+				ReadonlySignal<boolean>
+			>();
+			expectTypeOf(webNotification.error).toEqualTypeOf<
+				ReadonlySignal<unknown | null>
+			>();
+			expectTypeOf(webNotification.ensurePermissions()).toEqualTypeOf<
+				Promise<boolean>
+			>();
+			expectTypeOf(webNotification.show()).toEqualTypeOf<
+				Promise<TypeWebNotification | undefined>
+			>();
+			expectTypeOf(webNotification.show(notificationOverride)).toEqualTypeOf<
+				Promise<TypeWebNotification | undefined>
+			>();
+			expectTypeOf(webNotification.close()).toEqualTypeOf<void>();
+			expectTypeOf(webNotification.stop()).toEqualTypeOf<void>();
+			expectTypeOf(fallbackWebNotification).toEqualTypeOf<
+				UseWebNotificationReturn<UseWebNotificationNotificationLike>
+			>();
+			webNotification.onClick((event) => {
+				expectTypeOf(event).toEqualTypeOf<Event>();
+			});
+			webNotification.onShow((event) => {
+				expectTypeOf(event).toEqualTypeOf<Event>();
+			});
+			webNotification.onError((event) => {
+				expectTypeOf(event).toEqualTypeOf<Event>();
+			});
+			webNotification.onClose((event) => {
+				expectTypeOf(event).toEqualTypeOf<Event>();
+			});
+			typeOnly(() => {
+				// @ts-expect-error notification is readonly
+				webNotification.notification.value = new TypeWebNotification();
+				useWebNotification({
+					// @ts-expect-error window must expose a Notification constructor
+					window: Object.assign(new EventTarget(), { Notification: {} }),
+				});
+				// @ts-expect-error requestPermissions must be boolean-like
+				useWebNotification({ requestPermissions: "true" });
+				// @ts-expect-error vibrate accepts a number or readonly numbers
+				useWebNotification({ vibrate: ["100"] });
 			});
 		});
 
