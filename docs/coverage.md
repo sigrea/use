@@ -193,7 +193,7 @@ Status values:
 | `useTemplateRefsList` | `-` | Out of scope |
 | `useTextDirection` | `useTextDirection` | Done |
 | `useTextSelection` | `useTextSelection` | Done |
-| `useTextareaAutosize` | `-` | Todo |
+| `useTextareaAutosize` | `useTextareaAutosize` | Done |
 | `useThrottleFn` | `useThrottleFn` | Done |
 | `useThrottledRefHistory` | `-` | Todo |
 | `useTimeAgo` | `-` | Todo |
