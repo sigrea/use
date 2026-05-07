@@ -3562,6 +3562,91 @@ export interface UseWakeLockReturn<
 	stop(): void;
 }
 
+export interface UseWebNotificationNotificationLike extends EventTarget {
+	close(): void;
+}
+
+export interface UseWebNotificationConstructorLike<
+	TNotification extends
+		UseWebNotificationNotificationLike = UseWebNotificationNotificationLike,
+> {
+	readonly permission: NotificationPermission;
+	requestPermission(): Promise<NotificationPermission>;
+	new (
+		title: string,
+		options?: UseWebNotificationConstructorOptions,
+	): TNotification;
+}
+
+export interface UseWebNotificationWindowLike<
+	TNotification extends
+		UseWebNotificationNotificationLike = UseWebNotificationNotificationLike,
+> extends WindowLike {
+	readonly document?: DocumentVisibilityDocumentLike;
+	readonly Notification?: UseWebNotificationConstructorLike<TNotification> | null;
+}
+
+export interface UseWebNotificationConstructorOptions {
+	badge?: string;
+	body?: string;
+	data?: unknown;
+	dir?: NotificationDirection;
+	icon?: string;
+	image?: string;
+	lang?: string;
+	renotify?: boolean;
+	requireInteraction?: boolean;
+	silent?: boolean;
+	tag?: string;
+	timestamp?: number;
+	vibrate?: number | readonly number[];
+}
+
+export interface UseWebNotificationOptionsBase
+	extends UseWebNotificationConstructorOptions {
+	/**
+	 * Title passed as the first Notification constructor argument.
+	 *
+	 * @default ""
+	 */
+	title?: string;
+}
+
+export interface UseWebNotificationOptions<
+	TNotification extends
+		UseWebNotificationNotificationLike = UseWebNotificationNotificationLike,
+	TWindow extends
+		UseWebNotificationWindowLike<TNotification> = UseWebNotificationWindowLike<TNotification>,
+> extends UseWebNotificationOptionsBase {
+	/**
+	 * Request permission when this value becomes true.
+	 *
+	 * @default false
+	 */
+	requestPermissions?: MaybeValue<boolean>;
+	window?: MaybeValue<TWindow | null | undefined>;
+}
+
+export interface UseWebNotificationReturn<
+	TNotification extends
+		UseWebNotificationNotificationLike = UseWebNotificationNotificationLike,
+> {
+	readonly notification: ReadonlySignal<TNotification | null>;
+	readonly isSupported: ReadonlySignal<boolean>;
+	readonly permissionGranted: ReadonlySignal<boolean>;
+	readonly error: ReadonlySignal<unknown | null>;
+	ensurePermissions(): Promise<boolean>;
+	show(
+		overrides?: UseWebNotificationOptionsBase,
+	): Promise<TNotification | undefined>;
+	close(): void;
+	onClick: EventHookOn<Event>;
+	onShow: EventHookOn<Event>;
+	onError: EventHookOn<Event>;
+	onClose: EventHookOn<Event>;
+	stop(): void;
+}
+
 export type UseVirtualListItemSize = number | ((index: number) => number);
 
 export interface UseVirtualListOptionsBase<
