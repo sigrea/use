@@ -234,7 +234,7 @@ Status values:
 | `watchWithFilter` | `watchWithFilter` | Done |
 | `whenever` | `whenever` | Done |
 | `math/createGenericProjection` | `createGenericProjection` | Done |
-| `math/createProjection` | `-` | Todo |
+| `math/createProjection` | `createProjection` | Done |
 | `math/logicAnd` | `-` | Todo |
 | `math/logicNot` | `-` | Todo |
 | `math/logicOr` | `-` | Todo |
