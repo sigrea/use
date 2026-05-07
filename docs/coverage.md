@@ -196,7 +196,7 @@ Status values:
 | `useTextareaAutosize` | `useTextareaAutosize` | Done |
 | `useThrottleFn` | `useThrottleFn` | Done |
 | `useThrottledRefHistory` | `useThrottledRefHistory` | Done |
-| `useTimeAgo` | `-` | Todo |
+| `useTimeAgo` | `useTimeAgo` | Done |
 | `useTimeAgoIntl` | `-` | Todo |
 | `useTimeout` | `useTimeout` | Done |
 | `useTimeoutFn` | `useTimeoutFn` | Done |
