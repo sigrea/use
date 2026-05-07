@@ -647,6 +647,13 @@ import type {
 	UseVibratePattern,
 	UseVibrateReturn,
 	UseVibrateScheduler,
+	UseVirtualListHorizontalOptions,
+	UseVirtualListItem,
+	UseVirtualListItemSize,
+	UseVirtualListOptions,
+	UseVirtualListOptionsBase,
+	UseVirtualListReturn,
+	UseVirtualListVerticalOptions,
 	UseWindowSizeOptions,
 	WindowLike,
 	WritableComputedWithControlReturn,
@@ -836,6 +843,7 @@ import {
 	useUrlSearchParams,
 	useUserMedia,
 	useVibrate,
+	useVirtualList,
 	useWindowSize,
 } from "../../../index";
 
@@ -6278,6 +6286,71 @@ describe("public types", () => {
 				useVibrate({ navigator: { vibrate: (_pattern: string) => true } });
 				// @ts-expect-error scheduler must return interval controls
 				useVibrate({ scheduler: () => ({}) });
+			});
+		});
+
+		typeOnly(() => {
+			const itemSize: UseVirtualListItemSize = (index) => index + 20;
+			const virtualBaseOptions: UseVirtualListOptionsBase<ResizeObserverWindowLike> =
+				{
+					overscan: 2,
+					window: null,
+				};
+			const verticalOptions: UseVirtualListVerticalOptions = {
+				...virtualBaseOptions,
+				itemHeight: itemSize,
+			};
+			const horizontalOptions: UseVirtualListHorizontalOptions = {
+				itemWidth: 120,
+				overscan: 1,
+			};
+			const options: UseVirtualListOptions = verticalOptions;
+			const readonlySource = [1, 2, 3] as const;
+			const source = signal<readonly number[]>(readonlySource);
+			const virtual = useVirtualList(source, options);
+			const getterVirtual = useVirtualList(
+				() => source.value,
+				horizontalOptions,
+			);
+			const plainVirtual = useVirtualList([1, 2, 3], { itemHeight: 20 });
+			const virtualReturn: UseVirtualListReturn<number> = virtual;
+			const item: UseVirtualListItem<number> = {
+				data: 1,
+				index: 0,
+			};
+
+			expectTypeOf(virtual).toEqualTypeOf<UseVirtualListReturn<number>>();
+			expectTypeOf(virtualReturn.list).toEqualTypeOf<
+				ReadonlySignal<readonly UseVirtualListItem<number>[]>
+			>();
+			expectTypeOf(virtual.containerRef).toEqualTypeOf<
+				Signal<HTMLElement | null>
+			>();
+			expectTypeOf(virtual.containerStyle).toEqualTypeOf<string>();
+			expectTypeOf(virtual.wrapperStyle).toEqualTypeOf<Computed<string>>();
+			expectTypeOf(virtual.onScroll()).toEqualTypeOf<void>();
+			expectTypeOf(virtual.onScroll(new Event("scroll"))).toEqualTypeOf<void>();
+			expectTypeOf(virtual.scrollTo(1)).toEqualTypeOf<void>();
+			expectTypeOf(virtual.measure()).toEqualTypeOf<void>();
+			expectTypeOf(virtual.stop()).toEqualTypeOf<void>();
+			expectTypeOf(getterVirtual).toEqualTypeOf<UseVirtualListReturn<number>>();
+			expectTypeOf(plainVirtual).toEqualTypeOf<UseVirtualListReturn<number>>();
+			expectTypeOf(item).toEqualTypeOf<UseVirtualListItem<number>>();
+			virtual.containerRef.value = document.createElement("div");
+			virtual.containerRef.value = null;
+			typeOnly(() => {
+				// @ts-expect-error list is readonly
+				virtual.list.value = [];
+				// @ts-expect-error virtual items are readonly
+				item.index = 1;
+				// @ts-expect-error itemHeight and itemWidth are mutually exclusive
+				useVirtualList([1], { itemHeight: 20, itemWidth: 20 });
+				// @ts-expect-error itemHeight is not a MaybeValue
+				useVirtualList([1], { itemHeight: signal(20) });
+				// @ts-expect-error one item size option is required
+				useVirtualList([1], { overscan: 1 });
+				// @ts-expect-error overscan must be numeric
+				useVirtualList([1], { itemHeight: 20, overscan: "1" });
 			});
 		});
 

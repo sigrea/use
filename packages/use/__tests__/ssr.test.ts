@@ -190,6 +190,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.useUrlSearchParams).toBe("function");
 		expect(typeof mod.useUserMedia).toBe("function");
 		expect(typeof mod.useVibrate).toBe("function");
+		expect(typeof mod.useVirtualList).toBe("function");
 		expect(typeof mod.useWindowSize).toBe("function");
 	}, 30_000);
 
@@ -294,6 +295,7 @@ describe("SSR safety", () => {
 			useUrlSearchParams,
 			useUserMedia,
 			useVibrate,
+			useVirtualList,
 			useWindowSize,
 			useActiveElement,
 			useAnimate,
@@ -399,6 +401,10 @@ describe("SSR safety", () => {
 		const displayMedia = useDisplayMedia({ navigator: null });
 		const userMedia = useUserMedia({ navigator: null });
 		const vibration = useVibrate({ navigator: null });
+		const virtualList = useVirtualList(["a", "b", "c"], {
+			itemHeight: 20,
+			window: null,
+		});
 		const draggable = useDraggable(null, { initialValue: { x: 10, y: 20 } });
 		const dropZone = useDropZone(null);
 		const bounding = useElementBounding(null, {
@@ -647,6 +653,12 @@ describe("SSR safety", () => {
 		expect(vibration.isSupported.value).toBe(false);
 		expect(vibration.pattern.value).toEqual([]);
 		expect(vibration.intervalControls).toBeUndefined();
+		expect(virtualList.list.value).toEqual([]);
+		expect(virtualList.containerRef.value).toBeNull();
+		expect(virtualList.containerStyle).toBe("overflow-y: auto;");
+		expect(virtualList.wrapperStyle.value).toBe(
+			"width: 100%; height: 60px; margin-top: 0px;",
+		);
 		expect(draggable.position.value).toEqual({ x: 10, y: 20 });
 		expect(draggable.isDragging.value).toBe(false);
 		expect(dropZone.files.value).toBeNull();
@@ -811,6 +823,10 @@ describe("SSR safety", () => {
 		userMedia.stop();
 		expect(vibration.vibrate()).toBeUndefined();
 		expect(vibration.stop()).toBeUndefined();
+		virtualList.measure();
+		virtualList.onScroll(new Event("scroll"));
+		virtualList.scrollTo(1);
+		virtualList.stop();
 		speechRecognition.start();
 		speechRecognition.stop();
 		speechRecognition.abort();
@@ -1246,6 +1262,26 @@ describe("SSR safety", () => {
 		expect(result.intervalControls).toBeUndefined();
 		expect(result.vibrate()).toBeUndefined();
 		expect(result.stop()).toBeUndefined();
+	});
+
+	it("creates useVirtualList without a window", async () => {
+		const { useVirtualList } = await import("../../../index");
+		const result = useVirtualList(["a", "b", "c"], {
+			itemHeight: 20,
+			window: null,
+		});
+
+		expect(globalThis.window).toBeUndefined();
+		expect(result.list.value).toEqual([]);
+		expect(result.containerRef.value).toBeNull();
+		expect(result.containerStyle).toBe("overflow-y: auto;");
+		expect(result.wrapperStyle.value).toBe(
+			"width: 100%; height: 60px; margin-top: 0px;",
+		);
+		result.measure();
+		result.onScroll(new Event("scroll"));
+		result.scrollTo(1);
+		result.stop();
 	});
 
 	it("creates useFullscreen without a window", async () => {
