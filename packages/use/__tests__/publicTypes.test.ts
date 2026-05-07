@@ -709,6 +709,11 @@ import type {
 	WatchAtMostSource,
 	WatchAtMostSourceListCallback,
 	WatchAtMostSourceValues,
+	WatchDebouncedCallback,
+	WatchDebouncedOptions,
+	WatchDebouncedReturn,
+	WatchDebouncedSource,
+	WatchDebouncedSourceValues,
 	WebSocketConstructorLike,
 	WebSocketLike,
 	WindowLike,
@@ -912,6 +917,7 @@ import {
 	useWindowSize,
 	watchArray,
 	watchAtMost,
+	watchDebounced,
 } from "../../../index";
 
 interface MatchMediaOnlyWindow extends MatchMediaWindow {
@@ -4561,6 +4567,57 @@ describe("public types", () => {
 			watchAtMost(1, callback, { count: 1 });
 			// @ts-expect-error callback value type must match the source value
 			watchAtMost(signal("1"), callback, { count: 1 });
+		});
+	});
+
+	it("types debounced watchers", () => {
+		typeOnly(() => {
+			const count = signal(0);
+			const label = computed(() => `${count.value}`);
+			const delay = signal(100);
+			const source: WatchDebouncedSource<number> = count;
+			const options: WatchDebouncedOptions<true> = {
+				debounce: delay,
+				deep: true,
+				flush: "sync",
+				immediate: true,
+				maxWait: () => 500,
+			};
+			const callback: WatchDebouncedCallback<number, true> = (
+				value,
+				oldValue,
+				onCleanup,
+			) => {
+				expectTypeOf(value).toEqualTypeOf<number>();
+				expectTypeOf(oldValue).toEqualTypeOf<number | undefined>();
+				onCleanup(() => {});
+			};
+			const stop = watchDebounced(source, callback, options);
+			const sourceValues: WatchDebouncedSourceValues<
+				[typeof count, typeof label]
+			> = [1, "1"];
+			const tupleStop = watchDebounced(
+				[count, label] as const,
+				(value, oldValue) => {
+					expectTypeOf(value).toEqualTypeOf<[number, string]>();
+					expectTypeOf(oldValue).toEqualTypeOf<[number, string]>();
+				},
+				{ debounce: 1 },
+			);
+			const watchReturn: WatchDebouncedReturn = stop;
+
+			expectTypeOf(sourceValues).toEqualTypeOf<[number, string]>();
+			expectTypeOf(stop).toEqualTypeOf<WatchDebouncedReturn>();
+			expectTypeOf(tupleStop).toEqualTypeOf<WatchDebouncedReturn>();
+			expectTypeOf(watchReturn()).toEqualTypeOf<void>();
+			// @ts-expect-error debounce must resolve to a number
+			watchDebounced(count, callback, { debounce: "100" });
+			// @ts-expect-error maxWait must resolve to a number
+			watchDebounced(count, callback, { maxWait: "100" });
+			// @ts-expect-error source must be watchable
+			watchDebounced(1, callback, { debounce: 1 });
+			// @ts-expect-error callback value type must match the source value
+			watchDebounced(signal("1"), callback, { debounce: 1 });
 		});
 	});
 
