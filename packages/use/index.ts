@@ -192,6 +192,7 @@ export { watchAtMost } from "./watchAtMost";
 export { watchDebounced } from "./watchDebounced";
 export { watchDeep } from "./watchDeep";
 export { watchIgnorable } from "./watchIgnorable";
+export { watchImmediate } from "./watchImmediate";
 export type {
 	AsyncComputedCancelCallback,
 	AsyncComputedEvaluationCallback,
@@ -1008,6 +1009,13 @@ export type {
 	WatchIgnorableSource,
 	WatchIgnorableSourceValue,
 	WatchIgnorableSourceValues,
+	WatchImmediateCallback,
+	WatchImmediateOnCleanup,
+	WatchImmediateOptions,
+	WatchImmediateReturn,
+	WatchImmediateSource,
+	WatchImmediateSourceValue,
+	WatchImmediateSourceValues,
 	WindowSizeLike,
 	WritableComputedWithControlOptions,
 	WritableComputedWithControlReturn,
