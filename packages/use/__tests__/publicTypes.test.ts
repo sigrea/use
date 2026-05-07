@@ -610,6 +610,11 @@ import type {
 	UseTimestampOptions,
 	UseTimestampReturn,
 	UseTimestampScheduler,
+	UseTitleDocumentLike,
+	UseTitleOptions,
+	UseTitleRestore,
+	UseTitleReturn,
+	UseTitleTemplate,
 	UseToggleOptions,
 	UseWindowSizeOptions,
 	WindowLike,
@@ -790,6 +795,7 @@ import {
 	useTimeoutFn,
 	useTimeoutPoll,
 	useTimestamp,
+	useTitle,
 	useToggle,
 	useWindowSize,
 } from "../../../index";
@@ -7444,6 +7450,78 @@ describe("public types", () => {
 					offset: "100",
 				});
 			});
+		});
+	});
+
+	it("types document title controls", () => {
+		typeOnly(() => {
+			const source = signal<string | null | undefined>("Dashboard");
+			const customDocument = document as UseTitleDocumentLike;
+			const documentTarget = signal<UseTitleDocumentLike | null>(
+				customDocument,
+			);
+			const restore: UseTitleRestore = (originalTitle, currentTitle) => {
+				expectTypeOf(originalTitle).toEqualTypeOf<string>();
+				expectTypeOf(currentTitle).toEqualTypeOf<string>();
+				return originalTitle;
+			};
+			const stringTemplate: UseTitleTemplate = signal("%s | App");
+			const functionTemplate: UseTitleTemplate = (title) => {
+				expectTypeOf(title).toEqualTypeOf<string>();
+				return `${title} | App`;
+			};
+			const options: UseTitleOptions<UseTitleDocumentLike> = {
+				document: documentTarget,
+				restoreOnUnmount: restore,
+				titleTemplate: stringTemplate,
+			};
+			const title = useTitle(source, options);
+			const fallback = useTitle(undefined, { document: null });
+			const observed = useTitle("Observed", {
+				document: customDocument,
+				observe: true,
+			});
+
+			useTitle(() => "Getter", {
+				document: customDocument,
+				titleTemplate: (title) => `${title} | Getter`,
+			});
+			useTitle("Function", {
+				titleTemplate: functionTemplate,
+			});
+			expectTypeOf(title).toEqualTypeOf<UseTitleReturn>();
+			expectTypeOf(title).toEqualTypeOf<
+				Computed<string | null | undefined> & { stop(): void }
+			>();
+			expectTypeOf(title.value).toEqualTypeOf<string | null | undefined>();
+			expectTypeOf(fallback.value).toEqualTypeOf<string | null | undefined>();
+			title.value = "Next";
+			title.value = null;
+			title.value = undefined;
+			expectTypeOf(title.stop()).toEqualTypeOf<void>();
+			observed.stop();
+			// @ts-expect-error title must be a string or nullish value
+			useTitle(1);
+			useTitle("Dashboard", {
+				// @ts-expect-error document must be a document-like target
+				document: {},
+			});
+			useTitle("Dashboard", {
+				// @ts-expect-error observe must be boolean
+				observe: "true",
+			});
+			useTitle("Dashboard", {
+				// @ts-expect-error titleTemplate must be a string template or callback
+				titleTemplate: 1,
+			});
+			useTitle("Dashboard", {
+				// @ts-expect-error restoreOnUnmount must be false or a restore callback
+				restoreOnUnmount: true,
+			});
+			// @ts-expect-error titleTemplate and observe cannot be used together
+			useTitle("Dashboard", { observe: true, titleTemplate: "%s | App" });
+			// @ts-expect-error title value must be string, null, or undefined
+			title.value = 1;
 		});
 	});
 
