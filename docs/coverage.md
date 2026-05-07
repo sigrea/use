@@ -235,7 +235,7 @@ Status values:
 | `whenever` | `whenever` | Done |
 | `math/createGenericProjection` | `createGenericProjection` | Done |
 | `math/createProjection` | `createProjection` | Done |
-| `math/logicAnd` | `-` | Todo |
+| `math/logicAnd` | `logicAnd` | Done |
 | `math/logicNot` | `-` | Todo |
 | `math/logicOr` | `-` | Todo |
 | `math/useAbs` | `-` | Todo |
