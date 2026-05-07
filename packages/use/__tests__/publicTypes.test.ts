@@ -747,6 +747,12 @@ import type {
 	WatchThrottledReturn,
 	WatchThrottledSource,
 	WatchThrottledSourceValues,
+	WatchTriggerableCallback,
+	WatchTriggerableOptions,
+	WatchTriggerableReturn,
+	WatchTriggerableSource,
+	WatchTriggerableSourceOldValues,
+	WatchTriggerableSourceValues,
 	WebSocketConstructorLike,
 	WebSocketLike,
 	WindowLike,
@@ -957,6 +963,7 @@ import {
 	watchOnce,
 	watchPausable,
 	watchThrottled,
+	watchTriggerable,
 } from "../../../index";
 
 interface MatchMediaOnlyWindow extends MatchMediaWindow {
@@ -4968,6 +4975,72 @@ describe("public types", () => {
 			watchThrottled(1, callback);
 			// @ts-expect-error callback value type must match the source value
 			watchThrottled(signal("1"), callback);
+		});
+	});
+
+	it("types triggerable watchers", () => {
+		typeOnly(() => {
+			const count = signal(0);
+			const label = computed(() => `${count.value}`);
+			const source: WatchTriggerableSource<number> = count;
+			const options: WatchTriggerableOptions<true> = {
+				deep: true,
+				flush: "sync",
+				immediate: true,
+			};
+			const callback: WatchTriggerableCallback<
+				number,
+				number | undefined,
+				string
+			> = (value, oldValue, onCleanup) => {
+				expectTypeOf(value).toEqualTypeOf<number>();
+				expectTypeOf(oldValue).toEqualTypeOf<number | undefined>();
+				onCleanup(() => {});
+				return `${value}`;
+			};
+			const controls = watchTriggerable(source, callback, options);
+			const sourceValues: WatchTriggerableSourceValues<
+				[typeof count, typeof label]
+			> = [1, "1"];
+			const sourceOldValues: WatchTriggerableSourceOldValues<
+				[typeof count, typeof label]
+			> = [undefined, "1"];
+			const tupleControls = watchTriggerable(
+				[count, label] as const,
+				(value, oldValue) => {
+					expectTypeOf(value).toEqualTypeOf<[number, string]>();
+					expectTypeOf(oldValue).toEqualTypeOf<
+						[number | undefined, string | undefined] | []
+					>();
+					return 1;
+				},
+				{ flush: "sync", immediate: true },
+			);
+			const watchReturn: WatchTriggerableReturn<string> = controls;
+
+			expectTypeOf(sourceValues).toEqualTypeOf<[number, string]>();
+			expectTypeOf(sourceOldValues).toEqualTypeOf<
+				[number | undefined, string | undefined]
+			>();
+			expectTypeOf(controls).toEqualTypeOf<WatchTriggerableReturn<string>>();
+			expectTypeOf(tupleControls).toEqualTypeOf<
+				WatchTriggerableReturn<number>
+			>();
+			expectTypeOf(controls.trigger()).toEqualTypeOf<string | undefined>();
+			expectTypeOf(tupleControls.trigger()).toEqualTypeOf<number | undefined>();
+			expectTypeOf(controls.ignoreUpdates(() => {})).toEqualTypeOf<void>();
+			expectTypeOf(controls.ignorePrevAsyncUpdates()).toEqualTypeOf<void>();
+			expectTypeOf(watchReturn.stop()).toEqualTypeOf<void>();
+			// @ts-expect-error eventFilter is not supported without watchWithFilter
+			watchTriggerable(count, callback, {
+				eventFilter(invoke: () => void) {
+					invoke();
+				},
+			});
+			// @ts-expect-error source must be watchable
+			watchTriggerable(1, callback);
+			// @ts-expect-error callback value type must match the source value
+			watchTriggerable(signal("1"), callback);
 		});
 	});
 
