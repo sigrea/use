@@ -811,6 +811,75 @@ export interface BrowserLocationWindowLike extends WindowLike {
 	readonly location?: BrowserLocationLike;
 }
 
+export type UrlParams = Record<string, string[] | string | undefined>;
+
+export type UseUrlSearchParamsMode = "history" | "hash" | "hash-params";
+
+export type UseUrlSearchParamsWriteMode = "replace" | "push";
+
+export interface UseUrlSearchParamsHistoryLike {
+	readonly state?: unknown;
+	replaceState?(state: unknown, title: string, url?: string | URL | null): void;
+	pushState?(state: unknown, title: string, url?: string | URL | null): void;
+}
+
+export interface UseUrlSearchParamsLocationLike {
+	hash: string;
+	pathname: string;
+	search: string;
+}
+
+export interface UseUrlSearchParamsDocumentLike extends DocumentLike {
+	readonly title?: string;
+}
+
+export interface UseUrlSearchParamsWindowLike extends WindowLike {
+	readonly document?: UseUrlSearchParamsDocumentLike;
+	readonly history?: UseUrlSearchParamsHistoryLike;
+	readonly location?: UseUrlSearchParamsLocationLike;
+}
+
+export interface UseUrlSearchParamsOptions<
+	T extends object,
+	TWindow extends UseUrlSearchParamsWindowLike = UseUrlSearchParamsWindowLike,
+> {
+	/**
+	 * @default true
+	 */
+	removeNullishValues?: boolean;
+
+	/**
+	 * @default false
+	 */
+	removeFalsyValues?: boolean;
+
+	/**
+	 * @default {}
+	 */
+	initialValue?: T;
+
+	/**
+	 * Write back to `window.history` automatically.
+	 *
+	 * @default true
+	 */
+	write?: boolean;
+
+	/**
+	 * Write mode for `window.history` when `write` is enabled.
+	 *
+	 * @default "replace"
+	 */
+	writeMode?: UseUrlSearchParamsWriteMode;
+
+	/**
+	 * Custom function to serialize URL parameters.
+	 */
+	stringify?: (params: URLSearchParams) => string;
+
+	window?: MaybeTarget<TWindow>;
+}
+
 export interface UseBrowserLocationOptions<
 	TWindow extends BrowserLocationWindowLike = BrowserLocationWindowLike,
 > {
