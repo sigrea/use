@@ -578,6 +578,10 @@ import type {
 	UseTextDirectionOptions,
 	UseTextDirectionReturn,
 	UseTextDirectionValue,
+	UseTextSelectionDocumentLike,
+	UseTextSelectionOptions,
+	UseTextSelectionReturn,
+	UseTextSelectionWindowLike,
 	UseToggleOptions,
 	UseWindowSizeOptions,
 	WindowLike,
@@ -745,6 +749,7 @@ import {
 	useSupported,
 	useSwipe,
 	useTextDirection,
+	useTextSelection,
 	useThrottleFn,
 	useTimeout,
 	useTimeoutFn,
@@ -5209,6 +5214,43 @@ describe("public types", () => {
 				useTextDirection({
 					// @ts-expect-error document must be document-like or nullish
 					document: 1,
+				});
+			});
+		});
+	});
+
+	it("types text selection controls", () => {
+		typeOnly(() => {
+			const textSelectionDocument =
+				new EventTarget() as UseTextSelectionDocumentLike;
+			const textSelectionWindow = Object.assign(new EventTarget(), {
+				document: textSelectionDocument,
+				getSelection: () => null,
+			}) as UseTextSelectionWindowLike;
+			const textSelectionOptions: UseTextSelectionOptions<
+				typeof textSelectionWindow
+			> = {
+				window: signal(textSelectionWindow),
+			};
+			const textSelection = useTextSelection(textSelectionOptions);
+			const textSelectionReturn: UseTextSelectionReturn = textSelection;
+
+			expectTypeOf(textSelection).toEqualTypeOf<UseTextSelectionReturn>();
+			expectTypeOf(textSelectionReturn.text).toEqualTypeOf<Computed<string>>();
+			expectTypeOf(textSelection.rects).toEqualTypeOf<Computed<DOMRect[]>>();
+			expectTypeOf(textSelection.ranges).toEqualTypeOf<Computed<Range[]>>();
+			expectTypeOf(textSelection.selection).toEqualTypeOf<
+				ReadonlySignal<Selection | null>
+			>();
+			expectTypeOf(textSelection.stop()).toEqualTypeOf<void>();
+			useTextSelection({ window: null });
+
+			typeOnly(() => {
+				// @ts-expect-error selection state is readonly
+				textSelection.selection.value = null;
+				useTextSelection({
+					// @ts-expect-error window must be window-like or nullish
+					window: 1,
 				});
 			});
 		});
