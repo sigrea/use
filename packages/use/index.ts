@@ -65,6 +65,7 @@ export { useDark } from "./useDark";
 export { formatDate, normalizeDate, useDateFormat } from "./useDateFormat";
 export { useDebounceFn } from "./useDebounceFn";
 export { useDebouncedRefHistory } from "./useDebouncedRefHistory";
+export { useThrottledRefHistory } from "./useThrottledRefHistory";
 export { useDeviceMotion } from "./useDeviceMotion";
 export { useDeviceOrientation } from "./useDeviceOrientation";
 export { useDevicePixelRatio } from "./useDevicePixelRatio";
@@ -436,6 +437,8 @@ export type {
 	UseDebounceFnReturn,
 	UseDebouncedRefHistoryOptions,
 	UseDebouncedRefHistoryReturn,
+	UseThrottledRefHistoryOptions,
+	UseThrottledRefHistoryReturn,
 	UseDeviceMotionOptions,
 	UseDeviceMotionReturn,
 	UseDeviceMotionWindowLike,
