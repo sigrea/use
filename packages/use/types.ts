@@ -3781,6 +3781,88 @@ export interface UseWebSocketReturn<
 	stop(): void;
 }
 
+export interface WorkerLike extends EventTarget {
+	postMessage(message: unknown, transfer: Transferable[]): void;
+	postMessage(message: unknown, options?: StructuredSerializeOptions): void;
+	terminate(): void;
+}
+
+export interface WorkerConstructorLike<
+	TWorker extends WorkerLike = WorkerLike,
+> {
+	new (scriptURL: string | URL, options?: WorkerOptions): TWorker;
+}
+
+export interface UseWebWorkerWindowLike<TWorker extends WorkerLike = WorkerLike>
+	extends WindowLike {
+	readonly Worker?: WorkerConstructorLike<TWorker> | null;
+}
+
+export type UseWebWorkerConstructorSource<
+	TWorker extends WorkerLike = WorkerLike,
+> =
+	| WorkerConstructorLike<TWorker>
+	| Signal<WorkerConstructorLike<TWorker> | null | undefined>
+	| ReadonlySignal<WorkerConstructorLike<TWorker> | null | undefined>
+	| Computed<WorkerConstructorLike<TWorker> | null | undefined>
+	| null
+	| undefined;
+
+export type UseWebWorkerSource<TWorker extends WorkerLike = WorkerLike> =
+	| string
+	| URL
+	| TWorker
+	| null
+	| undefined;
+
+export interface UseWebWorkerOptions<
+	TWorker extends WorkerLike = WorkerLike,
+	TWindow extends
+		UseWebWorkerWindowLike<TWorker> = UseWebWorkerWindowLike<TWorker>,
+	Data = unknown,
+> {
+	/**
+	 * Create the worker during setup.
+	 *
+	 * @default true
+	 */
+	immediate?: boolean;
+	/**
+	 * Recreate the worker when the source or options change.
+	 *
+	 * @default true
+	 */
+	autoConnect?: boolean;
+	/**
+	 * Terminate the worker when the current scope is disposed.
+	 *
+	 * @default true
+	 */
+	autoTerminate?: boolean;
+	workerOptions?: MaybeValue<WorkerOptions | undefined>;
+	window?: MaybeTarget<TWindow | null | undefined>;
+	worker?: UseWebWorkerConstructorSource<TWorker>;
+	onMessage?: (worker: TWorker, event: MessageEvent<Data>) => void;
+	onError?: (worker: TWorker, event: Event) => void;
+	onMessageError?: (worker: TWorker, event: MessageEvent) => void;
+}
+
+export interface UseWebWorkerReturn<
+	Data = unknown,
+	Payload = unknown,
+	TWorker extends WorkerLike = WorkerLike,
+> {
+	readonly data: ReadonlySignal<Data | null>;
+	readonly worker: ReadonlySignal<TWorker | undefined>;
+	readonly isSupported: ReadonlySignal<boolean>;
+	readonly error: ReadonlySignal<unknown | null>;
+	open(): void;
+	post(message: Payload, transfer: Transferable[]): boolean;
+	post(message: Payload, options?: StructuredSerializeOptions): boolean;
+	terminate(): void;
+	stop(): void;
+}
+
 export type UseVirtualListItemSize = number | ((index: number) => number);
 
 export interface UseVirtualListOptionsBase<
