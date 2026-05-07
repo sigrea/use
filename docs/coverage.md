@@ -204,7 +204,7 @@ Status values:
 | `useTimestamp` | `useTimestamp` | Done |
 | `useTitle` | `useTitle` | Done |
 | `useToNumber` | `useToNumber` | Done |
-| `useToString` | `-` | Todo |
+| `useToString` | `useToString` | Done |
 | `useToggle` | `useToggle` | Done |
 | `useTransition` | `-` | Todo |
 | `useUrlSearchParams` | `-` | Todo |
