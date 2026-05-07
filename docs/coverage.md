@@ -206,7 +206,7 @@ Status values:
 | `useToNumber` | `useToNumber` | Done |
 | `useToString` | `useToString` | Done |
 | `useToggle` | `useToggle` | Done |
-| `useTransition` | `-` | Todo |
+| `useTransition` | `useTransition` | Done |
 | `useUrlSearchParams` | `-` | Todo |
 | `useUserMedia` | `-` | Todo |
 | `useVModel` | `-` | Out of scope |
