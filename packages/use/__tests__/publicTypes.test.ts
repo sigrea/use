@@ -52,12 +52,14 @@ import type {
 	ComputedWithControlReturn,
 	CreateSignalReturn,
 	CssSupportsLike,
+	CubicBezierPoints,
 	DateLike,
 	DeviceMotionEventConstructorLike,
 	DeviceMotionPermissionState,
 	DeviceOrientationEventConstructorLike,
 	DeviceOrientationPermissionState,
 	DocumentVisibilityDocumentLike,
+	EasingFunction,
 	EventBusKey,
 	EventBusListener,
 	EventHook,
@@ -90,12 +92,14 @@ import type {
 	FileSystemAccessWriteData,
 	FocusWithinElementLike,
 	FocusableElementLike,
+	InterpolationFunction,
 	IsDefinedReturn,
 	KeyFilter,
 	KeyPredicate,
 	KeyStrokeEventName,
 	MagicKeysInternal,
 	MatchMediaWindow,
+	MaybeTransitionEasing,
 	MaybeValue,
 	MaybeValueArgs,
 	OnClickOutsideOptions,
@@ -168,6 +172,8 @@ import type {
 	SyncSignalsOptions,
 	SyncSignalsReturn,
 	ToDeepSignalReturn,
+	TransitionEasing,
+	TransitionOptions,
 	TryOnScopeDisposeReturn,
 	UntilArrayInstance,
 	UntilBaseInstance,
@@ -618,6 +624,10 @@ import type {
 	UseToNumberOptions,
 	UseToStringReturn,
 	UseToggleOptions,
+	UseTransitionOptions,
+	UseTransitionReturn,
+	UseTransitionVector,
+	UseTransitionWindowLike,
 	UseWindowSizeOptions,
 	WindowLike,
 	WritableComputedWithControlReturn,
@@ -625,6 +635,7 @@ import type {
 import {
 	DefaultMagicKeysAliasMap,
 	StorageSerializers,
+	TransitionPresets,
 	cloneStructured,
 	computedAsync,
 	computedEager,
@@ -662,6 +673,7 @@ import {
 	syncSignal,
 	syncSignals,
 	toDeepSignal,
+	transition,
 	tryOnScopeDispose,
 	until,
 	useActiveElement,
@@ -801,6 +813,7 @@ import {
 	useToNumber,
 	useToString,
 	useToggle,
+	useTransition,
 	useWindowSize,
 } from "../../../index";
 
@@ -8934,6 +8947,79 @@ describe("public types", () => {
 			expectTypeOf(computedResult).toEqualTypeOf<UseToStringReturn>();
 			// @ts-expect-error returned value is readonly
 			result.value = "next";
+		});
+	});
+
+	it("types transition values and options", () => {
+		typeOnly(() => {
+			const source = signal(0);
+			const duration = signal(100);
+			const disabled = signal(false);
+			const easing: EasingFunction = (value) => value;
+			const bezier: CubicBezierPoints = [0.75, 0, 0.25, 1];
+			const easingSource = signal<TransitionEasing>(easing);
+			const maybeEasing: MaybeTransitionEasing = easingSource;
+			const interpolation: InterpolationFunction<string> = (
+				from,
+				to,
+				alpha,
+			) => {
+				expectTypeOf(from).toEqualTypeOf<string>();
+				expectTypeOf(to).toEqualTypeOf<string>();
+				expectTypeOf(alpha).toEqualTypeOf<number>();
+				return alpha < 0.5 ? from : to;
+			};
+			const transitionWindow = new EventTarget() as UseTransitionWindowLike;
+			const options: UseTransitionOptions<number> = {
+				abort: () => false,
+				delay: duration,
+				disabled,
+				duration,
+				easing: maybeEasing,
+				onFinished() {},
+				onStarted() {},
+				window: transitionWindow,
+			};
+			const result = useTransition(source, options);
+			const vector = useTransition(signal([0, 1]), { easing });
+			const tupleSource = [signal(0), () => 1] as const;
+			const tuple = useTransition(tupleSource);
+			const word = useTransition("from", { interpolation });
+			const transitionOptions: TransitionOptions<number> = {
+				duration: 100,
+				easing: bezier,
+				window: null,
+			};
+			type TupleVector = UseTransitionVector<typeof tupleSource>;
+
+			expectTypeOf(result).toEqualTypeOf<UseTransitionReturn<number>>();
+			expectTypeOf(result).toEqualTypeOf<ReadonlySignal<number>>();
+			expectTypeOf(vector).toEqualTypeOf<UseTransitionReturn<number[]>>();
+			expectTypeOf(tuple.value[0]).toEqualTypeOf<number>();
+			expectTypeOf(tuple.value[1]).toEqualTypeOf<number>();
+			expectTypeOf<TupleVector[0]>().toEqualTypeOf<number>();
+			expectTypeOf(word).toEqualTypeOf<UseTransitionReturn<string>>();
+			expectTypeOf(transition(source, 0, 1, transitionOptions)).toEqualTypeOf<
+				Promise<void>
+			>();
+			expectTypeOf(TransitionPresets.linear).toEqualTypeOf<EasingFunction>();
+			expectTypeOf(
+				TransitionPresets.easeInOutCubic,
+			).toEqualTypeOf<CubicBezierPoints>();
+			// @ts-expect-error returned value is readonly
+			result.value = 1;
+			// @ts-expect-error interpolation must return the source type
+			useTransition("from", {
+				interpolation: () => 1,
+			});
+			// @ts-expect-error duration must resolve to a number
+			useTransition(source, {
+				duration: "fast",
+			});
+			// @ts-expect-error disabled must resolve to a boolean
+			useTransition(source, {
+				disabled: "true",
+			});
 		});
 	});
 
