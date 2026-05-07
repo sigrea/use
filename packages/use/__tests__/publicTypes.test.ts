@@ -786,6 +786,7 @@ import {
 	computedWithControl,
 	createEventHook,
 	createGenericProjection,
+	createProjection,
 	createResolveValueFn,
 	createSignal,
 	extendSignal,
@@ -3096,6 +3097,39 @@ describe("public types", () => {
 			useProjection(signal("1"));
 			// @ts-expect-error projector must return the target domain type
 			createGenericProjection(from, to, () => 1);
+		});
+	});
+
+	it("types numeric projections", () => {
+		typeOnly(() => {
+			const useProjection = createProjection(
+				signal<readonly [number, number]>([0, 10]),
+				[0, 100] as const,
+			);
+			const custom = createProjection(
+				[0, 10] as const,
+				[0, 100] as const,
+				(input, fromDomain, toDomain) => {
+					expectTypeOf(input).toEqualTypeOf<number>();
+					expectTypeOf(fromDomain).toEqualTypeOf<readonly [number, number]>();
+					expectTypeOf(toDomain).toEqualTypeOf<readonly [number, number]>();
+					return input + fromDomain[0] + toDomain[0];
+				},
+			);
+			const output = useProjection(signal(1));
+
+			expectTypeOf(useProjection).toEqualTypeOf<
+				UseProjection<number, number>
+			>();
+			expectTypeOf(custom).toEqualTypeOf<UseProjection<number, number>>();
+			expectTypeOf(output).toMatchTypeOf<ReadonlySignal<number>>();
+			expectTypeOf(output.value).toEqualTypeOf<number>();
+			// @ts-expect-error projection output is readonly
+			output.value = 2;
+			// @ts-expect-error input must be numeric
+			useProjection(signal("1"));
+			// @ts-expect-error custom projector must return a number
+			createProjection([0, 10] as const, [0, 100] as const, () => "1");
 		});
 	});
 

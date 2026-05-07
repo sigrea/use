@@ -16,6 +16,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.computedWithControl).toBe("function");
 		expect(typeof mod.createEventHook).toBe("function");
 		expect(typeof mod.createGenericProjection).toBe("function");
+		expect(typeof mod.createProjection).toBe("function");
 		expect(typeof mod.createSignal).toBe("function");
 		expect(typeof mod.createResolveValueFn).toBe("function");
 		expect(typeof mod.extendSignal).toBe("function");
@@ -1635,6 +1636,7 @@ describe("SSR safety", () => {
 		const { signal } = await import("@sigrea/core");
 		const {
 			createGenericProjection,
+			createProjection,
 			createSignal,
 			signalAutoReset,
 			signalDefault,
@@ -1673,6 +1675,11 @@ describe("SSR safety", () => {
 			},
 		);
 		const genericProjection = useGenericProjection(signal(4));
+		const useNumericProjection = createProjection(
+			[0, 10] as const,
+			[0, 100] as const,
+		);
+		const numericProjection = useNumericProjection(signal(4));
 		const autoResetValue = signalAutoReset("default", 100);
 		const defaultValue = signalDefault(signal<string | undefined>(), "default");
 		const debouncedValue = signalDebounced(signal("source"), 100);
@@ -1837,6 +1844,7 @@ describe("SSR safety", () => {
 		expect(globalThis.window).toBeUndefined();
 		expect(value.value).toBe("ready");
 		expect(genericProjection.value).toBe("low");
+		expect(numericProjection.value).toBe(40);
 		expect(autoResetValue.value).toBe("default");
 		expect(defaultValue.value).toBe("default");
 		expect(debouncedValue.value).toBe("source");
