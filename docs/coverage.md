@@ -223,7 +223,7 @@ Status values:
 | `useWindowSize` | `useWindowSize` | Done |
 | `watchArray` | `watchArray` | Done |
 | `watchAtMost` | `watchAtMost` | Done |
-| `watchDebounced` | `-` | Todo |
+| `watchDebounced` | `watchDebounced` | Done |
 | `watchDeep` | `-` | Todo |
 | `watchIgnorable` | `-` | Todo |
 | `watchImmediate` | `-` | Todo |
