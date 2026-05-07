@@ -50,6 +50,7 @@ import type {
 	ComputedEagerReturn,
 	ComputedWithControlOptions,
 	ComputedWithControlReturn,
+	ConfigurableEventFilter,
 	CreateSignalReturn,
 	CssSupportsLike,
 	CubicBezierPoints,
@@ -62,6 +63,7 @@ import type {
 	EasingFunction,
 	EventBusKey,
 	EventBusListener,
+	EventFilter,
 	EventHook,
 	EventHookArgs,
 	EventHookCallback,
@@ -92,6 +94,7 @@ import type {
 	FileSystemAccessWriteData,
 	FocusWithinElementLike,
 	FocusableElementLike,
+	FunctionWrapperOptions,
 	InterpolationFunction,
 	IsDefinedReturn,
 	KeyFilter,
@@ -753,6 +756,11 @@ import type {
 	WatchTriggerableSource,
 	WatchTriggerableSourceOldValues,
 	WatchTriggerableSourceValues,
+	WatchWithFilterCallback,
+	WatchWithFilterOptions,
+	WatchWithFilterReturn,
+	WatchWithFilterSource,
+	WatchWithFilterSourceValues,
 	WebSocketConstructorLike,
 	WebSocketLike,
 	WindowLike,
@@ -964,6 +972,7 @@ import {
 	watchPausable,
 	watchThrottled,
 	watchTriggerable,
+	watchWithFilter,
 } from "../../../index";
 
 interface MatchMediaOnlyWindow extends MatchMediaWindow {
@@ -5041,6 +5050,79 @@ describe("public types", () => {
 			watchTriggerable(1, callback);
 			// @ts-expect-error callback value type must match the source value
 			watchTriggerable(signal("1"), callback);
+		});
+	});
+
+	it("types event filters and filtered watchers", () => {
+		typeOnly(() => {
+			const fn = function (this: { id: string }, value: number, label: string) {
+				return `${this.id}:${value}:${label}`;
+			};
+			const wrapperOptions: FunctionWrapperOptions<
+				[number, string],
+				{ id: string },
+				typeof fn
+			> = {
+				args: [1, "ready"],
+				fn,
+				thisArg: { id: "ctx" },
+			};
+			const filter: EventFilter<
+				[number, string],
+				{ id: string },
+				() => string
+			> = (invoke, options) => {
+				expectTypeOf(options.args).toEqualTypeOf<[number, string]>();
+				expectTypeOf(options.thisArg).toEqualTypeOf<{ id: string }>();
+				return invoke();
+			};
+			const configurable: ConfigurableEventFilter = {
+				eventFilter: filter as EventFilter,
+			};
+			const count = signal(0);
+			const label = computed(() => `${count.value}`);
+			const source: WatchWithFilterSource<number> = count;
+			const options: WatchWithFilterOptions<true> = {
+				deep: true,
+				eventFilter: filter as EventFilter,
+				flush: "sync",
+				immediate: true,
+			};
+			const callback: WatchWithFilterCallback<number, number | undefined> = (
+				value,
+				oldValue,
+				onCleanup,
+			) => {
+				expectTypeOf(value).toEqualTypeOf<number>();
+				expectTypeOf(oldValue).toEqualTypeOf<number | undefined>();
+				onCleanup(() => {});
+			};
+			const stop = watchWithFilter(source, callback, options);
+			const sourceValues: WatchWithFilterSourceValues<
+				[typeof count, typeof label]
+			> = [1, "1"];
+			const tupleStop = watchWithFilter(
+				[count, label] as const,
+				(value, oldValue) => {
+					expectTypeOf(value).toEqualTypeOf<[number, string]>();
+					expectTypeOf(oldValue).toEqualTypeOf<[number, string] | []>();
+				},
+				{ eventFilter: filter as EventFilter, flush: "sync", immediate: true },
+			);
+			const watchReturn: WatchWithFilterReturn = stop;
+
+			expectTypeOf(wrapperOptions.args).toEqualTypeOf<[number, string]>();
+			expectTypeOf(configurable).toEqualTypeOf<ConfigurableEventFilter>();
+			expectTypeOf(sourceValues).toEqualTypeOf<[number, string]>();
+			expectTypeOf(stop).toEqualTypeOf<WatchWithFilterReturn>();
+			expectTypeOf(tupleStop).toEqualTypeOf<WatchWithFilterReturn>();
+			expectTypeOf(watchReturn()).toEqualTypeOf<void>();
+			// @ts-expect-error eventFilter must be a function
+			watchWithFilter(count, callback, { eventFilter: "filter" });
+			// @ts-expect-error source must be watchable
+			watchWithFilter(1, callback);
+			// @ts-expect-error callback value type must match the source value
+			watchWithFilter(signal("1"), callback);
 		});
 	});
 
