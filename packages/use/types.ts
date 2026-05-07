@@ -1779,6 +1779,8 @@ export interface UseToNumberOptions {
 	nanToZero?: boolean;
 }
 
+export type UseToStringReturn = ReadonlySignal<string>;
+
 export type UseFetchDataType =
 	| "text"
 	| "json"
