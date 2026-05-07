@@ -3,6 +3,7 @@ export { computedEager } from "./computedEager";
 export { computedWithControl } from "./computedWithControl";
 export { createEventHook } from "./createEventHook";
 export { createGenericProjection } from "./createGenericProjection";
+export { createProjection } from "./createProjection";
 export { createSignal } from "./createSignal";
 export { createResolveValueFn } from "./createResolveValueFn";
 export { extendSignal } from "./extendSignal";
