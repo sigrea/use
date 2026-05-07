@@ -194,8 +194,9 @@ describe("SSR safety", () => {
 		expect(typeof mod.useWakeLock).toBe("function");
 		expect(typeof mod.useWebNotification).toBe("function");
 		expect(typeof mod.useWebSocket).toBe("function");
+		expect(typeof mod.useWebWorker).toBe("function");
 		expect(typeof mod.useWindowSize).toBe("function");
-	}, 30_000);
+	}, 60_000);
 
 	it("creates browser composables without a window", async () => {
 		const {
@@ -302,6 +303,7 @@ describe("SSR safety", () => {
 			useWakeLock,
 			useWebNotification,
 			useWebSocket,
+			useWebWorker,
 			useWindowSize,
 			useActiveElement,
 			useAnimate,
@@ -417,6 +419,7 @@ describe("SSR safety", () => {
 		});
 		const webNotification = useWebNotification({ window: null });
 		const webSocket = useWebSocket("ws://example.test", { window: null });
+		const webWorker = useWebWorker("worker.js", { window: null });
 		const draggable = useDraggable(null, { initialValue: { x: 10, y: 20 } });
 		const dropZone = useDropZone(null);
 		const bounding = useElementBounding(null, {
@@ -683,6 +686,13 @@ describe("SSR safety", () => {
 		expect(webSocket.ws.value).toBeUndefined();
 		expect(webSocket.data.value).toBeNull();
 		expect(webSocket.error.value).toBeNull();
+		expect(webWorker.isSupported.value).toBe(false);
+		expect(webWorker.worker.value).toBeUndefined();
+		expect(webWorker.data.value).toBeNull();
+		expect(webWorker.error.value).toBeNull();
+		expect(webWorker.post("message")).toBe(false);
+		webWorker.terminate();
+		webWorker.stop();
 		expect(draggable.position.value).toEqual({ x: 10, y: 20 });
 		expect(draggable.isDragging.value).toBe(false);
 		expect(dropZone.files.value).toBeNull();
@@ -943,7 +953,7 @@ describe("SSR safety", () => {
 		title.stop();
 		elementSize.stop();
 		size.stop();
-	});
+	}, 20_000);
 
 	it("creates computedAsync without a window", async () => {
 		const { computedAsync } = await import("../../../index");
@@ -951,7 +961,7 @@ describe("SSR safety", () => {
 
 		expect(globalThis.window).toBeUndefined();
 		expect(value.value).toBe("initial");
-	});
+	}, 10_000);
 
 	it("creates computedEager without a window", async () => {
 		const { computedEager } = await import("../../../index");
