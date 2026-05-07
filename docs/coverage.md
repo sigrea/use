@@ -217,7 +217,7 @@ Status values:
 | `useWebNotification` | `useWebNotification` | Done |
 | `useWebSocket` | `useWebSocket` | Done |
 | `useWebWorker` | `useWebWorker` | Done |
-| `useWebWorkerFn` | `-` | Todo |
+| `useWebWorkerFn` | `useWebWorkerFn` | Done |
 | `useWindowFocus` | `-` | Todo |
 | `useWindowScroll` | `-` | Todo |
 | `useWindowSize` | `useWindowSize` | Done |
