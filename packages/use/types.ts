@@ -1,4 +1,5 @@
 import type {
+	Cleanup,
 	Computed,
 	DeepSignal,
 	ReadonlyDeepSignal,
@@ -6,6 +7,7 @@ import type {
 	Signal,
 	WatchOptions,
 	WatchSource,
+	WatchStopHandle,
 } from "@sigrea/core";
 import type {
 	DocumentLike as SharedDocumentLike,
@@ -4103,6 +4105,25 @@ export interface UseWindowSizeReturn {
 	readonly height: ReadonlySignal<number>;
 	stop(): void;
 }
+
+export type WatchArraySource<T = unknown> =
+	| WatchSource<readonly T[]>
+	| readonly T[];
+
+export type WatchArrayOnCleanup = (cleanupFn: Cleanup) => void;
+
+export type WatchArrayCallback<T = unknown> = (
+	value: readonly T[],
+	oldValue: readonly T[],
+	added: T[],
+	removed: T[],
+	onCleanup: WatchArrayOnCleanup,
+) => void | Cleanup | Promise<void | Cleanup>;
+
+export type WatchArrayOptions<Immediate extends boolean = false> =
+	WatchOptions<Immediate>;
+
+export type WatchArrayReturn = WatchStopHandle;
 
 export interface OnClickOutsideDocumentLike extends DocumentLike {
 	readonly activeElement?: Element | null;

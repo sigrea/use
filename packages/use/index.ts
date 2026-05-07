@@ -187,6 +187,7 @@ export { useWebWorkerFn } from "./useWebWorkerFn";
 export { useWindowFocus } from "./useWindowFocus";
 export { useWindowScroll } from "./useWindowScroll";
 export { useWindowSize } from "./useWindowSize";
+export { watchArray } from "./watchArray";
 export type {
 	AsyncComputedCancelCallback,
 	AsyncComputedEvaluationCallback,
@@ -967,6 +968,11 @@ export type {
 	UseWindowFocusWindowLike,
 	UseWindowScrollOptions,
 	UseWindowScrollReturn,
+	WatchArrayCallback,
+	WatchArrayOnCleanup,
+	WatchArrayOptions,
+	WatchArrayReturn,
+	WatchArraySource,
 	WindowSizeLike,
 	WritableComputedWithControlOptions,
 	WritableComputedWithControlReturn,
