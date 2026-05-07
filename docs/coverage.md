@@ -229,7 +229,7 @@ Status values:
 | `watchImmediate` | `watchImmediate` | Done |
 | `watchOnce` | `watchOnce` | Done |
 | `watchPausable` | `watchPausable` | Done |
-| `watchThrottled` | `-` | Todo |
+| `watchThrottled` | `watchThrottled` | Done |
 | `watchTriggerable` | `-` | Todo |
 | `watchWithFilter` | `-` | Todo |
 | `whenever` | `-` | Todo |
