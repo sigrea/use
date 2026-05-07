@@ -582,6 +582,11 @@ import type {
 	UseTextSelectionOptions,
 	UseTextSelectionReturn,
 	UseTextSelectionWindowLike,
+	UseTextareaAutosizeOptions,
+	UseTextareaAutosizeReturn,
+	UseTextareaAutosizeStyleProp,
+	UseTextareaAutosizeWatchSource,
+	UseTextareaAutosizeWindowLike,
 	UseToggleOptions,
 	UseWindowSizeOptions,
 	WindowLike,
@@ -750,6 +755,7 @@ import {
 	useSwipe,
 	useTextDirection,
 	useTextSelection,
+	useTextareaAutosize,
 	useThrottleFn,
 	useTimeout,
 	useTimeoutFn,
@@ -5249,6 +5255,68 @@ describe("public types", () => {
 				// @ts-expect-error selection state is readonly
 				textSelection.selection.value = null;
 				useTextSelection({
+					// @ts-expect-error window must be window-like or nullish
+					window: 1,
+				});
+			});
+		});
+	});
+
+	it("types textarea autosize controls", () => {
+		typeOnly(() => {
+			const textarea = document.createElement("textarea");
+			const styleTarget = document.createElement("div");
+			const textareaWindow = Object.assign(new EventTarget(), {
+				ResizeObserver,
+				cancelAnimationFrame: (_handle: number) => {},
+				document,
+				requestAnimationFrame: (_callback: FrameRequestCallback) => 1,
+			}) as UseTextareaAutosizeWindowLike;
+			const styleProp: UseTextareaAutosizeStyleProp = "minHeight";
+			const watchSource = signal(0);
+			const watchSources: UseTextareaAutosizeWatchSource = [watchSource];
+			const textareaOptions: UseTextareaAutosizeOptions<
+				typeof textarea,
+				typeof styleTarget,
+				typeof textareaWindow
+			> = {
+				element: signal<HTMLTextAreaElement | null>(textarea),
+				input: signal("value"),
+				maxHeight: 120,
+				onResize: () => {},
+				styleProp,
+				styleTarget,
+				watch: watchSources,
+				window: signal(textareaWindow),
+			};
+			const autosize = useTextareaAutosize(textareaOptions);
+			const autosizeReturn: UseTextareaAutosizeReturn = autosize;
+
+			expectTypeOf(autosize).toEqualTypeOf<
+				UseTextareaAutosizeReturn<HTMLTextAreaElement>
+			>();
+			expectTypeOf(autosizeReturn.textarea).toEqualTypeOf<
+				Signal<HTMLTextAreaElement | null | undefined>
+			>();
+			expectTypeOf(autosize.input).toEqualTypeOf<Signal<string>>();
+			expectTypeOf(autosize.triggerResize()).toEqualTypeOf<void>();
+			expectTypeOf(autosize.stop()).toEqualTypeOf<void>();
+			useTextareaAutosize({ window: null });
+
+			typeOnly(() => {
+				useTextareaAutosize({
+					// @ts-expect-error element must be textarea-like or nullish
+					element: document.createElement("div"),
+				});
+				useTextareaAutosize({
+					// @ts-expect-error styleProp must be height or minHeight
+					styleProp: "width",
+				});
+				useTextareaAutosize({
+					// @ts-expect-error maxHeight must be a number
+					maxHeight: "120",
+				});
+				useTextareaAutosize({
 					// @ts-expect-error window must be window-like or nullish
 					window: 1,
 				});
