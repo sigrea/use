@@ -3482,6 +3482,42 @@ export interface UseUserMediaReturn<
 	restart(): Promise<TStream | undefined>;
 }
 
+export type UseVibratePattern = number | readonly number[];
+
+export type UseVibrateScheduler = (callback: () => void) => UseIntervalFnReturn;
+
+export interface UseVibrateNavigatorLike extends NavigatorLike {
+	vibrate?(pattern: number | number[]): boolean;
+}
+
+export interface UseVibrateOptions<
+	TNavigator extends UseVibrateNavigatorLike = UseVibrateNavigatorLike,
+> {
+	/**
+	 * Pattern used by vibrate() when no argument is passed.
+	 *
+	 * @default []
+	 */
+	pattern?: MaybeValue<UseVibratePattern>;
+	/**
+	 * Interval for repeated vibration. Set 0 to keep controls paused.
+	 */
+	interval?: MaybeValue<number>;
+	/**
+	 * Custom scheduler used for repeated vibration.
+	 */
+	scheduler?: UseVibrateScheduler;
+	navigator?: MaybeValue<TNavigator | null | undefined>;
+}
+
+export interface UseVibrateReturn {
+	readonly isSupported: ReadonlySignal<boolean>;
+	readonly pattern: Signal<UseVibratePattern>;
+	readonly intervalControls?: UseIntervalFnReturn;
+	vibrate(pattern?: UseVibratePattern): void;
+	stop(): void;
+}
+
 export interface UseOnlineOptions<
 	TWindow extends WindowLike = WindowLike,
 	TNavigator extends OnlineNavigatorLike = OnlineNavigatorLike,

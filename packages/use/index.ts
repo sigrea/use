@@ -177,6 +177,7 @@ export { transition, TransitionPresets, useTransition } from "./useTransition";
 export { useToggle } from "./useToggle";
 export { useUrlSearchParams } from "./useUrlSearchParams";
 export { useUserMedia } from "./useUserMedia";
+export { useVibrate } from "./useVibrate";
 export { useWindowSize } from "./useWindowSize";
 export type {
 	AsyncComputedCancelCallback,
@@ -483,6 +484,11 @@ export type {
 	UseUserMediaNavigatorLike,
 	UseUserMediaOptions,
 	UseUserMediaReturn,
+	UseVibrateNavigatorLike,
+	UseVibrateOptions,
+	UseVibratePattern,
+	UseVibrateReturn,
+	UseVibrateScheduler,
 	UseDocumentVisibilityOptions,
 	UseDocumentVisibilityReturn,
 	UseDraggableAxis,
