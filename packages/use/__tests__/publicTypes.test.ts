@@ -667,8 +667,19 @@ import type {
 	UseWebNotificationOptionsBase,
 	UseWebNotificationReturn,
 	UseWebNotificationWindowLike,
+	UseWebSocketAutoReconnectOptions,
+	UseWebSocketHeartbeatMessage,
+	UseWebSocketHeartbeatOptions,
+	UseWebSocketHeartbeatScheduler,
+	UseWebSocketOptions,
+	UseWebSocketReturn,
+	UseWebSocketSendData,
+	UseWebSocketStatus,
+	UseWebSocketWindowLike,
 	UseWindowSizeOptions,
 	WakeLockType,
+	WebSocketConstructorLike,
+	WebSocketLike,
 	WindowLike,
 	WritableComputedWithControlReturn,
 } from "../../../index";
@@ -860,6 +871,7 @@ import {
 	useVirtualList,
 	useWakeLock,
 	useWebNotification,
+	useWebSocket,
 	useWindowSize,
 } from "../../../index";
 
@@ -6530,6 +6542,135 @@ describe("public types", () => {
 				useWebNotification({ requestPermissions: "true" });
 				// @ts-expect-error vibrate accepts a number or readonly numbers
 				useWebNotification({ vibrate: ["100"] });
+			});
+		});
+
+		typeOnly(() => {
+			class TypeWebSocket extends EventTarget implements WebSocketLike {
+				binaryType: BinaryType = "blob";
+				readonly readyState = 0;
+
+				close(_code?: number, _reason?: string) {}
+				send(_data: UseWebSocketSendData) {}
+			}
+			const webSocketConstructor = class extends TypeWebSocket {
+				static readonly CONNECTING = 0;
+				static readonly OPEN = 1;
+				static readonly CLOSING = 2;
+				static readonly CLOSED = 3;
+
+				constructor(
+					readonly url: string | URL,
+					readonly protocols?: string | readonly string[],
+				) {
+					super();
+				}
+			} satisfies WebSocketConstructorLike<TypeWebSocket>;
+			const webSocketWindow: UseWebSocketWindowLike<TypeWebSocket> =
+				Object.assign(new EventTarget(), {
+					WebSocket: webSocketConstructor,
+				});
+			const heartbeatMessage: UseWebSocketHeartbeatMessage = "ping";
+			const heartbeatScheduler: UseWebSocketHeartbeatScheduler = (
+				_callback,
+			) => ({
+				isActive: signal(false),
+				pause() {},
+				resume() {},
+			});
+			const heartbeat: UseWebSocketHeartbeatOptions = {
+				interval: signal(1000),
+				message: heartbeatMessage,
+				pongTimeout: signal(500),
+				scheduler: heartbeatScheduler,
+			};
+			const autoReconnect: UseWebSocketAutoReconnectOptions = {
+				delay: (retried) => retried * 100,
+				retries: (retried) => retried < 3,
+				onFailed() {},
+			};
+			const webSocketOptions: UseWebSocketOptions<
+				TypeWebSocket,
+				UseWebSocketWindowLike<TypeWebSocket>
+			> = {
+				autoConnect: true,
+				autoReconnect,
+				binaryType: signal("arraybuffer" as BinaryType),
+				heartbeat,
+				protocols: signal(["chat"] as const),
+				webSocket: signal(webSocketConstructor),
+				window: signal(webSocketWindow),
+				onConnected(socket) {
+					expectTypeOf(socket).toEqualTypeOf<TypeWebSocket>();
+				},
+				onDisconnected(socket, event) {
+					expectTypeOf(socket).toEqualTypeOf<TypeWebSocket>();
+					expectTypeOf(event).toEqualTypeOf<CloseEvent>();
+				},
+				onError(socket, event) {
+					expectTypeOf(socket).toEqualTypeOf<TypeWebSocket>();
+					expectTypeOf(event).toEqualTypeOf<Event>();
+				},
+				onMessage(socket, event) {
+					expectTypeOf(socket).toEqualTypeOf<TypeWebSocket>();
+					expectTypeOf(event).toEqualTypeOf<MessageEvent>();
+				},
+			};
+			const webSocket = useWebSocket<string, TypeWebSocket>(
+				signal("ws://example.test"),
+				webSocketOptions,
+			);
+			const fallbackWebSocket = useWebSocket<unknown, WebSocketLike>(
+				"ws://example.test",
+				{
+					window: null,
+				},
+			);
+			const webSocketReturn: UseWebSocketReturn<string, TypeWebSocket> =
+				webSocket;
+			const status: UseWebSocketStatus = "OPEN";
+
+			expectTypeOf(status).toMatchTypeOf<UseWebSocketStatus>();
+			expectTypeOf(webSocket).toEqualTypeOf<
+				UseWebSocketReturn<string, TypeWebSocket>
+			>();
+			expectTypeOf(webSocketReturn.data).toEqualTypeOf<
+				ReadonlySignal<string | null>
+			>();
+			expectTypeOf(webSocket.status).toEqualTypeOf<
+				ReadonlySignal<UseWebSocketStatus>
+			>();
+			expectTypeOf(webSocket.ws).toEqualTypeOf<
+				ReadonlySignal<TypeWebSocket | undefined>
+			>();
+			expectTypeOf(webSocket.isSupported).toEqualTypeOf<
+				ReadonlySignal<boolean>
+			>();
+			expectTypeOf(webSocket.error).toEqualTypeOf<
+				ReadonlySignal<unknown | null>
+			>();
+			expectTypeOf(webSocket.open()).toEqualTypeOf<void>();
+			expectTypeOf(webSocket.close()).toEqualTypeOf<void>();
+			expectTypeOf(webSocket.close(1000, "done")).toEqualTypeOf<void>();
+			expectTypeOf(webSocket.send("message")).toEqualTypeOf<boolean>();
+			expectTypeOf(
+				webSocket.send(new Uint8Array(), false),
+			).toEqualTypeOf<boolean>();
+			expectTypeOf(webSocket.stop()).toEqualTypeOf<void>();
+			expectTypeOf(fallbackWebSocket).toEqualTypeOf<UseWebSocketReturn>();
+			typeOnly(() => {
+				// @ts-expect-error data is readonly
+				webSocket.data.value = "next";
+				// @ts-expect-error status is readonly
+				webSocket.status.value = "CLOSED";
+				// @ts-expect-error send data must be WebSocket-compatible
+				webSocket.send({ value: "message" });
+				// @ts-expect-error protocols must be strings
+				useWebSocket("ws://example.test", { protocols: [1] });
+				useWebSocket("ws://example.test", {
+					// @ts-expect-error constructor must create WebSocket-like objects
+					webSocket: class {},
+				});
 			});
 		});
 
