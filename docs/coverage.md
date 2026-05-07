@@ -215,7 +215,7 @@ Status values:
 | `useVirtualList` | `useVirtualList` | Done |
 | `useWakeLock` | `useWakeLock` | Done |
 | `useWebNotification` | `useWebNotification` | Done |
-| `useWebSocket` | `-` | Todo |
+| `useWebSocket` | `useWebSocket` | Done |
 | `useWebWorker` | `-` | Todo |
 | `useWebWorkerFn` | `-` | Todo |
 | `useWindowFocus` | `-` | Todo |
