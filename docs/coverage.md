@@ -218,7 +218,7 @@ Status values:
 | `useWebSocket` | `useWebSocket` | Done |
 | `useWebWorker` | `useWebWorker` | Done |
 | `useWebWorkerFn` | `useWebWorkerFn` | Done |
-| `useWindowFocus` | `-` | Todo |
+| `useWindowFocus` | `useWindowFocus` | Done |
 | `useWindowScroll` | `-` | Todo |
 | `useWindowSize` | `useWindowSize` | Done |
 | `watchArray` | `-` | Todo |
