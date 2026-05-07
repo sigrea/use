@@ -176,6 +176,7 @@ export { useToString } from "./useToString";
 export { transition, TransitionPresets, useTransition } from "./useTransition";
 export { useToggle } from "./useToggle";
 export { useUrlSearchParams } from "./useUrlSearchParams";
+export { useUserMedia } from "./useUserMedia";
 export { useWindowSize } from "./useWindowSize";
 export type {
 	AsyncComputedCancelCallback,
@@ -476,6 +477,12 @@ export type {
 	UseDisplayMediaNavigatorLike,
 	UseDisplayMediaOptions,
 	UseDisplayMediaReturn,
+	UseUserMediaMediaDevicesLike,
+	UseUserMediaMediaStreamLike,
+	UseUserMediaMediaStreamTrackLike,
+	UseUserMediaNavigatorLike,
+	UseUserMediaOptions,
+	UseUserMediaReturn,
 	UseDocumentVisibilityOptions,
 	UseDocumentVisibilityReturn,
 	UseDraggableAxis,
