@@ -3863,6 +3863,74 @@ export interface UseWebWorkerReturn<
 	stop(): void;
 }
 
+export type UseWebWorkerFnStatus =
+	| "PENDING"
+	| "SUCCESS"
+	| "RUNNING"
+	| "ERROR"
+	| "TIMEOUT_EXPIRED";
+
+export type UseWebWorkerFnTerminateStatus = Exclude<
+	UseWebWorkerFnStatus,
+	"SUCCESS" | "RUNNING"
+>;
+
+export type UseWebWorkerFnCallable = (...fnArgs: never[]) => unknown;
+
+export type UseWebWorkerFnResult<T extends UseWebWorkerFnCallable> = Awaited<
+	ReturnType<T>
+>;
+
+export type UseWebWorkerFnLocalDependency = (...args: never[]) => unknown;
+
+export interface UseWebWorkerFnUrlLike {
+	createObjectURL(object: Blob): string;
+	revokeObjectURL(url: string): void;
+}
+
+export interface UseWebWorkerFnBlobConstructorLike {
+	new (blobParts?: BlobPart[], options?: BlobPropertyBag): Blob;
+}
+
+export interface UseWebWorkerFnWindowLike<
+	TWorker extends WorkerLike = WorkerLike,
+> extends UseWebWorkerWindowLike<TWorker> {
+	readonly URL?: UseWebWorkerFnUrlLike | null;
+	readonly Blob?: UseWebWorkerFnBlobConstructorLike | null;
+}
+
+export interface UseWebWorkerFnOptions<
+	TWorker extends WorkerLike = WorkerLike,
+	TWindow extends
+		UseWebWorkerFnWindowLike<TWorker> = UseWebWorkerFnWindowLike<TWorker>,
+> {
+	/**
+	 * Milliseconds before terminating the active worker.
+	 */
+	timeout?: MaybeValue<number | undefined>;
+	/**
+	 * Classic worker script URLs loaded with importScripts().
+	 */
+	dependencies?: MaybeValue<readonly string[] | undefined>;
+	/**
+	 * Named local functions serialized into the worker script.
+	 */
+	localDependencies?: MaybeValue<
+		readonly UseWebWorkerFnLocalDependency[] | undefined
+	>;
+	window?: MaybeTarget<TWindow | null | undefined>;
+	worker?: UseWebWorkerConstructorSource<TWorker>;
+}
+
+export interface UseWebWorkerFnReturn<T extends UseWebWorkerFnCallable> {
+	workerFn(...fnArgs: Parameters<T>): Promise<UseWebWorkerFnResult<T>>;
+	readonly workerStatus: ReadonlySignal<UseWebWorkerFnStatus>;
+	readonly isSupported: ReadonlySignal<boolean>;
+	readonly error: ReadonlySignal<unknown | null>;
+	workerTerminate(status?: UseWebWorkerFnTerminateStatus): void;
+	stop(): void;
+}
+
 export type UseVirtualListItemSize = number | ((index: number) => number);
 
 export interface UseVirtualListOptionsBase<
