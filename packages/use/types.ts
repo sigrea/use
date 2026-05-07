@@ -3518,6 +3518,56 @@ export interface UseVibrateReturn {
 	stop(): void;
 }
 
+export type UseVirtualListItemSize = number | ((index: number) => number);
+
+export interface UseVirtualListOptionsBase<
+	TWindow extends ResizeObserverWindowLike = ResizeObserverWindowLike,
+> {
+	/**
+	 * Extra buffer items outside of the visible area.
+	 *
+	 * @default 5
+	 */
+	overscan?: number;
+	window?: MaybeTarget<TWindow | null | undefined>;
+}
+
+export interface UseVirtualListVerticalOptions<
+	TWindow extends ResizeObserverWindowLike = ResizeObserverWindowLike,
+> extends UseVirtualListOptionsBase<TWindow> {
+	itemHeight: UseVirtualListItemSize;
+	itemWidth?: never;
+}
+
+export interface UseVirtualListHorizontalOptions<
+	TWindow extends ResizeObserverWindowLike = ResizeObserverWindowLike,
+> extends UseVirtualListOptionsBase<TWindow> {
+	itemWidth: UseVirtualListItemSize;
+	itemHeight?: never;
+}
+
+export type UseVirtualListOptions<
+	TWindow extends ResizeObserverWindowLike = ResizeObserverWindowLike,
+> =
+	| UseVirtualListVerticalOptions<TWindow>
+	| UseVirtualListHorizontalOptions<TWindow>;
+
+export interface UseVirtualListItem<T> {
+	readonly data: T;
+	readonly index: number;
+}
+
+export interface UseVirtualListReturn<T> {
+	readonly list: ReadonlySignal<readonly UseVirtualListItem<T>[]>;
+	readonly containerRef: Signal<HTMLElement | null>;
+	readonly containerStyle: string;
+	readonly wrapperStyle: Computed<string>;
+	onScroll(event?: Event): void;
+	scrollTo(index: number): void;
+	measure(): void;
+	stop(): void;
+}
+
 export interface UseOnlineOptions<
 	TWindow extends WindowLike = WindowLike,
 	TNavigator extends OnlineNavigatorLike = OnlineNavigatorLike,
