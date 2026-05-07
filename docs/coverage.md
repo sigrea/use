@@ -192,7 +192,7 @@ Status values:
 | `useSwipe` | `useSwipe` | Done |
 | `useTemplateRefsList` | `-` | Out of scope |
 | `useTextDirection` | `useTextDirection` | Done |
-| `useTextSelection` | `-` | Todo |
+| `useTextSelection` | `useTextSelection` | Done |
 | `useTextareaAutosize` | `-` | Todo |
 | `useThrottleFn` | `useThrottleFn` | Done |
 | `useThrottledRefHistory` | `-` | Todo |
