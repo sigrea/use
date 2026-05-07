@@ -591,6 +591,12 @@ import type {
 	UseThrottledRefHistoryReturn,
 	UseTimeAgoControlsReturn,
 	UseTimeAgoFormatOptions,
+	UseTimeAgoIntlControlsReturn,
+	UseTimeAgoIntlFormatOptions,
+	UseTimeAgoIntlJoinParts,
+	UseTimeAgoIntlOptions,
+	UseTimeAgoIntlReturn,
+	UseTimeAgoIntlUnit,
 	UseTimeAgoMessages,
 	UseTimeAgoOptions,
 	UseTimeAgoReturn,
@@ -614,6 +620,8 @@ import {
 	extendSignal,
 	formatDate,
 	formatTimeAgo,
+	formatTimeAgoIntl,
+	formatTimeAgoIntlParts,
 	isDefined,
 	makeDestructurable,
 	normalizeDate,
@@ -769,6 +777,7 @@ import {
 	useThrottleFn,
 	useThrottledRefHistory,
 	useTimeAgo,
+	useTimeAgoIntl,
 	useTimeout,
 	useTimeoutFn,
 	useToggle,
@@ -6802,6 +6811,90 @@ describe("public types", () => {
 			useTimeAgo(source, {
 				// @ts-expect-error rounding must be a supported method or decimal count
 				rounding: "nearest",
+			});
+		});
+	});
+
+	it("types Intl time ago formatting and controls", () => {
+		typeOnly(() => {
+			const source = signal<Date | number | string>(new Date());
+			const interval = signal(1000);
+			const locale = signal<Intl.LocalesArgument>("en-US");
+			const units: UseTimeAgoIntlUnit[] = [
+				{ name: "quarter", ms: 7_776_000_000 },
+				{ name: "day", ms: 86_400_000 },
+				{ name: "second", ms: 1000 },
+			];
+			const joinParts: UseTimeAgoIntlJoinParts = (parts, localeArg) => {
+				expectTypeOf(parts).toEqualTypeOf<Intl.RelativeTimeFormatPart[]>();
+				expectTypeOf(localeArg).toEqualTypeOf<
+					Intl.LocalesArgument | undefined
+				>();
+
+				return parts.map((part) => part.value).join(String(localeArg ?? ""));
+			};
+			const options: UseTimeAgoIntlOptions<false> = {
+				insertSpace: false,
+				joinParts,
+				locale,
+				relativeTimeFormatOptions: {
+					numeric: "auto",
+					style: "short",
+				},
+				units,
+				updateInterval: interval,
+			};
+			const result = useTimeAgoIntl(source, options);
+			const controls = useTimeAgoIntl(source, {
+				...options,
+				controls: true,
+				scheduler: (callback) => useIntervalFn(callback, interval),
+			});
+			const formatOptions: UseTimeAgoIntlFormatOptions = options;
+			const controlsReturn: UseTimeAgoIntlControlsReturn = controls;
+			const returnValue: UseTimeAgoIntlReturn = result;
+
+			expectTypeOf(result).toEqualTypeOf<UseTimeAgoIntlReturn<false>>();
+			expectTypeOf(result).toEqualTypeOf<ReadonlySignal<string>>();
+			expectTypeOf(returnValue).toEqualTypeOf<ReadonlySignal<string>>();
+			expectTypeOf(controls).toEqualTypeOf<UseTimeAgoIntlReturn<true>>();
+			expectTypeOf(controlsReturn.timeAgoIntl).toEqualTypeOf<
+				ReadonlySignal<string>
+			>();
+			expectTypeOf(controlsReturn.parts).toEqualTypeOf<
+				ReadonlySignal<Intl.RelativeTimeFormatPart[]>
+			>();
+			expectTypeOf(formatOptions.units?.[0]?.name).toEqualTypeOf<
+				Intl.RelativeTimeFormatUnit | undefined
+			>();
+			expectTypeOf(
+				formatTimeAgoIntl(new Date(), options),
+			).toEqualTypeOf<string>();
+			expectTypeOf(formatTimeAgoIntlParts([], options)).toEqualTypeOf<string>();
+			expectTypeOf(controls.pause()).toEqualTypeOf<void>();
+			expectTypeOf(controls.resume()).toEqualTypeOf<void>();
+
+			// @ts-expect-error returned value is readonly
+			result.value = "next";
+			// @ts-expect-error time must resolve to Date, number, or string
+			useTimeAgoIntl({});
+			const invalidUnitOptions: UseTimeAgoIntlOptions = {
+				units: [
+					{
+						// @ts-expect-error unit must be accepted by Intl.RelativeTimeFormat
+						name: "decade",
+						ms: 1000,
+					},
+				],
+			};
+			invalidUnitOptions;
+			useTimeAgoIntl(source, {
+				// @ts-expect-error locale must be accepted by Intl.RelativeTimeFormat
+				locale: 1000,
+			});
+			useTimeAgoIntl(source, {
+				// @ts-expect-error updateInterval must be a number-like MaybeValue
+				updateInterval: "1000",
 			});
 		});
 	});
