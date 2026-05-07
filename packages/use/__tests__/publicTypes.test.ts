@@ -695,6 +695,8 @@ import type {
 	UseWindowFocusOptions,
 	UseWindowFocusReturn,
 	UseWindowFocusWindowLike,
+	UseWindowScrollOptions,
+	UseWindowScrollReturn,
 	UseWindowSizeOptions,
 	WakeLockType,
 	WebSocketConstructorLike,
@@ -896,6 +898,7 @@ import {
 	useWebWorker,
 	useWebWorkerFn,
 	useWindowFocus,
+	useWindowScroll,
 	useWindowSize,
 } from "../../../index";
 
@@ -9058,9 +9061,16 @@ describe("public types", () => {
 			const documentScroll = useScroll(scrollDocument, {
 				window: scrollWindow,
 			});
+			const windowScrollOptions: UseWindowScrollOptions<ScrollWindow> = {
+				behavior: "smooth",
+				throttle: 16,
+				window: signal(scrollWindow),
+			};
+			const windowScroll = useWindowScroll(windowScrollOptions);
 			const arrived: UseScrollArrivedState = scroll.arrivedState.value;
 			const directions: UseScrollDirections = scroll.directions.value;
 			const scrollReturn: UseScrollReturn = scroll;
+			const windowScrollReturn: UseWindowScrollReturn = windowScroll;
 
 			expectTypeOf(scroll).toEqualTypeOf<UseScrollReturn>();
 			expectTypeOf(scrollReturn.x).toEqualTypeOf<Computed<number>>();
@@ -9073,12 +9083,22 @@ describe("public types", () => {
 			expectTypeOf(scroll.scrollTo({ left: 1, top: 2 })).toEqualTypeOf<void>();
 			expectTypeOf(scroll.stop()).toEqualTypeOf<void>();
 			expectTypeOf(documentScroll).toEqualTypeOf<UseScrollReturn>();
+			expectTypeOf(windowScrollReturn).toEqualTypeOf<UseWindowScrollReturn>();
+			expectTypeOf(windowScroll.x).toEqualTypeOf<Computed<number>>();
+			expectTypeOf(windowScroll.y).toEqualTypeOf<Computed<number>>();
+			expectTypeOf(windowScroll.stop()).toEqualTypeOf<void>();
 			typeOnly(() => {
 				scroll.x.value = 10;
 				scroll.y.value = 20;
+				windowScroll.x.value = 30;
+				windowScroll.y.value = 40;
 				// @ts-expect-error isScrolling is readonly
 				scroll.isScrolling.value = true;
 				useScroll(element, {
+					// @ts-expect-error behavior must be a scroll behavior
+					behavior: "slow",
+				});
+				useWindowScroll({
 					// @ts-expect-error behavior must be a scroll behavior
 					behavior: "slow",
 				});
