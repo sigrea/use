@@ -164,6 +164,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.useStyleTag).toBe("function");
 		expect(typeof mod.useSupported).toBe("function");
 		expect(typeof mod.useSwipe).toBe("function");
+		expect(typeof mod.useTextDirection).toBe("function");
 		expect(typeof mod.useSessionStorage).toBe("function");
 		expect(typeof mod.useStorage).toBe("function");
 		expect(typeof mod.useStorageAsync).toBe("function");
@@ -251,6 +252,7 @@ describe("SSR safety", () => {
 			useStyleTag,
 			useSupported,
 			useSwipe,
+			useTextDirection,
 			onElementRemoval,
 			onKeyDown,
 			onKeyPressed,
@@ -346,6 +348,10 @@ describe("SSR safety", () => {
 			() => typeof window !== "undefined" && "document" in window,
 		);
 		const swipe = useSwipe(null, { window: null });
+		const textDirection = useTextDirection({
+			document: null,
+			initialValue: "rtl",
+		});
 		const cssSupports = useCssSupports("display", "grid", { window: null });
 		const initialCssSupports = useCssSupports("display: grid", {
 			initialValue: true,
@@ -548,9 +554,13 @@ describe("SSR safety", () => {
 		expect(swipe.coordsEnd.value).toEqual({ x: 0, y: 0 });
 		expect(swipe.lengthX.value).toBe(0);
 		expect(swipe.lengthY.value).toBe(0);
+		expect(textDirection.value).toBe("rtl");
+		textDirection.value = "auto";
+		expect(textDirection.value).toBe("auto");
 		styleTag.load();
 		styleTag.unload();
 		swipe.stop();
+		textDirection.stop();
 		speechSynthesis.speak();
 		speechSynthesis.cancel();
 		speechSynthesis.pause();
