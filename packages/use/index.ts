@@ -194,6 +194,7 @@ export { watchDeep } from "./watchDeep";
 export { watchIgnorable } from "./watchIgnorable";
 export { watchImmediate } from "./watchImmediate";
 export { watchOnce } from "./watchOnce";
+export { watchPausable } from "./watchPausable";
 export type {
 	AsyncComputedCancelCallback,
 	AsyncComputedEvaluationCallback,
@@ -1024,6 +1025,14 @@ export type {
 	WatchOnceSource,
 	WatchOnceSourceValue,
 	WatchOnceSourceValues,
+	WatchPausableCallback,
+	WatchPausableInitialState,
+	WatchPausableOnCleanup,
+	WatchPausableOptions,
+	WatchPausableReturn,
+	WatchPausableSource,
+	WatchPausableSourceValue,
+	WatchPausableSourceValues,
 	WindowSizeLike,
 	WritableComputedWithControlOptions,
 	WritableComputedWithControlReturn,

@@ -4408,6 +4408,56 @@ export type WatchOnceOptions<Immediate extends boolean = false> =
 
 export type WatchOnceReturn = WatchStopHandle;
 
+type WatchPausableDeepSource<T> = T extends object
+	? DeepSignal<T> | ReadonlyDeepSignal<T>
+	: never;
+
+export type WatchPausableSource<T = unknown> =
+	| WatchSource<T>
+	| WatchPausableDeepSource<T>;
+
+export type WatchPausableSourceValue<TSource> = TSource extends Signal<
+	infer Value
+>
+	? Value
+	: TSource extends ReadonlySignal<infer Value>
+		? Value
+		: TSource extends Computed<infer Value>
+			? Value
+			: TSource extends () => infer Value
+				? Value
+				: TSource extends DeepSignal<infer Value>
+					? Value
+					: TSource extends ReadonlyDeepSignal<infer Value>
+						? Value
+						: TSource;
+
+export type WatchPausableSourceValues<TSources extends readonly unknown[]> = {
+	[K in keyof TSources]: WatchPausableSourceValue<TSources[K]>;
+};
+
+export type WatchPausableOnCleanup = (cleanupFn: Cleanup) => void;
+
+export type WatchPausableCallback<Value = unknown, OldValue = Value> = (
+	value: Value,
+	oldValue: OldValue,
+	onCleanup: WatchPausableOnCleanup,
+) => void | Cleanup | Promise<void | Cleanup>;
+
+export type WatchPausableInitialState = "active" | "paused";
+
+export interface WatchPausableOptions<Immediate extends boolean = false>
+	extends WatchOptions<Immediate> {
+	initialState?: WatchPausableInitialState;
+}
+
+export interface WatchPausableReturn {
+	readonly isActive: ReadonlySignal<boolean>;
+	pause(): void;
+	resume(): void;
+	stop(): void;
+}
+
 export interface OnClickOutsideDocumentLike extends DocumentLike {
 	readonly activeElement?: Element | null;
 	querySelectorAll?(selector: string): Iterable<Element> | ArrayLike<Element>;
