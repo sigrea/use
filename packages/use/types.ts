@@ -4369,6 +4369,45 @@ export type WatchImmediateOptions = Omit<WatchOptions<true>, "immediate">;
 
 export type WatchImmediateReturn = WatchStopHandle;
 
+type WatchOnceDeepSource<T> = T extends object
+	? DeepSignal<T> | ReadonlyDeepSignal<T>
+	: never;
+
+export type WatchOnceSource<T = unknown> =
+	| WatchSource<T>
+	| WatchOnceDeepSource<T>;
+
+export type WatchOnceSourceValue<TSource> = TSource extends Signal<infer Value>
+	? Value
+	: TSource extends ReadonlySignal<infer Value>
+		? Value
+		: TSource extends Computed<infer Value>
+			? Value
+			: TSource extends () => infer Value
+				? Value
+				: TSource extends DeepSignal<infer Value>
+					? Value
+					: TSource extends ReadonlyDeepSignal<infer Value>
+						? Value
+						: TSource;
+
+export type WatchOnceSourceValues<TSources extends readonly unknown[]> = {
+	[K in keyof TSources]: WatchOnceSourceValue<TSources[K]>;
+};
+
+export type WatchOnceOnCleanup = (cleanupFn: Cleanup) => void;
+
+export type WatchOnceCallback<Value = unknown, OldValue = Value> = (
+	value: Value,
+	oldValue: OldValue,
+	onCleanup: WatchOnceOnCleanup,
+) => void | Cleanup | Promise<void | Cleanup>;
+
+export type WatchOnceOptions<Immediate extends boolean = false> =
+	WatchOptions<Immediate>;
+
+export type WatchOnceReturn = WatchStopHandle;
+
 export interface OnClickOutsideDocumentLike extends DocumentLike {
 	readonly activeElement?: Element | null;
 	querySelectorAll?(selector: string): Iterable<Element> | ArrayLike<Element>;
