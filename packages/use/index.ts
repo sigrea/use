@@ -150,6 +150,7 @@ export { useStyleTag } from "./useStyleTag";
 export { useSupported } from "./useSupported";
 export { useSwipe } from "./useSwipe";
 export { useTextDirection } from "./useTextDirection";
+export { useTextSelection } from "./useTextSelection";
 export {
 	customStorageEventName,
 	StorageSerializers,
@@ -803,6 +804,10 @@ export type {
 	UseTextDirectionOptions,
 	UseTextDirectionReturn,
 	UseTextDirectionValue,
+	UseTextSelectionDocumentLike,
+	UseTextSelectionOptions,
+	UseTextSelectionReturn,
+	UseTextSelectionWindowLike,
 	UseStorageAsyncOptions,
 	UseStorageAsyncReturn,
 	UseStorageOptions,
