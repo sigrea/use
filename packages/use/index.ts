@@ -173,6 +173,7 @@ export { useTimestamp } from "./useTimestamp";
 export { useTitle } from "./useTitle";
 export { useToNumber } from "./useToNumber";
 export { useToString } from "./useToString";
+export { transition, TransitionPresets, useTransition } from "./useTransition";
 export { useToggle } from "./useToggle";
 export { useWindowSize } from "./useWindowSize";
 export type {
@@ -867,6 +868,16 @@ export type {
 	UseTitleTemplate,
 	UseToNumberOptions,
 	UseToStringReturn,
+	CubicBezierPoints,
+	EasingFunction,
+	InterpolationFunction,
+	MaybeTransitionEasing,
+	TransitionEasing,
+	TransitionOptions,
+	UseTransitionOptions,
+	UseTransitionReturn,
+	UseTransitionVector,
+	UseTransitionWindowLike,
 	UseToggleOptions,
 	UseToggleReturn,
 	ValueGetter,
