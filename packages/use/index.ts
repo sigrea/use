@@ -196,6 +196,7 @@ export { watchImmediate } from "./watchImmediate";
 export { watchOnce } from "./watchOnce";
 export { watchPausable } from "./watchPausable";
 export { watchThrottled } from "./watchThrottled";
+export { watchTriggerable } from "./watchTriggerable";
 export type {
 	AsyncComputedCancelCallback,
 	AsyncComputedEvaluationCallback,
@@ -1041,6 +1042,14 @@ export type {
 	WatchThrottledSource,
 	WatchThrottledSourceValue,
 	WatchThrottledSourceValues,
+	WatchTriggerableCallback,
+	WatchTriggerableOnCleanup,
+	WatchTriggerableOptions,
+	WatchTriggerableReturn,
+	WatchTriggerableSource,
+	WatchTriggerableSourceOldValues,
+	WatchTriggerableSourceValue,
+	WatchTriggerableSourceValues,
 	WindowSizeLike,
 	WritableComputedWithControlOptions,
 	WritableComputedWithControlReturn,

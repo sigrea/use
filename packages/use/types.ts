@@ -4326,6 +4326,61 @@ export interface WatchIgnorableReturn {
 	stop(): void;
 }
 
+type WatchTriggerableDeepSource<T> = T extends object
+	? DeepSignal<T> | ReadonlyDeepSignal<T>
+	: never;
+
+export type WatchTriggerableSource<T = unknown> =
+	| WatchSource<T>
+	| WatchTriggerableDeepSource<T>;
+
+export type WatchTriggerableSourceValue<TSource> = TSource extends Signal<
+	infer Value
+>
+	? Value
+	: TSource extends ReadonlySignal<infer Value>
+		? Value
+		: TSource extends Computed<infer Value>
+			? Value
+			: TSource extends () => infer Value
+				? Value
+				: TSource extends DeepSignal<infer Value>
+					? Value
+					: TSource extends ReadonlyDeepSignal<infer Value>
+						? Value
+						: TSource;
+
+export type WatchTriggerableSourceValues<TSources extends readonly unknown[]> =
+	{
+		[K in keyof TSources]: WatchTriggerableSourceValue<TSources[K]>;
+	};
+
+export type WatchTriggerableSourceOldValues<
+	TSources extends readonly unknown[],
+> = {
+	[K in keyof TSources]: WatchTriggerableSourceValue<TSources[K]> | undefined;
+};
+
+export type WatchTriggerableOnCleanup = (cleanupFn: Cleanup) => void;
+
+export type WatchTriggerableCallback<
+	Value = unknown,
+	OldValue = Value,
+	TriggerReturn = void,
+> = (
+	value: Value,
+	oldValue: OldValue,
+	onCleanup: WatchTriggerableOnCleanup,
+) => TriggerReturn;
+
+export type WatchTriggerableOptions<Immediate extends boolean = false> =
+	WatchIgnorableOptions<Immediate>;
+
+export interface WatchTriggerableReturn<TriggerReturn = void>
+	extends WatchIgnorableReturn {
+	trigger(): TriggerReturn | undefined;
+}
+
 type WatchImmediateDeepSource<T> = T extends object
 	? DeepSignal<T> | ReadonlyDeepSignal<T>
 	: never;
