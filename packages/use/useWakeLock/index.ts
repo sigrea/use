@@ -64,8 +64,7 @@ export function useWakeLock<
 	const documentVisibility = useDocumentVisibility({
 		document: documentTarget,
 	});
-	const currentVisibility = () =>
-		currentDocument()?.visibilityState ?? documentVisibility.visibility.value;
+	const currentVisibility = () => documentVisibility.visibility.value;
 	const isActive = computed(
 		() =>
 			sentinel.value !== null &&

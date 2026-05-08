@@ -213,6 +213,23 @@ describe("useWakeLock", () => {
 		expect(wakeLock.isActive.value).toBe(true);
 	});
 
+	it("updates active state when the same document becomes hidden", async () => {
+		const fakeWakeLock = new FakeWakeLock();
+		const fakeDocument = new FakeDocument("visible");
+		const wakeLock = useFakeWakeLock({
+			document: fakeDocument,
+			navigator: createNavigator(fakeWakeLock),
+		});
+
+		await wakeLock.request();
+		expect(wakeLock.isActive.value).toBe(true);
+
+		fakeDocument.setVisibility("hidden");
+
+		expect(wakeLock.sentinel.value).toBe(fakeWakeLock.sentinels[0]);
+		expect(wakeLock.isActive.value).toBe(false);
+	});
+
 	it("does not immediately reacquire when automatically released while visible", async () => {
 		const fakeWakeLock = new FakeWakeLock();
 		const wakeLock = useFakeWakeLock({
