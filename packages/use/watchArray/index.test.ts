@@ -182,6 +182,36 @@ describe("watchArray", () => {
 		expect(cleanup).toHaveBeenCalledTimes(2);
 	});
 
+	it("advances the baseline before running sync callbacks", () => {
+		const list = signal([1]);
+		const callback = vi.fn((next: readonly number[]) => {
+			if (next.length === 2) {
+				list.value = [1, 2, 3];
+			}
+		});
+		trackStop(watchArray(list, callback, { flush: "sync" }));
+
+		list.value = [1, 2];
+
+		expect(callback).toHaveBeenCalledTimes(2);
+		expect(callback).toHaveBeenNthCalledWith(
+			1,
+			[1, 2],
+			[1],
+			[2],
+			[],
+			expect.any(Function),
+		);
+		expect(callback).toHaveBeenNthCalledWith(
+			2,
+			[1, 2, 3],
+			[1, 2],
+			[3],
+			[],
+			expect.any(Function),
+		);
+	});
+
 	it("honors the default pre flush timing", async () => {
 		const list = signal([1]);
 		const callback = vi.fn();

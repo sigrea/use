@@ -69,16 +69,10 @@ export function watchArray<T, Immediate extends boolean = false>(
 			const currentList = Array.from(nextList);
 			const previousList = oldList;
 			const { added, removed } = difference(currentList, previousList);
-			const result = callback(
-				currentList,
-				previousList,
-				added,
-				removed,
-				onCleanup,
-			);
+
 			oldList = currentList;
 
-			return result;
+			return callback(currentList, previousList, added, removed, onCleanup);
 		},
 		options,
 	);
