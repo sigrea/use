@@ -151,6 +151,7 @@ export { usePrevious } from "./usePrevious";
 export { useRafFn } from "./useRafFn";
 export { useRefHistory } from "./useRefHistory";
 export { useResizeObserver } from "./useResizeObserver";
+export { useRound } from "./useRound";
 export { useScreenOrientation } from "./useScreenOrientation";
 export { useScreenSafeArea } from "./useScreenSafeArea";
 export { useScriptTag } from "./useScriptTag";
@@ -860,6 +861,7 @@ export type {
 	UseResizeObserverOptions,
 	UseResizeObserverReturn,
 	UseResizeObserverTarget,
+	UseRoundReturn,
 	UseScreenOrientationOptions,
 	UseScreenOrientationReturn,
 	UseScreenOrientationScreenOrientationLike,

@@ -96,6 +96,7 @@ export interface UsePrecisionOptions {
 	math?: UsePrecisionMath;
 }
 export type UsePrecisionReturn = ReadonlySignal<number>;
+export type UseRoundReturn = ReadonlySignal<number>;
 export type PromisifyFn<T> = T extends (
 	this: infer TThis,
 	...args: infer TArgs
