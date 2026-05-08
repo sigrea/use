@@ -3427,6 +3427,12 @@ export interface UsePointerSwipeOptions {
 	 * @default false
 	 */
 	disableTextSelect?: MaybeValue<boolean>;
+	/**
+	 * CSS touch-action value applied while swipe listeners are active.
+	 *
+	 * @default "none"
+	 */
+	touchAction?: MaybeValue<string>;
 	preventDefault?: MaybeValue<boolean>;
 	stopPropagation?: MaybeValue<boolean>;
 	/**

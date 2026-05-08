@@ -78,6 +78,7 @@ function handleEvent(
 function applySwipeStyles(
 	target: UsePointerSwipeElement,
 	disableTextSelect: boolean,
+	touchAction: string,
 ): () => void {
 	const previousTouchAction = target.style.touchAction;
 	const previousWebkitUserSelect = target.style.webkitUserSelect;
@@ -87,7 +88,7 @@ function applySwipeStyles(
 	};
 	const previousMsUserSelect = styleWithMsUserSelect.msUserSelect;
 
-	target.style.touchAction = "pan-y";
+	target.style.touchAction = touchAction;
 
 	if (disableTextSelect) {
 		target.style.webkitUserSelect = "none";
@@ -246,6 +247,7 @@ export function usePointerSwipe(
 			disableTextSelect: resolveBoolean(options.disableTextSelect, false),
 			passive: !resolveBoolean(options.preventDefault, false),
 			target: resolveTarget(target),
+			touchAction: resolveValue(options.touchAction ?? "none"),
 		}),
 		(nextValue, previousValue, onCleanup) => {
 			if (
@@ -264,7 +266,11 @@ export function usePointerSwipe(
 				passive: nextValue.passive,
 			};
 			const cleanups = [
-				applySwipeStyles(nextValue.target, nextValue.disableTextSelect),
+				applySwipeStyles(
+					nextValue.target,
+					nextValue.disableTextSelect,
+					nextValue.touchAction,
+				),
 				listen(nextValue.target, "pointerdown", start, listenerOptions),
 				listen(nextValue.target, "pointermove", move, listenerOptions),
 				listen(nextValue.target, "pointerup", end, listenerOptions),

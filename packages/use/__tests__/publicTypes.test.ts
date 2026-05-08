@@ -5569,6 +5569,7 @@ describe("public types", () => {
 			preventDefault: signal(false),
 			stopPropagation: signal(false),
 			threshold: signal(12),
+			touchAction: signal("none"),
 		};
 		const pointerSwipe = usePointerSwipe(
 			signal(pointerSwipeElement),

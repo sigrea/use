@@ -328,7 +328,7 @@ describe("usePointerSwipe", () => {
 			expect.any(Function),
 			expect.objectContaining({ capture: false, passive: true }),
 		);
-		expect(element.style.touchAction).toBe("pan-y");
+		expect(element.style.touchAction).toBe("none");
 		expect(element.style.userSelect).toBe("none");
 
 		capture.value = true;
@@ -341,6 +341,20 @@ describe("usePointerSwipe", () => {
 		swipe.stop();
 		expect(element.style.touchAction).toBe(initialTouchAction);
 		expect(element.style.userSelect).toBe("");
+	});
+
+	it("allows custom touch-action styles", () => {
+		const touchAction = signal("pan-y");
+		const initialTouchAction = element.style.touchAction;
+		const swipe = usePointerSwipe(element, { touchAction });
+
+		expect(element.style.touchAction).toBe("pan-y");
+
+		touchAction.value = "pan-x";
+		expect(element.style.touchAction).toBe("pan-x");
+
+		swipe.stop();
+		expect(element.style.touchAction).toBe(initialTouchAction);
 	});
 
 	it("resets an active swipe when the target changes", () => {
