@@ -1,4 +1,4 @@
-import { computed, deepSignal, isSignal } from "@sigrea/core";
+import { computed, deepSignal, isComputed, isSignal } from "@sigrea/core";
 import type { Computed } from "@sigrea/core";
 
 import type { ReactiveComputedGetter, ReactiveComputedReturn } from "../types";
@@ -13,6 +13,27 @@ function resolveSignalValue(value: unknown): unknown {
 	return isSignal(value) ? value.value : value;
 }
 
+function getValueDescriptor(value: object): PropertyDescriptor | undefined {
+	let current: object | null = value;
+	while (current !== null) {
+		const descriptor = Object.getOwnPropertyDescriptor(current, "value");
+		if (descriptor !== undefined) {
+			return descriptor;
+		}
+		current = Object.getPrototypeOf(current);
+	}
+
+	return undefined;
+}
+
+function isWritableSignalValue(value: unknown): value is { value: unknown } {
+	return (
+		isSignal(value) &&
+		!isComputed(value) &&
+		typeof getValueDescriptor(value)?.set === "function"
+	);
+}
+
 function createComputedProxy<T extends object>(source: Computed<T>): T {
 	return new Proxy(
 		{},
@@ -23,7 +44,7 @@ function createComputedProxy<T extends object>(source: Computed<T>): T {
 			set(_target, key, value) {
 				const target = source.value as MutableRecord;
 				const currentValue = target[key];
-				if (isSignal(currentValue) && !isSignal(value)) {
+				if (isWritableSignalValue(currentValue) && !isSignal(value)) {
 					currentValue.value = value;
 					return true;
 				}
