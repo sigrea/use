@@ -870,6 +870,16 @@ describe("public types", () => {
 				createElement: (_tagName) => textarea,
 				execCommand: (_command) => true,
 			} as ClipboardDocumentLike;
+			const nativeDocument: Document = globalThis.document;
+			const nativeDocumentOptions: UseClipboardOptions<
+				undefined,
+				ClipboardNavigatorLike,
+				Document,
+				TypedWindow
+			> = {
+				document: nativeDocument,
+				legacy: true,
+			};
 			const clipboard: ClipboardLike = {
 				readText: async () => "current",
 				writeText: async (_data) => {},
@@ -894,12 +904,23 @@ describe("public types", () => {
 				window: new TypedWindow(),
 			};
 			const result = useClipboard(options);
+			const nativeDocumentResult = useClipboard(nativeDocumentOptions);
+			const nativeDocumentDirectResult = useClipboard({
+				document: nativeDocument,
+				legacy: true,
+			});
 			const requiredCopy = useClipboard({ navigator: null });
 			const returnValue: UseClipboardReturn<true> = result;
 			const optionalCopy: UseClipboardCopyFn<true> = result.copy;
 			const requiredCopyFn: UseClipboardCopyFn<false> = requiredCopy.copy;
 
 			expectTypeOf(result).toEqualTypeOf<UseClipboardReturn<true>>();
+			expectTypeOf(nativeDocumentResult).toEqualTypeOf<
+				UseClipboardReturn<false>
+			>();
+			expectTypeOf(nativeDocumentDirectResult).toEqualTypeOf<
+				UseClipboardReturn<false>
+			>();
 			expectTypeOf(requiredCopy).toEqualTypeOf<UseClipboardReturn<false>>();
 			expectTypeOf(returnValue.isSupported).toEqualTypeOf<
 				ReadonlySignal<boolean>

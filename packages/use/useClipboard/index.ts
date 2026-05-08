@@ -11,6 +11,7 @@ import type {
 	ClipboardDocumentLike,
 	ClipboardLike,
 	ClipboardNavigatorLike,
+	ClipboardTextareaLike,
 	MaybeTarget,
 	MaybeValue,
 	UseClipboardOptions,
@@ -68,7 +69,7 @@ function legacyCopy(
 	textarea.style.position = "absolute";
 	textarea.style.opacity = "0";
 	textarea.setAttribute("readonly", "");
-	documentTarget.body?.appendChild(textarea);
+	documentTarget.body?.appendChild(textarea as ClipboardTextareaLike & Node);
 	try {
 		textarea.select();
 		const copied = documentTarget.execCommand?.("copy") ?? false;

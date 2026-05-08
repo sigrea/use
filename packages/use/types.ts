@@ -876,7 +876,7 @@ export interface ClipboardTextareaLike {
 }
 
 export interface ClipboardDocumentBodyLike {
-	appendChild(node: ClipboardTextareaLike): void;
+	appendChild(node: ClipboardTextareaLike & Node): void;
 }
 
 export interface ClipboardDocumentLike extends DocumentLike {
