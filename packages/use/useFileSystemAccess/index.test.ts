@@ -328,6 +328,120 @@ describe("useFileSystemAccess", () => {
 		result.stop();
 	});
 
+	it("keeps the current handle when a newly opened file cannot be read", async () => {
+		const oldHandle = new FakeFileHandle(createReadableFile("old", "old.txt"));
+		const unreadableFile = createReadableFile("new", "new.txt");
+		const readError = new Error("read failed");
+		Object.defineProperty(unreadableFile, "text", {
+			configurable: true,
+			value: vi.fn(async () => {
+				throw readError;
+			}),
+		});
+		const failedHandle = new FakeFileHandle(unreadableFile);
+		const window = new FakeWindow();
+		window.openHandles = [oldHandle];
+		const result = useFileSystemAccess({ window });
+
+		await result.open();
+		window.openHandles = [failedHandle];
+		await result.open();
+
+		expect(result.error.value).toBe(readError);
+		expect(result.file.value?.name).toBe("old.txt");
+		expect(result.data.value).toBe("old");
+
+		result.data.value = "edited old";
+		await result.save();
+
+		expect(oldHandle.createWritable).toHaveBeenCalledOnce();
+		expect(oldHandle.writable.write).toHaveBeenCalledWith("edited old");
+		expect(failedHandle.createWritable).not.toHaveBeenCalled();
+
+		result.stop();
+	});
+
+	it("keeps the current handle when saveAs cannot write the new file", async () => {
+		const oldHandle = new FakeFileHandle(createReadableFile("old", "old.txt"));
+		const newHandle = new FakeFileHandle(createReadableFile("new", "new.txt"));
+		const writeError = new Error("write failed");
+		newHandle.writable.write.mockRejectedValueOnce(writeError);
+		const window = new FakeWindow();
+		window.openHandles = [oldHandle];
+		window.saveHandle = newHandle;
+		const result = useFileSystemAccess({ window });
+
+		await result.open();
+		result.data.value = "edited";
+		await result.saveAs({ suggestedName: "new.txt" });
+
+		expect(result.error.value).toBe(writeError);
+		expect(result.file.value?.name).toBe("old.txt");
+		expect(result.data.value).toBe("edited");
+
+		await result.save();
+
+		expect(newHandle.createWritable).toHaveBeenCalledOnce();
+		expect(oldHandle.createWritable).toHaveBeenCalledOnce();
+		expect(oldHandle.writable.write).toHaveBeenCalledWith("edited");
+
+		result.stop();
+	});
+
+	it("keeps the current handle when saveAs cannot close the new file", async () => {
+		const oldHandle = new FakeFileHandle(createReadableFile("old", "old.txt"));
+		const newHandle = new FakeFileHandle(createReadableFile("new", "new.txt"));
+		const closeError = new Error("close failed");
+		newHandle.writable.close.mockRejectedValueOnce(closeError);
+		const window = new FakeWindow();
+		window.openHandles = [oldHandle];
+		window.saveHandle = newHandle;
+		const result = useFileSystemAccess({ window });
+
+		await result.open();
+		result.data.value = "edited";
+		await result.saveAs({ suggestedName: "new.txt" });
+
+		expect(result.error.value).toBe(closeError);
+		expect(result.file.value?.name).toBe("old.txt");
+		expect(result.data.value).toBe("edited");
+
+		await result.save();
+
+		expect(newHandle.createWritable).toHaveBeenCalledOnce();
+		expect(oldHandle.createWritable).toHaveBeenCalledOnce();
+		expect(oldHandle.writable.write).toHaveBeenCalledWith("edited");
+
+		result.stop();
+	});
+
+	it("keeps the current handle when saveAs cannot refresh the new file", async () => {
+		const oldHandle = new FakeFileHandle(createReadableFile("old", "old.txt"));
+		const newHandle = new FakeFileHandle(createReadableFile("new", "new.txt"));
+		const refreshError = new Error("refresh failed");
+		newHandle.getFile.mockRejectedValueOnce(refreshError);
+		const window = new FakeWindow();
+		window.openHandles = [oldHandle];
+		window.saveHandle = newHandle;
+		const result = useFileSystemAccess({ window });
+
+		await result.open();
+		result.data.value = "edited";
+		await result.saveAs({ suggestedName: "new.txt" });
+
+		expect(result.error.value).toBe(refreshError);
+		expect(result.file.value?.name).toBe("old.txt");
+		expect(result.data.value).toBe("edited");
+
+		await result.save();
+
+		expect(newHandle.createWritable).toHaveBeenCalledOnce();
+		expect(oldHandle.createWritable).toHaveBeenCalledOnce();
+		expect(oldHandle.writable.write).toHaveBeenCalledWith("edited");
+
+		result.stop();
+	});
+
 	it("does not open the save picker without data to write", async () => {
 		const window = new FakeWindow();
 		const result = useFileSystemAccess({ window });

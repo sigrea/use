@@ -229,6 +229,17 @@ export function useFileSystemAccess<
 		window: SupportedFileSystemAccessWindow<TFileHandle, TWindow>,
 		executionId: number,
 	) => shouldApplyPickerResult(executionId) && currentWindow() === window;
+	const readFileHandleData = async (handle: TFileHandle) => {
+		while (true) {
+			const nextFile = await handle.getFile();
+			const currentDataType = resolvedDataType;
+			const nextData = await readFileData(nextFile, currentDataType);
+
+			if (currentDataType === resolvedDataType) {
+				return { nextData, nextFile };
+			}
+		}
+	};
 	const applyCurrentFileData = async (executionId: number) => {
 		const handle = fileHandle;
 
@@ -240,8 +251,7 @@ export function useFileSystemAccess<
 			return;
 		}
 
-		const nextFile = await handle.getFile();
-		const nextData = await readFileData(nextFile, resolvedDataType);
+		const { nextData, nextFile } = await readFileHandleData(handle);
 
 		if (!shouldApplyReadResult(executionId)) {
 			return;
@@ -331,12 +341,18 @@ export function useFileSystemAccess<
 			return;
 		}
 
-		fileHandle = handle;
-		const readExecutionId = nextReadExecution();
 		try {
-			await applyCurrentFileData(readExecutionId);
+			const { nextData, nextFile } = await readFileHandleData(handle);
+			if (!shouldApplyWindowResult(window, pickerExecutionId)) {
+				return;
+			}
+
+			fileHandle = handle;
+			file.value = nextFile;
+			data.value = nextData;
+			error.value = null;
 		} catch (caughtError) {
-			storeError(caughtError, readExecutionId);
+			storePickerError(caughtError, window, pickerExecutionId);
 		}
 	};
 	const create = async (
@@ -368,13 +384,18 @@ export function useFileSystemAccess<
 			return;
 		}
 
-		fileHandle = handle;
-		data.value = undefined;
-		const readExecutionId = nextReadExecution();
 		try {
-			await applyCurrentFileData(readExecutionId);
+			const { nextData, nextFile } = await readFileHandleData(handle);
+			if (!shouldApplyWindowResult(window, pickerExecutionId)) {
+				return;
+			}
+
+			fileHandle = handle;
+			file.value = nextFile;
+			data.value = nextData;
+			error.value = null;
 		} catch (caughtError) {
-			storeError(caughtError, readExecutionId);
+			storePickerError(caughtError, window, pickerExecutionId);
 		}
 	};
 	const saveAsData = async (
@@ -403,13 +424,18 @@ export function useFileSystemAccess<
 			return;
 		}
 
-		fileHandle = handle;
-		const readExecutionId = nextReadExecution();
 		try {
 			await writeData(handle, currentData);
-			await applyCurrentFile(readExecutionId);
+			const nextFile = await handle.getFile();
+			if (!shouldApplyWindowResult(window, pickerExecutionId)) {
+				return;
+			}
+
+			fileHandle = handle;
+			file.value = nextFile;
+			error.value = null;
 		} catch (caughtError) {
-			storeError(caughtError, readExecutionId);
+			storePickerError(caughtError, window, pickerExecutionId);
 		}
 	};
 	const saveAs = async (
