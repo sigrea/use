@@ -110,6 +110,28 @@ describe("useAsyncState", () => {
 		expect(isReady.value).toBe(false);
 	});
 
+	it("handles synchronous source errors like rejected promises", async () => {
+		const failure = new Error("failed");
+		const task = vi.fn((): Promise<string> => {
+			throw failure;
+		});
+		const onError = vi.fn();
+		const { error, execute, isLoading, isReady, state } = useAsyncState(
+			task,
+			"initial",
+			{ immediate: false, onError },
+		);
+
+		await expect(execute()).resolves.toBeUndefined();
+
+		expect(task).toHaveBeenCalledOnce();
+		expect(error.value).toBe(failure);
+		expect(onError).toHaveBeenCalledWith(failure);
+		expect(isLoading.value).toBe(false);
+		expect(isReady.value).toBe(false);
+		expect(state.value).toBe("initial");
+	});
+
 	it("throws execution errors when requested", async () => {
 		const failure = new Error("failed");
 		const { execute } = useAsyncState(() => Promise.reject(failure), "", {
@@ -118,6 +140,28 @@ describe("useAsyncState", () => {
 		});
 
 		await expect(execute()).rejects.toThrow("failed");
+	});
+
+	it("rethrows synchronous source errors when requested", async () => {
+		const failure = new Error("failed");
+		const onError = vi.fn();
+		const { error, execute, isLoading } = useAsyncState(
+			(): Promise<string> => {
+				throw failure;
+			},
+			"",
+			{
+				immediate: false,
+				onError,
+				throwError: true,
+			},
+		);
+
+		await expect(execute()).rejects.toThrow("failed");
+
+		expect(error.value).toBe(failure);
+		expect(onError).toHaveBeenCalledWith(failure);
+		expect(isLoading.value).toBe(false);
 	});
 
 	it("reports errors with reportError by default", async () => {
@@ -317,5 +361,40 @@ describe("useAsyncState", () => {
 		await flushPromises();
 
 		expect(error.value).toBeUndefined();
+	});
+
+	it("does not let outdated synchronous errors finish the current execution", async () => {
+		vi.useFakeTimers();
+		const failure = new Error("first");
+		const second = createDeferred<string>();
+		const task = vi.fn((value: string) => {
+			if (value === "first") {
+				throw failure;
+			}
+
+			return second.promise;
+		});
+		const { error, execute, isLoading, state } = useAsyncState(task, "", {
+			immediate: false,
+		});
+
+		const firstExecution = execute(50, "first");
+		const secondExecution = execute(0, "second");
+		await flushPromises();
+
+		expect(isLoading.value).toBe(true);
+		expect(task).toHaveBeenCalledWith("second");
+
+		await vi.advanceTimersByTimeAsync(50);
+		await firstExecution;
+
+		expect(error.value).toBeUndefined();
+		expect(isLoading.value).toBe(true);
+
+		second.resolve("second");
+		await secondExecution;
+
+		expect(state.value).toBe("second");
+		expect(isLoading.value).toBe(false);
 	});
 });

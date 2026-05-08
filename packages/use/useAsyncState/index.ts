@@ -83,12 +83,11 @@ export function useAsyncState<Data, Params extends unknown[] = []>(
 			await promiseTimeout(executeDelay);
 		}
 
-		const promise =
-			typeof source === "function"
-				? (source as (...args: Params) => Promise<Data>)(...args)
-				: source;
-
 		try {
+			const promise =
+				typeof source === "function"
+					? (source as (...args: Params) => Promise<Data>)(...args)
+					: source;
 			const data = await promise;
 			if (executionId === executionsCount) {
 				current.value = data;
