@@ -32,6 +32,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.useClamp).toBe("function");
 		expect(typeof mod.useFloor).toBe("function");
 		expect(typeof mod.useMath).toBe("function");
+		expect(typeof mod.useMax).toBe("function");
 		expect(typeof mod.useCounter).toBe("function");
 		expect(typeof mod.onClickOutside).toBe("function");
 		expect(typeof mod.onElementRemoval).toBe("function");
@@ -1666,6 +1667,7 @@ describe("SSR safety", () => {
 			useClamp,
 			useFloor,
 			useMath,
+			useMax,
 			useDebouncedRefHistory,
 			useThrottledRefHistory,
 			useTimeAgo,
@@ -1707,6 +1709,7 @@ describe("SSR safety", () => {
 		const clampValue = useClamp(signal(10), 0, 5);
 		const floorValue = useFloor(signal(1.8));
 		const mathValue = useMath("pow", signal(2), 3);
+		const maxValue = useMax(signal(1), () => 3);
 		const autoResetValue = signalAutoReset("default", 100);
 		const defaultValue = signalDefault(signal<string | undefined>(), "default");
 		const debouncedValue = signalDebounced(signal("source"), 100);
@@ -1881,6 +1884,7 @@ describe("SSR safety", () => {
 		expect(clampValue.value).toBe(5);
 		expect(floorValue.value).toBe(1);
 		expect(mathValue.value).toBe(8);
+		expect(maxValue.value).toBe(3);
 		expect(autoResetValue.value).toBe("default");
 		expect(defaultValue.value).toBe("default");
 		expect(debouncedValue.value).toBe("source");

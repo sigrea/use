@@ -434,6 +434,7 @@ import type {
 	UseMathKeys,
 	UseMathMethod,
 	UseMathReturn,
+	UseMaxReturn,
 	UseMediaControlsDocumentLike,
 	UseMediaControlsOptions,
 	UseMediaControlsReturn,
@@ -918,6 +919,7 @@ import {
 	useMagicKeys,
 	useManualRefHistory,
 	useMath,
+	useMax,
 	useMediaControls,
 	useMediaQuery,
 	useMemoize,
@@ -5874,6 +5876,28 @@ describe("public types", () => {
 			useMath("sqrt", 4, 2);
 			// @ts-expect-error rest arguments are passed individually
 			useMath("max", [1, 2] as const);
+		});
+	});
+
+	it("types max values", () => {
+		typeOnly(() => {
+			const rest = useMax(signal(1), 2, () => 3);
+			const array = useMax([signal(1), 2, () => 3] as const);
+			const signalArray = useMax(signal([1, 2, 3] as const));
+			const maxReturn: UseMaxReturn = rest;
+
+			expectTypeOf(rest).toEqualTypeOf<UseMaxReturn>();
+			expectTypeOf(array).toEqualTypeOf<UseMaxReturn>();
+			expectTypeOf(signalArray.value).toEqualTypeOf<number>();
+			expectTypeOf(maxReturn.value).toEqualTypeOf<number>();
+			// @ts-expect-error max result is readonly
+			rest.value = 1;
+			// @ts-expect-error value must resolve to a number
+			useMax("1");
+			// @ts-expect-error array entries must resolve to numbers
+			useMax([1, "2"] as const);
+			// @ts-expect-error array form does not mix with rest arguments
+			useMax([1, 2] as const, 3);
 		});
 	});
 
