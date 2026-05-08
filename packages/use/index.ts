@@ -117,6 +117,7 @@ export { useLocalStorage } from "./useLocalStorage";
 export { useManualRefHistory } from "./useManualRefHistory";
 export { useMath } from "./useMath";
 export { useMax } from "./useMax";
+export { useMin } from "./useMin";
 export { useMediaQuery } from "./useMediaQuery";
 export { useMemoize } from "./useMemoize";
 export { useMemory } from "./useMemory";
@@ -728,6 +729,7 @@ export type {
 	UseMathMethod,
 	UseMathReturn,
 	UseMaxReturn,
+	UseMinReturn,
 	UseMediaControlsDocumentLike,
 	UseMediaControlsOptions,
 	UseMediaControlsReturn,
