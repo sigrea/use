@@ -82,7 +82,20 @@ describe("usePreferredColorScheme", () => {
 		colorScheme.stop();
 	});
 
-	it("falls back to light when dark does not match", () => {
+	it("uses light when the light query matches", () => {
+		const fakeWindow = new FakeWindow();
+		fakeWindow.setQuery("(prefers-color-scheme: dark)", false);
+		fakeWindow.setQuery("(prefers-color-scheme: light)", true);
+		const colorScheme = usePreferredColorScheme({
+			window: fakeWindow,
+		});
+
+		expect(colorScheme.value).toBe("light");
+
+		colorScheme.stop();
+	});
+
+	it("returns no-preference when neither color query matches", () => {
 		const fakeWindow = new FakeWindow();
 		fakeWindow.setQuery("(prefers-color-scheme: dark)", false);
 		fakeWindow.setQuery("(prefers-color-scheme: light)", false);
@@ -90,7 +103,7 @@ describe("usePreferredColorScheme", () => {
 			window: fakeWindow,
 		});
 
-		expect(colorScheme.value).toBe("light");
+		expect(colorScheme.value).toBe("no-preference");
 
 		colorScheme.stop();
 	});
@@ -110,6 +123,9 @@ describe("usePreferredColorScheme", () => {
 		expect(colorScheme.value).toBe("dark");
 
 		fakeWindow.dispatchQuery("(prefers-color-scheme: dark)", false);
+		fakeWindow.dispatchQuery("(prefers-color-scheme: light)", false);
+		expect(colorScheme.value).toBe("no-preference");
+
 		fakeWindow.dispatchQuery("(prefers-color-scheme: light)", true);
 		expect(colorScheme.value).toBe("light");
 
@@ -131,12 +147,12 @@ describe("usePreferredColorScheme", () => {
 		expect(colorScheme.value).toBe("light");
 	});
 
-	it("uses light when window is null", () => {
+	it("uses no-preference when window is null", () => {
 		const colorScheme = usePreferredColorScheme({
 			window: null,
 		});
 
-		expect(colorScheme.value).toBe("light");
+		expect(colorScheme.value).toBe("no-preference");
 
 		colorScheme.stop();
 	});

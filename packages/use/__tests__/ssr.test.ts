@@ -414,7 +414,7 @@ describe("SSR safety", () => {
 		expect(pointerSwipe.direction.value).toBe("none");
 		expect(pointerSwipe.posStart.value).toEqual({ x: 0, y: 0 });
 		expect(pointerSwipe.posEnd.value).toEqual({ x: 0, y: 0 });
-		expect(preferredColorScheme.value).toBe("light");
+		expect(preferredColorScheme.value).toBe("no-preference");
 		expect(preferredDark.matches.value).toBe(false);
 		expect(cssSupports.value).toBe(false);
 		expect(initialCssSupports.value).toBe(true);

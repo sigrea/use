@@ -993,7 +993,7 @@ export interface UseClipboardItemsReturn<Optional extends boolean = false> {
 
 export type BasicColorMode = "light" | "dark";
 
-export type UsePreferredColorScheme = "light" | "dark";
+export type UsePreferredColorScheme = "light" | "dark" | "no-preference";
 
 export type UsePreferredColorSchemeReturn =
 	Computed<UsePreferredColorScheme> & {

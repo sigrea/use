@@ -27,5 +27,5 @@ const colorScheme = usePreferredColorScheme({
 ```
 
 `usePreferredColorScheme` watches `(prefers-color-scheme: dark)` and
-`(prefers-color-scheme: light)`. If the dark query does not match, it returns
-`"light"`.
+`(prefers-color-scheme: light)`. If neither query matches, it returns
+`"no-preference"`.

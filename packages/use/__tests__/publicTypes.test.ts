@@ -4977,6 +4977,9 @@ describe("public types", () => {
 		expectTypeOf(
 			preferredColorScheme.value,
 		).toEqualTypeOf<UsePreferredColorScheme>();
+		expectTypeOf<UsePreferredColorScheme>().toEqualTypeOf<
+			"light" | "dark" | "no-preference"
+		>();
 		expectTypeOf(preferredColorScheme.stop).toEqualTypeOf<() => void>();
 		expectTypeOf(preferredDark.matches.value).toEqualTypeOf<boolean>();
 		expectTypeOf(colorMode).toEqualTypeOf<UseColorModeReturn<"sepia">>();

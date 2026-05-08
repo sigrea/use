@@ -21,9 +21,11 @@ export function usePreferredColorScheme<
 		if (preferredDark.matches.value) {
 			return "dark";
 		}
+		if (preferredLight.matches.value) {
+			return "light";
+		}
 
-		// In current specs, light also covers no active user preference.
-		return "light";
+		return "no-preference";
 	});
 
 	Object.defineProperty(colorScheme, "stop", {
