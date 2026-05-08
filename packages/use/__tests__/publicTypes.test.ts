@@ -523,6 +523,9 @@ import type {
 	UsePointerSwipePointerType,
 	UsePointerSwipeReturn,
 	UsePointerType,
+	UsePrecisionMath,
+	UsePrecisionOptions,
+	UsePrecisionReturn,
 	UsePreferredColorScheme,
 	UsePreferredColorSchemeReturn,
 	UsePreferredContrast,
@@ -944,6 +947,7 @@ import {
 	usePointer,
 	usePointerLock,
 	usePointerSwipe,
+	usePrecision,
 	usePreferredColorScheme,
 	usePreferredContrast,
 	usePreferredDark,
@@ -5922,6 +5926,35 @@ describe("public types", () => {
 			useMin([1, "2"] as const);
 			// @ts-expect-error array form does not mix with rest arguments
 			useMin([1, 2] as const, 3);
+		});
+	});
+
+	it("types precision values", () => {
+		typeOnly(() => {
+			const math: UsePrecisionMath = "ceil";
+			const options: UsePrecisionOptions = { math: "ceil" };
+			const result = usePrecision(signal(12.3456), signal(2));
+			const withOptions = usePrecision(
+				() => 12.3456,
+				() => 2,
+				signal(options),
+			);
+			const precisionReturn: UsePrecisionReturn = result;
+
+			expectTypeOf(result).toEqualTypeOf<UsePrecisionReturn>();
+			expectTypeOf(math).toMatchTypeOf<UsePrecisionMath>();
+			expectTypeOf(withOptions.value).toEqualTypeOf<number>();
+			expectTypeOf(precisionReturn.value).toEqualTypeOf<number>();
+			// @ts-expect-error precision result is readonly
+			result.value = 1;
+			// @ts-expect-error value must resolve to a number
+			usePrecision("1", 2);
+			// @ts-expect-error digits must resolve to a number
+			usePrecision(1, "2");
+			// @ts-expect-error options must resolve to UsePrecisionOptions
+			usePrecision(1, 2, "round");
+			// @ts-expect-error math must be floor, ceil, or round
+			usePrecision(1, 2, { math: "trunc" });
 		});
 	});
 
