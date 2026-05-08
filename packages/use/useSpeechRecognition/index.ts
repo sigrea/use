@@ -240,6 +240,7 @@ export function useSpeechRecognition<
 		configureRecognition(currentRecognition);
 		isListening.value = true;
 		isFinal.value = false;
+		result.value = "";
 		error.value = null;
 
 		try {

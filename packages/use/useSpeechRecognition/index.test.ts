@@ -278,6 +278,50 @@ describe("useSpeechRecognition", () => {
 		expect(speech.error.value).toBeNull();
 	});
 
+	it("clears the previous transcript when a new session starts", () => {
+		const speech = useSpeechRecognition({ window: createWindow() });
+		const recognition = latestRecognition();
+
+		speech.start();
+		recognition.dispatchEvent(
+			new FakeSpeechRecognitionEvent(
+				0,
+				createResultList(createResult("previous", true)),
+			),
+		);
+		recognition.dispatchEvent(new Event("end"));
+
+		expect(speech.result.value).toBe("previous");
+		expect(speech.isFinal.value).toBe(true);
+		expect(speech.isListening.value).toBe(false);
+
+		speech.start();
+
+		expect(speech.result.value).toBe("");
+		expect(speech.isFinal.value).toBe(false);
+		expect(speech.error.value).toBeNull();
+	});
+
+	it("keeps the new session transcript empty when no speech is recognized", () => {
+		const speech = useSpeechRecognition({ window: createWindow() });
+		const recognition = latestRecognition();
+
+		recognition.dispatchEvent(
+			new FakeSpeechRecognitionEvent(
+				0,
+				createResultList(createResult("previous", true)),
+			),
+		);
+		recognition.dispatchEvent(new Event("end"));
+
+		speech.start();
+		recognition.dispatchEvent(new Event("end"));
+
+		expect(speech.result.value).toBe("");
+		expect(speech.isFinal.value).toBe(false);
+		expect(speech.isListening.value).toBe(false);
+	});
+
 	it("keeps previous final transcripts when resultIndex points to a later result", () => {
 		const speech = useSpeechRecognition({ window: createWindow() });
 		const recognition = latestRecognition();
@@ -353,6 +397,28 @@ describe("useSpeechRecognition", () => {
 		FakeSpeechRecognition.startError = error;
 		speech.start();
 
+		expect(speech.error.value).toBe(error);
+		expect(speech.isListening.value).toBe(false);
+	});
+
+	it("clears the previous transcript when starting fails", () => {
+		const speech = useSpeechRecognition({ window: createWindow() });
+		const recognition = latestRecognition();
+
+		recognition.dispatchEvent(
+			new FakeSpeechRecognitionEvent(
+				0,
+				createResultList(createResult("previous", true)),
+			),
+		);
+		recognition.dispatchEvent(new Event("end"));
+
+		const error = new DOMException("already started", "InvalidStateError");
+		FakeSpeechRecognition.startError = error;
+		speech.start();
+
+		expect(speech.result.value).toBe("");
+		expect(speech.isFinal.value).toBe(false);
 		expect(speech.error.value).toBe(error);
 		expect(speech.isListening.value).toBe(false);
 	});
