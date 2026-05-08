@@ -79,6 +79,16 @@ function setScrollHeight(textarea: HTMLTextAreaElement, value: number): void {
 	});
 }
 
+function setScrollHeightGetter(
+	textarea: HTMLTextAreaElement,
+	get: () => number,
+): void {
+	Object.defineProperty(textarea, "scrollHeight", {
+		configurable: true,
+		get,
+	});
+}
+
 describe("useTextareaAutosize", () => {
 	afterEach(() => {
 		FakeResizeObserver.instances = [];
@@ -176,6 +186,23 @@ describe("useTextareaAutosize", () => {
 		result.input.value = "Hello World";
 		await nextTick();
 
+		expect(textarea.value).toBe("Hello World");
+		expect(textarea.style.height).toBe("140px");
+		result.stop();
+	});
+
+	it("syncs input into the textarea before measuring", async () => {
+		const textarea = document.createElement("textarea");
+		setScrollHeightGetter(textarea, () =>
+			textarea.value.length > "Hello".length ? 140 : 80,
+		);
+		const result = useTextareaAutosize();
+
+		result.textarea.value = textarea;
+		result.input.value = "Hello World";
+		await nextTick();
+
+		expect(textarea.value).toBe("Hello World");
 		expect(textarea.style.height).toBe("140px");
 		result.stop();
 	});
@@ -201,6 +228,14 @@ describe("useTextareaAutosize", () => {
 
 		expect(result.input.value).toBe("new");
 		expect(second.style.height).toBe("90px");
+
+		setScrollHeight(first, 120);
+		first.value = "stale";
+		target.value = first;
+		await nextTick();
+
+		expect(first.value).toBe("new");
+		expect(first.style.height).toBe("120px");
 		result.stop();
 	});
 

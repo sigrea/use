@@ -152,6 +152,10 @@ export function useTextareaAutosize<
 			return;
 		}
 
+		if (target.value !== input.value) {
+			target.value = input.value;
+		}
+
 		let height = "";
 		target.style[styleProp] = "1px";
 		const nextScrollHeight = target.scrollHeight;
