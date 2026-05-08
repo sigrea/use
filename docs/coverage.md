@@ -242,7 +242,7 @@ Status values:
 | `math/useAverage` | `useAverage` | Done |
 | `math/useCeil` | `useCeil` | Done |
 | `math/useClamp` | `useClamp` | Done |
-| `math/useFloor` | `-` | Todo |
+| `math/useFloor` | `useFloor` | Done |
 | `math/useMath` | `-` | Todo |
 | `math/useMax` | `-` | Todo |
 | `math/useMin` | `-` | Todo |
