@@ -39,19 +39,22 @@ export function usePageLeave<TWindow extends WindowLike = WindowLike>(
 				return;
 			}
 
-			const handler = (event: Event) => {
+			const leave = (event: Event) => {
 				isLeft.value = relatedTarget(event as MouseEvent) === null;
 			};
+			const enter = () => {
+				isLeft.value = false;
+			};
 			const cleanups = [
-				listen(windowValue, "mouseout", handler, { passive: true }),
+				listen(windowValue, "mouseout", leave, { passive: true }),
 			];
 
 			if (windowValue.document) {
 				cleanups.push(
-					listen(windowValue.document, "mouseleave", handler, {
+					listen(windowValue.document, "mouseleave", leave, {
 						passive: true,
 					}),
-					listen(windowValue.document, "mouseenter", handler, {
+					listen(windowValue.document, "mouseenter", enter, {
 						passive: true,
 					}),
 				);

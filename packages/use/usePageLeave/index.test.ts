@@ -64,7 +64,7 @@ describe("usePageLeave", () => {
 		dispatchMouse(fakeWindow, "mouseout");
 		expect(pageLeave.isLeft.value).toBe(true);
 
-		dispatchMouse(fakeWindow.document, "mouseenter", fakeWindow);
+		dispatchMouse(fakeWindow.document, "mouseenter");
 		expect(pageLeave.isLeft.value).toBe(false);
 
 		dispatchMouse(fakeWindow.document, "mouseleave");
