@@ -236,7 +236,7 @@ Status values:
 | `math/createGenericProjection` | `createGenericProjection` | Done |
 | `math/createProjection` | `createProjection` | Done |
 | `math/logicAnd` | `logicAnd` | Done |
-| `math/logicNot` | `-` | Todo |
+| `math/logicNot` | `logicNot` | Done |
 | `math/logicOr` | `-` | Todo |
 | `math/useAbs` | `-` | Todo |
 | `math/useAverage` | `-` | Todo |
