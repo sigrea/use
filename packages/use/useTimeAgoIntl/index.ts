@@ -22,6 +22,7 @@ const DEFAULT_TIME_AGO_INTL_UNITS: UseTimeAgoIntlUnit[] = [
 ];
 
 interface TimeAgoIntlResult {
+	isValid: boolean;
 	parts: Intl.RelativeTimeFormatPart[];
 	resolvedLocale: Intl.LocalesArgument;
 }
@@ -42,19 +43,34 @@ function getTimeAgoIntlResult(
 	options: UseTimeAgoIntlFormatOptions = {},
 	now: Date | number = Date.now(),
 ): TimeAgoIntlResult {
-	const { relativeTimeFormatOptions = { numeric: "auto" } } = options;
+	const relativeTimeFormatOptions: Intl.RelativeTimeFormatOptions = {
+		...options.relativeTimeFormatOptions,
+		numeric: options.relativeTimeFormatOptions?.numeric ?? "auto",
+	};
 	const rtf = new Intl.RelativeTimeFormat(
 		resolveValue(options.locale),
 		relativeTimeFormatOptions,
 	);
 	const { locale: resolvedLocale } = rtf.resolvedOptions();
-	const diff = +from - +now;
+	const fromTime = from.getTime();
+	const nowTime = typeof now === "number" ? now : now.getTime();
+
+	if (!Number.isFinite(fromTime) || !Number.isFinite(nowTime)) {
+		return {
+			isValid: false,
+			parts: [],
+			resolvedLocale,
+		};
+	}
+
+	const diff = fromTime - nowTime;
 	const absDiff = Math.abs(diff);
 	const units = options.units ?? DEFAULT_TIME_AGO_INTL_UNITS;
 
 	for (const { name, ms } of units) {
 		if (absDiff >= ms) {
 			return {
+				isValid: true,
 				parts: rtf.formatToParts(Math.round(diff / ms), name),
 				resolvedLocale,
 			};
@@ -62,6 +78,7 @@ function getTimeAgoIntlResult(
 	}
 
 	return {
+		isValid: true,
 		parts: rtf.formatToParts(0, units[units.length - 1].name),
 		resolvedLocale,
 	};
@@ -90,7 +107,15 @@ export function formatTimeAgoIntl(
 	options: UseTimeAgoIntlFormatOptions = {},
 	now: Date | number = Date.now(),
 ): string {
-	const { parts, resolvedLocale } = getTimeAgoIntlResult(from, options, now);
+	const { isValid, parts, resolvedLocale } = getTimeAgoIntlResult(
+		from,
+		options,
+		now,
+	);
+
+	if (!isValid) {
+		return "";
+	}
 
 	return formatTimeAgoIntlParts(parts, {
 		...options,
@@ -122,10 +147,12 @@ export function useTimeAgoIntl(
 	const parts = readonly(computed(() => result.value.parts));
 	const timeAgoIntl = readonly(
 		computed(() =>
-			formatTimeAgoIntlParts(parts.value, {
-				...options,
-				locale: result.value.resolvedLocale,
-			}),
+			result.value.isValid
+				? formatTimeAgoIntlParts(parts.value, {
+						...options,
+						locale: result.value.resolvedLocale,
+					})
+				: "",
 		),
 	);
 

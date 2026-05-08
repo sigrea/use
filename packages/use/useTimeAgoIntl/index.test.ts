@@ -117,6 +117,44 @@ describe("formatTimeAgoIntl", () => {
 			),
 		).toBe("en-US");
 	});
+
+	it("keeps numeric auto when merging Intl options", () => {
+		const now = new Date("2026-05-07T00:00:00.000Z");
+
+		expect(
+			formatTimeAgoIntl(
+				now,
+				{
+					locale: "en",
+					relativeTimeFormatOptions: { style: "short" },
+				},
+				now,
+			),
+		).toBe("now");
+		expect(
+			formatTimeAgoIntl(
+				now,
+				{
+					locale: "en",
+					relativeTimeFormatOptions: { numeric: "always", style: "short" },
+				},
+				now,
+			),
+		).toBe("in 0 sec.");
+	});
+
+	it("returns an empty string for invalid dates", () => {
+		const now = new Date("2026-05-07T00:00:00.000Z");
+		const joinParts = vi.fn(() => "invalid");
+
+		expect(
+			formatTimeAgoIntl(new Date("invalid"), { joinParts, locale: "en" }, now),
+		).toBe("");
+		expect(formatTimeAgoIntl(now, { locale: "en" }, new Date("invalid"))).toBe(
+			"",
+		);
+		expect(joinParts).not.toHaveBeenCalled();
+	});
 });
 
 describe("useTimeAgoIntl", () => {
@@ -153,6 +191,20 @@ describe("useTimeAgoIntl", () => {
 		});
 
 		expect(timeAgoIntl.value).toBe("now");
+	});
+
+	it("returns empty Intl parts for invalid string inputs", () => {
+		const joinParts = vi.fn(() => "invalid");
+		const { parts, timeAgoIntl } = useTimeAgoIntl("invalid date", {
+			controls: true,
+			joinParts,
+			locale: "en",
+			updateInterval: 0,
+		});
+
+		expect(timeAgoIntl.value).toBe("");
+		expect(parts.value).toEqual([]);
+		expect(joinParts).not.toHaveBeenCalled();
 	});
 
 	it("exposes controls and raw Intl parts", () => {
