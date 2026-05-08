@@ -291,6 +291,123 @@ describe("useElementByPoint", () => {
 		point.stop();
 	});
 
+	it("starts requestAnimationFrame polling when a document target resolves later", () => {
+		const target = document.createElement("div");
+		const documentTarget = signal<UseElementByPointDocumentLike | undefined>(
+			undefined,
+		);
+		const pointDocument = new FakePointDocument();
+		const pointWindow = new FakeFrameWindow(pointDocument);
+		pointDocument.defaultView = pointWindow;
+		pointDocument.element = target;
+		const point = useElementByPoint({
+			document: documentTarget,
+			x: 1,
+			y: 2,
+		});
+
+		expect(point.isActive.value).toBe(true);
+		expect(point.isSupported.value).toBe(false);
+		expect(point.element.value).toBeNull();
+		expect(pointWindow.pendingFrameCount).toBe(0);
+
+		documentTarget.value = pointDocument;
+
+		expect(point.isActive.value).toBe(true);
+		expect(pointWindow.pendingFrameCount).toBe(1);
+
+		pointWindow.flushFrame();
+
+		expect(point.isSupported.value).toBe(true);
+		expect(point.element.value).toBe(target);
+		expect(pointWindow.pendingFrameCount).toBe(1);
+
+		point.stop();
+	});
+
+	it("starts requestAnimationFrame polling when a window target resolves later", () => {
+		const target = document.createElement("div");
+		const pointDocument = new FakePointDocument();
+		const windowTarget = signal<UseElementByPointWindowLike | undefined>(
+			undefined,
+		);
+		const pointWindow = new FakeFrameWindow(pointDocument);
+		pointDocument.element = target;
+		const point = useElementByPoint({
+			window: windowTarget,
+			x: 1,
+			y: 2,
+		});
+
+		expect(point.isActive.value).toBe(true);
+		expect(point.isSupported.value).toBe(false);
+		expect(pointWindow.pendingFrameCount).toBe(0);
+
+		windowTarget.value = pointWindow;
+
+		expect(point.isActive.value).toBe(true);
+		expect(pointWindow.pendingFrameCount).toBe(1);
+
+		pointWindow.flushFrame();
+
+		expect(point.isSupported.value).toBe(true);
+		expect(point.element.value).toBe(target);
+		expect(pointWindow.pendingFrameCount).toBe(1);
+
+		point.stop();
+	});
+
+	it("stops requestAnimationFrame polling without a global scheduler", () => {
+		const originalRequestAnimationFrame = Object.getOwnPropertyDescriptor(
+			globalThis,
+			"requestAnimationFrame",
+		);
+		const originalCancelAnimationFrame = Object.getOwnPropertyDescriptor(
+			globalThis,
+			"cancelAnimationFrame",
+		);
+		Object.defineProperty(globalThis, "requestAnimationFrame", {
+			configurable: true,
+			value: undefined,
+			writable: true,
+		});
+		Object.defineProperty(globalThis, "cancelAnimationFrame", {
+			configurable: true,
+			value: undefined,
+			writable: true,
+		});
+
+		try {
+			const point = useElementByPoint({
+				x: 1,
+				y: 2,
+			});
+
+			expect(point.isActive.value).toBe(false);
+			point.stop();
+		} finally {
+			if (originalRequestAnimationFrame === undefined) {
+				Reflect.deleteProperty(globalThis, "requestAnimationFrame");
+			} else {
+				Object.defineProperty(
+					globalThis,
+					"requestAnimationFrame",
+					originalRequestAnimationFrame,
+				);
+			}
+
+			if (originalCancelAnimationFrame === undefined) {
+				Reflect.deleteProperty(globalThis, "cancelAnimationFrame");
+			} else {
+				Object.defineProperty(
+					globalThis,
+					"cancelAnimationFrame",
+					originalCancelAnimationFrame,
+				);
+			}
+		}
+	});
+
 	it("can poll with an interval", () => {
 		vi.useFakeTimers();
 		const target = document.createElement("div");

@@ -1,4 +1,4 @@
-import { readonly, signal } from "@sigrea/core";
+import { readonly, signal, watch } from "@sigrea/core";
 import {
 	defaultDocument,
 	defaultWindow,
@@ -81,6 +81,7 @@ function createRafScheduler(
 	const active = signal(false);
 	let frameHandle: number | undefined;
 	let frameWindow: UseElementByPointWindowLike | undefined;
+	let stopWatchingWindow: (() => void) | undefined;
 
 	const clearFrame = () => {
 		if (frameHandle === undefined) {
@@ -98,6 +99,11 @@ function createRafScheduler(
 		frameWindow = undefined;
 	};
 
+	const stopWatching = () => {
+		stopWatchingWindow?.();
+		stopWatchingWindow = undefined;
+	};
+
 	const scheduleFrame = () => {
 		if (!active.value || frameHandle !== undefined) {
 			return;
@@ -110,7 +116,10 @@ function createRafScheduler(
 		);
 		if (typeof requestFrame !== "function") {
 			callback();
-			active.value = false;
+			if (allowGlobalFallback) {
+				active.value = false;
+				stopWatching();
+			}
 			return;
 		}
 
@@ -128,8 +137,28 @@ function createRafScheduler(
 		});
 	};
 
+	const startWatchingWindow = () => {
+		if (stopWatchingWindow !== undefined) {
+			return;
+		}
+
+		stopWatchingWindow = watch(
+			getWindow,
+			() => {
+				if (!active.value) {
+					return;
+				}
+
+				clearFrame();
+				scheduleFrame();
+			},
+			{ flush: "sync" },
+		);
+	};
+
 	const pause = () => {
 		active.value = false;
+		stopWatching();
 		clearFrame();
 	};
 
@@ -139,6 +168,7 @@ function createRafScheduler(
 		}
 
 		active.value = true;
+		startWatchingWindow();
 		scheduleFrame();
 	};
 
