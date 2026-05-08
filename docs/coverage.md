@@ -248,6 +248,6 @@ Status values:
 | `math/useMin` | `useMin` | Done |
 | `math/usePrecision` | `usePrecision` | Done |
 | `math/useProjection` | `useProjection` | Done |
-| `math/useRound` | `-` | Todo |
+| `math/useRound` | `useRound` | Done |
 | `math/useSum` | `-` | Todo |
 | `math/useTrunc` | `-` | Todo |
