@@ -1,6 +1,6 @@
 import { readonly, signal } from "@sigrea/core";
 
-import { defaultDocument } from "../../shared";
+import { defaultDocument, resolveTarget } from "../../shared";
 import { tryOnScopeDispose } from "../tryOnScopeDispose";
 import type {
 	MaybeTarget,
@@ -39,10 +39,21 @@ export function useKeyModifier<
 			state.value = event.getModifierState(modifier);
 		}
 	};
+	const reset = () => {
+		state.value = false;
+	};
 	const subscription = useEventListener(
 		documentTarget as MaybeTarget<TDocument | null | undefined>,
 		events,
 		listener,
+		{ passive: true },
+	);
+	const resetSubscription = useEventListener(
+		() =>
+			resolveTarget(documentTarget as MaybeTarget<TDocument | null | undefined>)
+				?.defaultView,
+		"blur",
+		reset,
 		{ passive: true },
 	);
 	const returned = readonly(state);
@@ -54,6 +65,7 @@ export function useKeyModifier<
 
 		stopped = true;
 		subscription.stop();
+		resetSubscription.stop();
 	};
 
 	tryOnScopeDispose(stop);
