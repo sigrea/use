@@ -100,6 +100,24 @@ describe("useIdle", () => {
 		expect(idle.idle.value).toBe(true);
 	});
 
+	it("updates lastActive when reset is called directly", () => {
+		const window = new FakeWindow();
+		const idle = useIdle(1000, { window });
+
+		vi.advanceTimersByTime(1000);
+		expect(idle.idle.value).toBe(true);
+		expect(idle.lastActive.value).toBe(1000);
+
+		vi.setSystemTime(3000);
+		idle.reset();
+
+		expect(idle.idle.value).toBe(false);
+		expect(idle.lastActive.value).toBe(3000);
+
+		vi.advanceTimersByTime(1000);
+		expect(idle.idle.value).toBe(true);
+	});
+
 	it("accepts custom activity events", () => {
 		const window = new FakeWindow();
 		const idle = useIdle(1000, {
@@ -160,6 +178,18 @@ describe("useIdle", () => {
 		expect(idle.idle.value).toBe(true);
 	});
 
+	it("keeps lastActive when tracking starts without activity", () => {
+		const window = new FakeWindow();
+		const idle = useIdle(1000, { window });
+
+		idle.stop();
+		vi.setSystemTime(3000);
+		idle.start();
+
+		expect(idle.isPending.value).toBe(true);
+		expect(idle.lastActive.value).toBe(1000);
+	});
+
 	it("respects initial idle state", () => {
 		const window = new FakeWindow();
 		const idle = useIdle(1000, { initialState: true, window });
@@ -188,6 +218,7 @@ describe("useIdle", () => {
 
 		expect(first.listenerCount("mousemove")).toBe(0);
 		expect(second.listenerCount("mousemove")).toBe(1);
+		expect(idle.lastActive.value).toBe(1000);
 
 		vi.advanceTimersByTime(1000);
 		expect(idle.idle.value).toBe(true);

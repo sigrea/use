@@ -79,16 +79,19 @@ export function useIdle<TWindow extends UseIdleWindowLike = UseIdleWindowLike>(
 			}
 		}, normalizeTimeout(timeout));
 	};
-	const reset = () => {
+	const resetIdleTimer = () => {
 		idle.value = false;
 		scheduleIdle();
+	};
+	const reset = () => {
+		lastActive.value = currentTimestamp();
+		resetIdleTimer();
 	};
 	const handleActivity = () => {
 		if (!pending.value) {
 			return;
 		}
 
-		lastActive.value = currentTimestamp();
 		reset();
 	};
 	const bindListeners = (window: UseIdleWindowLike) => {
@@ -122,7 +125,7 @@ export function useIdle<TWindow extends UseIdleWindowLike = UseIdleWindowLike>(
 		pending.value = true;
 		bindListeners(window);
 		if (shouldSchedule) {
-			reset();
+			resetIdleTimer();
 		}
 	};
 	const start = () => {
