@@ -5614,7 +5614,15 @@ describe("public types", () => {
 				windowResize: false,
 				windowScroll: false,
 			};
+			const extractorOptions: UseMouseInElementOptions<MouseInElementWindow> = {
+				type: (event) => [event.pageX, event.pageY],
+				window: signal(mouseWindow),
+			};
 			const state = useMouseInElement(target, options);
+			const customExtractorState = useMouseInElement(
+				document.createElement("div"),
+				extractorOptions,
+			);
 			const stateReturn: UseMouseInElementReturn = state;
 
 			expectTypeOf(state).toEqualTypeOf<UseMouseInElementReturn>();
@@ -5631,10 +5639,17 @@ describe("public types", () => {
 			expectTypeOf(state.elementWidth).toEqualTypeOf<ReadonlySignal<number>>();
 			expectTypeOf(state.elementHeight).toEqualTypeOf<ReadonlySignal<number>>();
 			expectTypeOf(state.isOutside).toEqualTypeOf<ReadonlySignal<boolean>>();
+			expectTypeOf(
+				customExtractorState,
+			).toEqualTypeOf<UseMouseInElementReturn>();
 			expectTypeOf(state.stop()).toEqualTypeOf<void>();
 			typeOnly(() => {
 				// @ts-expect-error returned values are readonly signals
 				state.elementX.value = 1;
+				useMouseInElement(document.createElement("div"), {
+					// @ts-expect-error movement deltas cannot be used for element-relative coordinates
+					type: "movement",
+				});
 				useMouseInElement(document.createElement("div"), {
 					// @ts-expect-error handleOutside must be boolean
 					handleOutside: "false",

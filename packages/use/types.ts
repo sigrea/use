@@ -3035,7 +3035,8 @@ export interface UseMouseInElementWindowLike extends MouseWindowLike {
 export interface UseMouseInElementOptions<
 	TWindow extends UseMouseInElementWindowLike = UseMouseInElementWindowLike,
 	TMouseTarget extends EventTarget = EventTarget,
-> extends UseMouseOptions<TWindow, TMouseTarget> {
+> extends Omit<UseMouseOptions<TWindow, TMouseTarget>, "type"> {
+	type?: Exclude<UseMouseCoordType, "movement"> | UseMouseEventExtractor;
 	/**
 	 * Keep updating relative coordinates while the pointer is outside the element.
 	 *

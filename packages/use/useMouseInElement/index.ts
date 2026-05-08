@@ -82,7 +82,10 @@ export function useMouseInElement<
 		: options.window;
 	const mouseTarget =
 		options.target === undefined ? windowTarget : options.target;
-	const mouse = useMouse<TWindow, TMouseTarget>(options);
+	const mouse = useMouse<TWindow, TMouseTarget>({
+		...options,
+		type: coordinateType,
+	});
 	const elementX = signal(0);
 	const elementY = signal(0);
 	const elementPositionX = signal(0);
@@ -250,7 +253,7 @@ export function useMouseInElement<
 		{ passive: true },
 	);
 	const touchMovement =
-		(options.touch ?? true) && coordinateType !== "movement"
+		(options.touch ?? true)
 			? useEventListener(
 					mouseTarget as MaybeTarget<EventTarget>,
 					["touchstart", "touchmove"],
