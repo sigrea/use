@@ -778,7 +778,7 @@ export interface UseBroadcastChannelReturn<Data = unknown, Payload = Data> {
 	readonly isClosed: ReadonlySignal<boolean>;
 	readonly channel: ReadonlySignal<BroadcastChannelLike | undefined>;
 	readonly data: ReadonlySignal<Data | undefined>;
-	readonly error: ReadonlySignal<Event | null>;
+	readonly error: ReadonlySignal<unknown | null>;
 	postMessage(data: Payload): void;
 	close(): void;
 	stop(): void;

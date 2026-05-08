@@ -89,6 +89,85 @@ describe("useBroadcastChannel", () => {
 		result.stop();
 	});
 
+	it("stores construction errors without throwing", () => {
+		FakeBroadcastChannel.instances = [];
+		const constructionError = new DOMException(
+			"Cannot create BroadcastChannel in this origin",
+			"SecurityError",
+		);
+		const ThrowingBroadcastChannel = class {
+			constructor() {
+				throw constructionError;
+			}
+		};
+		const windowTarget = signal<BroadcastChannelWindowLike>({
+			BroadcastChannel: ThrowingBroadcastChannel,
+		} as unknown as BroadcastChannelWindowLike);
+		const result = useBroadcastChannel({
+			name: "sigrea",
+			window: windowTarget,
+		});
+
+		expect(result.isSupported.value).toBe(false);
+		expect(result.isClosed.value).toBe(true);
+		expect(result.channel.value).toBeUndefined();
+		expect(result.error.value).toBe(constructionError);
+
+		windowTarget.value = createWindow();
+
+		expect(result.isSupported.value).toBe(true);
+		expect(result.isClosed.value).toBe(false);
+		expect(result.channel.value).toBeInstanceOf(FakeBroadcastChannel);
+		expect(result.error.value).toBeNull();
+		result.stop();
+	});
+
+	it("closes the current channel when reopening fails", () => {
+		FakeBroadcastChannel.instances = [];
+		const constructionError = new DOMException(
+			"Cannot create BroadcastChannel in this origin",
+			"SecurityError",
+		);
+		class ConditionalBroadcastChannel extends FakeBroadcastChannel {
+			constructor(name: string) {
+				if (name === "second") {
+					throw constructionError;
+				}
+
+				super(name);
+			}
+		}
+		const name = signal("first");
+		const result = useBroadcastChannel<string, string>({
+			name,
+			window: {
+				BroadcastChannel: ConditionalBroadcastChannel,
+			} as unknown as BroadcastChannelWindowLike,
+		});
+		const first = result.channel.value as FakeBroadcastChannel;
+
+		name.value = "second";
+
+		expect(first.closed).toBe(true);
+		expect(result.isSupported.value).toBe(false);
+		expect(result.isClosed.value).toBe(true);
+		expect(result.channel.value).toBeUndefined();
+		expect(result.error.value).toBe(constructionError);
+
+		first.dispatchMessage("old");
+		expect(result.data.value).toBeUndefined();
+
+		name.value = "third";
+		const third = result.channel.value as FakeBroadcastChannel;
+
+		expect(result.isSupported.value).toBe(true);
+		expect(result.isClosed.value).toBe(false);
+		expect(result.error.value).toBeNull();
+		expect(third.name).toBe("third");
+		expect(FakeBroadcastChannel.instances).toHaveLength(2);
+		result.stop();
+	});
+
 	it("closes the current channel", () => {
 		const result = useBroadcastChannel({
 			name: "sigrea",

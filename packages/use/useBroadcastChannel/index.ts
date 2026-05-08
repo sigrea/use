@@ -36,7 +36,7 @@ export function useBroadcastChannel<Data = unknown, Payload = Data>(
 	const isClosed = signal(true);
 	const channel = signal<BroadcastChannelLike | undefined>(undefined);
 	const data = signal<Data | undefined>(undefined);
-	const error = signal<Event | null>(null);
+	const error = signal<unknown | null>(null);
 	let eventCleanups: Array<() => void> = [];
 	let manuallyClosed = false;
 
@@ -71,7 +71,14 @@ export function useBroadcastChannel<Data = unknown, Payload = Data>(
 			return;
 		}
 
-		const nextChannel = new window.BroadcastChannel(name);
+		let nextChannel: BroadcastChannelLike;
+		try {
+			nextChannel = new window.BroadcastChannel(name);
+		} catch (caughtError) {
+			error.value = caughtError;
+			isSupported.value = false;
+			return;
+		}
 		channel.value = nextChannel;
 		isClosed.value = false;
 		eventCleanups = [

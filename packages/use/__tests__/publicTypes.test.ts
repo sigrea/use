@@ -673,7 +673,9 @@ describe("public types", () => {
 			expectTypeOf(result.data).toEqualTypeOf<
 				ReadonlySignal<string | undefined>
 			>();
-			expectTypeOf(result.error).toEqualTypeOf<ReadonlySignal<Event | null>>();
+			expectTypeOf(result.error).toEqualTypeOf<
+				ReadonlySignal<unknown | null>
+			>();
 			expectTypeOf(result.postMessage("ready")).toEqualTypeOf<void>();
 			expectTypeOf(result.close()).toEqualTypeOf<void>();
 			expectTypeOf(result.stop()).toEqualTypeOf<void>();
