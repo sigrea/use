@@ -238,7 +238,7 @@ Status values:
 | `math/logicAnd` | `logicAnd` | Done |
 | `math/logicNot` | `logicNot` | Done |
 | `math/logicOr` | `logicOr` | Done |
-| `math/useAbs` | `-` | Todo |
+| `math/useAbs` | `useAbs` | Done |
 | `math/useAverage` | `-` | Todo |
 | `math/useCeil` | `-` | Todo |
 | `math/useClamp` | `-` | Todo |
