@@ -61,6 +61,7 @@ export type LogicAndReturn = ReadonlySignal<boolean>;
 export type LogicNotReturn = ReadonlySignal<boolean>;
 export type LogicOrReturn = ReadonlySignal<boolean>;
 export type UseAbsReturn = ReadonlySignal<number>;
+export type UseAverageReturn = ReadonlySignal<number>;
 export type PromisifyFn<T> = T extends (
 	this: infer TThis,
 	...args: infer TArgs

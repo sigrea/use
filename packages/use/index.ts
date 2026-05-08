@@ -36,6 +36,7 @@ export { until } from "./until";
 export { useAbs } from "./useAbs";
 export { useActiveElement } from "./useActiveElement";
 export { useAnimate } from "./useAnimate";
+export { useAverage } from "./useAverage";
 export { useArrayDifference } from "./useArrayDifference";
 export { useArrayEvery } from "./useArrayEvery";
 export { useArrayFilter } from "./useArrayFilter";
@@ -471,6 +472,7 @@ export type {
 	UseArraySomeReturn,
 	UseArrayUniqueCompareFn,
 	UseArrayUniqueReturn,
+	UseAverageReturn,
 	UseBreakpointsOptions,
 	UseBreakpointsReturn,
 	UseCounterOptions,
