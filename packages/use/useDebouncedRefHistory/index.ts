@@ -93,6 +93,9 @@ export function useDebouncedRefHistory<Raw, Serialized = Raw>(
 	}
 
 	function resume(commitNow = false): void {
+		if (!commitNow && history.isTracking.value) {
+			return;
+		}
 		clearTimer();
 		if (commitNow) {
 			resumeHistory(true);

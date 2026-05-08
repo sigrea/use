@@ -292,6 +292,25 @@ describe("useDebouncedRefHistory", () => {
 		]);
 	});
 
+	it("keeps a pending automatic commit when resume is called while tracking", async () => {
+		vi.useFakeTimers();
+		const source = signal(0);
+		const history = useDebouncedRefHistory(source, { debounce: 20 });
+
+		source.value = 1;
+		await nextTick();
+		vi.advanceTimersByTime(10);
+		history.resume();
+
+		vi.advanceTimersByTime(9);
+		expect(history.history.value.map((record) => record.snapshot)).toEqual([0]);
+
+		vi.advanceTimersByTime(1);
+		expect(history.history.value.map((record) => record.snapshot)).toEqual([
+			1, 0,
+		]);
+	});
+
 	it("cancels pending automatic commits when undoing", async () => {
 		vi.useFakeTimers();
 		const source = signal(0);
