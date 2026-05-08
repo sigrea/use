@@ -346,6 +346,29 @@ describe("useFetch", () => {
 		expect(updating.data.value).toEqual({ message: "from error" });
 	});
 
+	it("throws the error returned by onFetchError", async () => {
+		const normalizedError = new Error("normalized");
+		const fetch = vi.fn<UseFetchFetch>(async () =>
+			createTextResponse("bad", {
+				status: 500,
+				statusText: "Server Error",
+			}),
+		);
+		const request = useFetch("https://example.com/normalized", {
+			fetch,
+			immediate: false,
+			onFetchError() {
+				return {
+					error: normalizedError,
+				};
+			},
+		}).text();
+
+		await expect(request.execute(true)).rejects.toBe(normalizedError);
+
+		expect(request.error.value).toBe(normalizedError);
+	});
+
 	it("serializes payloads for request methods", async () => {
 		const fetch = vi.fn<UseFetchFetch>(async () => createTextResponse("ok"));
 		const request = useFetch("https://example.com/post", {

@@ -505,7 +505,7 @@ export function useFetch<
 			await errorEvent.trigger(nextError);
 
 			if (throwOnFailed) {
-				throw caughtError;
+				throw nextError;
 			}
 
 			return null;
