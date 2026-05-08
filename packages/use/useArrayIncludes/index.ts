@@ -15,7 +15,7 @@ function isOptions<T, V>(
 }
 
 function defaultComparator<T, V>(element: T, value: V): boolean {
-	return element === (value as unknown as T);
+	return element === (value as unknown as T) || Object.is(element, value);
 }
 
 function createComparator<T, V>(
@@ -30,6 +30,19 @@ function createComparator<T, V>(
 	}
 
 	return defaultComparator;
+}
+
+function includesWithDefaultComparator<T, V>(
+	list: readonly MaybeValue<T>[],
+	value: V,
+): boolean {
+	for (let index = 0; index < list.length; index += 1) {
+		if (defaultComparator(resolveValue(list[index]), value)) {
+			return true;
+		}
+	}
+
+	return false;
 }
 
 /**
@@ -139,6 +152,10 @@ export function useArrayIncludes<T, V>(
 			const fromIndex =
 				options?.fromIndex === undefined ? 0 : resolveValue(options.fromIndex);
 			const slicedList = resolveValue(list).slice(fromIndex);
+
+			if (rawComparator === undefined) {
+				return includesWithDefaultComparator(slicedList, resolvedValue);
+			}
 
 			return slicedList.some((element, index, array) =>
 				comparator(resolveValue(element), resolvedValue, index, array),

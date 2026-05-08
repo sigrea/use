@@ -6,11 +6,15 @@ import { describe, expect, it, vi } from "vitest";
 import { useArrayIncludes } from "./index";
 
 describe("useArrayIncludes", () => {
-	it("checks raw arrays with strict equality", () => {
+	it("checks raw arrays with Array.includes equality", () => {
 		expect(useArrayIncludes([1, 2, 3], 2).value).toBe(true);
 		expect(useArrayIncludes([1, 2, 3], 4).value).toBe(false);
 		expect(useArrayIncludes([], 1).value).toBe(false);
-		expect(useArrayIncludes([Number.NaN], Number.NaN).value).toBe(false);
+		expect(useArrayIncludes([Number.NaN], Number.NaN).value).toBe(true);
+		expect(useArrayIncludes([0], -0).value).toBe(true);
+		expect(
+			useArrayIncludes(Array<number | undefined>(1), undefined).value,
+		).toBe(true);
 	});
 
 	it("tracks signal array replacement", () => {
