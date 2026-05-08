@@ -539,6 +539,7 @@ export function useWebSocket<
 					nextValue.constructor !== previousValue.constructor ||
 					nextValue.protocolsKey !== previousValue.protocolsKey)
 			) {
+				clearRetry();
 				clearBuffer();
 				retried = 0;
 			}

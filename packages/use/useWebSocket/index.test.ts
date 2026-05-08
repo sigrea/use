@@ -276,6 +276,23 @@ describe("useWebSocket", () => {
 		expect(secondSocket?.closeCalls).toEqual([]);
 	});
 
+	it("clears pending reconnects when autoConnect skips url changes", () => {
+		vi.useFakeTimers();
+		const url = signal<string | URL | null | undefined>("ws://one.test");
+		useWebSocket<unknown, FakeWebSocket, FakeWindow>(url, {
+			autoConnect: false,
+			autoReconnect: { delay: 50 },
+			window: new FakeWindow(),
+		});
+		const firstSocket = FakeWebSocket.instances[0];
+
+		firstSocket?.serverClose();
+		url.value = "ws://two.test";
+		vi.advanceTimersByTime(50);
+
+		expect(FakeWebSocket.instances).toHaveLength(1);
+	});
+
 	it("resets retry count when the url changes", () => {
 		vi.useFakeTimers();
 		const onFailed = vi.fn();
