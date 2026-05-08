@@ -19,6 +19,16 @@ describe("usePrecision", () => {
 		expect(emptyOptions.value).toBe(-45.15);
 	});
 
+	it("rounds positive half-step decimals at the requested precision", () => {
+		const source = signal(1.005);
+		const result = usePrecision(source, 2);
+
+		expect(result.value).toBe(1.01);
+
+		source.value = 2.675;
+		expect(result.value).toBe(2.68);
+	});
+
 	it("supports ceil rounding", () => {
 		const source = signal(45.125);
 		const result = usePrecision(source, 2, { math: "ceil" });
