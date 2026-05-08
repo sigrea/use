@@ -268,7 +268,7 @@ function createUntil<T>(source: unknown, isNot = false): UntilValueInstance<T> {
 				seenChanges += 1;
 				return seenChanges >= count;
 			},
-			isNot,
+			false,
 			resolvedOptions,
 			() => resolveCurrentValue(source) as T,
 			toWatchSource(source),

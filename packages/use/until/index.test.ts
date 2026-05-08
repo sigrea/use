@@ -79,6 +79,36 @@ describe("until", () => {
 		await expect(changedTimes).resolves.toBe(3);
 	});
 
+	it("does not negate change helpers", async () => {
+		const source = signal(0);
+		const changed = until(source).not.changed();
+		const changedTimes = until(source).not.changedTimes(2);
+		let changedSettled = false;
+		let changedTimesSettled = false;
+
+		changed.then(() => {
+			changedSettled = true;
+		});
+		changedTimes.then(() => {
+			changedTimesSettled = true;
+		});
+		await Promise.resolve();
+
+		expect(changedSettled).toBe(false);
+		expect(changedTimesSettled).toBe(false);
+
+		source.value = 1;
+		await Promise.resolve();
+
+		expect(changedSettled).toBe(true);
+		expect(changedTimesSettled).toBe(false);
+
+		source.value = 2;
+
+		await expect(changed).resolves.toBe(1);
+		await expect(changedTimes).resolves.toBe(2);
+	});
+
 	it("supports arrays and contains checks", async () => {
 		const source = signal([1, 2, 3]);
 		const promise = until(source).toContains(4, { deep: true });
@@ -230,22 +260,29 @@ describe("until", () => {
 		const UseValue = molecule(() => {
 			const source = signal(0);
 			const promise = until(source).changed();
+			const negatedPromise = until(source).not.changed();
 
-			return { promise, source };
+			return { negatedPromise, promise, source };
 		});
 		const instance = UseValue();
 		let settled = false;
+		let negatedSettled = false;
 		instance.promise.then(() => {
 			settled = true;
+		});
+		instance.negatedPromise.then(() => {
+			negatedSettled = true;
 		});
 		trackMolecule(instance);
 
 		mountMolecule(instance);
 		await Promise.resolve();
 		expect(settled).toBe(false);
+		expect(negatedSettled).toBe(false);
 
 		instance.source.value = 1;
 		await expect(instance.promise).resolves.toBe(1);
+		await expect(instance.negatedPromise).resolves.toBe(1);
 		disposeMolecule(instance);
 	});
 
