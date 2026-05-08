@@ -196,6 +196,20 @@ function readIsSupported(
 	);
 }
 
+function readCanExit(
+	document: UseFullscreenDocumentLike | null | undefined,
+	target: UseFullscreenElementLike | null | undefined,
+): boolean {
+	if (document === undefined || document === null) {
+		return false;
+	}
+
+	return (
+		findMethodName(document, documentExitMethodNames) !== undefined ||
+		findMethodName(target, targetExitMethodNames) !== undefined
+	);
+}
+
 function isTargetWebkitFullscreen(
 	target: UseFullscreenElementLike | null | undefined,
 ): boolean {
@@ -269,7 +283,7 @@ export function useFullscreen<
 		const document = currentDocument();
 		const target = currentTarget(document);
 		if (
-			!readIsSupported(document, target) ||
+			!readCanExit(document, target) ||
 			!readHasFullscreenElement(document, target)
 		) {
 			syncFullscreen();
@@ -320,6 +334,11 @@ export function useFullscreen<
 		const document = currentDocument();
 		const target = currentTarget(document);
 		if (!readIsSupported(document, target) || target === undefined) {
+			syncFullscreen();
+			return;
+		}
+
+		if (readIsFullscreen(document, target)) {
 			syncFullscreen();
 			return;
 		}

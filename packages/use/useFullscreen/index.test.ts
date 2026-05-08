@@ -213,6 +213,43 @@ describe("useFullscreen", () => {
 		fullscreen.stop();
 	});
 
+	it("exits document fullscreen even after the explicit target is cleared", async () => {
+		const fakeDocument = new FakeFullscreenDocument();
+		const targetElement = fakeDocument.documentElement as FakeFullscreenElement;
+		const target = signal<UseFullscreenElementLike | null>(targetElement);
+		const fullscreen = useFullscreen(target, { document: fakeDocument });
+
+		await fullscreen.enter();
+		target.value = null;
+
+		await fullscreen.exit();
+
+		expect(fakeDocument.exitFullscreen).toHaveBeenCalledTimes(1);
+		expect(fakeDocument.fullscreenElement).toBeNull();
+		expect(fullscreen.isFullscreen.value).toBe(false);
+
+		fullscreen.stop();
+	});
+
+	it("does not re-enter when the current target is already fullscreen", async () => {
+		const fakeDocument = new FakeFullscreenDocument();
+		const target = fakeDocument.documentElement as FakeFullscreenElement;
+		const fullscreen = useFullscreen(target, { document: fakeDocument });
+
+		await fullscreen.enter();
+		target.requestFullscreen.mockClear();
+		fakeDocument.exitFullscreen.mockClear();
+
+		await fullscreen.enter({ navigationUI: "hide" });
+
+		expect(fakeDocument.exitFullscreen).not.toHaveBeenCalled();
+		expect(target.requestFullscreen).not.toHaveBeenCalled();
+		expect(target.requestOptions).toEqual([undefined]);
+		expect(fullscreen.isFullscreen.value).toBe(true);
+
+		fullscreen.stop();
+	});
+
 	it("keeps the standard request method before vendor fallbacks", async () => {
 		const fakeDocument = new FakeFullscreenDocument();
 		const target = fakeDocument.documentElement as FakeFullscreenElement;
