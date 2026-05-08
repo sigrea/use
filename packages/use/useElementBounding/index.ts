@@ -114,6 +114,7 @@ export function useElementBounding<
 	const y = signal(0);
 	let frameHandle: number | undefined;
 	let frameWindow: TWindow | undefined;
+	let stopped = false;
 
 	const currentWindow = () =>
 		windowTarget === undefined
@@ -157,6 +158,10 @@ export function useElementBounding<
 	};
 
 	const update = () => {
+		if (stopped) {
+			return;
+		}
+
 		if (updateTiming === "sync") {
 			cancelPendingFrame();
 			recalculate();
@@ -181,6 +186,9 @@ export function useElementBounding<
 		frameHandle = requestFrame.call(windowValue ?? globalThis, () => {
 			frameHandle = undefined;
 			frameWindow = undefined;
+			if (stopped) {
+				return;
+			}
 			recalculate();
 		});
 	};
@@ -267,6 +275,7 @@ export function useElementBounding<
 		y: readonly(y),
 		update,
 		stop: () => {
+			stopped = true;
 			cancelPendingFrame();
 			stopWatch();
 			windowResizeStop?.stop();

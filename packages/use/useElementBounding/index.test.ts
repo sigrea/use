@@ -128,6 +128,33 @@ class FakeWindowWithoutObservers extends EventTarget {
 	navigator = navigator;
 }
 
+class FakeWindowWithoutFrameCancel extends EventTarget {
+	document = document;
+	navigator = navigator;
+	ResizeObserver = FakeResizeObserver as typeof ResizeObserver;
+	MutationObserver = FakeMutationObserver as typeof MutationObserver;
+	readonly cancelAnimationFrame = undefined;
+	private readonly frames = new Map<number, FrameRequestCallback>();
+	private frameId = 0;
+
+	requestAnimationFrame(callback: FrameRequestCallback): number {
+		const handle = ++this.frameId;
+		this.frames.set(handle, callback);
+		return handle;
+	}
+
+	flushFrame(): void {
+		for (const [frameHandle, callback] of [...this.frames.entries()]) {
+			this.frames.delete(frameHandle);
+			callback(0);
+		}
+	}
+
+	get pendingFrameCount(): number {
+		return this.frames.size;
+	}
+}
+
 function createRect(values: RectValues): DOMRect {
 	return {
 		...values,
@@ -321,6 +348,40 @@ describe("useElementBounding", () => {
 		bounds.stop();
 		expect(fakeWindow.cancelAnimationFrame).toHaveBeenCalledTimes(1);
 		fakeWindow.flushFrame();
+		expectBounding(bounds, firstRect);
+	});
+
+	it("ignores next-frame callbacks after stop when frame cancel is unavailable", () => {
+		const element = document.createElement("div");
+		const fakeWindow = new FakeWindowWithoutFrameCancel();
+		setRect(element, firstRect);
+		const bounds = useElementBounding(element, {
+			updateTiming: "next-frame",
+			window: fakeWindow,
+		});
+
+		expectBounding(bounds, emptyRect);
+		expect(fakeWindow.pendingFrameCount).toBe(1);
+
+		bounds.stop();
+		setRect(element, secondRect);
+		fakeWindow.flushFrame();
+
+		expectBounding(bounds, emptyRect);
+	});
+
+	it("ignores manual updates after stop", () => {
+		const element = document.createElement("div");
+		const fakeWindow = new FakeWindow();
+		setRect(element, firstRect);
+		const bounds = useElementBounding(element, { window: fakeWindow });
+
+		expectBounding(bounds, firstRect);
+
+		bounds.stop();
+		setRect(element, secondRect);
+		bounds.update();
+
 		expectBounding(bounds, firstRect);
 	});
 
