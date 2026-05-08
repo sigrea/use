@@ -81,11 +81,46 @@ describe("toDeepSignal", () => {
 		});
 		const state = toDeepSignal(source);
 
+		Object.defineProperty(source.value, "fixed", {
+			value: "fixed",
+			writable: false,
+			enumerable: false,
+			configurable: false,
+		});
+		Object.defineProperty(source.value, "computedLabel", {
+			get() {
+				return this.count;
+			},
+			set(value) {
+				this.count = value;
+			},
+			enumerable: true,
+			configurable: true,
+		});
+
 		expect("hidden" in state).toBe(true);
-		expect(Reflect.ownKeys(state)).toEqual(["count", "hidden", symbolKey]);
+		expect(Reflect.ownKeys(state)).toEqual([
+			"count",
+			"hidden",
+			"fixed",
+			"computedLabel",
+			symbolKey,
+		]);
 		expect(JSON.stringify(state)).toBe(
-			JSON.stringify({ count: 1, hidden: true }),
+			JSON.stringify({ count: 1, hidden: true, computedLabel: 1 }),
 		);
+		expect(Object.getOwnPropertyDescriptor(state, "fixed")).toEqual({
+			value: "fixed",
+			writable: false,
+			enumerable: false,
+			configurable: true,
+		});
+		expect(Object.getOwnPropertyDescriptor(state, "computedLabel")).toEqual({
+			get: Object.getOwnPropertyDescriptor(source.value, "computedLabel")?.get,
+			set: Object.getOwnPropertyDescriptor(source.value, "computedLabel")?.set,
+			enumerable: true,
+			configurable: true,
+		});
 
 		Object.defineProperty(state, "label", {
 			value: "ready",
@@ -109,6 +144,8 @@ describe("toDeepSignal", () => {
 		expect(extra.value).toBe("next");
 		expect(Reflect.ownKeys(state)).toEqual([
 			"count",
+			"fixed",
+			"computedLabel",
 			"label",
 			"extra",
 			symbolKey,
@@ -184,6 +221,34 @@ describe("toDeepSignal", () => {
 		expect(values).toEqual([2, 4]);
 	});
 
+	it("does not replace writable signal properties with signal assignments", () => {
+		const count = signal(1);
+		const source = {
+			count,
+		};
+		const state = toDeepSignal(source);
+
+		(state as { count: unknown }).count = signal(2);
+
+		expect(source.count).toBe(count);
+		expect(count.value).toBe(2);
+		expect(state.count).toBe(2);
+	});
+
+	it("does not replace forwarded writable signal properties with signal assignments", () => {
+		const count = signal(1);
+		const source = signal({
+			count,
+		});
+		const state = toDeepSignal(source);
+
+		(state as { count: unknown }).count = signal(2);
+
+		expect(source.value.count).toBe(count);
+		expect(count.value).toBe(2);
+		expect(state.count).toBe(2);
+	});
+
 	it("keeps readonly signal-valued properties readonly at runtime", () => {
 		const count = signal(1);
 		const state = toDeepSignal({
@@ -195,6 +260,51 @@ describe("toDeepSignal", () => {
 			(state as { count: number }).count = 2;
 		}).toThrow(TypeError);
 		expect(count.value).toBe(1);
+	});
+
+	it("does not replace readonly signal properties with signal assignments", () => {
+		const count = signal(1);
+		const state = toDeepSignal({
+			count: readonly(count),
+		});
+
+		expect(() => {
+			(state as { count: unknown }).count = signal(2);
+		}).toThrow(TypeError);
+		expect(count.value).toBe(1);
+		expect(state.count).toBe(1);
+	});
+
+	it("does not replace forwarded readonly signal properties with signal assignments", () => {
+		const count = signal(1);
+		const source = signal({
+			count: readonly(count),
+		});
+		const state = toDeepSignal(source);
+		const original = source.value.count;
+
+		expect(() => {
+			(state as { count: unknown }).count = signal(2);
+		}).toThrow(TypeError);
+		expect(count.value).toBe(1);
+		expect(state.count).toBe(1);
+		expect(source.value.count).toBe(original);
+	});
+
+	it("keeps forwarded readonly signal properties readonly at runtime", () => {
+		const count = signal(1);
+		const source = signal({
+			count: readonly(count),
+		});
+		const state = toDeepSignal(source);
+		const original = source.value.count;
+
+		expect(() => {
+			(state as { count: number }).count = 2;
+		}).toThrow(TypeError);
+		expect(count.value).toBe(1);
+		expect(state.count).toBe(1);
+		expect(source.value.count).toBe(original);
 	});
 
 	it("reads from readonly object signal containers", () => {

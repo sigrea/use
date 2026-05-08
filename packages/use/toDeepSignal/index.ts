@@ -1,4 +1,4 @@
-import { deepSignal, isRaw, isSignal } from "@sigrea/core";
+import { deepSignal, isComputed, isRaw, isSignal } from "@sigrea/core";
 import type { Computed, ReadonlySignal, Signal } from "@sigrea/core";
 
 import type { ToDeepSignalReturn } from "../types";
@@ -55,6 +55,30 @@ function resolveSignalValue(value: unknown): unknown {
 	return isSignal(value) ? value.value : value;
 }
 
+function getValueDescriptor(source: object): PropertyDescriptor | undefined {
+	let current: object | null = source;
+
+	while (current !== null) {
+		const descriptor = Object.getOwnPropertyDescriptor(current, "value");
+		if (descriptor !== undefined) {
+			return descriptor;
+		}
+
+		current = Object.getPrototypeOf(current);
+	}
+}
+
+function getComputedSetter(source: object): unknown {
+	return Reflect.get(source, "setter");
+}
+
+function isWritableSignalValue(value: SignalLikeObject): boolean {
+	if (isComputed(value)) {
+		return typeof getComputedSetter(value) === "function";
+	}
+	return typeof getValueDescriptor(value)?.set === "function";
+}
+
 function resolveSourceValue<T extends object>(
 	source: T | ObjectSignalSource<T>,
 ): ToDeepSignalSourceObject<T> {
@@ -69,11 +93,34 @@ function writeObjectValue(
 	value: unknown,
 ): boolean {
 	const currentValue = Reflect.get(obj, key);
-	if (isSignal(currentValue) && !isSignal(value)) {
-		currentValue.value = value;
+	if (isSignal(currentValue)) {
+		if (!isWritableSignalValue(currentValue)) {
+			return false;
+		}
+		currentValue.value = resolveSignalValue(value);
 		return true;
 	}
 	return Reflect.set(obj, key, value);
+}
+
+function createForwardedPropertyDescriptor(
+	descriptor: PropertyDescriptor,
+): PropertyDescriptor {
+	if ("value" in descriptor || "writable" in descriptor) {
+		return {
+			value: descriptor.value,
+			writable: descriptor.writable,
+			enumerable: descriptor.enumerable,
+			configurable: true,
+		};
+	}
+
+	return {
+		get: descriptor.get,
+		set: descriptor.set,
+		enumerable: descriptor.enumerable,
+		configurable: true,
+	};
 }
 
 function createSourceProxy<T extends object>(
@@ -109,10 +156,7 @@ function createSourceProxy<T extends object>(
 				if (descriptor === undefined) {
 					return undefined;
 				}
-				return {
-					enumerable: descriptor.enumerable,
-					configurable: true,
-				};
+				return createForwardedPropertyDescriptor(descriptor);
 			},
 			defineProperty(_target, key, descriptor) {
 				if (descriptor.configurable !== true) {
@@ -145,13 +189,6 @@ export function toDeepSignal<T extends object>(
 export function toDeepSignal<T extends object>(
 	source: T | ObjectSignalSource<T>,
 ): ToDeepSignalReturn<ToDeepSignalSourceObject<T>> {
-	if (!isSignal(source)) {
-		assertForwardableObject(source);
-		return deepSignal(source) as ToDeepSignalReturn<
-			ToDeepSignalSourceObject<T>
-		>;
-	}
-
 	return deepSignal(createSourceProxy(source)) as ToDeepSignalReturn<
 		ToDeepSignalSourceObject<T>
 	>;
