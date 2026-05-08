@@ -1,6 +1,11 @@
 import { computed, signal, watch } from "@sigrea/core";
 
-import { defaultDocument, resolveTarget, resolveValue } from "../../shared";
+import {
+	defaultDocument,
+	defaultWindow,
+	resolveTarget,
+	resolveValue,
+} from "../../shared";
 import { tryOnScopeDispose } from "../tryOnScopeDispose";
 import type {
 	MaybeTarget,
@@ -120,7 +125,8 @@ export function useTextDirection<
 				(currentDocument()?.defaultView as
 					| UseMutationObserverWindowLike
 					| null
-					| undefined) ?? null,
+					| undefined) ??
+				(defaultWindow as UseMutationObserverWindowLike | undefined),
 		},
 	);
 

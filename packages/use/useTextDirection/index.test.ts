@@ -88,6 +88,14 @@ function fakeDocumentFor(
 	});
 }
 
+function fakeDocumentWithoutDefaultViewFor(
+	targetForSelector: (selector: string) => Element | null,
+): UseTextDirectionDocumentLike {
+	return Object.assign(new EventTarget(), {
+		querySelector: targetForSelector,
+	});
+}
+
 describe("useTextDirection", () => {
 	afterEach(() => {
 		FakeMutationObserver.instances = [];
@@ -96,6 +104,7 @@ describe("useTextDirection", () => {
 		document.body.innerHTML = "";
 		disposeTrackedMolecules();
 		vi.restoreAllMocks();
+		vi.unstubAllGlobals();
 	});
 
 	it("reads the html dir and falls back to ltr", () => {
@@ -227,6 +236,23 @@ describe("useTextDirection", () => {
 		target.removeAttribute("dir");
 		FakeMutationObserver.emitObserved(target);
 		expect(direction.value).toBe("ltr");
+
+		direction.stop();
+	});
+
+	it("falls back to the default observer when document has no defaultView", () => {
+		const target = document.createElement("div");
+		vi.stubGlobal("MutationObserver", FakeMutationObserver);
+		const direction = useTextDirection({
+			document: fakeDocumentWithoutDefaultViewFor(() => target),
+			observe: true,
+		});
+
+		expect(FakeMutationObserver.isObserving(target)).toBe(true);
+
+		target.setAttribute("dir", "rtl");
+		FakeMutationObserver.emitObserved(target);
+		expect(direction.value).toBe("rtl");
 
 		direction.stop();
 	});
