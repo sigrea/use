@@ -154,6 +154,8 @@ export function useWebNotification<
 		document: () => currentWindow()?.document ?? null,
 	});
 	let stopNotificationListeners = () => {};
+	let releaseNotificationListenersForClose = () => {};
+	const pendingCloseListenerCleanups = new Set<() => void>();
 	let constructorSupported = true;
 	let stopped = false;
 
@@ -171,6 +173,13 @@ export function useWebNotification<
 	const cleanupNotificationListeners = () => {
 		stopNotificationListeners();
 		stopNotificationListeners = () => {};
+		releaseNotificationListenersForClose = () => {};
+	};
+	const cleanupPendingCloseListeners = () => {
+		for (const cleanup of pendingCloseListenerCleanups) {
+			cleanup();
+		}
+		pendingCloseListenerCleanups.clear();
 	};
 	const setNotification = (nextNotification: TNotification) => {
 		cleanupNotificationListeners();
@@ -200,23 +209,55 @@ export function useWebNotification<
 			},
 			{ passive: true },
 		);
-		const stopClose = listen(
+		let stopClose = () => {};
+		let stoppedPassiveListeners = false;
+		let stoppedAllListeners = false;
+		const stopPassiveListeners = () => {
+			if (stoppedPassiveListeners) {
+				return;
+			}
+
+			stoppedPassiveListeners = true;
+			stopClick();
+			stopShow();
+			stopError();
+		};
+		const stopAllListeners = () => {
+			if (stoppedAllListeners) {
+				return;
+			}
+
+			stoppedAllListeners = true;
+			stopPassiveListeners();
+			stopClose();
+			pendingCloseListenerCleanups.delete(stopAllListeners);
+		};
+		stopClose = listen(
 			nextNotification,
 			"close",
 			(event) => {
 				if (notification.value === nextNotification) {
 					notification.value = null;
-					cleanupNotificationListeners();
+					if (stopNotificationListeners === stopAllListeners) {
+						stopNotificationListeners = () => {};
+						releaseNotificationListenersForClose = () => {};
+					}
 				}
+				stopAllListeners();
 				void closeHook.trigger(event);
 			},
 			{ passive: true },
 		);
-		stopNotificationListeners = () => {
-			stopClick();
-			stopShow();
-			stopError();
-			stopClose();
+		stopNotificationListeners = stopAllListeners;
+		releaseNotificationListenersForClose = () => {
+			stopPassiveListeners();
+			if (!stoppedAllListeners) {
+				pendingCloseListenerCleanups.add(stopAllListeners);
+			}
+			if (stopNotificationListeners === stopAllListeners) {
+				stopNotificationListeners = () => {};
+				releaseNotificationListenersForClose = () => {};
+			}
 		};
 	};
 
@@ -327,7 +368,7 @@ export function useWebNotification<
 			if (notification.value === currentNotification) {
 				notification.value = null;
 			}
-			cleanupNotificationListeners();
+			releaseNotificationListenersForClose();
 		}
 	};
 
@@ -372,6 +413,8 @@ export function useWebNotification<
 		stopVisibilityWatch();
 		documentVisibility.stop();
 		close();
+		cleanupNotificationListeners();
+		cleanupPendingCloseListeners();
 		clickHook.clear();
 		showHook.clear();
 		errorHook.clear();

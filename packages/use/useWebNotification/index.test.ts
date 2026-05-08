@@ -40,8 +40,31 @@ class FakeNotification
 	});
 
 	readonly close = vi.fn(() => {
+		if (this.closed) {
+			return;
+		}
+
+		this.closed = true;
+		if (this.deferCloseEvent) {
+			setTimeout(() => {
+				this.dispatchEvent(new Event("close"));
+			}, 0);
+			return;
+		}
+
 		this.dispatchEvent(new Event("close"));
 	});
+	closed = false;
+	deferCloseEvent = false;
+
+	emitClose(): void {
+		if (this.closed) {
+			return;
+		}
+
+		this.closed = true;
+		this.dispatchEvent(new Event("close"));
+	}
 
 	constructor(
 		readonly title: string,
@@ -88,6 +111,7 @@ function useFakeWebNotification(
 describe("useWebNotification", () => {
 	afterEach(() => {
 		resetNotification();
+		vi.useRealTimers();
 	});
 
 	it("stays safe without Notification support", async () => {
@@ -239,7 +263,7 @@ describe("useWebNotification", () => {
 		notification.dispatchEvent(new Event("click"));
 		notification.dispatchEvent(new Event("show"));
 		notification.dispatchEvent(new Event("error"));
-		notification.dispatchEvent(new Event("close"));
+		notification.emitClose();
 
 		await vi.waitFor(() => {
 			expect(onClick).toHaveBeenCalledOnce();
@@ -268,6 +292,114 @@ describe("useWebNotification", () => {
 			expect(onClose).toHaveBeenCalledOnce();
 		});
 		expect(result.notification.value).toBeNull();
+	});
+
+	it("keeps close listeners until the queued close event fires", async () => {
+		vi.useFakeTimers();
+		FakeNotification.permission = "granted";
+		const result = useFakeWebNotification({ window: new FakeWindow() });
+		const onClose = vi.fn();
+		result.onClose(onClose);
+		const notification = await result.show();
+		if (notification === undefined) {
+			throw new Error("notification was not created");
+		}
+		notification.deferCloseEvent = true;
+
+		result.close();
+
+		expect(notification.close).toHaveBeenCalledOnce();
+		expect(result.notification.value).toBeNull();
+		expect(onClose).not.toHaveBeenCalled();
+
+		vi.advanceTimersByTime(0);
+
+		expect(onClose).toHaveBeenCalledOnce();
+	});
+
+	it("keeps close listeners for visibility-triggered closes", async () => {
+		vi.useFakeTimers();
+		FakeNotification.permission = "granted";
+		const document = new FakeDocument("hidden");
+		const result = useFakeWebNotification({
+			window: new FakeWindow(document),
+		});
+		const onClose = vi.fn();
+		result.onClose(onClose);
+		const notification = await result.show();
+		if (notification === undefined) {
+			throw new Error("notification was not created");
+		}
+		notification.deferCloseEvent = true;
+
+		document.setVisibility("visible");
+
+		expect(notification.close).toHaveBeenCalledOnce();
+		expect(onClose).not.toHaveBeenCalled();
+
+		vi.advanceTimersByTime(0);
+
+		expect(onClose).toHaveBeenCalledOnce();
+	});
+
+	it("keeps stale close listeners when showing a replacement", async () => {
+		vi.useFakeTimers();
+		FakeNotification.permission = "granted";
+		const result = useFakeWebNotification({ window: new FakeWindow() });
+		const onClose = vi.fn();
+		result.onClose(onClose);
+		const firstNotification = await result.show({ title: "First" });
+		if (firstNotification === undefined) {
+			throw new Error("notification was not created");
+		}
+		firstNotification.deferCloseEvent = true;
+
+		const secondNotification = await result.show({ title: "Second" });
+
+		expect(firstNotification.close).toHaveBeenCalledOnce();
+		expect(result.notification.value).toBe(secondNotification);
+		expect(onClose).not.toHaveBeenCalled();
+
+		vi.advanceTimersByTime(0);
+
+		expect(onClose).toHaveBeenCalledOnce();
+		expect(result.notification.value).toBe(secondNotification);
+	});
+
+	it("cleans up when the notification closes itself", async () => {
+		FakeNotification.permission = "granted";
+		const result = useFakeWebNotification({ window: new FakeWindow() });
+		const onClose = vi.fn();
+		result.onClose(onClose);
+		const notification = await result.show();
+		if (notification === undefined) {
+			throw new Error("notification was not created");
+		}
+
+		notification.emitClose();
+
+		expect(notification.close).not.toHaveBeenCalled();
+		expect(result.notification.value).toBeNull();
+		expect(onClose).toHaveBeenCalledOnce();
+	});
+
+	it("does not call close hooks after stop", async () => {
+		vi.useFakeTimers();
+		FakeNotification.permission = "granted";
+		const result = useFakeWebNotification({ window: new FakeWindow() });
+		const onClose = vi.fn();
+		result.onClose(onClose);
+		const notification = await result.show();
+		if (notification === undefined) {
+			throw new Error("notification was not created");
+		}
+		notification.deferCloseEvent = true;
+
+		result.stop();
+		vi.advanceTimersByTime(0);
+
+		expect(notification.close).toHaveBeenCalledOnce();
+		expect(onClose).not.toHaveBeenCalled();
 	});
 
 	it("closes stale notification when the document becomes visible", async () => {
