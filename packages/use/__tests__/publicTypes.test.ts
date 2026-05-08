@@ -451,6 +451,7 @@ import type {
 	UseMemoryPerformanceLike,
 	UseMemoryReturn,
 	UseMemoryWindowLike,
+	UseMinReturn,
 	UseMountedReturn,
 	UseMouseInElementOptions,
 	UseMouseInElementReturn,
@@ -924,6 +925,7 @@ import {
 	useMediaQuery,
 	useMemoize,
 	useMemory,
+	useMin,
 	useMounted,
 	useMouse,
 	useMouseInElement,
@@ -5898,6 +5900,28 @@ describe("public types", () => {
 			useMax([1, "2"] as const);
 			// @ts-expect-error array form does not mix with rest arguments
 			useMax([1, 2] as const, 3);
+		});
+	});
+
+	it("types min values", () => {
+		typeOnly(() => {
+			const rest = useMin(signal(1), 2, () => 3);
+			const array = useMin([signal(1), 2, () => 3] as const);
+			const signalArray = useMin(signal([1, 2, 3] as const));
+			const minReturn: UseMinReturn = rest;
+
+			expectTypeOf(rest).toEqualTypeOf<UseMinReturn>();
+			expectTypeOf(array).toEqualTypeOf<UseMinReturn>();
+			expectTypeOf(signalArray.value).toEqualTypeOf<number>();
+			expectTypeOf(minReturn.value).toEqualTypeOf<number>();
+			// @ts-expect-error min result is readonly
+			rest.value = 1;
+			// @ts-expect-error value must resolve to a number
+			useMin("1");
+			// @ts-expect-error array entries must resolve to numbers
+			useMin([1, "2"] as const);
+			// @ts-expect-error array form does not mix with rest arguments
+			useMin([1, 2] as const, 3);
 		});
 	});
 
