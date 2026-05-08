@@ -64,6 +64,32 @@ describe("useArrayFind", () => {
 		expect(result.value).toBe(4);
 	});
 
+	it("returns the same resolved value used for matching", () => {
+		let calls = 0;
+		const item = () => {
+			calls += 1;
+			return calls;
+		};
+		const result = useArrayFind([item], (value) => value === 1);
+
+		expect(result.value).toBe(1);
+		expect(calls).toBe(1);
+	});
+
+	it("keeps Array.find iteration semantics", () => {
+		const list: Array<number> = [1, 2];
+		const result = useArrayFind(list, (value) => {
+			if (value === 2) {
+				list.push(3);
+			}
+
+			return value === 3;
+		});
+
+		expect(result.value).toBeUndefined();
+		expect(list).toEqual([1, 2, 3]);
+	});
+
 	it("accepts readonly signal arrays and readonly signal items", () => {
 		const first = readonly(signal(-1));
 		const second = readonly(signal(2));

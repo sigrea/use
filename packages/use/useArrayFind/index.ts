@@ -37,11 +37,23 @@ export function useArrayFind<T>(
 ): UseArrayFindReturn<T> {
 	return readonly(
 		computed(() => {
-			const found = resolveValue(list).find((element, index, array) =>
-				predicate(resolveValue(element), index, array),
-			);
+			const array = resolveValue(list);
+			let matched = false;
+			let matchedValue: T | undefined;
 
-			return found === undefined ? undefined : resolveValue(found);
+			array.find((element, index) => {
+				const value = resolveValue(element);
+
+				if (predicate(value, index, array)) {
+					matched = true;
+					matchedValue = value;
+					return true;
+				}
+
+				return false;
+			});
+
+			return matched ? matchedValue : undefined;
 		}),
 	);
 }
