@@ -116,6 +116,7 @@ export function useParallax<
 		if (
 			orientation.isSupported.value &&
 			((orientation.alpha.value !== null && orientation.alpha.value !== 0) ||
+				(orientation.beta.value !== null && orientation.beta.value !== 0) ||
 				(orientation.gamma.value !== null && orientation.gamma.value !== 0))
 		) {
 			return "deviceOrientation";

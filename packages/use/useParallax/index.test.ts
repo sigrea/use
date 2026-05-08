@@ -171,7 +171,7 @@ describe("useParallax", () => {
 		parallax.stop();
 	});
 
-	it("falls back to mouse when orientation data is zero", () => {
+	it("uses device orientation when only beta is non-zero", () => {
 		const fakeWindow = new FakeWindow();
 		const element = document.createElement("div");
 		setClientRects(element, [{ height: 100, left: 0, top: 0, width: 100 }]);
@@ -180,6 +180,31 @@ describe("useParallax", () => {
 		dispatchOrientation(fakeWindow, {
 			alpha: 0,
 			beta: 45,
+			gamma: 0,
+		});
+		fakeWindow.dispatchEvent(mouseEvent("mousemove", 100, 0));
+
+		expect(parallax.source.value).toBe("deviceOrientation");
+		expect(parallax.roll.value).toBe(0);
+		expect(parallax.tilt.value).toBeCloseTo(45 / 90);
+
+		fakeWindow.screen.orientation.setType("portrait-primary");
+
+		expect(parallax.roll.value).toBeCloseTo(-45 / 90);
+		expect(parallax.tilt.value).toBe(0);
+
+		parallax.stop();
+	});
+
+	it("falls back to mouse when orientation data is zero", () => {
+		const fakeWindow = new FakeWindow();
+		const element = document.createElement("div");
+		setClientRects(element, [{ height: 100, left: 0, top: 0, width: 100 }]);
+		const parallax = useParallax(element, { window: fakeWindow });
+
+		dispatchOrientation(fakeWindow, {
+			alpha: 0,
+			beta: 0,
 			gamma: 0,
 		});
 		fakeWindow.dispatchEvent(mouseEvent("mousemove", 100, 0));
