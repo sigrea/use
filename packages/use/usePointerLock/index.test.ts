@@ -637,6 +637,36 @@ describe("usePointerLock", () => {
 		pointerLock.stop();
 	});
 
+	it("stops delayed void unlock watchers when controls stop", async () => {
+		const fakeDocument = new FakePointerLockDocument();
+		const target = fakeDocument.documentElement as FakePointerLockElement;
+		const pointerLock = usePointerLock(target, { document: fakeDocument });
+		let finishExit = () => {};
+
+		await pointerLock.lock();
+		fakeDocument.exitPointerLock = vi.fn(() => {
+			finishExit = () => {
+				fakeDocument.pointerLockElement = null;
+				fakeDocument.dispatchPointerLockChange();
+			};
+		});
+
+		const pendingUnlock = pointerLock.unlock();
+		await Promise.resolve();
+
+		expect(fakeDocument.exitPointerLock).toHaveBeenCalledTimes(1);
+
+		pointerLock.stop();
+		await expect(pendingUnlock).rejects.toThrow(
+			"Pointer lock controls were stopped.",
+		);
+
+		finishExit();
+
+		expect(pointerLock.element.value).toBe(target);
+		expect(pointerLock.isLocked.value).toBe(true);
+	});
+
 	it("unlocks from the last document on stop when the document becomes null", async () => {
 		const fakeDocument = new FakePointerLockDocument();
 		const document = signal<UsePointerLockDocumentLike | null>(fakeDocument);

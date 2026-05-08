@@ -798,7 +798,10 @@ export function usePointerLock<
 		stopped = true;
 		rejectPendingAction(new Error("Pointer lock controls were stopped."));
 
-		if (autoUnlock) {
+		if (!autoUnlock) {
+			stopLateExitSyncWatch?.();
+			stopLateAutoUnlockWatch?.();
+		} else {
 			const currentLockTarget = element.value ?? lastLockedElement;
 			const currentUnlocked = autoUnlockPointerLock(
 				currentLockTarget,
