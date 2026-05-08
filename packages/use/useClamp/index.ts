@@ -16,9 +16,7 @@ function readClamped(
 	min: MaybeValue<number>,
 	max: MaybeValue<number>,
 ): number {
-	const next = clamp(source.value, resolveValue(min), resolveValue(max));
-	source.value = next;
-	return next;
+	return clamp(source.value, resolveValue(min), resolveValue(max));
 }
 
 /**

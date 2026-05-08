@@ -18,6 +18,26 @@ describe("useClamp", () => {
 		expect(result.value).toBe(0);
 	});
 
+	it("preserves the plain number source when bounds change", () => {
+		const min = signal(0);
+		const max = signal(100);
+		const result = useClamp(10, min, max);
+
+		expect(result.value).toBe(10);
+
+		min.value = 20;
+		expect(result.value).toBe(20);
+
+		min.value = 0;
+		expect(result.value).toBe(10);
+
+		max.value = 5;
+		expect(result.value).toBe(5);
+
+		max.value = 100;
+		expect(result.value).toBe(10);
+	});
+
 	it("tracks signal sources and bounds without writing back", () => {
 		const source = signal(10);
 		const min = signal(0);
