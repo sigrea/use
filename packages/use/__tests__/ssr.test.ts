@@ -28,6 +28,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.resolveValue).toBe("function");
 		expect(typeof mod.useAbs).toBe("function");
 		expect(typeof mod.useAverage).toBe("function");
+		expect(typeof mod.useCeil).toBe("function");
 		expect(typeof mod.useCounter).toBe("function");
 		expect(typeof mod.onClickOutside).toBe("function");
 		expect(typeof mod.onElementRemoval).toBe("function");
@@ -1658,6 +1659,7 @@ describe("SSR safety", () => {
 			formatTimeAgoIntlParts,
 			useAbs,
 			useAverage,
+			useCeil,
 			useDebouncedRefHistory,
 			useThrottledRefHistory,
 			useTimeAgo,
@@ -1695,6 +1697,7 @@ describe("SSR safety", () => {
 		const logicalOrValue = logicOr(signal(false), () => true);
 		const absoluteValue = useAbs(signal(-4));
 		const averageValue = useAverage(signal(1), () => 3);
+		const ceilValue = useCeil(signal(1.2));
 		const autoResetValue = signalAutoReset("default", 100);
 		const defaultValue = signalDefault(signal<string | undefined>(), "default");
 		const debouncedValue = signalDebounced(signal("source"), 100);
@@ -1865,6 +1868,7 @@ describe("SSR safety", () => {
 		expect(logicalOrValue.value).toBe(true);
 		expect(absoluteValue.value).toBe(4);
 		expect(averageValue.value).toBe(2);
+		expect(ceilValue.value).toBe(2);
 		expect(autoResetValue.value).toBe("default");
 		expect(defaultValue.value).toBe("default");
 		expect(debouncedValue.value).toBe("source");
