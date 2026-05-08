@@ -23,14 +23,19 @@ class FakePerformance implements UseFpsPerformanceLike {
 }
 
 class FakeFrameWindow extends EventTarget implements UseFpsWindowLike {
-	constructor(readonly performance = new FakePerformance()) {
+	constructor(
+		readonly performance = new FakePerformance(),
+		private readonly retainCanceledFrames = false,
+	) {
 		super();
 	}
 
 	private frameId = 0;
 	private readonly frames = new Map<number, FrameRequestCallback>();
 	readonly cancelAnimationFrame = vi.fn((handle: number) => {
-		this.frames.delete(handle);
+		if (!this.retainCanceledFrames) {
+			this.frames.delete(handle);
+		}
 	});
 	readonly requestAnimationFrame = vi.fn(
 		(callback: FrameRequestCallback): number => {
@@ -131,6 +136,72 @@ describe("useFps", () => {
 
 		expect(fps.value).toBe(0);
 		expect(requestAnimationFrame).not.toHaveBeenCalled();
+	});
+
+	it("starts tracking when reactive window becomes available", () => {
+		const frameWindow = new FakeFrameWindow();
+		const windowTarget = signal<UseFpsWindowLike | null>(null);
+		const fps = useFps({ every: 1, window: windowTarget });
+
+		expect(fps.value).toBe(0);
+		expect(frameWindow.requestAnimationFrame).not.toHaveBeenCalled();
+
+		windowTarget.value = frameWindow;
+
+		expect(frameWindow.requestAnimationFrame).toHaveBeenCalledTimes(1);
+
+		frameWindow.flushFrame(100);
+
+		expect(fps.value).toBe(10);
+		expect(frameWindow.pendingFrameCount).toBe(1);
+	});
+
+	it("cancels the pending frame when reactive window changes", () => {
+		const firstWindow = new FakeFrameWindow();
+		const secondWindow = new FakeFrameWindow();
+		const windowTarget = signal<UseFpsWindowLike | null>(firstWindow);
+		const fps = useFps({ every: 1, window: windowTarget });
+
+		expect(firstWindow.pendingFrameCount).toBe(1);
+
+		windowTarget.value = secondWindow;
+
+		expect(firstWindow.cancelAnimationFrame).toHaveBeenCalledWith(1);
+		expect(firstWindow.pendingFrameCount).toBe(0);
+		expect(secondWindow.pendingFrameCount).toBe(1);
+
+		firstWindow.flushFrame(100);
+
+		expect(fps.value).toBe(0);
+		expect(firstWindow.pendingFrameCount).toBe(0);
+
+		secondWindow.flushFrame(100);
+
+		expect(fps.value).toBe(10);
+	});
+
+	it("ignores stale frame callbacks after reactive window changes", () => {
+		const firstWindow = new FakeFrameWindow(new FakePerformance(), true);
+		const secondWindow = new FakeFrameWindow();
+		const windowTarget = signal<UseFpsWindowLike | null>(firstWindow);
+		const fps = useFps({ every: 1, window: windowTarget });
+
+		expect(firstWindow.pendingFrameCount).toBe(1);
+
+		windowTarget.value = secondWindow;
+
+		expect(firstWindow.cancelAnimationFrame).toHaveBeenCalledWith(1);
+		expect(secondWindow.pendingFrameCount).toBe(1);
+
+		firstWindow.flushFrame(100);
+
+		expect(fps.value).toBe(0);
+		expect(secondWindow.pendingFrameCount).toBe(1);
+
+		windowTarget.value = null;
+
+		expect(secondWindow.cancelAnimationFrame).toHaveBeenCalledWith(1);
+		expect(secondWindow.pendingFrameCount).toBe(0);
 	});
 
 	it("stays at zero when RAF or performance is unavailable", () => {

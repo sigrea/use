@@ -1,4 +1,4 @@
-import { readonly, signal } from "@sigrea/core";
+import { readonly, signal, watch } from "@sigrea/core";
 
 import { defaultWindow, resolveTarget, resolveValue } from "../../shared";
 import { bindAutoStart } from "../internal";
@@ -52,6 +52,7 @@ export function useFps<TWindow extends UseFpsWindowLike = UseFpsWindowLike>(
 	let active = false;
 	let frameHandle: number | undefined;
 	let frameWindow: TWindow | undefined;
+	let frameVersion = 0;
 	let last = 0;
 	let ticks = 0;
 
@@ -73,6 +74,7 @@ export function useFps<TWindow extends UseFpsWindowLike = UseFpsWindowLike>(
 		if (typeof cancelFrame === "function") {
 			cancelFrame.call(frameWindow ?? globalThis, frameHandle);
 		}
+		frameVersion += 1;
 		frameHandle = undefined;
 		frameWindow = undefined;
 	};
@@ -80,15 +82,14 @@ export function useFps<TWindow extends UseFpsWindowLike = UseFpsWindowLike>(
 	const update = () => {
 		const performanceValue = currentPerformance();
 		if (typeof performanceValue?.now !== "function") {
-			active = false;
 			clearFrame();
-			return;
+			return false;
 		}
 
 		ticks += 1;
 		const frameCount = normalizeEvery(resolveValue(every));
 		if (ticks < frameCount) {
-			return;
+			return true;
 		}
 
 		const now = performanceValue.now();
@@ -97,6 +98,7 @@ export function useFps<TWindow extends UseFpsWindowLike = UseFpsWindowLike>(
 			Number.isFinite(diff) && diff > 0 ? Math.round(1000 / (diff / ticks)) : 0;
 		last = now;
 		ticks = 0;
+		return true;
 	};
 
 	const scheduleFrame = () => {
@@ -114,22 +116,37 @@ export function useFps<TWindow extends UseFpsWindowLike = UseFpsWindowLike>(
 			typeof requestFrame !== "function" ||
 			typeof performanceValue?.now !== "function"
 		) {
-			active = false;
 			return;
 		}
 
 		frameWindow = windowValue;
+		const currentFrameVersion = frameVersion;
 		frameHandle = requestFrame.call(windowValue ?? globalThis, () => {
-			frameHandle = undefined;
-			frameWindow = undefined;
-
-			if (!active) {
+			if (!active || currentFrameVersion !== frameVersion) {
 				return;
 			}
 
-			update();
+			frameHandle = undefined;
+			frameWindow = undefined;
+
+			if (!update()) {
+				return;
+			}
 			scheduleFrame();
 		});
+	};
+
+	const restartFrame = () => {
+		clearFrame();
+		ticks = 0;
+
+		const performanceValue = currentPerformance();
+		if (typeof performanceValue?.now !== "function") {
+			return;
+		}
+
+		last = performanceValue.now();
+		scheduleFrame();
 	};
 
 	const start = () => {
@@ -137,23 +154,8 @@ export function useFps<TWindow extends UseFpsWindowLike = UseFpsWindowLike>(
 			return;
 		}
 
-		const windowValue = currentWindow();
-		const requestFrame = getRequestAnimationFrame(
-			windowValue,
-			useDefaultWindow,
-		);
-		const performanceValue = currentPerformance();
-		if (
-			typeof requestFrame !== "function" ||
-			typeof performanceValue?.now !== "function"
-		) {
-			return;
-		}
-
 		active = true;
-		ticks = 0;
-		last = performanceValue.now();
-		scheduleFrame();
+		restartFrame();
 	};
 
 	const stop = () => {
@@ -161,6 +163,18 @@ export function useFps<TWindow extends UseFpsWindowLike = UseFpsWindowLike>(
 		ticks = 0;
 		clearFrame();
 	};
+
+	watch(
+		() => currentWindow(),
+		(nextWindow, previousWindow) => {
+			if (!active || Object.is(nextWindow, previousWindow)) {
+				return;
+			}
+
+			restartFrame();
+		},
+		{ flush: "sync" },
+	);
 
 	bindAutoStart(start, stop, true);
 
