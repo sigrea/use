@@ -53,9 +53,6 @@ function applyImageOptions(
 		width,
 	} = options;
 
-	if (srcset != null) {
-		image.srcset = srcset;
-	}
 	if (sizes != null) {
 		image.sizes = sizes;
 	}
@@ -93,6 +90,9 @@ function applyImageOptions(
 		image.useMap = usemap;
 	}
 
+	if (srcset != null) {
+		image.srcset = srcset;
+	}
 	image.src = src;
 }
 

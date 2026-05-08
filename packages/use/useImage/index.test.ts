@@ -10,24 +10,88 @@ class FakeImage {
 	static readonly instances: FakeImage[] = [];
 
 	alt = "";
+	readonly attributeWrites: string[] = [];
 	className = "";
-	crossOrigin: string | null = null;
 	decoding = "";
-	fetchPriority = "";
 	height = 0;
 	isMap = false;
-	loading = "";
 	onerror: OnErrorEventHandler = null;
 	onload: ((this: GlobalEventHandlers, event: Event) => unknown) | null = null;
-	referrerPolicy = "";
-	sizes = "";
-	src = "";
-	srcset = "";
 	useMap = "";
 	width = 0;
+	private _crossOrigin: string | null = null;
+	private _fetchPriority = "";
+	private _loading = "";
+	private _referrerPolicy = "";
+	private _sizes = "";
+	private _src = "";
+	private _srcset = "";
 
 	constructor() {
 		FakeImage.instances.push(this);
+	}
+
+	get crossOrigin(): string | null {
+		return this._crossOrigin;
+	}
+
+	set crossOrigin(value: string | null) {
+		this.attributeWrites.push("crossOrigin");
+		this._crossOrigin = value;
+	}
+
+	get fetchPriority(): string {
+		return this._fetchPriority;
+	}
+
+	set fetchPriority(value: string) {
+		this.attributeWrites.push("fetchPriority");
+		this._fetchPriority = value;
+	}
+
+	get loading(): string {
+		return this._loading;
+	}
+
+	set loading(value: string) {
+		this.attributeWrites.push("loading");
+		this._loading = value;
+	}
+
+	get referrerPolicy(): string {
+		return this._referrerPolicy;
+	}
+
+	set referrerPolicy(value: string) {
+		this.attributeWrites.push("referrerPolicy");
+		this._referrerPolicy = value;
+	}
+
+	get sizes(): string {
+		return this._sizes;
+	}
+
+	set sizes(value: string) {
+		this.attributeWrites.push("sizes");
+		this._sizes = value;
+	}
+
+	get src(): string {
+		return this._src;
+	}
+
+	set src(value: string) {
+		this.attributeWrites.push("src");
+		this._src = value;
+	}
+
+	get srcset(): string {
+		return this._srcset;
+	}
+
+	set srcset(value: string) {
+		this.attributeWrites.push("srcset");
+		this._srcset = value;
 	}
 
 	fail(error: unknown = new Event("error")): void {
@@ -113,6 +177,40 @@ describe("useImage", () => {
 		expect(image.error.value).toBeUndefined();
 		expect(element.onload).toBeNull();
 		expect(element.onerror).toBeNull();
+	});
+
+	it("sets request-affecting attributes before srcset and src", () => {
+		useImage(
+			{
+				crossorigin: "anonymous",
+				fetchPriority: "high",
+				loading: "lazy",
+				referrerPolicy: "no-referrer",
+				sizes: "64px",
+				src: "/avatar.png",
+				srcset: "/avatar@2x.png 2x",
+			},
+			{ window: new FakeWindow() },
+		);
+
+		const writes = FakeImage.instances[0].attributeWrites;
+		const sourceWrites = [writes.indexOf("srcset"), writes.indexOf("src")];
+
+		for (const name of [
+			"sizes",
+			"crossOrigin",
+			"referrerPolicy",
+			"loading",
+			"fetchPriority",
+		]) {
+			const writeIndex = writes.indexOf(name);
+
+			expect(writeIndex).toBeGreaterThanOrEqual(0);
+			for (const sourceIndex of sourceWrites) {
+				expect(sourceIndex).toBeGreaterThanOrEqual(0);
+				expect(writeIndex).toBeLessThan(sourceIndex);
+			}
+		}
 	});
 
 	it("tracks load errors through useAsyncState", async () => {
