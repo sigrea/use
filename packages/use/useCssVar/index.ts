@@ -80,6 +80,7 @@ export function useCssVar<
 		? (defaultWindow as MaybeTarget<TWindow> | undefined)
 		: options.window;
 	const value = signal<string | null | undefined>(initialValue);
+	let syncingValue = false;
 
 	const currentWindow = () =>
 		windowTarget === undefined
@@ -92,11 +93,15 @@ export function useCssVar<
 		windowValue: TWindow | undefined,
 		element: UseCssVarElementLike | undefined,
 		nextProperty: string | null | undefined,
-	) => {
-		value.value =
-			readCssVar(windowValue, element, nextProperty) ??
-			value.value ??
-			initialValue;
+	): boolean => {
+		const elementValue = readCssVar(windowValue, element, nextProperty);
+		syncingValue = true;
+		try {
+			value.value = elementValue ?? value.value ?? initialValue;
+		} finally {
+			syncingValue = false;
+		}
+		return elementValue !== undefined;
 	};
 
 	const stopTargetWatch = watch(
@@ -114,8 +119,14 @@ export function useCssVar<
 				previousValue.element.style?.removeProperty(previousValue.property);
 			}
 
-			syncFromElement(nextValue.window, nextValue.element, nextValue.property);
-			writeCssVar(nextValue.element, nextValue.property, value.value);
+			const hadElementValue = syncFromElement(
+				nextValue.window,
+				nextValue.element,
+				nextValue.property,
+			);
+			if (!hadElementValue) {
+				writeCssVar(nextValue.element, nextValue.property, value.value);
+			}
 
 			const MutationObserverCtor =
 				observe && nextValue.element && nextValue.property
@@ -126,11 +137,16 @@ export function useCssVar<
 			}
 
 			const observer = new MutationObserverCtor(() => {
-				value.value = readCssVar(
-					nextValue.window,
-					nextValue.element,
-					nextValue.property,
-				);
+				syncingValue = true;
+				try {
+					value.value = readCssVar(
+						nextValue.window,
+						nextValue.element,
+						nextValue.property,
+					);
+				} finally {
+					syncingValue = false;
+				}
 			});
 			observer.observe(nextValue.element, {
 				attributeFilter: ["style", "class"],
@@ -146,6 +162,10 @@ export function useCssVar<
 	const stopValueWatch = watch(
 		() => value.value,
 		(nextValue) => {
+			if (syncingValue) {
+				return;
+			}
+
 			writeCssVar(currentElement(), currentProperty(), nextValue);
 		},
 		{ flush: "sync" },

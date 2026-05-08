@@ -55,6 +55,12 @@ describe("useCssVar", () => {
 	afterEach(() => {
 		FakeMutationObserver.instances = [];
 		document.body.innerHTML = "";
+		const styles = document.head.querySelectorAll(
+			"[data-use-css-var-test-style]",
+		);
+		for (let index = 0; index < styles.length; index += 1) {
+			styles.item(index).remove();
+		}
 		document.documentElement.removeAttribute("style");
 		disposeTrackedMolecules();
 	});
@@ -82,6 +88,25 @@ describe("useCssVar", () => {
 
 		expect(variable.value).toBe("red");
 		expect(element.style.getPropertyValue("--color")).toBe("red");
+
+		variable.stop();
+	});
+
+	it("does not inline CSS variables read from stylesheets", () => {
+		const style = document.createElement("style");
+		style.dataset.useCssVarTestStyle = "";
+		style.textContent = ".theme-red { --color: red; }";
+		document.head.append(style);
+		const element = document.createElement("div");
+		element.className = "theme-red";
+		document.body.append(element);
+		const variable = useCssVar("--color", element, {
+			initialValue: "blue",
+			window: new FakeWindow(),
+		});
+
+		expect(variable.value).toBe("red");
+		expect(element.style.getPropertyValue("--color")).toBe("");
 
 		variable.stop();
 	});
@@ -259,6 +284,45 @@ describe("useCssVar", () => {
 		observer?.emit(element, "style");
 
 		expect(variable.value).toBeUndefined();
+	});
+
+	it("observes class changes without pinning the initial computed value", () => {
+		const style = document.createElement("style");
+		style.dataset.useCssVarTestStyle = "";
+		style.textContent = `
+			.theme-red { --color: red; }
+			.theme-blue { --color: blue; }
+			.theme-green { --color: green; }
+		`;
+		document.head.append(style);
+		const element = document.createElement("div");
+		element.className = "theme-red";
+		document.body.append(element);
+		const variable = useCssVar("--color", element, {
+			observe: true,
+			window: new FakeWindow(),
+		});
+		const observer = FakeMutationObserver.instances[0];
+
+		expect(variable.value).toBe("red");
+		expect(element.style.getPropertyValue("--color")).toBe("");
+
+		element.className = "theme-blue";
+		observer?.emit(element, "class");
+
+		expect(variable.value).toBe("blue");
+		expect(element.style.getPropertyValue("--color")).toBe("");
+
+		element.className = "theme-green";
+		observer?.emit(element, "class");
+
+		expect(variable.value).toBe("green");
+		expect(element.style.getPropertyValue("--color")).toBe("");
+
+		variable.value = "purple";
+		expect(element.style.getPropertyValue("--color")).toBe("purple");
+
+		variable.stop();
 	});
 
 	it("disconnects the old observer when the target element changes", () => {
