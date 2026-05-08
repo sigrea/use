@@ -132,6 +132,50 @@ describe("usePointer", () => {
 		pointer.stop();
 	});
 
+	it("updates state and leaves on pointer cancel", () => {
+		const target = new EventTarget();
+		const pointer = usePointer({ target });
+
+		target.dispatchEvent(
+			pointerEvent("pointermove", {
+				clientX: 30,
+				clientY: 40,
+				pointerType: "touch",
+				pressure: 0.75,
+			}),
+		);
+		expect(pointer.isInside.value).toBe(true);
+
+		target.dispatchEvent(
+			pointerEvent("pointercancel", {
+				clientX: 35,
+				clientY: 45,
+				height: 7,
+				pointerId: 3,
+				pointerType: "touch",
+				pressure: 0.5,
+				tiltX: 10,
+				tiltY: -6,
+				twist: 30,
+				width: 5,
+			}),
+		);
+
+		expect(pointer.x.value).toBe(35);
+		expect(pointer.y.value).toBe(45);
+		expect(pointer.height.value).toBe(7);
+		expect(pointer.pointerId.value).toBe(3);
+		expect(pointer.pointerType.value).toBe("touch");
+		expect(pointer.pressure.value).toBe(0.5);
+		expect(pointer.tiltX.value).toBe(10);
+		expect(pointer.tiltY.value).toBe(-6);
+		expect(pointer.twist.value).toBe(30);
+		expect(pointer.width.value).toBe(5);
+		expect(pointer.isInside.value).toBe(false);
+
+		pointer.stop();
+	});
+
 	it("filters pointer types", () => {
 		const target = new EventTarget();
 		const pointerTypes = signal<readonly ("pen" | "touch")[]>(["pen"]);
@@ -168,6 +212,46 @@ describe("usePointer", () => {
 		target.dispatchEvent(
 			pointerEvent("pointerleave", { pointerType: "touch" }),
 		);
+		expect(pointer.isInside.value).toBe(false);
+
+		pointer.stop();
+	});
+
+	it("filters pointer cancel by pointer type", () => {
+		const target = new EventTarget();
+		const pointer = usePointer({ pointerTypes: ["pen"], target });
+
+		target.dispatchEvent(
+			pointerEvent("pointerdown", {
+				clientX: 10,
+				clientY: 20,
+				pointerType: "pen",
+			}),
+		);
+		expect(pointer.x.value).toBe(10);
+		expect(pointer.y.value).toBe(20);
+		expect(pointer.isInside.value).toBe(true);
+
+		target.dispatchEvent(
+			pointerEvent("pointercancel", {
+				clientX: 30,
+				clientY: 40,
+				pointerType: "touch",
+			}),
+		);
+		expect(pointer.x.value).toBe(10);
+		expect(pointer.y.value).toBe(20);
+		expect(pointer.isInside.value).toBe(true);
+
+		target.dispatchEvent(
+			pointerEvent("pointercancel", {
+				clientX: 50,
+				clientY: 60,
+				pointerType: "pen",
+			}),
+		);
+		expect(pointer.x.value).toBe(50);
+		expect(pointer.y.value).toBe(60);
 		expect(pointer.isInside.value).toBe(false);
 
 		pointer.stop();
@@ -215,6 +299,9 @@ describe("usePointer", () => {
 		pointer.stop();
 		target.dispatchEvent(
 			pointerEvent("pointermove", { clientX: 30, clientY: 40 }),
+		);
+		target.dispatchEvent(
+			pointerEvent("pointercancel", { clientX: 50, clientY: 60 }),
 		);
 		target.dispatchEvent(pointerEvent("pointerleave"));
 

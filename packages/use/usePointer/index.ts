@@ -94,6 +94,14 @@ export function usePointer<
 			isInside.value = false;
 		}
 	};
+	const cancel = (event: PointerEvent): void => {
+		if (!isPointerTypeAllowed(event, options.pointerTypes)) {
+			return;
+		}
+
+		updateState(event);
+		isInside.value = false;
+	};
 	const resolvedTarget = () =>
 		target === undefined ? undefined : resolveValue(target);
 	const stopTargetWatch = watch(
@@ -119,6 +127,12 @@ export function usePointer<
 		leave as EventListener,
 		listenerOptions,
 	);
+	const pointerCancel = useEventListener(
+		target,
+		"pointercancel",
+		cancel as EventListener,
+		listenerOptions,
+	);
 
 	return {
 		x: readonly(x),
@@ -135,6 +149,7 @@ export function usePointer<
 		stop: () => {
 			pointer.stop();
 			pointerLeave.stop();
+			pointerCancel.stop();
 			stopTargetWatch();
 			isInside.value = false;
 		},
