@@ -11,6 +11,7 @@ import {
 import type { Signal } from "@sigrea/core";
 import { describe, expect, it } from "vitest";
 
+import { createSignal } from "../createSignal";
 import { resolveValue } from "../resolveValue";
 import { signalDefault } from "./index";
 
@@ -62,6 +63,18 @@ describe("signalDefault", () => {
 	it("writes assignments back to the source", () => {
 		const source = signal<string | undefined>();
 		const value = signalDefault(source, "default");
+
+		value.value = "updated";
+
+		expect(source.value).toBe("updated");
+		expect(value.value).toBe("updated");
+	});
+
+	it("accepts writable computed signal sources", () => {
+		const source = createSignal<string | undefined, true>(undefined, true);
+		const value = signalDefault(source, "default");
+
+		expect(value.value).toBe("default");
 
 		value.value = "updated";
 

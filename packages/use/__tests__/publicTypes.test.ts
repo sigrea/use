@@ -906,7 +906,12 @@ describe("public types", () => {
 	it("types defaulted signals", () => {
 		typeOnly(() => {
 			const source = signal<string | null | undefined>();
+			const createdSource = createSignal<string | undefined, true>(
+				undefined,
+				true,
+			);
 			const value = signalDefault(source, "default");
+			const createdValue = signalDefault(createdSource, "default");
 			const nullValue = signalDefault(source, null);
 			const undefinedValue = signalDefault(source, undefined);
 			const fallbackFn: () => string = () => "default";
@@ -917,11 +922,13 @@ describe("public types", () => {
 
 			expectTypeOf(value).toEqualTypeOf<SignalDefaultReturn<string>>();
 			expectTypeOf(value).toEqualTypeOf<Signal<string>>();
+			expectTypeOf(createdValue).toEqualTypeOf<SignalDefaultReturn<string>>();
 			expectTypeOf(nullValue).toEqualTypeOf<Signal<string | null>>();
 			expectTypeOf(undefinedValue).toEqualTypeOf<Signal<string | undefined>>();
 			expectTypeOf(functionValue).toMatchTypeOf<Signal<() => string>>();
 
 			value.value = "updated";
+			createdValue.value = "updated";
 			nullValue.value = null;
 			undefinedValue.value = undefined;
 			functionValue.value = () => "updated";
