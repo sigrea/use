@@ -66,6 +66,28 @@ export type UseCeilReturn = ReadonlySignal<number>;
 export type UseClampReturn = ReadonlySignal<number>;
 export type UseClampWritableReturn = Computed<number>;
 export type UseFloorReturn = ReadonlySignal<number>;
+export type UseMathKeys = {
+	[K in keyof Math]: Math[K] extends FunctionArgs<
+		infer _TArgs,
+		infer _TReturn,
+		infer _TThis
+	>
+		? K
+		: never;
+}[keyof Math];
+export type UseMathMethod<K extends UseMathKeys> = Math[K] extends FunctionArgs<
+	infer TArgs,
+	infer TReturn,
+	infer TThis
+>
+	? FunctionArgs<TArgs, TReturn, TThis>
+	: never;
+export type UseMathArgs<K extends UseMathKeys> = MaybeValueArgs<
+	Parameters<UseMathMethod<K>>
+>;
+export type UseMathReturn<K extends UseMathKeys> = ReadonlySignal<
+	ReturnType<UseMathMethod<K>>
+>;
 export type PromisifyFn<T> = T extends (
 	this: infer TThis,
 	...args: infer TArgs

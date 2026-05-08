@@ -115,6 +115,7 @@ export { useInterval } from "./useInterval";
 export { useIntervalFn } from "./useIntervalFn";
 export { useLocalStorage } from "./useLocalStorage";
 export { useManualRefHistory } from "./useManualRefHistory";
+export { useMath } from "./useMath";
 export { useMediaQuery } from "./useMediaQuery";
 export { useMemoize } from "./useMemoize";
 export { useMemory } from "./useMemory";
@@ -721,6 +722,10 @@ export type {
 	UseMagicKeysOptions,
 	UseMagicKeysReturn,
 	UseMagicKeysWindowLike,
+	UseMathArgs,
+	UseMathKeys,
+	UseMathMethod,
+	UseMathReturn,
 	UseMediaControlsDocumentLike,
 	UseMediaControlsOptions,
 	UseMediaControlsReturn,
