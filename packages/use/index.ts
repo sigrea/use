@@ -96,6 +96,7 @@ export { useFavicon } from "./useFavicon";
 export { useFetch } from "./useFetch";
 export { useFileDialog } from "./useFileDialog";
 export { useFileSystemAccess } from "./useFileSystemAccess";
+export { useFloor } from "./useFloor";
 export { useFocus } from "./useFocus";
 export { useFocusWithin } from "./useFocusWithin";
 export { useFps } from "./useFps";
@@ -660,6 +661,7 @@ export type {
 	UseFileSystemAccessPickerOptions,
 	UseFileSystemAccessReturn,
 	UseFileSystemAccessSaveOptions,
+	UseFloorReturn,
 	UseFocusOptions,
 	UseFocusReturn,
 	UseFocusWithinReturn,
