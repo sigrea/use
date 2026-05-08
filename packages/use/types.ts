@@ -570,6 +570,7 @@ export interface UseBase64DocumentLike extends DocumentLike {
 
 export interface UseBase64WindowLike extends WindowLike {
 	readonly document?: UseBase64DocumentLike;
+	readonly Blob?: typeof Blob;
 	readonly FileReader?: { new (): FileReader };
 	readonly HTMLCanvasElement?: { new (): HTMLCanvasElement };
 	readonly HTMLImageElement?: { new (): HTMLImageElement };

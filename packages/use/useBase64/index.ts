@@ -20,6 +20,7 @@ type Base64SerializableObject =
 
 const dataUrlPrefixRE = /^data:.*?;base64,/;
 const binaryChunkSize = 0x8000;
+const objectToString = Object.prototype.toString;
 
 function watchSource<T>(target: MaybeValue<T>): T | object {
 	try {
@@ -29,15 +30,49 @@ function watchSource<T>(target: MaybeValue<T>): T | object {
 	}
 }
 
-function isBlob(value: unknown): value is Blob {
-	return typeof Blob !== "undefined" && value instanceof Blob;
+function getObjectTag(value: unknown): string {
+	return objectToString.call(value);
+}
+
+function getBlobConstructor(windowTarget: UseBase64WindowLike | undefined) {
+	return windowTarget?.Blob ?? (typeof Blob !== "undefined" ? Blob : undefined);
+}
+
+function isBlob(
+	value: unknown,
+	windowTarget: UseBase64WindowLike | undefined,
+): value is Blob {
+	const BlobConstructor = getBlobConstructor(windowTarget);
+
+	return (
+		(BlobConstructor !== undefined && value instanceof BlobConstructor) ||
+		getObjectTag(value) === "[object Blob]"
+	);
 }
 
 function isArrayBuffer(value: unknown): value is ArrayBuffer {
 	return (
 		value instanceof ArrayBuffer ||
-		Object.prototype.toString.call(value) === "[object ArrayBuffer]"
+		getObjectTag(value) === "[object ArrayBuffer]"
 	);
+}
+
+function isMap(value: unknown): value is Map<string, unknown> {
+	try {
+		Map.prototype.has.call(value, "");
+		return true;
+	} catch {
+		return false;
+	}
+}
+
+function isSet(value: unknown): value is Set<unknown> {
+	try {
+		Set.prototype.has.call(value, undefined);
+		return true;
+	} catch {
+		return false;
+	}
 }
 
 function getCanvasConstructor(windowTarget: UseBase64WindowLike | undefined) {
@@ -75,12 +110,12 @@ function isImageElement(
 function getDefaultSerialization<T extends Base64SerializableObject>(
 	target: T,
 ) {
-	if (target instanceof Map) {
+	if (isMap(target)) {
 		return (value: T) =>
 			JSON.stringify(Object.fromEntries(value as Map<string, unknown>));
 	}
 
-	if (target instanceof Set) {
+	if (isSet(target)) {
 		return (value: T) => JSON.stringify(Array.from(value as Set<unknown>));
 	}
 
@@ -209,7 +244,7 @@ async function toBase64(
 		);
 	}
 
-	if (isBlob(target)) {
+	if (isBlob(target, windowTarget)) {
 		return blobToDataUrl(target, windowTarget);
 	}
 

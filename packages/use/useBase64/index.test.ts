@@ -4,10 +4,24 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import type { UseBase64Return, UseBase64WindowLike } from "../types";
 import { useBase64 } from "./index";
 
+type CrossRealmWindow = Window & {
+	readonly Blob: typeof Blob;
+	readonly Map: MapConstructor;
+	readonly Set: SetConstructor;
+};
+
 async function waitForCurrentPromise(result: UseBase64Return): Promise<string> {
 	expect(result.promise.value).toBeInstanceOf(Promise);
 
 	return result.promise.value as Promise<string>;
+}
+
+function getFrameWindow(frame: HTMLIFrameElement): CrossRealmWindow {
+	if (frame.contentWindow === null) {
+		throw new Error("iframe window is not available");
+	}
+
+	return frame.contentWindow as CrossRealmWindow;
 }
 
 describe("useBase64", () => {
@@ -35,12 +49,65 @@ describe("useBase64", () => {
 		);
 	});
 
+	it("converts maps from another realm with the default serializer", async () => {
+		const iframe = document.createElement("iframe");
+		document.body.append(iframe);
+
+		try {
+			const frameWindow = getFrameWindow(iframe);
+			const map = new frameWindow.Map([["test", 1]]) as Map<string, unknown>;
+			expect(map).not.toBeInstanceOf(Map);
+
+			const result = useBase64(map);
+
+			await waitForCurrentPromise(result);
+
+			expect(result.base64.value).toBe(
+				"data:application/json;base64,eyJ0ZXN0IjoxfQ==",
+			);
+		} finally {
+			iframe.remove();
+		}
+	});
+
 	it("converts sets", async () => {
 		const result = useBase64(new Set([1]));
 
 		await waitForCurrentPromise(result);
 
 		expect(result.base64.value).toBe("data:application/json;base64,WzFd");
+	});
+
+	it("converts sets from another realm", async () => {
+		const iframe = document.createElement("iframe");
+		document.body.append(iframe);
+
+		try {
+			const frameWindow = getFrameWindow(iframe);
+			const set = new frameWindow.Set([1]) as Set<unknown>;
+			expect(set).not.toBeInstanceOf(Set);
+
+			const result = useBase64(set);
+
+			await waitForCurrentPromise(result);
+
+			expect(result.base64.value).toBe("data:application/json;base64,WzFd");
+		} finally {
+			iframe.remove();
+		}
+	});
+
+	it("keeps tagged records as records", async () => {
+		const result = useBase64({
+			[Symbol.toStringTag]: "Map",
+			test: 1,
+		} as Record<string, unknown>);
+
+		await waitForCurrentPromise(result);
+
+		expect(result.base64.value).toBe(
+			"data:application/json;base64,eyJ0ZXN0IjoxfQ==",
+		);
 	});
 
 	it("converts arrays", async () => {
@@ -87,6 +154,31 @@ describe("useBase64", () => {
 		await waitForCurrentPromise(result);
 
 		expect(result.base64.value).toBe("data:text/custom;base64,aGVsbG8=");
+	});
+
+	it("converts blobs created by a supplied window", async () => {
+		const iframe = document.createElement("iframe");
+		document.body.append(iframe);
+
+		try {
+			const foreignWindow = getFrameWindow(iframe);
+			const windowLike = foreignWindow as unknown as UseBase64WindowLike;
+
+			const blob = new foreignWindow.Blob(["hello"], {
+				type: "text/custom",
+			});
+			expect(blob).not.toBeInstanceOf(Blob);
+
+			const result = useBase64(blob as Blob, {
+				window: windowLike,
+			});
+
+			await waitForCurrentPromise(result);
+
+			expect(result.base64.value).toBe("data:text/custom;base64,aGVsbG8=");
+		} finally {
+			iframe.remove();
+		}
 	});
 
 	it("converts array buffers to raw base64", async () => {
