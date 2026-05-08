@@ -243,7 +243,7 @@ Status values:
 | `math/useCeil` | `useCeil` | Done |
 | `math/useClamp` | `useClamp` | Done |
 | `math/useFloor` | `useFloor` | Done |
-| `math/useMath` | `-` | Todo |
+| `math/useMath` | `useMath` | Done |
 | `math/useMax` | `-` | Todo |
 | `math/useMin` | `-` | Todo |
 | `math/usePrecision` | `-` | Todo |
