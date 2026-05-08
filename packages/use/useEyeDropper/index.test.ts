@@ -199,6 +199,16 @@ describe("useEyeDropper", () => {
 		expect(eyeDropper.error.value).toBe(error);
 		expect(eyeDropper.isOpen.value).toBe(false);
 		expect(FakeEyeDropper.instances).toHaveLength(0);
+
+		FakeEyeDropper.thrownError = undefined;
+		const reopened = eyeDropper.open();
+		const nativePicker = latestEyeDropper();
+
+		nativePicker.request.resolve({ sRGBHex: "#334455" });
+
+		await expect(reopened).resolves.toEqual({ sRGBHex: "#334455" });
+		expect(eyeDropper.error.value).toBeNull();
+		expect(eyeDropper.sRGBHex.value).toBe("#334455");
 	});
 
 	it("forwards external abort signals to the native picker", async () => {
@@ -258,6 +268,43 @@ describe("useEyeDropper", () => {
 
 		await expect(opened).resolves.toEqual({ sRGBHex: "#ddeeff" });
 		expect(eyeDropper.sRGBHex.value).toBe("#ddeeff");
+	});
+
+	it("aborts pending requests when the window changes", async () => {
+		const firstWindow = new FakeWindow();
+		const secondWindow = new FakeWindow();
+		const windowTarget = signal<
+			UseEyeDropperWindowLike<FakeEyeDropper> | null | undefined
+		>(firstWindow);
+		const eyeDropper = useEyeDropper({
+			initialValue: "#112233",
+			window: windowTarget,
+		});
+		const firstOpen = eyeDropper.open();
+		const firstPicker = latestEyeDropper();
+
+		expect(eyeDropper.isOpen.value).toBe(true);
+
+		windowTarget.value = secondWindow;
+
+		expect(firstPicker.openOptions?.signal?.aborted).toBe(true);
+		expect(eyeDropper.isOpen.value).toBe(false);
+		await expect(firstOpen).resolves.toBeUndefined();
+		expect(eyeDropper.sRGBHex.value).toBe("#112233");
+		expect(eyeDropper.error.value).toBeNull();
+		expect(FakeEyeDropper.instances).toHaveLength(1);
+
+		const secondOpen = eyeDropper.open();
+		const secondPicker = latestEyeDropper();
+
+		expect(secondPicker).not.toBe(firstPicker);
+		expect(FakeEyeDropper.instances).toHaveLength(2);
+		secondPicker.request.resolve({ sRGBHex: "#4455aa" });
+
+		await expect(secondOpen).resolves.toEqual({ sRGBHex: "#4455aa" });
+		expect(eyeDropper.sRGBHex.value).toBe("#4455aa");
+		expect(eyeDropper.error.value).toBeNull();
+		expect(eyeDropper.isOpen.value).toBe(false);
 	});
 
 	it("stops pending requests and prevents future opens", async () => {

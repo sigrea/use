@@ -1,4 +1,4 @@
-import { computed, readonly, signal } from "@sigrea/core";
+import { computed, readonly, signal, watch } from "@sigrea/core";
 
 import { defaultWindow, resolveTarget } from "../../shared";
 import { tryOnScopeDispose } from "../tryOnScopeDispose";
@@ -38,6 +38,7 @@ export function useEyeDropper<
 	const isOpen = signal(false);
 	const error = signal<unknown | null>(null);
 	let pendingOpen: Promise<EyeDropperResult | undefined> | undefined;
+	let pendingWindow: TWindow | undefined;
 	let activeAbort:
 		| {
 				cleanup: () => void;
@@ -86,11 +87,15 @@ export function useEyeDropper<
 		activeAbort?.cleanup();
 		activeAbort = undefined;
 	};
+	const clearPendingOpen = () => {
+		pendingOpen = undefined;
+		pendingWindow = undefined;
+		clearActiveAbort();
+	};
 	const abort = () => {
 		executionCount += 1;
 		activeAbort?.controller.abort();
-		clearActiveAbort();
-		pendingOpen = undefined;
+		clearPendingOpen();
 		isOpen.value = false;
 	};
 
@@ -116,8 +121,9 @@ export function useEyeDropper<
 		executionCount += 1;
 		const executionId = executionCount;
 		const nativeOpenOptions = createOpenOptions(openOptions);
+		pendingWindow = window;
 
-		pendingOpen = (async () => {
+		const openPromise = (async () => {
 			try {
 				const result = await new window.EyeDropper().open(nativeOpenOptions);
 
@@ -134,19 +140,34 @@ export function useEyeDropper<
 				}
 
 				return undefined;
-			} finally {
-				if (executionId === executionCount) {
-					isOpen.value = false;
-					pendingOpen = undefined;
-					clearActiveAbort();
-				}
 			}
 		})();
 
+		pendingOpen = openPromise.finally(() => {
+			if (executionId === executionCount) {
+				isOpen.value = false;
+				clearPendingOpen();
+			}
+		});
+
 		return pendingOpen;
 	};
+	const stopWindowWatch = watch(
+		currentWindow,
+		(window) => {
+			if (pendingWindow !== undefined && window !== pendingWindow) {
+				abort();
+			}
+		},
+		{ flush: "sync" },
+	);
 	const stop = () => {
+		if (disposed) {
+			return;
+		}
+
 		disposed = true;
+		stopWindowWatch();
 		abort();
 	};
 
