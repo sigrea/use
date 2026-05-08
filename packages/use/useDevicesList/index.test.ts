@@ -236,6 +236,65 @@ describe("useDevicesList", () => {
 		result.stop();
 	});
 
+	it("keeps permission requests current when devicechange fires during getUserMedia", async () => {
+		const permissionRequest = createDeferred<UseDevicesListMediaStreamLike>();
+		const stream = new FakeStream();
+		const mediaDevices = new FakeMediaDevices([camera, microphone], stream);
+		mediaDevices.getUserMedia = vi.fn(() => permissionRequest.promise);
+		const result = useDevicesList({
+			navigator: createNavigator(
+				mediaDevices,
+				createPermissions({ camera: "prompt", microphone: "prompt" }),
+			),
+		});
+
+		await vi.waitFor(() => {
+			expect(result.devices.value).toEqual([camera, microphone]);
+		});
+
+		const permissions = result.ensurePermissions();
+		await vi.waitFor(() => {
+			expect(mediaDevices.getUserMedia).toHaveBeenCalled();
+		});
+
+		mediaDevices.setDevices([camera, microphone, speaker]);
+		mediaDevices.dispatchEvent(new Event("devicechange"));
+		await vi.waitFor(() => {
+			expect(result.devices.value).toEqual([camera, microphone, speaker]);
+		});
+
+		permissionRequest.resolve(stream);
+
+		await expect(permissions).resolves.toBe(true);
+		expect(result.permissionGranted.value).toBe(true);
+		expect(stream.tracks[0].stop).toHaveBeenCalledOnce();
+		expect(stream.tracks[1].stop).toHaveBeenCalledOnce();
+
+		result.stop();
+	});
+
+	it("keeps permission requests current when a navigator getter returns a fresh wrapper", async () => {
+		const stream = new FakeStream();
+		const mediaDevices = new FakeMediaDevices([camera], stream);
+		const permissions = createPermissions({ camera: "prompt" });
+		const result = useDevicesList({
+			constraints: { audio: false, video: true },
+			navigator: () => createNavigator(mediaDevices, permissions),
+		});
+
+		await expect(result.ensurePermissions()).resolves.toBe(true);
+
+		expect(mediaDevices.getUserMedia).toHaveBeenCalledWith({
+			audio: false,
+			video: true,
+		});
+		expect(result.permissionGranted.value).toBe(true);
+		expect(stream.tracks[0].stop).toHaveBeenCalledOnce();
+		expect(stream.tracks[1].stop).toHaveBeenCalledOnce();
+
+		result.stop();
+	});
+
 	it("does not request a stream when permission is denied", async () => {
 		const mediaDevices = new FakeMediaDevices([camera, microphone]);
 		const result = useDevicesList({
@@ -374,6 +433,52 @@ describe("useDevicesList", () => {
 
 		postPermissionRead.resolve([camera]);
 		await expect(permissions).resolves.toBe(false);
+	});
+
+	it("stops stale permission streams when a newer permission request starts", async () => {
+		const postPermissionRead = createDeferred<readonly MediaDeviceInfo[]>();
+		const firstStream = new FakeStream();
+		const secondStream = new FakeStream();
+		const mediaDevices = new FakeMediaDevices([camera]);
+		mediaDevices.enumerateDevices = vi
+			.fn<UseDevicesListMediaDevicesLike["enumerateDevices"]>()
+			.mockResolvedValueOnce([camera])
+			.mockResolvedValueOnce([camera])
+			.mockReturnValueOnce(postPermissionRead.promise)
+			.mockResolvedValue([camera]);
+		mediaDevices.getUserMedia = vi
+			.fn<NonNullable<UseDevicesListMediaDevicesLike["getUserMedia"]>>()
+			.mockResolvedValueOnce(firstStream)
+			.mockResolvedValueOnce(secondStream);
+		const result = useDevicesList({
+			constraints: { audio: false, video: true },
+			navigator: createNavigator(mediaDevices),
+		});
+
+		await vi.waitFor(() => {
+			expect(result.devices.value).toEqual([camera]);
+		});
+		const firstPermissions = result.ensurePermissions();
+		await vi.waitFor(() => {
+			expect(mediaDevices.getUserMedia).toHaveBeenCalledTimes(1);
+		});
+		await vi.waitFor(() => {
+			expect(mediaDevices.enumerateDevices).toHaveBeenCalledTimes(3);
+		});
+
+		const secondPermissions = result.ensurePermissions();
+
+		expect(firstStream.tracks[0].stop).toHaveBeenCalledOnce();
+		expect(firstStream.tracks[1].stop).toHaveBeenCalledOnce();
+
+		postPermissionRead.resolve([camera]);
+
+		await expect(firstPermissions).resolves.toBe(false);
+		await expect(secondPermissions).resolves.toBe(true);
+		expect(secondStream.tracks[0].stop).toHaveBeenCalledOnce();
+		expect(secondStream.tracks[1].stop).toHaveBeenCalledOnce();
+
+		result.stop();
 	});
 
 	it("stops a temporary stream immediately when the navigator changes during the post-permission refresh", async () => {

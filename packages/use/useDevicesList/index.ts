@@ -116,7 +116,8 @@ export function useDevicesList<
 		devices.value.filter((device) => device.kind === "audiooutput"),
 	);
 	const activePermissionStreams = new Set<UseDevicesListMediaStreamLike>();
-	let executionCount = 0;
+	let permissionCount = 0;
+	let readCount = 0;
 	let stopped = false;
 
 	const stopPermissionStream = (
@@ -141,11 +142,11 @@ export function useDevicesList<
 	};
 	const readDevices = async (
 		navigator: SupportedDevicesNavigator,
-		executionId: number,
+		readId = ++readCount,
 	): Promise<MediaDeviceInfo[] | undefined> => {
 		try {
 			const nextDevices = await navigator.mediaDevices.enumerateDevices();
-			if (stopped || executionId !== executionCount) {
+			if (stopped || readId !== readCount) {
 				return undefined;
 			}
 
@@ -156,28 +157,29 @@ export function useDevicesList<
 			return undefined;
 		}
 	};
+	const isCurrentPermissionRequest = (permissionId: number) =>
+		!stopped && permissionId === permissionCount;
 	const update = async (): Promise<void> => {
 		if (stopped) {
 			return;
 		}
 
-		executionCount += 1;
-		const executionId = executionCount;
 		const navigator = currentNavigator();
 		syncSupport(navigator);
 		if (!isMediaDevicesNavigator(navigator)) {
 			return;
 		}
 
-		await readDevices(navigator, executionId);
+		await readDevices(navigator);
 	};
 	const ensurePermissions = async (): Promise<boolean> => {
 		if (stopped) {
 			return false;
 		}
 
-		executionCount += 1;
-		const executionId = executionCount;
+		permissionCount += 1;
+		const permissionId = permissionCount;
+		stopActivePermissionStreams();
 		const navigator = currentNavigator();
 		const requestedConstraints = resolveValue(constraints);
 		const permissionNames = requestedPermissionNames(requestedConstraints);
@@ -188,8 +190,8 @@ export function useDevicesList<
 		}
 
 		if (permissionNames.length === 0) {
-			await readDevices(navigator, executionId);
-			if (stopped || executionId !== executionCount) {
+			await readDevices(navigator);
+			if (!isCurrentPermissionRequest(permissionId)) {
 				return false;
 			}
 
@@ -200,13 +202,13 @@ export function useDevicesList<
 		const permissionStates = await Promise.all(
 			permissionNames.map((name) => queryPermissionState(navigator, name)),
 		);
-		if (stopped || executionId !== executionCount) {
+		if (!isCurrentPermissionRequest(permissionId)) {
 			return false;
 		}
 
 		if (permissionStates.every((state) => state === "granted")) {
-			await readDevices(navigator, executionId);
-			if (stopped || executionId !== executionCount) {
+			await readDevices(navigator);
+			if (!isCurrentPermissionRequest(permissionId)) {
 				return false;
 			}
 
@@ -215,19 +217,18 @@ export function useDevicesList<
 		}
 		if (permissionStates.some((state) => state === "denied")) {
 			permissionGranted.value = false;
-			await readDevices(navigator, executionId);
+			await readDevices(navigator);
 			return false;
 		}
 
 		if (typeof navigator.mediaDevices.getUserMedia !== "function") {
 			permissionGranted.value = false;
-			await readDevices(navigator, executionId);
+			await readDevices(navigator);
 			return false;
 		}
 
-		const availableDevices =
-			(await readDevices(navigator, executionId)) ?? devices.value;
-		if (stopped || executionId !== executionCount) {
+		const availableDevices = (await readDevices(navigator)) ?? devices.value;
+		if (!isCurrentPermissionRequest(permissionId)) {
 			return false;
 		}
 
@@ -248,20 +249,20 @@ export function useDevicesList<
 			stream = await navigator.mediaDevices.getUserMedia(availableConstraints);
 			activePermissionStreams.add(stream);
 		} catch {
-			if (executionId === executionCount) {
+			if (isCurrentPermissionRequest(permissionId)) {
 				permissionGranted.value = false;
-				await readDevices(navigator, executionId);
+				await readDevices(navigator);
 			}
 			return false;
 		}
 
 		try {
-			if (stopped || executionId !== executionCount) {
+			if (!isCurrentPermissionRequest(permissionId)) {
 				return false;
 			}
 
-			await readDevices(navigator, executionId);
-			if (stopped || executionId !== executionCount) {
+			await readDevices(navigator);
+			if (!isCurrentPermissionRequest(permissionId)) {
 				return false;
 			}
 
@@ -285,8 +286,8 @@ export function useDevicesList<
 				return;
 			}
 
-			executionCount += 1;
-			const executionId = executionCount;
+			permissionCount += 1;
+			readCount += 1;
 			devices.value = [];
 			permissionGranted.value = false;
 			syncSupport(navigator);
@@ -312,7 +313,7 @@ export function useDevicesList<
 				return;
 			}
 
-			void readDevices(navigator, executionId);
+			void readDevices(navigator);
 		},
 		{ immediate: true, flush: "sync" },
 	);
@@ -322,7 +323,8 @@ export function useDevicesList<
 		}
 
 		stopped = true;
-		executionCount += 1;
+		permissionCount += 1;
+		readCount += 1;
 		stopActivePermissionStreams();
 		stopWatch();
 	};
