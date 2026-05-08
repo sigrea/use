@@ -181,6 +181,35 @@ describe("useEventSource", () => {
 		result.stop();
 	});
 
+	it("does not connect on URL changes before manual open", () => {
+		const url = signal("https://example.com/one");
+		const result = useEventSource(url, [], {
+			immediate: false,
+			window: new FakeWindow(),
+		});
+
+		url.value = "https://example.com/two";
+
+		expect(result.isSupported.value).toBe(true);
+		expect(result.status.value).toBe("CLOSED");
+		expect(result.eventSource.value).toBeUndefined();
+		expect(FakeEventSource.instances).toHaveLength(0);
+
+		result.open();
+
+		const first = latestSource();
+		expect(first.url).toBe("https://example.com/two");
+
+		url.value = "https://example.com/three";
+
+		const second = latestSource();
+		expect(FakeEventSource.instances).toHaveLength(2);
+		expect(first.closeCalls).toBe(1);
+		expect(second.url).toBe("https://example.com/three");
+
+		result.stop();
+	});
+
 	it("opens initially when autoConnect is false", () => {
 		const url = signal("https://example.com/one");
 		const result = useEventSource(url, [], {
@@ -203,6 +232,33 @@ describe("useEventSource", () => {
 		expect(FakeEventSource.instances).toHaveLength(2);
 		expect(first.closeCalls).toBe(1);
 		expect(second.url).toBe("https://example.com/two");
+
+		result.stop();
+	});
+
+	it("keeps URL changes manual when immediate and autoConnect are false", () => {
+		const url = signal("https://example.com/one");
+		const result = useEventSource(url, [], {
+			autoConnect: false,
+			immediate: false,
+			window: new FakeWindow(),
+		});
+
+		url.value = "https://example.com/two";
+
+		expect(FakeEventSource.instances).toHaveLength(0);
+		expect(result.eventSource.value).toBeUndefined();
+
+		result.open();
+
+		const source = latestSource();
+		expect(source.url).toBe("https://example.com/two");
+
+		url.value = "https://example.com/three";
+
+		expect(FakeEventSource.instances).toHaveLength(1);
+		expect(source.closeCalls).toBe(0);
+		expect(result.eventSource.value).toBe(source);
 
 		result.stop();
 	});

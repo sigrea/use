@@ -76,6 +76,7 @@ export function useEventSource<
 	const lastEventId = signal("");
 	let eventCleanups: Array<() => void> = [];
 	let explicitlyClosed = false;
+	let autoConnectEnabled = immediate;
 	let stopped = false;
 
 	const currentWindow = () =>
@@ -213,10 +214,12 @@ export function useEventSource<
 
 		closeCurrentSource();
 		explicitlyClosed = false;
+		autoConnectEnabled = true;
 		connect();
 	};
 	const close = () => {
 		explicitlyClosed = true;
+		autoConnectEnabled = false;
 		closeCurrentSource();
 	};
 	let isInitialWatchRun = true;
@@ -239,7 +242,11 @@ export function useEventSource<
 				return;
 			}
 
-			if (explicitlyClosed || (isInitial ? !immediate : !autoConnect)) {
+			if (
+				explicitlyClosed ||
+				!autoConnectEnabled ||
+				(!isInitial && !autoConnect)
+			) {
 				return;
 			}
 
