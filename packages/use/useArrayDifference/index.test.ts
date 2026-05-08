@@ -12,6 +12,21 @@ describe("useArrayDifference", () => {
 		expect(result.value).toEqual([1, 2, 3]);
 	});
 
+	it("uses SameValueZero for default item comparison", () => {
+		const result = useArrayDifference([Number.NaN, 0, -0, 1], [Number.NaN, -0]);
+		const symmetric = useArrayDifference(
+			[Number.NaN],
+			[Number.NaN],
+			undefined,
+			{
+				symmetric: true,
+			},
+		);
+
+		expect(result.value).toEqual([1]);
+		expect(symmetric.value).toEqual([]);
+	});
+
 	it("tracks signal source and values arrays", () => {
 		const list = signal([1, 2, 3, 4, 5]);
 		const values = signal([4, 5, 6]);

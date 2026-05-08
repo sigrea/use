@@ -9,7 +9,7 @@ import type {
 } from "../types";
 
 function defaultCompare<T>(value: T, otherValue: T) {
-	return value === otherValue;
+	return value === otherValue || Object.is(value, otherValue);
 }
 
 function createCompare<T>(
