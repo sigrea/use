@@ -106,6 +106,22 @@ function toCloneSource<T>(value: T, seen?: WeakMap<object, unknown>): T {
 	}
 
 	const nextSeen = seen ?? new WeakMap<object, unknown>();
+	if (isSignal(value)) {
+		const signalValue = value.value;
+		if (isObject(signalValue)) {
+			if (nextSeen.has(signalValue)) {
+				const output = nextSeen.get(signalValue);
+				nextSeen.set(value, output);
+				return output as T;
+			}
+			const rawSignalValue = toRawDeepSignal(signalValue);
+			if (isObject(rawSignalValue) && nextSeen.has(rawSignalValue)) {
+				const output = nextSeen.get(rawSignalValue);
+				nextSeen.set(value, output);
+				return output as T;
+			}
+		}
+	}
 	if (nextSeen.has(value)) {
 		return nextSeen.get(value) as T;
 	}
@@ -125,11 +141,10 @@ function toCloneSource<T>(value: T, seen?: WeakMap<object, unknown>): T {
 			const output = {};
 			nextSeen.set(value, output);
 			const clonedValue = toCloneSource(signalValue, nextSeen);
-			if (clonedValue !== output && isObject(clonedValue)) {
+			if (clonedValue !== output) {
 				nextSeen.set(value, clonedValue);
-				return clonedValue as T;
 			}
-			return output as T;
+			return clonedValue as T;
 		}
 		if (nextSeen.has(signalValue)) {
 			const output = nextSeen.get(signalValue);

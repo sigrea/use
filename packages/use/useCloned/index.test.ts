@@ -212,6 +212,45 @@ describe("useCloned", () => {
 		result.stop();
 	});
 
+	it("returns recursively cloned nested signal values", () => {
+		const primitive = signal(signal(1));
+		const text = signal(signal("ready"));
+		const innerObject = signal({ count: 2 });
+		const object = signal(innerObject);
+		const source = { object, primitive, text };
+		const structured = cloneStructured(source);
+		const result = useCloned(source);
+
+		expect(cloneStructured(primitive)).toBe(1);
+		expect(structured).toEqual({
+			object: { count: 2 },
+			primitive: 1,
+			text: "ready",
+		});
+		expect(structured.object).not.toBe(innerObject.value);
+		expect(result.cloned.value).toEqual({
+			object: { count: 2 },
+			primitive: 1,
+			text: "ready",
+		});
+		expect(result.cloned.value.object).not.toBe(innerObject.value);
+		result.stop();
+	});
+
+	it("preserves cycles through nested signals", () => {
+		const raw: { self?: unknown } = {};
+		const inner = signal(raw);
+		const outer = signal(inner);
+		raw.self = outer;
+
+		const structured = cloneStructured(outer);
+		const result = useCloned<typeof inner, typeof raw>(outer);
+
+		expect(structured.self).toBe(structured);
+		expect(result.cloned.value.self).toBe(result.cloned.value);
+		result.stop();
+	});
+
 	it("handles clone cycles that pass through signals", () => {
 		const signalCycle = signal<unknown>();
 		const objectCycle: { self?: unknown } = {};
