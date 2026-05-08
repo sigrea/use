@@ -125,6 +125,26 @@ describe("onElementRemoval", () => {
 		stop();
 	});
 
+	it("observes a custom document when the window target is unavailable", async () => {
+		const host = document.createElement("div");
+		document.body.append(host);
+		const shadowRoot = host.attachShadow({ mode: "open" });
+		const { parentElement, targetElement } = createElementTree(shadowRoot);
+		const windowTarget = signal<Window | undefined>(undefined);
+		const callback = vi.fn();
+		const stop = onElementRemoval(targetElement, callback, {
+			document: shadowRoot,
+			window: windowTarget,
+		});
+
+		parentElement.removeChild(targetElement);
+		await flushMutationObserver();
+
+		expect(callback).toHaveBeenCalledTimes(1);
+
+		stop();
+	});
+
 	it("stops observing after the stop handle is called", async () => {
 		const { parentElement, targetElement } = createElementTree();
 		const callback = vi.fn();
@@ -157,6 +177,25 @@ describe("onElementRemoval", () => {
 		const { parentElement, targetElement } = createElementTree();
 		const callback = vi.fn();
 		const stop = onElementRemoval(targetElement, callback, { window: null });
+
+		parentElement.removeChild(targetElement);
+		await flushMutationObserver();
+
+		expect(callback).not.toHaveBeenCalled();
+
+		stop();
+	});
+
+	it("does not fall back to global MutationObserver when window is null", async () => {
+		const host = document.createElement("div");
+		document.body.append(host);
+		const shadowRoot = host.attachShadow({ mode: "open" });
+		const { parentElement, targetElement } = createElementTree(shadowRoot);
+		const callback = vi.fn();
+		const stop = onElementRemoval(targetElement, callback, {
+			document: shadowRoot,
+			window: null,
+		});
 
 		parentElement.removeChild(targetElement);
 		await flushMutationObserver();
