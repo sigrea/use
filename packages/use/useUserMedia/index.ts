@@ -67,12 +67,14 @@ export function useUserMedia<
 	const syncSupport = (navigator: TNavigator | null | undefined) => {
 		isSupported.value = isUserMediaNavigator(navigator);
 	};
-	const getDeviceOptions = (
-		type: "audio" | "video",
-	): boolean | MediaTrackConstraints | undefined => {
+	const getMediaConstraints = (): MediaStreamConstraints => {
 		const currentConstraints = constraints.value ?? createDefaultConstraints();
 
-		return currentConstraints[type] || false;
+		return {
+			...currentConstraints,
+			audio: currentConstraints.audio ?? false,
+			video: currentConstraints.video ?? false,
+		};
 	};
 	const clearTrackListeners = () => {
 		for (const stopListening of trackListeners) {
@@ -141,10 +143,9 @@ export function useUserMedia<
 
 			let nextStream: TStream;
 			try {
-				nextStream = await navigator.mediaDevices.getUserMedia({
-					audio: getDeviceOptions("audio"),
-					video: getDeviceOptions("video"),
-				});
+				nextStream = await navigator.mediaDevices.getUserMedia(
+					getMediaConstraints(),
+				);
 			} catch (caughtError) {
 				if (executionId === executionCount) {
 					error.value = caughtError;

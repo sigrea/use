@@ -161,6 +161,28 @@ describe("useUserMedia", () => {
 		result.stop();
 	});
 
+	it("preserves top-level media stream constraints", async () => {
+		const mediaDevices = new FakeMediaDevices();
+		const result = useFakeUserMedia({
+			constraints: {
+				audio: { echoCancellation: true },
+				peerIdentity: "peer.example",
+				video: { facingMode: "environment" },
+			},
+			navigator: createNavigator(mediaDevices),
+		});
+
+		await expect(result.start()).resolves.toBe(mediaDevices.stream);
+
+		expect(mediaDevices.getUserMedia).toHaveBeenCalledWith({
+			audio: { echoCancellation: true },
+			peerIdentity: "peer.example",
+			video: { facingMode: "environment" },
+		});
+
+		result.stop();
+	});
+
 	it("shares a pending start request", async () => {
 		const request = createDeferred<FakeMediaStream>();
 		const mediaDevices = new FakeMediaDevices();
@@ -337,7 +359,11 @@ describe("useUserMedia", () => {
 		});
 
 		await expect(result.start()).resolves.toBe(firstStream);
-		result.constraints.value = { audio: true, video: false };
+		result.constraints.value = {
+			audio: { echoCancellation: true },
+			peerIdentity: "switch.example",
+			video: { deviceId: "camera-1" },
+		};
 		await vi.waitFor(() => {
 			expect(result.stream.value).toBe(secondStream);
 		});
@@ -349,8 +375,9 @@ describe("useUserMedia", () => {
 			video: true,
 		});
 		expect(mediaDevices.getUserMedia).toHaveBeenNthCalledWith(2, {
-			audio: true,
-			video: false,
+			audio: { echoCancellation: true },
+			peerIdentity: "switch.example",
+			video: { deviceId: "camera-1" },
 		});
 
 		result.stop();
