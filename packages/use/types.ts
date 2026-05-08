@@ -88,6 +88,7 @@ export type UseMathArgs<K extends UseMathKeys> = MaybeValueArgs<
 export type UseMathReturn<K extends UseMathKeys> = ReadonlySignal<
 	ReturnType<UseMathMethod<K>>
 >;
+export type UseMaxReturn = ReadonlySignal<number>;
 export type PromisifyFn<T> = T extends (
 	this: infer TThis,
 	...args: infer TArgs

@@ -116,6 +116,7 @@ export { useIntervalFn } from "./useIntervalFn";
 export { useLocalStorage } from "./useLocalStorage";
 export { useManualRefHistory } from "./useManualRefHistory";
 export { useMath } from "./useMath";
+export { useMax } from "./useMax";
 export { useMediaQuery } from "./useMediaQuery";
 export { useMemoize } from "./useMemoize";
 export { useMemory } from "./useMemory";
@@ -726,6 +727,7 @@ export type {
 	UseMathKeys,
 	UseMathMethod,
 	UseMathReturn,
+	UseMaxReturn,
 	UseMediaControlsDocumentLike,
 	UseMediaControlsOptions,
 	UseMediaControlsReturn,
