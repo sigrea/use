@@ -58,6 +58,7 @@ export { useBroadcastChannel } from "./useBroadcastChannel";
 export { useBrowserLocation } from "./useBrowserLocation";
 export { useCached } from "./useCached";
 export { useCeil } from "./useCeil";
+export { useClamp } from "./useClamp";
 export { useClipboard } from "./useClipboard";
 export { useClipboardItems } from "./useClipboardItems";
 export { cloneStructured, useCloned } from "./useCloned";
@@ -477,6 +478,8 @@ export type {
 	UseBreakpointsOptions,
 	UseBreakpointsReturn,
 	UseCeilReturn,
+	UseClampReturn,
+	UseClampWritableReturn,
 	UseCounterOptions,
 	UseCounterReturn,
 	UseCycleListOptions,
