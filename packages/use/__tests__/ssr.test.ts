@@ -36,6 +36,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.useMin).toBe("function");
 		expect(typeof mod.usePrecision).toBe("function");
 		expect(typeof mod.useProjection).toBe("function");
+		expect(typeof mod.useRound).toBe("function");
 		expect(typeof mod.useCounter).toBe("function");
 		expect(typeof mod.onClickOutside).toBe("function");
 		expect(typeof mod.onElementRemoval).toBe("function");
@@ -1674,6 +1675,7 @@ describe("SSR safety", () => {
 			useMin,
 			usePrecision,
 			useProjection,
+			useRound,
 			useDebouncedRefHistory,
 			useThrottledRefHistory,
 			useTimeAgo,
@@ -1719,6 +1721,7 @@ describe("SSR safety", () => {
 		const minValue = useMin(signal(1), () => 3);
 		const precisionValue = usePrecision(signal(12.3456), 2);
 		const projectionValue = useProjection(signal(5), [0, 10], [0, 100]);
+		const roundValue = useRound(signal(1.5));
 		const autoResetValue = signalAutoReset("default", 100);
 		const defaultValue = signalDefault(signal<string | undefined>(), "default");
 		const debouncedValue = signalDebounced(signal("source"), 100);
@@ -1897,6 +1900,7 @@ describe("SSR safety", () => {
 		expect(minValue.value).toBe(1);
 		expect(precisionValue.value).toBe(12.35);
 		expect(projectionValue.value).toBe(50);
+		expect(roundValue.value).toBe(2);
 		expect(autoResetValue.value).toBe("default");
 		expect(defaultValue.value).toBe("default");
 		expect(debouncedValue.value).toBe("source");
