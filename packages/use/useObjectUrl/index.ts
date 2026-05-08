@@ -8,8 +8,18 @@ import type {
 	UseObjectUrlObject,
 	UseObjectUrlOptions,
 	UseObjectUrlReturn,
+	UseObjectUrlUrlLike,
 	UseObjectUrlWindowLike,
 } from "../types";
+
+function hasObjectUrlApi(
+	urlApi: UseObjectUrlWindowLike["URL"] | null | undefined,
+): urlApi is UseObjectUrlUrlLike {
+	return (
+		typeof urlApi?.createObjectURL === "function" &&
+		typeof urlApi.revokeObjectURL === "function"
+	);
+}
 
 export function useObjectUrl(
 	object: MaybeValue<UseObjectUrlObject | null | undefined>,
@@ -33,7 +43,10 @@ export function useObjectUrl(
 			return;
 		}
 
-		windowValue?.URL?.revokeObjectURL(currentUrl);
+		const urlApi = windowValue?.URL;
+		if (hasObjectUrlApi(urlApi)) {
+			urlApi.revokeObjectURL(currentUrl);
+		}
 		objectUrl.value = undefined;
 	};
 	const stop = watch(
@@ -45,14 +58,19 @@ export function useObjectUrl(
 			release(window);
 
 			const urlApi = window?.URL;
-			if (nextObject === null || nextObject === undefined || !urlApi) {
+			if (
+				nextObject === null ||
+				nextObject === undefined ||
+				!hasObjectUrlApi(urlApi)
+			) {
 				return;
 			}
 
 			const nextUrl = urlApi.createObjectURL(nextObject);
+			const revokeObjectURL = urlApi.revokeObjectURL.bind(urlApi);
 			objectUrl.value = nextUrl;
 			onCleanup(() => {
-				urlApi.revokeObjectURL(nextUrl);
+				revokeObjectURL(nextUrl);
 				if (objectUrl.value === nextUrl) {
 					objectUrl.value = undefined;
 				}

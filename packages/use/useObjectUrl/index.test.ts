@@ -88,6 +88,75 @@ describe("useObjectUrl", () => {
 		result.stop();
 	});
 
+	it("does not create a URL when object URL helpers are unavailable", () => {
+		const createObjectURL = vi.fn(() => "blob:mock");
+		const result = useObjectUrl(new Blob(["hello"]), {
+			window: createWindow({
+				createObjectURL,
+			} as unknown as UseObjectUrlUrlLike),
+		});
+
+		expect(result.url.value).toBeUndefined();
+		expect(createObjectURL).not.toHaveBeenCalled();
+
+		result.stop();
+		expect(result.url.value).toBeUndefined();
+	});
+
+	it("does not create a URL when createObjectURL is unavailable", () => {
+		const revokeObjectURL = vi.fn();
+		const result = useObjectUrl(new Blob(["hello"]), {
+			window: createWindow({
+				revokeObjectURL,
+			} as unknown as UseObjectUrlUrlLike),
+		});
+
+		expect(result.url.value).toBeUndefined();
+		expect(revokeObjectURL).not.toHaveBeenCalled();
+
+		result.stop();
+		expect(result.url.value).toBeUndefined();
+	});
+
+	it("keeps cleanup safe when object URL helpers disappear after creation", () => {
+		const source = signal<Blob | null>(new Blob(["first"]));
+		const firstUrl = createUrlApi();
+		const secondUrl = createUrlApi();
+		const windowTarget = signal<UseObjectUrlWindowLike | null>(
+			createWindow(firstUrl),
+		);
+		const result = useObjectUrl(source, { window: windowTarget });
+		const firstRevokeObjectURL = firstUrl.revokeObjectURL;
+
+		expect(result.url.value).toBe("blob:mock-1");
+
+		(
+			firstUrl as { revokeObjectURL?: UseObjectUrlUrlLike["revokeObjectURL"] }
+		).revokeObjectURL = undefined;
+		source.value = null;
+
+		expect(firstRevokeObjectURL).toHaveBeenCalledWith("blob:mock-1");
+		expect(result.url.value).toBeUndefined();
+
+		source.value = new Blob(["second"]);
+		expect(result.url.value).toBeUndefined();
+
+		windowTarget.value = createWindow(secondUrl);
+		const secondRevokeObjectURL = secondUrl.revokeObjectURL;
+		expect(result.url.value).toBe("blob:mock-1");
+
+		(
+			secondUrl as { revokeObjectURL?: UseObjectUrlUrlLike["revokeObjectURL"] }
+		).revokeObjectURL = undefined;
+		windowTarget.value = null;
+
+		expect(secondRevokeObjectURL).toHaveBeenCalledWith("blob:mock-1");
+		expect(result.url.value).toBeUndefined();
+
+		result.stop();
+		expect(result.url.value).toBeUndefined();
+	});
+
 	it("uses the default window URL API", () => {
 		const urlApi = createUrlApi();
 		Object.defineProperty(window, "URL", {
