@@ -95,6 +95,40 @@ describe("useConfirmDialog", () => {
 		expect(dialog.isOpen.value).toBe(false);
 	});
 
+	it("allows onOpen handlers to confirm synchronously", async () => {
+		const dialog = useConfirmDialog<string, { accepted: boolean }>();
+		dialog.onOpen((data) => {
+			if (data === "auto-confirm") {
+				dialog.confirm({ accepted: true });
+			}
+		});
+
+		const result = dialog.open("auto-confirm");
+
+		await expect(result).resolves.toEqual({
+			data: { accepted: true },
+			isCanceled: false,
+		});
+		expect(dialog.isOpen.value).toBe(false);
+	});
+
+	it("allows onOpen handlers to cancel synchronously", async () => {
+		const dialog = useConfirmDialog<string, unknown, { reason: string }>();
+		dialog.onOpen((data) => {
+			if (data === "auto-cancel") {
+				dialog.cancel({ reason: "blocked" });
+			}
+		});
+
+		const result = dialog.open("auto-cancel");
+
+		await expect(result).resolves.toEqual({
+			data: { reason: "blocked" },
+			isCanceled: true,
+		});
+		expect(dialog.isOpen.value).toBe(false);
+	});
+
 	it("does not throw when confirming or canceling before open", () => {
 		const dialog = useConfirmDialog<unknown, string, string>();
 		const onConfirm = vi.fn();

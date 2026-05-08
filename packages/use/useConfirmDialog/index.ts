@@ -23,14 +23,18 @@ export function useConfirmDialog<
 			isCanceled: true,
 		});
 		resolvePromise = undefined;
-		openHook.trigger(data);
-		isOpen.value = true;
 
-		return new Promise<UseConfirmDialogResult<ConfirmData, CancelData>>(
-			(resolve) => {
-				resolvePromise = resolve;
-			},
-		);
+		const promise = new Promise<
+			UseConfirmDialogResult<ConfirmData, CancelData>
+		>((resolve) => {
+			resolvePromise = resolve;
+		});
+		openHook.trigger(data);
+		if (resolvePromise !== undefined) {
+			isOpen.value = true;
+		}
+
+		return promise;
 	};
 
 	const confirm = (data?: ConfirmData) => {
