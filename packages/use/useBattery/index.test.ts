@@ -23,6 +23,32 @@ function createBatteryNavigator(
 	};
 }
 
+async function withDefaultBatteryNavigator(
+	battery: BatteryManagerLike,
+	callback: (getBattery: ReturnType<typeof vi.fn>) => Promise<void>,
+): Promise<void> {
+	const navigator = globalThis.navigator as Navigator & {
+		getBattery?: BatteryNavigatorLike["getBattery"];
+	};
+	const descriptor = Object.getOwnPropertyDescriptor(navigator, "getBattery");
+	const getBattery = vi.fn(() => Promise.resolve(battery));
+
+	Object.defineProperty(navigator, "getBattery", {
+		configurable: true,
+		value: getBattery,
+	});
+
+	try {
+		await callback(getBattery);
+	} finally {
+		if (descriptor === undefined) {
+			Reflect.deleteProperty(navigator, "getBattery");
+		} else {
+			Object.defineProperty(navigator, "getBattery", descriptor);
+		}
+	}
+}
+
 describe("useBattery", () => {
 	it("uses fallback values without a battery navigator", () => {
 		const result = useBattery({ navigator: null });
@@ -34,6 +60,71 @@ describe("useBattery", () => {
 		expect(result.level.value).toBe(1);
 
 		result.stop();
+	});
+
+	it("falls back to the default navigator when the option is omitted or undefined", async () => {
+		const battery = new FakeBatteryManager();
+		battery.setState({ level: 0.8 });
+
+		await withDefaultBatteryNavigator(battery, async (getBattery) => {
+			const results = [useBattery(), useBattery({ navigator: undefined })];
+
+			try {
+				for (const result of results) {
+					expect(result.isSupported.value).toBe(true);
+				}
+				await vi.waitFor(() => {
+					for (const result of results) {
+						expect(result.level.value).toBe(0.8);
+					}
+				});
+				expect(getBattery).toHaveBeenCalledTimes(2);
+			} finally {
+				for (const result of results) {
+					result.stop();
+				}
+			}
+		});
+	});
+
+	it("treats reactive navigator values as explicit overrides", async () => {
+		const defaultBattery = new FakeBatteryManager();
+		defaultBattery.setState({ level: 0.8 });
+		const customBattery = new FakeBatteryManager();
+		customBattery.setState({ level: 0.4 });
+		const navigator = signal<BatteryNavigatorLike | null | undefined>(
+			undefined,
+		);
+
+		await withDefaultBatteryNavigator(defaultBattery, async (getBattery) => {
+			const result = useBattery({ navigator });
+
+			try {
+				expect(result.isSupported.value).toBe(false);
+				expect(result.level.value).toBe(1);
+				expect(getBattery).not.toHaveBeenCalled();
+
+				const customNavigator = createBatteryNavigator(customBattery);
+				navigator.value = customNavigator;
+				await vi.waitFor(() => {
+					expect(result.level.value).toBe(0.4);
+				});
+				expect(customNavigator.getBattery).toHaveBeenCalledOnce();
+				expect(getBattery).not.toHaveBeenCalled();
+
+				navigator.value = null;
+
+				expect(result.isSupported.value).toBe(false);
+				expect(result.level.value).toBe(1);
+				expect(getBattery).not.toHaveBeenCalled();
+
+				customBattery.setState({ level: 0.2 });
+				customBattery.dispatchEvent(new Event("levelchange"));
+				expect(result.level.value).toBe(1);
+			} finally {
+				result.stop();
+			}
+		});
 	});
 
 	it("treats non-function getBattery as unsupported", () => {

@@ -37,9 +37,9 @@ export function useBattery<
 	TNavigator extends NavigatorLike = BatteryNavigatorLike,
 >(options: UseBatteryOptions<TNavigator> = {}): UseBatteryReturn {
 	const navigatorTarget: MaybeValue<TNavigator | null | undefined> =
-		"navigator" in options
-			? options.navigator
-			: (defaultNavigator as TNavigator | undefined);
+		options.navigator === undefined
+			? (defaultNavigator as TNavigator | undefined)
+			: options.navigator;
 	const isSupported = signal(false);
 	const charging = signal(false);
 	const chargingTime = signal(0);
