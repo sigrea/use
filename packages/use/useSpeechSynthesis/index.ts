@@ -123,6 +123,7 @@ export function useSpeechSynthesis<
 	const synthesis = signal<SpeechSynthesisLike<TVoice, TUtterance> | undefined>(
 		undefined,
 	);
+	let hasActiveUtterance = false;
 	let utteranceCleanups: Array<() => void> = [];
 	let cleanupVoicesChanged = () => {};
 
@@ -176,6 +177,15 @@ export function useSpeechSynthesis<
 						return;
 					}
 
+					if (!hasActiveUtterance) {
+						return;
+					}
+					if (currentSynthesis()?.paused) {
+						isPlaying.value = false;
+						status.value = "pause";
+						return;
+					}
+
 					isPlaying.value = true;
 					status.value = "play";
 				},
@@ -190,6 +200,7 @@ export function useSpeechSynthesis<
 					}
 
 					isPlaying.value = false;
+					hasActiveUtterance = true;
 					status.value = "pause";
 				},
 				{ passive: true },
@@ -203,6 +214,7 @@ export function useSpeechSynthesis<
 					}
 
 					isPlaying.value = true;
+					hasActiveUtterance = true;
 					status.value = "play";
 				},
 				{ passive: true },
@@ -216,6 +228,7 @@ export function useSpeechSynthesis<
 					}
 
 					isPlaying.value = false;
+					hasActiveUtterance = false;
 					status.value = "end";
 				},
 				{ passive: true },
@@ -229,6 +242,7 @@ export function useSpeechSynthesis<
 					}
 
 					isPlaying.value = false;
+					hasActiveUtterance = false;
 					status.value = "end";
 					error.value = event as SpeechSynthesisErrorEventLike<TUtterance>;
 				},
@@ -259,6 +273,7 @@ export function useSpeechSynthesis<
 		>(window);
 		if (!isSupported.value || SpeechSynthesisUtterance === undefined) {
 			clearUtteranceCleanups();
+			hasActiveUtterance = false;
 			utterance.value = undefined;
 			return undefined;
 		}
@@ -273,6 +288,7 @@ export function useSpeechSynthesis<
 			return nextUtterance;
 		} catch (caughtError) {
 			utterance.value = undefined;
+			hasActiveUtterance = false;
 			error.value = caughtError;
 			return undefined;
 		}
@@ -309,6 +325,7 @@ export function useSpeechSynthesis<
 		}
 
 		isPlaying.value = false;
+		hasActiveUtterance = false;
 		if (
 			previousSynthesis !== undefined &&
 			previousSynthesis !== nextSynthesis
@@ -337,9 +354,11 @@ export function useSpeechSynthesis<
 		try {
 			synth.cancel();
 			synth.resume();
+			hasActiveUtterance = true;
 			synth.speak(nextUtterance);
 		} catch (caughtError) {
 			isPlaying.value = false;
+			hasActiveUtterance = false;
 			status.value = "end";
 			error.value = caughtError;
 		}
@@ -358,12 +377,17 @@ export function useSpeechSynthesis<
 		}
 
 		isPlaying.value = false;
+		hasActiveUtterance = false;
 		status.value = "end";
 	};
 	const stop = cancel;
 	const pause = () => {
 		const synth = currentSynthesis();
-		if (synth === undefined || status.value !== "play") {
+		if (
+			synth === undefined ||
+			!hasActiveUtterance ||
+			status.value === "pause"
+		) {
 			return;
 		}
 
@@ -383,6 +407,7 @@ export function useSpeechSynthesis<
 
 		try {
 			synth.resume();
+			hasActiveUtterance = true;
 			isPlaying.value = true;
 			status.value = "play";
 		} catch (caughtError) {
@@ -419,7 +444,7 @@ export function useSpeechSynthesis<
 				return;
 			}
 
-			if (!isPlaying.value && status.value !== "pause") {
+			if (!hasActiveUtterance && !isPlaying.value && status.value !== "pause") {
 				createUtterance(window);
 			}
 		},

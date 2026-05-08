@@ -59,6 +59,7 @@ class FakeSpeechSynthesis
 	pauseError: unknown;
 	resumeError: unknown;
 	speakError: unknown;
+	startSynchronously = true;
 	paused = false;
 	pending = false;
 	speaking = false;
@@ -70,6 +71,7 @@ class FakeSpeechSynthesis
 		}
 
 		this.speaking = false;
+		this.pending = false;
 		this.paused = false;
 		this.lastUtterance?.dispatchEvent(new Event("end"));
 	});
@@ -86,8 +88,10 @@ class FakeSpeechSynthesis
 		}
 
 		this.paused = true;
-		this.speaking = false;
-		this.lastUtterance?.dispatchEvent(new Event("pause"));
+		if (this.speaking) {
+			this.speaking = false;
+			this.lastUtterance?.dispatchEvent(new Event("pause"));
+		}
 	});
 	resume = vi.fn(() => {
 		if (this.resumeError !== undefined) {
@@ -95,7 +99,9 @@ class FakeSpeechSynthesis
 		}
 
 		this.paused = false;
-		if (this.lastUtterance !== undefined) {
+		if (this.pending) {
+			this.dispatchStart();
+		} else if (this.lastUtterance !== undefined) {
 			this.speaking = true;
 			this.lastUtterance.dispatchEvent(new Event("resume"));
 		}
@@ -106,9 +112,21 @@ class FakeSpeechSynthesis
 		}
 
 		this.lastUtterance = utterance;
-		this.speaking = true;
-		utterance.dispatchEvent(new Event("start"));
+		this.pending = true;
+		if (this.startSynchronously) {
+			this.dispatchStart();
+		}
 	});
+
+	dispatchStart(): void {
+		if (this.lastUtterance === undefined) {
+			return;
+		}
+
+		this.pending = false;
+		this.speaking = true;
+		this.lastUtterance.dispatchEvent(new Event("start"));
+	}
 }
 
 class FakeSpeechSynthesisBoundaryEvent
@@ -323,6 +341,93 @@ describe("useSpeechSynthesis", () => {
 		expect(synthesis.cancel).toHaveBeenCalledTimes(2);
 		expect(speech.isPlaying.value).toBe(false);
 		expect(speech.status.value).toBe("end");
+	});
+
+	it("allows pausing a queued utterance before start", () => {
+		const synthesis = new FakeSpeechSynthesis();
+		synthesis.startSynchronously = false;
+		const speech = useSpeechSynthesis("hello", {
+			window: createWindow(synthesis),
+		});
+
+		speech.speak();
+
+		expect(speech.status.value).toBe("init");
+		expect(speech.isPlaying.value).toBe(false);
+
+		speech.pause();
+
+		expect(synthesis.pause).toHaveBeenCalledOnce();
+		expect(speech.status.value).toBe("pause");
+		expect(speech.isPlaying.value).toBe(false);
+
+		synthesis.dispatchStart();
+
+		expect(speech.status.value).toBe("pause");
+		expect(speech.isPlaying.value).toBe(false);
+
+		speech.resume();
+
+		expect(synthesis.resume).toHaveBeenCalledTimes(2);
+		expect(speech.status.value).toBe("play");
+		expect(speech.isPlaying.value).toBe(true);
+	});
+
+	it("allows toggle(false) while an utterance is queued before start", () => {
+		const synthesis = new FakeSpeechSynthesis();
+		synthesis.startSynchronously = false;
+		const speech = useSpeechSynthesis("hello", {
+			window: createWindow(synthesis),
+		});
+
+		speech.speak();
+		speech.toggle(false);
+
+		expect(synthesis.pause).toHaveBeenCalledOnce();
+		expect(speech.status.value).toBe("pause");
+
+		synthesis.dispatchStart();
+
+		expect(speech.status.value).toBe("pause");
+	});
+
+	it("ignores delayed start after canceling a queued utterance", () => {
+		const synthesis = new FakeSpeechSynthesis();
+		synthesis.startSynchronously = false;
+		const speech = useSpeechSynthesis("hello", {
+			window: createWindow(synthesis),
+		});
+
+		speech.speak();
+		speech.cancel();
+		synthesis.dispatchStart();
+
+		expect(speech.status.value).toBe("end");
+		expect(speech.isPlaying.value).toBe(false);
+	});
+
+	it("keeps the queued utterance when reactive values change before start", () => {
+		const synthesis = new FakeSpeechSynthesis();
+		synthesis.startSynchronously = false;
+		const text = signal("first");
+		const lang = signal("en-US");
+		const speech = useSpeechSynthesis(text, {
+			lang,
+			window: createWindow(synthesis),
+		});
+
+		speech.speak();
+		const queuedUtterance = speech.utterance.value;
+		text.value = "second";
+		lang.value = "ja-JP";
+
+		expect(speech.utterance.value).toBe(queuedUtterance);
+		expect(queuedUtterance?.text).toBe("first");
+		expect(queuedUtterance?.lang).toBe("en-US");
+
+		synthesis.dispatchStart();
+
+		expect(speech.status.value).toBe("play");
 	});
 
 	it("recreates utterances from reactive values before speaking", () => {
