@@ -74,6 +74,16 @@ export function useAsyncQueue<TTasks extends readonly UseAsyncQueueTask[]>(
 	const result = signal(
 		createInitialResult(tasks.length) as UseAsyncQueueResultList<TTasks>,
 	);
+	let finished = false;
+
+	const finish = () => {
+		if (finished) {
+			return;
+		}
+
+		finished = true;
+		onFinished();
+	};
 
 	const updateResult = (
 		index: number,
@@ -114,10 +124,6 @@ export function useAsyncQueue<TTasks extends readonly UseAsyncQueueTask[]>(
 
 				updateResult(index, promiseState.fulfilled, taskResult);
 				previousResult = taskResult;
-
-				if (index === tasks.length - 1) {
-					onFinished();
-				}
 			} catch (error) {
 				if (abortSignal?.aborted) {
 					updateResult(index, promiseState.aborted, error);
@@ -129,19 +135,18 @@ export function useAsyncQueue<TTasks extends readonly UseAsyncQueueTask[]>(
 				previousResult = error;
 				onError();
 
-				if (index === tasks.length - 1 || interrupt) {
-					onFinished();
-				}
-
 				if (interrupt) {
+					finish();
 					return;
 				}
 			}
 		}
+
+		finish();
 	};
 
 	if (tasks.length === 0) {
-		onFinished();
+		finish();
 	} else {
 		void Promise.resolve().then(runTasks);
 	}

@@ -160,8 +160,12 @@ describe("useAsyncQueue", () => {
 	it("does not run tasks when the signal is already aborted", async () => {
 		const controller = new AbortController();
 		const task = vi.fn(() => Promise.resolve("ready"));
+		const onError = vi.fn();
+		const onFinished = vi.fn();
 		controller.abort();
 		const { activeIndex, result } = useAsyncQueue([task], {
+			onError,
+			onFinished,
 			signal: controller.signal,
 		});
 
@@ -171,11 +175,15 @@ describe("useAsyncQueue", () => {
 		expect(result.value[0].state).toBe("aborted");
 		expect(result.value[0].data).toBeInstanceOf(Error);
 		expect(task).not.toHaveBeenCalled();
+		expect(onError).not.toHaveBeenCalled();
+		expect(onFinished).toHaveBeenCalledOnce();
 	});
 
 	it("aborts current and remaining tasks after AbortSignal is triggered", async () => {
 		const controller = new AbortController();
 		const finalTask = vi.fn(() => Promise.resolve("final"));
+		const onError = vi.fn();
+		const onFinished = vi.fn();
 		const { activeIndex, result } = useAsyncQueue(
 			[
 				() => Promise.resolve("first"),
@@ -184,7 +192,7 @@ describe("useAsyncQueue", () => {
 				},
 				finalTask,
 			],
-			{ signal: controller.signal },
+			{ onError, onFinished, signal: controller.signal },
 		);
 
 		await flushPromises();
@@ -196,15 +204,19 @@ describe("useAsyncQueue", () => {
 		expect(result.value[2].state).toBe("aborted");
 		expect(result.value[2].data).toBeInstanceOf(Error);
 		expect(finalTask).not.toHaveBeenCalled();
+		expect(onError).not.toHaveBeenCalled();
+		expect(onFinished).toHaveBeenCalledOnce();
 	});
 
 	it("ignores a task result after abort", async () => {
 		const controller = new AbortController();
 		const first = createDeferred<string>();
 		const finalTask = vi.fn(() => Promise.resolve("final"));
+		const onError = vi.fn();
+		const onFinished = vi.fn();
 		const { activeIndex, result } = useAsyncQueue(
 			[() => first.promise, finalTask],
-			{ signal: controller.signal },
+			{ onError, onFinished, signal: controller.signal },
 		);
 
 		controller.abort();
@@ -214,6 +226,8 @@ describe("useAsyncQueue", () => {
 		expect(result.value[0].state).toBe("aborted");
 		expect(result.value[1].state).toBe("aborted");
 		expect(finalTask).not.toHaveBeenCalled();
+		expect(onError).not.toHaveBeenCalled();
+		expect(onFinished).toHaveBeenCalledOnce();
 
 		first.resolve("ready");
 		await flushPromises();
@@ -221,6 +235,8 @@ describe("useAsyncQueue", () => {
 		expect(activeIndex.value).toBe(1);
 		expect(result.value[0].state).toBe("aborted");
 		expect(result.value[1].state).toBe("aborted");
+		expect(onError).not.toHaveBeenCalled();
+		expect(onFinished).toHaveBeenCalledOnce();
 	});
 
 	it("handles a delayed rejection after aborting inside a task", async () => {
