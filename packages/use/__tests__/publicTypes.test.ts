@@ -707,6 +707,7 @@ import type {
 	WatchAtMostOptions,
 	WatchAtMostReturn,
 	WatchAtMostSource,
+	WatchAtMostSourceListCallback,
 	WatchAtMostSourceValues,
 	WebSocketConstructorLike,
 	WebSocketLike,
@@ -4513,15 +4514,29 @@ describe("public types", () => {
 				expectTypeOf(oldValue).toEqualTypeOf<number | undefined>();
 				onCleanup(() => {});
 			};
+			const tupleCallback: WatchAtMostSourceListCallback<
+				[number, string],
+				true
+			> = (value, oldValue, onCleanup) => {
+				expectTypeOf(value).toEqualTypeOf<[number, string]>();
+				expectTypeOf(oldValue).toEqualTypeOf<[number, string] | []>();
+				onCleanup(() => {});
+			};
 			const controls = watchAtMost(source, callback, options);
 			const sourceValues: WatchAtMostSourceValues<
 				[typeof count, typeof label]
 			> = [1, "1"];
 			const tupleControls = watchAtMost(
 				[count, label] as const,
-				(value, oldValue) => {
+				tupleCallback,
+				{ count: 1, immediate: true },
+			);
+			const nonImmediateTupleControls = watchAtMost(
+				[count, label] as const,
+				(value, oldValue, onCleanup) => {
 					expectTypeOf(value).toEqualTypeOf<[number, string]>();
 					expectTypeOf(oldValue).toEqualTypeOf<[number, string]>();
+					onCleanup(() => {});
 				},
 				{ count: 1 },
 			);
@@ -4530,6 +4545,9 @@ describe("public types", () => {
 			expectTypeOf(sourceValues).toEqualTypeOf<[number, string]>();
 			expectTypeOf(controls).toEqualTypeOf<WatchAtMostReturn>();
 			expectTypeOf(tupleControls).toEqualTypeOf<WatchAtMostReturn>();
+			expectTypeOf(
+				nonImmediateTupleControls,
+			).toEqualTypeOf<WatchAtMostReturn>();
 			expectTypeOf(controls.count).toEqualTypeOf<ReadonlySignal<number>>();
 			expectTypeOf(controls.stop()).toEqualTypeOf<void>();
 			watchReturn.stop();

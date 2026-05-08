@@ -12,6 +12,7 @@ import type {
 	WatchAtMostCallback,
 	WatchAtMostOptions,
 	WatchAtMostReturn,
+	WatchAtMostSourceListCallback,
 	WatchAtMostSourceValue,
 	WatchAtMostSourceValues,
 } from "../types";
@@ -50,7 +51,10 @@ function resolveLimit(count: WatchAtMostOptions["count"]): number {
  */
 export function watchAtMost<TSources extends readonly AnyWatchAtMostSource[]>(
 	source: readonly [...TSources],
-	callback: WatchAtMostCallback<WatchAtMostSourceValues<TSources>, false>,
+	callback: WatchAtMostSourceListCallback<
+		WatchAtMostSourceValues<TSources>,
+		false
+	>,
 	options: WatchAtMostOptions<false>,
 ): WatchAtMostReturn;
 export function watchAtMost<
@@ -58,7 +62,10 @@ export function watchAtMost<
 	Immediate extends boolean = false,
 >(
 	source: readonly [...TSources],
-	callback: WatchAtMostCallback<WatchAtMostSourceValues<TSources>, Immediate>,
+	callback: WatchAtMostSourceListCallback<
+		WatchAtMostSourceValues<TSources>,
+		Immediate
+	>,
 	options: WatchAtMostOptions<Immediate>,
 ): WatchAtMostReturn;
 export function watchAtMost<TSource extends AnyWatchAtMostSource>(

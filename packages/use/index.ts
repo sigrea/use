@@ -979,6 +979,7 @@ export type {
 	WatchAtMostOptions,
 	WatchAtMostReturn,
 	WatchAtMostSource,
+	WatchAtMostSourceListCallback,
 	WatchAtMostSourceValue,
 	WatchAtMostSourceValues,
 	WindowSizeLike,

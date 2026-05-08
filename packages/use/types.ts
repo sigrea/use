@@ -4164,6 +4164,15 @@ export type WatchAtMostCallback<
 	onCleanup: WatchAtMostOnCleanup,
 ) => void | Cleanup | Promise<void | Cleanup>;
 
+export type WatchAtMostSourceListCallback<
+	Value = unknown,
+	Immediate extends boolean = false,
+> = (
+	value: Value,
+	oldValue: Immediate extends true ? Value | [] : Value,
+	onCleanup: WatchAtMostOnCleanup,
+) => void | Cleanup | Promise<void | Cleanup>;
+
 export interface WatchAtMostOptions<Immediate extends boolean = false>
 	extends WatchOptions<Immediate> {
 	count: MaybeValue<number>;
