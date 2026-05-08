@@ -102,6 +102,7 @@ import type {
 	KeyStrokeEventName,
 	LogicAndReturn,
 	LogicNotReturn,
+	LogicOrReturn,
 	MagicKeysInternal,
 	MatchMediaWindow,
 	MaybeTransitionEasing,
@@ -799,6 +800,7 @@ import {
 	isDefined,
 	logicAnd,
 	logicNot,
+	logicOr,
 	makeDestructurable,
 	normalizeDate,
 	onClickOutside,
@@ -5678,6 +5680,20 @@ describe("public types", () => {
 
 			expectTypeOf(result).toEqualTypeOf<LogicNotReturn>();
 			expectTypeOf(getter.value).toEqualTypeOf<boolean>();
+			expectTypeOf(logicReturn.value).toEqualTypeOf<boolean>();
+			// @ts-expect-error logical result is readonly
+			result.value = true;
+		});
+	});
+
+	it("types logical OR", () => {
+		typeOnly(() => {
+			const result = logicOr(signal(false), false, () => "ready");
+			const empty = logicOr();
+			const logicReturn: LogicOrReturn = result;
+
+			expectTypeOf(result).toEqualTypeOf<LogicOrReturn>();
+			expectTypeOf(empty.value).toEqualTypeOf<boolean>();
 			expectTypeOf(logicReturn.value).toEqualTypeOf<boolean>();
 			// @ts-expect-error logical result is readonly
 			result.value = true;
