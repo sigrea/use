@@ -6,6 +6,7 @@ import type {
 	MaybeValue,
 	UseDisplayMediaMediaDevicesLike,
 	UseDisplayMediaMediaStreamLike,
+	UseDisplayMediaMediaStreamTrackLike,
 	UseDisplayMediaNavigatorLike,
 	UseDisplayMediaOptions,
 	UseDisplayMediaReturn,
@@ -83,9 +84,18 @@ export function useDisplayMedia<
 		clearStream(true);
 		stream.value = nextStream;
 		error.value = null;
+		const streamTracks = nextStream.getTracks();
+		const endedTracks = new Set<UseDisplayMediaMediaStreamTrackLike>();
 
-		const handleEnded = () => {
+		const handleEnded = (event: Event) => {
 			if (stream.value !== nextStream) {
+				return;
+			}
+
+			endedTracks.add(
+				event.currentTarget as UseDisplayMediaMediaStreamTrackLike,
+			);
+			if (endedTracks.size < streamTracks.length) {
 				return;
 			}
 
@@ -93,7 +103,7 @@ export function useDisplayMedia<
 			clearStream(true);
 		};
 
-		for (const track of nextStream.getTracks()) {
+		for (const track of streamTracks) {
 			trackListeners.push(
 				listen(track, "ended", handleEnded, { passive: true }),
 			);

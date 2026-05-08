@@ -201,7 +201,7 @@ describe("useDisplayMedia", () => {
 		expect(stream.tracks[1].stop).toHaveBeenCalledOnce();
 	});
 
-	it("clears the current stream when a track ends", async () => {
+	it("keeps the current stream until all tracks end", async () => {
 		const stream = new FakeMediaStream();
 		const result = useFakeDisplayMedia({
 			navigator: createNavigator(new FakeMediaDevices(stream)),
@@ -210,11 +210,20 @@ describe("useDisplayMedia", () => {
 		await result.start();
 		stream.tracks[0].end();
 
+		expect(result.stream.value).toBe(stream);
+		expect(result.isStreaming.value).toBe(true);
+		expect(stream.tracks[0].stop).not.toHaveBeenCalled();
+		expect(stream.tracks[1].stop).not.toHaveBeenCalled();
+		expect(stream.tracks[0].endedListeners.size).toBe(1);
+
+		stream.tracks[1].end();
+
 		expect(result.stream.value).toBeUndefined();
 		expect(result.isStreaming.value).toBe(false);
 		expect(stream.tracks[0].stop).toHaveBeenCalledOnce();
 		expect(stream.tracks[1].stop).toHaveBeenCalledOnce();
 		expect(stream.tracks[0].endedListeners.size).toBe(0);
+		expect(stream.tracks[1].endedListeners.size).toBe(0);
 	});
 
 	it("stops a stale stream when stopped before start resolves", async () => {
