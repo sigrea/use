@@ -22,6 +22,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.extendSignal).toBe("function");
 		expect(typeof mod.isDefined).toBe("function");
 		expect(typeof mod.logicAnd).toBe("function");
+		expect(typeof mod.logicNot).toBe("function");
 		expect(typeof mod.makeDestructurable).toBe("function");
 		expect(typeof mod.resolveValue).toBe("function");
 		expect(typeof mod.useCounter).toBe("function");
@@ -1640,6 +1641,7 @@ describe("SSR safety", () => {
 			createProjection,
 			createSignal,
 			logicAnd,
+			logicNot,
 			signalAutoReset,
 			signalDefault,
 			signalDebounced,
@@ -1683,6 +1685,7 @@ describe("SSR safety", () => {
 		);
 		const numericProjection = useNumericProjection(signal(4));
 		const logicalAndValue = logicAnd(signal(true), () => true);
+		const logicalNotValue = logicNot(signal(false));
 		const autoResetValue = signalAutoReset("default", 100);
 		const defaultValue = signalDefault(signal<string | undefined>(), "default");
 		const debouncedValue = signalDebounced(signal("source"), 100);
@@ -1849,6 +1852,7 @@ describe("SSR safety", () => {
 		expect(genericProjection.value).toBe("low");
 		expect(numericProjection.value).toBe(40);
 		expect(logicalAndValue.value).toBe(true);
+		expect(logicalNotValue.value).toBe(true);
 		expect(autoResetValue.value).toBe("default");
 		expect(defaultValue.value).toBe("default");
 		expect(debouncedValue.value).toBe("source");
