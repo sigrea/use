@@ -237,7 +237,7 @@ Status values:
 | `math/createProjection` | `createProjection` | Done |
 | `math/logicAnd` | `logicAnd` | Done |
 | `math/logicNot` | `logicNot` | Done |
-| `math/logicOr` | `-` | Todo |
+| `math/logicOr` | `logicOr` | Done |
 | `math/useAbs` | `-` | Todo |
 | `math/useAverage` | `-` | Todo |
 | `math/useCeil` | `-` | Todo |
