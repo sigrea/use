@@ -538,6 +538,7 @@ import type {
 	UsePreferredReducedTransparency,
 	UsePreferredReducedTransparencyReturn,
 	UseProjection,
+	UseProjectionReturn,
 	UseRafFnCallback,
 	UseRafFnCallbackArguments,
 	UseRafFnOptions,
@@ -955,6 +956,7 @@ import {
 	usePreferredReducedMotion,
 	usePreferredReducedTransparency,
 	usePrevious,
+	useProjection,
 	useRafFn,
 	useRefHistory,
 	useResizeObserver,
@@ -3160,6 +3162,40 @@ describe("public types", () => {
 			useProjection(signal("1"));
 			// @ts-expect-error custom projector must return a number
 			createProjection([0, 10] as const, [0, 100] as const, () => "1");
+		});
+	});
+
+	it("types direct numeric projection values", () => {
+		typeOnly(() => {
+			const result = useProjection(
+				signal(1),
+				signal<readonly [number, number]>([0, 10]),
+				[0, 100] as const,
+			);
+			const custom = useProjection(
+				() => 1,
+				[0, 10] as const,
+				[0, 100] as const,
+				(input, fromDomain, toDomain) => {
+					expectTypeOf(input).toEqualTypeOf<number>();
+					expectTypeOf(fromDomain).toEqualTypeOf<readonly [number, number]>();
+					expectTypeOf(toDomain).toEqualTypeOf<readonly [number, number]>();
+					return input + fromDomain[0] + toDomain[0];
+				},
+			);
+			const projectionReturn: UseProjectionReturn = result;
+
+			expectTypeOf(result).toEqualTypeOf<UseProjectionReturn>();
+			expectTypeOf(custom).toEqualTypeOf<UseProjectionReturn>();
+			expectTypeOf(projectionReturn.value).toEqualTypeOf<number>();
+			// @ts-expect-error projection output is readonly
+			result.value = 2;
+			// @ts-expect-error input must be numeric
+			useProjection(signal("1"), [0, 10] as const, [0, 100] as const);
+			// @ts-expect-error tuple entries are not MaybeValue entries
+			useProjection(1, [0, signal(10)] as const, [0, 100] as const);
+			// @ts-expect-error custom projector must return a number
+			useProjection(1, [0, 10] as const, [0, 100] as const, () => "1");
 		});
 	});
 
