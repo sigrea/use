@@ -138,13 +138,28 @@ export function useUrlSearchParams<
 		windowTarget === undefined
 			? undefined
 			: (resolveTarget<TWindow | null | undefined>(windowTarget) ?? undefined);
-	const window = currentWindow();
 	const state = deepSignal({}) as Record<string, unknown>;
 	let paused = false;
 
-	if (window === undefined) {
+	function resetStateToInitialValue(): void {
+		for (const key of Object.keys(state)) {
+			delete state[key];
+		}
 		Object.assign(state, initialValue);
-		return state as T;
+	}
+
+	function syncStateFromWindow(window: UseUrlSearchParamsWindowLike): void {
+		const initial = readParams(mode, window);
+
+		if (hasSearchParams(initial)) {
+			paused = true;
+			updateState(state, initial);
+			void nextTick(() => {
+				paused = false;
+			});
+		} else {
+			resetStateToInitialValue();
+		}
 	}
 
 	function writeParams(
@@ -220,22 +235,24 @@ export function useUrlSearchParams<
 		mode === "history"
 			? () => {}
 			: listen(windowTarget, "hashchange", onChanged, listenerOptions);
+	const stopWindowWatch = watch(
+		currentWindow,
+		(window) => {
+			if (window === undefined) {
+				resetStateToInitialValue();
+				return;
+			}
 
-	const initial = readParams(mode, window);
-	if (hasSearchParams(initial)) {
-		paused = true;
-		updateState(state, initial);
-		void nextTick(() => {
-			paused = false;
-		});
-	} else {
-		Object.assign(state, initialValue);
-	}
+			syncStateFromWindow(window);
+		},
+		{ immediate: true, flush: "sync" },
+	);
 
 	tryOnScopeDispose(() => {
 		stopStateWatch();
 		stopPopstate();
 		stopHashchange();
+		stopWindowWatch();
 	});
 
 	return state as T;

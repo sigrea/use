@@ -5,6 +5,7 @@ import {
 	disposeScope,
 	nextTick,
 	runWithScope,
+	signal,
 } from "@sigrea/core";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -307,5 +308,59 @@ describe("useUrlSearchParams", () => {
 		await nextTick();
 
 		expect(params.foo).toBeUndefined();
+	});
+
+	it("starts syncing when a deferred window target becomes available", async () => {
+		const windowTarget = signal<FakeWindow | null>(null);
+		const params = useUrlSearchParams("history", {
+			initialValue: { foo: "local" },
+			window: windowTarget,
+		});
+
+		expect(params.foo).toBe("local");
+
+		window.location.search = "?foo=bar";
+		windowTarget.value = window;
+
+		expect(params.foo).toBe("bar");
+
+		window.popstate("?foo=baz", "");
+		await nextTick();
+
+		expect(params.foo).toBe("baz");
+
+		params.foo = "qux";
+		await nextTick();
+
+		expect(window.replaceState).toHaveBeenLastCalledWith(null, "", "/?foo=qux");
+	});
+
+	it("retargets deferred window listeners", async () => {
+		const firstWindow = new FakeWindow();
+		const secondWindow = new FakeWindow();
+		const windowTarget = signal<FakeWindow | null>(null);
+		const params = useUrlSearchParams("hash", {
+			initialValue: { foo: "local" },
+			window: windowTarget,
+		});
+
+		firstWindow.location.hash = "#/test/?foo=first";
+		windowTarget.value = firstWindow;
+		expect(params.foo).toBe("first");
+
+		secondWindow.location.hash = "#/test/?foo=second";
+		windowTarget.value = secondWindow;
+		expect(params.foo).toBe("second");
+
+		firstWindow.hashchange("", "#/test/?foo=stale");
+		await nextTick();
+		expect(params.foo).toBe("second");
+
+		secondWindow.hashchange("", "#/test/?foo=active");
+		await nextTick();
+		expect(params.foo).toBe("active");
+
+		windowTarget.value = null;
+		expect(params.foo).toBe("local");
 	});
 });
