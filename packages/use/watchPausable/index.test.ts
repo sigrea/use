@@ -100,6 +100,62 @@ describe("watchPausable", () => {
 		controls.stop();
 	});
 
+	it("ignores pre-flush updates made while paused before resume", async () => {
+		const source = signal(0);
+		const callback = vi.fn();
+		const controls = watchPausable(source, callback);
+
+		controls.pause();
+		source.value = 1;
+		controls.resume();
+		await nextTick();
+
+		expect(callback).not.toHaveBeenCalled();
+
+		source.value = 2;
+		await nextTick();
+
+		expect(callback).toHaveBeenCalledTimes(1);
+		expect(callback).toHaveBeenCalledWith(2, 1, expect.any(Function));
+		controls.stop();
+	});
+
+	it("ignores post-flush updates made while paused before resume", async () => {
+		const source = signal(0);
+		const callback = vi.fn();
+		const controls = watchPausable(source, callback, { flush: "post" });
+
+		controls.pause();
+		source.value = 1;
+		controls.resume();
+		await nextTick();
+
+		expect(callback).not.toHaveBeenCalled();
+
+		source.value = 2;
+		await nextTick();
+
+		expect(callback).toHaveBeenCalledTimes(1);
+		expect(callback).toHaveBeenCalledWith(2, 1, expect.any(Function));
+		controls.stop();
+	});
+
+	it("runs active pre-flush updates after paused updates in the same tick", async () => {
+		const source = signal(0);
+		const callback = vi.fn();
+		const controls = watchPausable(source, callback);
+
+		controls.pause();
+		source.value = 1;
+		controls.resume();
+		source.value = 2;
+		await nextTick();
+
+		expect(callback).toHaveBeenCalledTimes(1);
+		expect(callback).toHaveBeenCalledWith(2, 0, expect.any(Function));
+		controls.stop();
+	});
+
 	it("watches source lists and keeps old values fresh while paused", () => {
 		const left = signal(1);
 		const right = signal("ready");

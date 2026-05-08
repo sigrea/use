@@ -95,17 +95,61 @@ export function watchPausable<Immediate extends boolean = false>(
 	const { initialState = "active", ...watchOptions } = options;
 	const active = signal(initialState === "active");
 	const runCallback = callback as InternalWatchPausableCallback;
-	const stop = watchSource(
-		source,
-		(value, oldValue, onCleanup) => {
-			if (!active.value) {
-				return;
-			}
+	const resolvedWatchOptions = watchOptions as WatchOptions;
+	let stopped = false;
+	let stop: WatchStopHandle;
 
-			return runCallback(value, oldValue, onCleanup);
-		},
-		watchOptions as WatchOptions,
-	);
+	if (resolvedWatchOptions.flush === "sync") {
+		stop = watchSource(
+			source,
+			(value, oldValue, onCleanup) => {
+				if (!active.value) {
+					return;
+				}
+
+				return runCallback(value, oldValue, onCleanup);
+			},
+			resolvedWatchOptions,
+		);
+	} else {
+		let pausedCounter = 0;
+		let syncCounter = 0;
+		const stopCounter = watchSource(
+			source,
+			() => {
+				syncCounter += 1;
+
+				if (!active.value) {
+					pausedCounter += 1;
+				}
+			},
+			{
+				deep: resolvedWatchOptions.deep,
+				flush: "sync",
+			} as WatchOptions,
+		);
+		const stopWatch = watchSource(
+			source,
+			(value, oldValue, onCleanup) => {
+				const shouldSkipPausedBatch =
+					pausedCounter > 0 && pausedCounter === syncCounter;
+				pausedCounter = 0;
+				syncCounter = 0;
+
+				if (!active.value || shouldSkipPausedBatch) {
+					return;
+				}
+
+				return runCallback(value, oldValue, onCleanup);
+			},
+			resolvedWatchOptions,
+		);
+
+		stop = () => {
+			stopCounter();
+			stopWatch();
+		};
+	}
 
 	return {
 		isActive: readonly(active),
@@ -115,6 +159,13 @@ export function watchPausable<Immediate extends boolean = false>(
 		resume() {
 			active.value = true;
 		},
-		stop,
+		stop() {
+			if (stopped) {
+				return;
+			}
+
+			stopped = true;
+			stop();
+		},
 	};
 }
