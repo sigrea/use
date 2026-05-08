@@ -239,7 +239,7 @@ Status values:
 | `math/logicNot` | `logicNot` | Done |
 | `math/logicOr` | `logicOr` | Done |
 | `math/useAbs` | `useAbs` | Done |
-| `math/useAverage` | `-` | Todo |
+| `math/useAverage` | `useAverage` | Done |
 | `math/useCeil` | `-` | Todo |
 | `math/useClamp` | `-` | Todo |
 | `math/useFloor` | `-` | Todo |
