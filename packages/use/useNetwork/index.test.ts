@@ -111,16 +111,34 @@ describe("useNetwork", () => {
 		expect(network.offlineAt.value).toBeUndefined();
 		expect(network.onlineAt.value).toBe(3_000);
 
+		vi.setSystemTime(4_000);
+		fakeWindow.dispatchOnline(true);
+		expect(network.onlineAt.value).toBe(4_000);
+
+		vi.setSystemTime(5_000);
+		fakeWindow.dispatchOnline(false);
+		expect(network.offlineAt.value).toBe(5_000);
+
+		vi.setSystemTime(6_000);
+		fakeWindow.dispatchOnline(false);
+		expect(network.offlineAt.value).toBe(6_000);
+
 		network.stop();
 	});
 
 	it("tracks connection change events", () => {
 		const connection = new FakeConnection();
 		connection.setState({ downlink: 1, effectiveType: "3g", type: "cellular" });
+		const fakeWindow = new FakeWindow(
+			new FakeNavigator({ connection, onLine: true }),
+		);
 		const network = useNetwork({
-			window: new FakeWindow(new FakeNavigator({ connection })),
+			window: fakeWindow,
 		});
 
+		expect(network.onlineAt.value).toBe(1_000);
+
+		vi.setSystemTime(2_000);
 		connection.setState({
 			downlink: 8,
 			effectiveType: "4g",
@@ -130,16 +148,32 @@ describe("useNetwork", () => {
 		});
 		connection.dispatchChange();
 
+		expect(network.onlineAt.value).toBe(1_000);
+		expect(network.offlineAt.value).toBeUndefined();
 		expect(network.downlink.value).toBe(8);
 		expect(network.effectiveType.value).toBe("4g");
 		expect(network.rtt.value).toBe(25);
 		expect(network.saveData.value).toBe(false);
 		expect(network.type.value).toBe("wifi");
 
+		vi.setSystemTime(3_000);
+		fakeWindow.dispatchOnline(false);
+		expect(network.offlineAt.value).toBe(3_000);
+		expect(network.onlineAt.value).toBeUndefined();
+
+		vi.setSystemTime(4_000);
+		connection.setState({ downlink: 9, rtt: 50 });
+		connection.dispatchChange();
+
+		expect(network.offlineAt.value).toBe(3_000);
+		expect(network.onlineAt.value).toBeUndefined();
+		expect(network.downlink.value).toBe(9);
+		expect(network.rtt.value).toBe(50);
+
 		network.stop();
 		connection.setState({ downlink: 12 });
 		connection.dispatchChange();
-		expect(network.downlink.value).toBe(8);
+		expect(network.downlink.value).toBe(9);
 	});
 
 	it("reports unsupported when navigator is unavailable", () => {
@@ -244,24 +278,43 @@ describe("useNetwork", () => {
 		const secondWindow = new FakeWindow(
 			new FakeNavigator({ connection: secondConnection, onLine: true }),
 		);
+		const thirdWindow = new FakeWindow(
+			new FakeNavigator({ connection: new FakeConnection(), onLine: true }),
+		);
 		const windowTarget = signal<WindowLike | null>(firstWindow);
 		const network = useNetwork({ window: windowTarget });
 
 		expect(network.isOnline.value).toBe(false);
+		expect(network.offlineAt.value).toBe(1_000);
 		expect(network.downlink.value).toBe(1);
 
+		vi.setSystemTime(2_000);
+		firstWindow.navigator.onLine = false;
+		windowTarget.value = firstWindow;
+		expect(network.isOnline.value).toBe(false);
+		expect(network.offlineAt.value).toBe(1_000);
+		expect(network.onlineAt.value).toBeUndefined();
+
+		vi.setSystemTime(3_000);
 		windowTarget.value = secondWindow;
 		expect(network.isOnline.value).toBe(true);
+		expect(network.offlineAt.value).toBeUndefined();
+		expect(network.onlineAt.value).toBe(3_000);
 		expect(network.downlink.value).toBe(2);
+
+		vi.setSystemTime(4_000);
+		windowTarget.value = thirdWindow;
+		expect(network.isOnline.value).toBe(true);
+		expect(network.onlineAt.value).toBe(4_000);
 
 		firstWindow.dispatchOnline(false);
 		firstConnection.setState({ downlink: 10 });
 		firstConnection.dispatchChange();
-		expect(network.downlink.value).toBe(2);
+		expect(network.downlink.value).toBeUndefined();
 
 		secondConnection.setState({ downlink: 4 });
 		secondConnection.dispatchChange();
-		expect(network.downlink.value).toBe(4);
+		expect(network.downlink.value).toBeUndefined();
 
 		windowTarget.value = null;
 		expect(network.isSupported.value).toBe(false);

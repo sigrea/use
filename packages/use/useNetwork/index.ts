@@ -38,6 +38,10 @@ function readConnection(
 	return navigator?.connection;
 }
 
+interface SyncNetworkInfoOptions {
+	forceTimestamp?: boolean;
+}
+
 export function useNetwork<
 	TWindow extends WindowLike = WindowLike,
 	TNavigator extends UseNetworkNavigatorLike = UseNetworkNavigatorLike,
@@ -78,7 +82,10 @@ export function useNetwork<
 		saveData.value = false;
 		type.value = "unknown";
 	};
-	const syncNetworkInfo = (navigator: TNavigator | null | undefined): void => {
+	const syncNetworkInfo = (
+		navigator: TNavigator | null | undefined,
+		options: SyncNetworkInfoOptions = {},
+	): void => {
 		if (navigator === null || navigator === undefined) {
 			isOnline.value = true;
 			offlineAt.value = undefined;
@@ -90,10 +97,22 @@ export function useNetwork<
 
 		const online = readOnline(navigator);
 		const connection = readConnection(navigator);
+		const previousOnline = isOnline.value;
+		const shouldUpdateTimestamp =
+			options.forceTimestamp ||
+			previousOnline !== online ||
+			(online ? onlineAt.value === undefined : offlineAt.value === undefined);
 
 		isOnline.value = online;
-		offlineAt.value = online ? undefined : Date.now();
-		onlineAt.value = online ? Date.now() : undefined;
+		if (shouldUpdateTimestamp) {
+			const timestamp = Date.now();
+			offlineAt.value = online ? undefined : timestamp;
+			onlineAt.value = online ? timestamp : undefined;
+		} else if (online) {
+			offlineAt.value = undefined;
+		} else {
+			onlineAt.value = undefined;
+		}
 		isSupported.value = supportsConnection(navigator);
 
 		if (!connection) {
@@ -119,14 +138,18 @@ export function useNetwork<
 				window: windowValue,
 			};
 		},
-		({ connection, navigator, window }, _previousValue, onCleanup) => {
-			syncNetworkInfo(navigator);
+		({ connection, navigator, window }, previousValue, onCleanup) => {
+			const sourceChanged =
+				previousValue !== undefined &&
+				(previousValue.window !== window ||
+					previousValue.navigator !== navigator);
+			syncNetworkInfo(navigator, { forceTimestamp: sourceChanged });
 
 			const cleanups: Array<() => void> = [];
 
 			if (window) {
 				const syncOnline = () => {
-					syncNetworkInfo(navigator);
+					syncNetworkInfo(navigator, { forceTimestamp: true });
 				};
 
 				cleanups.push(
