@@ -126,6 +126,34 @@ describe("useMemory", () => {
 		expect(result.isActive.value).toBe(false);
 	});
 
+	it("pauses polling when active target memory becomes unavailable", () => {
+		vi.useFakeTimers();
+		const performance: UseMemoryPerformanceLike = {
+			memory: createMemory(100),
+		};
+		const result = useMemory({
+			interval: 100,
+			window: new FakeMemoryWindow(performance),
+		});
+
+		vi.advanceTimersByTime(100);
+		expect(result.memory.value?.usedJSHeapSize).toBe(100);
+		expect(result.isActive.value).toBe(true);
+
+		performance.memory = undefined;
+		vi.advanceTimersByTime(100);
+
+		expect(result.isSupported.value).toBe(false);
+		expect(result.memory.value).toBeUndefined();
+		expect(result.isActive.value).toBe(false);
+
+		performance.memory = createMemory(200);
+		vi.advanceTimersByTime(100);
+
+		expect(result.memory.value).toBeUndefined();
+		expect(result.isActive.value).toBe(false);
+	});
+
 	it("keeps a manual pause when the target changes", () => {
 		vi.useFakeTimers();
 		const first = new FakeMemoryWindow({

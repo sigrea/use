@@ -46,9 +46,15 @@ export function useMemory<
 	const readMemory = () => currentPerformance()?.memory;
 	const update = () => {
 		const nextMemory = readMemory();
-		isSupported.value = nextMemory !== undefined;
-		memory.value =
-			nextMemory === undefined ? undefined : snapshotMemory(nextMemory);
+		if (nextMemory === undefined) {
+			isSupported.value = false;
+			memory.value = undefined;
+			controls.pause();
+			return;
+		}
+
+		isSupported.value = true;
+		memory.value = snapshotMemory(nextMemory);
 	};
 	const controls = useIntervalFn(update, options.interval ?? defaultInterval, {
 		immediate: false,
