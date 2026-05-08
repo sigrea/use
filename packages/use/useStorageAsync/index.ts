@@ -413,7 +413,7 @@ export function useStorageAsync<T>(
 			return Promise.resolve();
 		}
 
-		readOperationId += 1;
+		const operationId = ++readOperationId;
 		const currentKey = resolveKey();
 		const currentWindow = resolveCurrentWindow();
 		const run = async (): Promise<void> => {
@@ -429,7 +429,7 @@ export function useStorageAsync<T>(
 
 				if (value == null) {
 					await currentStorage.removeItem(currentKey);
-					if (stopped) {
+					if (stopped || operationId !== readOperationId) {
 						return;
 					}
 
@@ -461,7 +461,7 @@ export function useStorageAsync<T>(
 				}
 
 				await currentStorage.setItem(currentKey, serialized);
-				if (stopped) {
+				if (stopped || operationId !== readOperationId) {
 					return;
 				}
 

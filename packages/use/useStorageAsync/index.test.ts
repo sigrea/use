@@ -73,22 +73,51 @@ class DeferredStorage extends FakeAsyncStorage {
 class DeferredWriteStorage extends FakeAsyncStorage {
 	readonly pendingWrites: Array<{
 		readonly key: string;
+		readonly reject: (reason?: unknown) => void;
 		readonly resolve: () => void;
 		readonly value: string;
+	}> = [];
+	readonly pendingRemoves: Array<{
+		readonly key: string;
+		readonly resolve: () => void;
 	}> = [];
 
 	override async setItem(key: string, value: string): Promise<void> {
 		this.setItemCalls.push([key, value]);
-		await new Promise<void>((resolve) => {
-			this.pendingWrites.push({ key, resolve, value });
+		await new Promise<void>((resolve, reject) => {
+			this.pendingWrites.push({ key, reject, resolve, value });
 		});
 		this.data.set(key, value);
+	}
+
+	override async removeItem(key: string): Promise<void> {
+		this.removeItemCalls.push(key);
+		await new Promise<void>((resolve) => {
+			this.pendingRemoves.push({ key, resolve });
+		});
+		this.data.delete(key);
 	}
 
 	resolveWrite(): void {
 		const pending = this.pendingWrites.shift();
 		if (pending === undefined) {
 			throw new Error("No pending write");
+		}
+		pending.resolve();
+	}
+
+	rejectWrite(reason?: unknown): void {
+		const pending = this.pendingWrites.shift();
+		if (pending === undefined) {
+			throw new Error("No pending write");
+		}
+		pending.reject(reason);
+	}
+
+	resolveRemove(): void {
+		const pending = this.pendingRemoves.shift();
+		if (pending === undefined) {
+			throw new Error("No pending remove");
 		}
 		pending.resolve();
 	}
@@ -193,6 +222,144 @@ describe("useStorageAsync", () => {
 		await vi.waitFor(() => {
 			expect(storage.data.get(KEY)).toBe("second");
 		});
+
+		stored.stop();
+	});
+
+	it("does not let stale queued write events overwrite newer local state", async () => {
+		const storage = new DeferredWriteStorage();
+		const windowTarget = new FakeWindow();
+		const dispatchedValues: Array<string | null> = [];
+		storage.data.set(KEY, "initial");
+		windowTarget.addEventListener(customStorageEventName, (event) => {
+			dispatchedValues.push(
+				(event as CustomEvent<{ readonly newValue: string | null }>).detail
+					.newValue,
+			);
+		});
+		const stored = useStorageAsync(KEY, "fallback", storage, {
+			window: windowTarget,
+		});
+
+		await stored;
+
+		stored.value = "first";
+		await vi.waitFor(() => {
+			expect(storage.pendingWrites).toHaveLength(1);
+			expect(storage.pendingWrites[0]?.value).toBe("first");
+		});
+
+		stored.value = "second";
+		await nextTick();
+
+		storage.resolveWrite();
+		await vi.waitFor(() => {
+			expect(storage.pendingWrites).toHaveLength(1);
+			expect(storage.pendingWrites[0]?.value).toBe("second");
+		});
+
+		expect(stored.value).toBe("second");
+		expect(dispatchedValues).toEqual([]);
+
+		storage.resolveWrite();
+		await vi.waitFor(() => {
+			expect(storage.data.get(KEY)).toBe("second");
+		});
+
+		expect(stored.value).toBe("second");
+		expect(dispatchedValues).toEqual(["second"]);
+
+		stored.stop();
+	});
+
+	it("keeps newer local state when a later queued write fails", async () => {
+		const error = new Error("write failed");
+		const onError = vi.fn();
+		const storage = new DeferredWriteStorage();
+		const windowTarget = new FakeWindow();
+		const dispatchedValues: Array<string | null> = [];
+		storage.data.set(KEY, "initial");
+		windowTarget.addEventListener(customStorageEventName, (event) => {
+			dispatchedValues.push(
+				(event as CustomEvent<{ readonly newValue: string | null }>).detail
+					.newValue,
+			);
+		});
+		const stored = useStorageAsync(KEY, "fallback", storage, {
+			onError,
+			window: windowTarget,
+		});
+
+		await stored;
+
+		stored.value = "first";
+		await vi.waitFor(() => {
+			expect(storage.pendingWrites).toHaveLength(1);
+			expect(storage.pendingWrites[0]?.value).toBe("first");
+		});
+
+		stored.value = "second";
+		await nextTick();
+
+		storage.resolveWrite();
+		await vi.waitFor(() => {
+			expect(storage.pendingWrites).toHaveLength(1);
+			expect(storage.pendingWrites[0]?.value).toBe("second");
+		});
+		storage.rejectWrite(error);
+
+		await vi.waitFor(() => {
+			expect(onError).toHaveBeenCalledWith(error);
+		});
+
+		expect(stored.value).toBe("second");
+		expect(storage.data.get(KEY)).toBe("first");
+		expect(dispatchedValues).toEqual([]);
+
+		stored.stop();
+	});
+
+	it("does not let stale queued remove events overwrite newer local state", async () => {
+		const storage = new DeferredWriteStorage();
+		const windowTarget = new FakeWindow();
+		const dispatchedValues: Array<string | null> = [];
+		storage.data.set(KEY, "initial");
+		windowTarget.addEventListener(customStorageEventName, (event) => {
+			dispatchedValues.push(
+				(event as CustomEvent<{ readonly newValue: string | null }>).detail
+					.newValue,
+			);
+		});
+		const stored = useStorageAsync(KEY, "fallback", storage, {
+			window: windowTarget,
+		});
+
+		await stored;
+
+		stored.value = null;
+		await vi.waitFor(() => {
+			expect(storage.pendingRemoves).toHaveLength(1);
+		});
+
+		stored.value = "next";
+		await nextTick();
+
+		storage.resolveRemove();
+		await vi.waitFor(() => {
+			expect(storage.pendingWrites).toHaveLength(1);
+			expect(storage.pendingWrites[0]?.value).toBe("next");
+		});
+
+		expect(stored.value).toBe("next");
+		expect(dispatchedValues).toEqual([]);
+
+		storage.resolveWrite();
+		await vi.waitFor(() => {
+			expect(storage.data.get(KEY)).toBe("next");
+		});
+
+		expect(stored.value).toBe("next");
+		expect(dispatchedValues).toEqual(["next"]);
 
 		stored.stop();
 	});
