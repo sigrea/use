@@ -309,6 +309,38 @@ describe("useInfiniteScroll", () => {
 		right.stop();
 	});
 
+	it("loads right direction at the visual right edge in RTL negative scrollLeft mode", async () => {
+		const element = createScrollElement({
+			clientWidth: 100,
+			scrollLeft: -100,
+			scrollWidth: 200,
+		});
+		element.dataset.direction = "rtl";
+		const onLoadMore = vi.fn();
+		const infinite = useInfiniteScroll(element, onLoadMore, {
+			canLoadMore: () => onLoadMore.mock.calls.length === 0,
+			direction: "right",
+			distance: 0,
+			interval: 0,
+			window: new FakeWindow(),
+		});
+
+		latestObserver().emit(element, true);
+		await flushAsync();
+
+		expect(onLoadMore).not.toHaveBeenCalled();
+
+		element.scrollLeft = 0;
+		element.dispatchEvent(new Event("scroll"));
+		await flushAsync();
+
+		expect(onLoadMore).toHaveBeenCalledTimes(1);
+		expect(onLoadMore.mock.calls[0]?.[0].arrivedState.value.left).toBe(false);
+		expect(onLoadMore.mock.calls[0]?.[0].arrivedState.value.right).toBe(true);
+
+		infinite.stop();
+	});
+
 	it("measures document targets through documentElement", async () => {
 		const documentElement = document.documentElement;
 		setMetrics(documentElement, {

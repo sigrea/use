@@ -258,7 +258,6 @@ export function useInfiniteScroll<
 			display,
 			flexDirection,
 		} = getStyle(element, source, currentWindow(), allowWindowFallback);
-		const directionMultiplier = styleDirection === "rtl" ? -1 : 1;
 		const scrollLeft = element.scrollLeft;
 		const scrollTop = readScrollTop(element, source);
 		const nextDirections: UseInfiniteScrollDirections = {
@@ -267,13 +266,20 @@ export function useInfiniteScroll<
 			top: scrollTop < y.value,
 			bottom: scrollTop > y.value,
 		};
-		const left =
-			Math.abs(scrollLeft * directionMultiplier) <= getOffsetValue("left");
-		const right =
-			Math.abs(scrollLeft * directionMultiplier) + element.clientWidth >=
-			element.scrollWidth -
-				getOffsetValue("right") -
-				ARRIVED_STATE_THRESHOLD_PIXELS;
+		const horizontalOffset = Math.abs(scrollLeft);
+		const isRtl = styleDirection === "rtl";
+		const left = isRtl
+			? horizontalOffset + element.clientWidth >=
+				element.scrollWidth -
+					getOffsetValue("left") -
+					ARRIVED_STATE_THRESHOLD_PIXELS
+			: horizontalOffset <= getOffsetValue("left");
+		const right = isRtl
+			? horizontalOffset <= getOffsetValue("right")
+			: horizontalOffset + element.clientWidth >=
+				element.scrollWidth -
+					getOffsetValue("right") -
+					ARRIVED_STATE_THRESHOLD_PIXELS;
 		const top = Math.abs(scrollTop) <= getOffsetValue("top");
 		const bottom =
 			Math.abs(scrollTop) + element.clientHeight >=
