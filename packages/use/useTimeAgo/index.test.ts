@@ -182,6 +182,23 @@ describe("useTimeAgo", () => {
 		).toBe("0");
 	});
 
+	it("returns invalid message for custom units without a formatter", () => {
+		changeValue.value = getNeededTimeChange("day", 90);
+
+		expect(
+			useTimeAgo<"second" | "quarter">(changeTime, {
+				units: [
+					{ max: 60_000, value: 1000, name: "second" },
+					{
+						max: Number.POSITIVE_INFINITY,
+						value: 7_776_000_000,
+						name: "quarter",
+					},
+				],
+			}).value,
+		).toBe("");
+	});
+
 	it("returns invalid message when the date is invalid", () => {
 		expect(useTimeAgo("invalid date").value).toBe("");
 	});

@@ -79,15 +79,18 @@ function applyFormat<UnitNames extends string>(
 	name: UnitNames | keyof UseTimeAgoMessagesBuiltIn,
 	value: number | string,
 	isPast: boolean,
-): string {
+): string | undefined {
 	const formatter = (
 		messages as Record<string, string | UseTimeAgoFormatter<number | string>>
 	)[name];
 	if (typeof formatter === "function") {
 		return formatter(value, isPast);
 	}
+	if (typeof formatter === "string") {
+		return formatter.replace("{0}", value.toString());
+	}
 
-	return formatter.replace("{0}", value.toString());
+	return undefined;
 }
 
 export function formatTimeAgo<
@@ -115,7 +118,14 @@ export function formatTimeAgo<
 		const isPast = value > 0;
 		const unitText = applyFormat(messages, unit.name, unitValue, isPast);
 
-		return applyFormat(messages, isPast ? "past" : "future", unitText, isPast);
+		if (unitText === undefined) {
+			return messages.invalid;
+		}
+
+		return (
+			applyFormat(messages, isPast ? "past" : "future", unitText, isPast) ??
+			messages.invalid
+		);
 	};
 
 	if (absDiff < 60_000 && !showSecond) {
