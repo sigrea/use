@@ -249,5 +249,5 @@ Status values:
 | `math/usePrecision` | `usePrecision` | Done |
 | `math/useProjection` | `useProjection` | Done |
 | `math/useRound` | `useRound` | Done |
-| `math/useSum` | `-` | Todo |
+| `math/useSum` | `useSum` | Done |
 | `math/useTrunc` | `-` | Todo |
