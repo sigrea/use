@@ -172,6 +172,25 @@ describe("useDateFormat", () => {
 		);
 	});
 
+	it("extracts timezone names from locale-aware parts", () => {
+		const date = new Date("2022-01-01T00:00:00Z");
+		const getTimeZoneName = (timeZoneName: "shortOffset" | "longOffset") =>
+			new Intl.DateTimeFormat("ko-KR", { timeZoneName })
+				.formatToParts(date)
+				.find((part) => part.type === "timeZoneName")?.value ?? "";
+		const shortOffset = getTimeZoneName("shortOffset");
+		const longOffset = getTimeZoneName("longOffset");
+
+		expect(
+			date
+				.toLocaleDateString("ko-KR", { timeZoneName: "shortOffset" })
+				.split(" ")[1],
+		).not.toBe(shortOffset);
+		expect(formatDate(date, "z zzzz", { locales: "ko-KR" })).toBe(
+			`${shortOffset} ${longOffset}`,
+		);
+	});
+
 	it("formats invalid dates without throwing", () => {
 		const invalid = new Date(Number.NaN);
 

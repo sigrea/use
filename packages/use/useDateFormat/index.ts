@@ -45,11 +45,19 @@ function formatTimeZoneName(
 	options: UseDateFormatOptions,
 	timeZoneName: "shortOffset" | "longOffset",
 ) {
-	return (
-		date
-			.toLocaleDateString(resolveLocales(options), { timeZoneName })
-			.split(" ")[1] ?? ""
-	);
+	try {
+		return (
+			new Intl.DateTimeFormat(resolveLocales(options), { timeZoneName })
+				.formatToParts(date)
+				.find((part) => part.type === "timeZoneName")?.value ?? ""
+		);
+	} catch {
+		return (
+			date
+				.toLocaleDateString(resolveLocales(options), { timeZoneName })
+				.split(" ")[1] ?? ""
+		);
+	}
 }
 
 export function formatDate(
