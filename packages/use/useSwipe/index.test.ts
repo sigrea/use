@@ -46,6 +46,10 @@ function touchEnd(): TouchEvent {
 	return touchEvent("touchend", []);
 }
 
+function touchCancel(): TouchEvent {
+	return touchEvent("touchcancel", []);
+}
+
 describe("useSwipe", () => {
 	let element: HTMLDivElement;
 
@@ -127,6 +131,49 @@ describe("useSwipe", () => {
 		expect(swipe.isSwiping.value).toBe(false);
 		expect(onSwipe).not.toHaveBeenCalled();
 		expect(onSwipeEnd).not.toHaveBeenCalled();
+
+		swipe.stop();
+	});
+
+	it("does not complete canceled swipes", () => {
+		const onSwipe = vi.fn();
+		const onSwipeEnd = vi.fn();
+		const swipe = useSwipe(element, { onSwipe, onSwipeEnd, threshold: 20 });
+
+		element.dispatchEvent(touchStart(100, 50));
+		element.dispatchEvent(touchMove(60, 50));
+		expect(swipe.isSwiping.value).toBe(true);
+		expect(swipe.direction.value).toBe("left");
+
+		element.dispatchEvent(touchCancel());
+
+		expect(onSwipe).toHaveBeenCalledOnce();
+		expect(onSwipeEnd).not.toHaveBeenCalled();
+		expect(swipe.isSwiping.value).toBe(false);
+		expect(swipe.direction.value).toBe("none");
+		expect(swipe.coordsEnd.value).toEqual(swipe.coordsStart.value);
+
+		swipe.stop();
+	});
+
+	it("resets partial swipes on touchcancel", () => {
+		const onSwipe = vi.fn();
+		const onSwipeEnd = vi.fn();
+		const swipe = useSwipe(element, { onSwipe, onSwipeEnd, threshold: 50 });
+
+		element.dispatchEvent(touchStart(10, 20));
+		element.dispatchEvent(touchMove(30, 25));
+		expect(swipe.isSwiping.value).toBe(false);
+		expect(swipe.direction.value).toBe("none");
+		expect(swipe.coordsEnd.value).toEqual({ x: 30, y: 25 });
+
+		element.dispatchEvent(touchCancel());
+
+		expect(onSwipe).not.toHaveBeenCalled();
+		expect(onSwipeEnd).not.toHaveBeenCalled();
+		expect(swipe.coordsEnd.value).toEqual(swipe.coordsStart.value);
+		expect(swipe.lengthX.value).toBe(0);
+		expect(swipe.lengthY.value).toBe(0);
 
 		swipe.stop();
 	});

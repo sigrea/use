@@ -139,6 +139,10 @@ export function useSwipe<
 		isSwiping.value = false;
 	};
 
+	const cancel = (): void => {
+		resetSwipe();
+	};
+
 	const stopWatch = watch(
 		() => ({
 			passive: options.passive ?? true,
@@ -182,7 +186,7 @@ export function useSwipe<
 				listen(
 					nextValue.target,
 					"touchcancel",
-					end as EventListener,
+					cancel as EventListener,
 					listenerOptions,
 				),
 			];
