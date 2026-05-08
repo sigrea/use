@@ -121,6 +121,32 @@ describe("useEventBus", () => {
 		expect(events.has("once")).toBe(false);
 	});
 
+	it("removes once listeners from off before they fire", async () => {
+		const bus = useEventBus<number>("once-off");
+		const listener = vi.fn();
+
+		bus.once(listener);
+		bus.once(listener);
+		bus.off(listener);
+		await bus.emit(1);
+
+		expect(listener).not.toHaveBeenCalled();
+		expect(events.has("once-off")).toBe(false);
+	});
+
+	it("removes once listeners from another bus with the same key", async () => {
+		const first = useEventBus<number>("once-shared-off");
+		const second = useEventBus<number>("once-shared-off");
+		const listener = vi.fn();
+
+		first.once(listener);
+		second.off(listener);
+		await first.emit(1);
+
+		expect(listener).not.toHaveBeenCalled();
+		expect(events.has("once-shared-off")).toBe(false);
+	});
+
 	it("registers the same listener once for the same key", async () => {
 		const bus = useEventBus<number>("same-key");
 		const listener = vi.fn();
