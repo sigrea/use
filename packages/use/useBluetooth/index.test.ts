@@ -120,6 +120,89 @@ describe("useBluetooth", () => {
 		result.stop();
 	});
 
+	it("resolves reactive filters before request options are calculated", async () => {
+		const device = new FakeDevice("device-1", "Device 1", new FakeGATTServer());
+		const bluetooth = createBluetooth(device);
+		const filters = signal<readonly { namePrefix: string }[]>([]);
+		const result = useBluetooth({
+			acceptAllDevices: true,
+			filters,
+			navigator: createNavigator(bluetooth),
+		});
+
+		await result.requestDevice();
+
+		expect(bluetooth.requestDevice).toHaveBeenNthCalledWith(1, {
+			acceptAllDevices: true,
+			filters: undefined,
+			optionalServices: undefined,
+		});
+
+		filters.value = [{ namePrefix: "Sigrea" }];
+		await result.requestDevice();
+
+		expect(bluetooth.requestDevice).toHaveBeenNthCalledWith(2, {
+			acceptAllDevices: false,
+			filters: [{ namePrefix: "Sigrea" }],
+			optionalServices: undefined,
+		});
+		result.stop();
+	});
+
+	it("disconnects the previous device before replacing it", async () => {
+		const firstGatt = new FakeGATTServer();
+		const secondGatt = new FakeGATTServer();
+		const calls: string[] = [];
+		vi.spyOn(firstGatt, "connect").mockImplementation(async () => {
+			calls.push("first connect");
+			return FakeGATTServer.prototype.connect.call(firstGatt);
+		});
+		vi.spyOn(firstGatt, "disconnect").mockImplementation(() => {
+			calls.push("first disconnect");
+			FakeGATTServer.prototype.disconnect.call(firstGatt);
+		});
+		vi.spyOn(secondGatt, "connect").mockImplementation(async () => {
+			calls.push("second connect");
+			return FakeGATTServer.prototype.connect.call(secondGatt);
+		});
+		const firstDevice = new FakeDevice("first", "First", firstGatt);
+		const secondDevice = new FakeDevice("second", "Second", secondGatt);
+		const bluetooth = new (class extends EventTarget implements BluetoothLike {
+			requestCount = 0;
+			requestDevice = vi.fn(async () => {
+				this.requestCount += 1;
+				return this.requestCount === 1 ? firstDevice : secondDevice;
+			});
+		})();
+		const result = useBluetooth({
+			acceptAllDevices: true,
+			navigator: createNavigator(bluetooth),
+		});
+
+		await result.requestDevice();
+		expect(result.device.value).toBe(firstDevice);
+		expect(firstGatt.connectCalls).toBe(1);
+
+		await result.requestDevice();
+
+		expect(firstGatt.disconnectCalls).toBe(1);
+		expect(firstGatt.connected).toBe(false);
+		expect(secondGatt.connectCalls).toBe(1);
+		expect(calls).toEqual([
+			"first connect",
+			"first disconnect",
+			"second connect",
+		]);
+		expect(result.device.value).toBe(secondDevice);
+		expect(result.server.value).toBe(secondGatt);
+		expect(result.isConnected.value).toBe(true);
+
+		firstDevice.dispatchEvent(new Event("gattserverdisconnected"));
+		expect(result.device.value).toBe(secondDevice);
+		expect(result.server.value).toBe(secondGatt);
+		result.stop();
+	});
+
 	it("stores request and connection errors", async () => {
 		const requestError = new Error("request denied");
 		const requestBluetooth = new (class

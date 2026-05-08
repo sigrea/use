@@ -49,7 +49,7 @@ export function useBluetooth<
 		disconnectListener?.();
 		disconnectListener = undefined;
 	};
-	const resetConnection = (clearDevice: boolean) => {
+	const resetConnectionState = (clearDevice: boolean) => {
 		clearDisconnectListener();
 		isConnected.value = false;
 		server.value = undefined;
@@ -57,13 +57,19 @@ export function useBluetooth<
 			device.value = undefined;
 		}
 	};
+	const disconnectCurrentDevice = (clearDevice: boolean) => {
+		const currentDevice = device.value;
+
+		resetConnectionState(clearDevice);
+		currentDevice?.gatt?.disconnect();
+	};
 	const setupDisconnectListener = (nextDevice: BluetoothDeviceLike) => {
 		clearDisconnectListener();
 		disconnectListener = listen(
 			nextDevice,
 			"gattserverdisconnected",
 			() => {
-				resetConnection(true);
+				resetConnectionState(true);
 			},
 			{ passive: true },
 		);
@@ -107,11 +113,15 @@ export function useBluetooth<
 			return;
 		}
 
-		const filters = resolveValue(options.filters);
+		const resolvedFilters = resolveValue(options.filters);
+		const filters =
+			resolvedFilters === undefined || resolvedFilters.length === 0
+				? undefined
+				: resolvedFilters;
 		const acceptAllDevices =
-			filters !== undefined && filters.length > 0
-				? false
-				: (resolveValue(options.acceptAllDevices) ?? false);
+			filters === undefined
+				? (resolveValue(options.acceptAllDevices) ?? false)
+				: false;
 
 		try {
 			const nextDevice = await bluetooth.requestDevice({
@@ -123,7 +133,7 @@ export function useBluetooth<
 				return;
 			}
 
-			resetConnection(false);
+			disconnectCurrentDevice(false);
 			device.value = nextDevice;
 			await connect();
 		} catch (caughtError) {
@@ -136,8 +146,7 @@ export function useBluetooth<
 	const disconnect = () => {
 		requestCount += 1;
 		connectCount += 1;
-		device.value?.gatt?.disconnect();
-		resetConnection(true);
+		disconnectCurrentDevice(true);
 	};
 	const stopWatch = watch(
 		() => currentNavigator(),
@@ -145,7 +154,7 @@ export function useBluetooth<
 			requestCount += 1;
 			connectCount += 1;
 			isSupported.value = isBluetoothNavigator(navigator);
-			resetConnection(true);
+			disconnectCurrentDevice(true);
 		},
 		{ immediate: true, flush: "sync" },
 	);
