@@ -35,6 +35,15 @@ describe("logicAnd", () => {
 		).toBe(false);
 	});
 
+	it("treats wrapped function values as values", () => {
+		const functionValue = signal((_input: string) => {
+			throw new Error("wrapped function value should not be called");
+		});
+		const getterValue = () => functionValue.value;
+
+		expect(logicAnd(functionValue, getterValue).value).toBe(true);
+	});
+
 	it("updates when a source changes", () => {
 		const left = signal(true);
 		const right = signal(1);

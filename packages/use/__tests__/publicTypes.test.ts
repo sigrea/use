@@ -5642,7 +5642,17 @@ describe("public types", () => {
 
 	it("types logical AND", () => {
 		typeOnly(() => {
-			const result = logicAnd(signal(true), true, () => "ready");
+			const functionValue = (_input: string): string => "ready";
+			const maybeFunctionValue = functionValue as
+				| ((input: string) => string)
+				| undefined;
+			const result = logicAnd(
+				signal(true),
+				true,
+				() => "ready",
+				signal(functionValue),
+				() => functionValue,
+			);
 			const empty = logicAnd();
 			const logicReturn: LogicAndReturn = result;
 
@@ -5651,6 +5661,10 @@ describe("public types", () => {
 			expectTypeOf(logicReturn.value).toEqualTypeOf<boolean>();
 			// @ts-expect-error logical result is readonly
 			result.value = false;
+			// @ts-expect-error function values must be wrapped to avoid getter handling
+			logicAnd(functionValue);
+			// @ts-expect-error function value unions must be wrapped to avoid getter handling
+			logicAnd(maybeFunctionValue);
 		});
 	});
 
