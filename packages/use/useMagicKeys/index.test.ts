@@ -1,3 +1,4 @@
+import { signal } from "@sigrea/core";
 import { describe, expect, it, vi } from "vitest";
 
 import { useMagicKeys } from "./index";
@@ -165,6 +166,34 @@ describe("useMagicKeys", () => {
 		windowTarget.dispatchEvent(new Event("focus"));
 
 		expect(keys.alt_tab.value).toBe(false);
+	});
+
+	it("resets pressed keys when a reactive target changes", () => {
+		const firstTarget = document.createElement("input");
+		const secondTarget = document.createElement("input");
+		const target = signal<EventTarget | null>(firstTarget);
+		const keys = useMagicKeys({ target });
+
+		dispatchKeyboardEvent(firstTarget, "keydown", { code: "KeyA", key: "A" });
+
+		expect(keys.a.value).toBe(true);
+		expect(keys.keya.value).toBe(true);
+		expect(keys.current.value.has("a")).toBe(true);
+
+		target.value = secondTarget;
+
+		expect(keys.a.value).toBe(false);
+		expect(keys.keya.value).toBe(false);
+		expect(keys.current.value.size).toBe(0);
+
+		dispatchKeyboardEvent(firstTarget, "keyup", { code: "KeyA", key: "A" });
+		dispatchKeyboardEvent(secondTarget, "keydown", { code: "KeyB", key: "B" });
+
+		expect(keys.a.value).toBe(false);
+		expect(keys.b.value).toBe(true);
+		expect(keys.current.value.has("b")).toBe(true);
+
+		keys.stop();
 	});
 
 	it("calls the custom event handler after key state is updated", () => {

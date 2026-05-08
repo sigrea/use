@@ -1,7 +1,7 @@
-import { computed, readonly, signal } from "@sigrea/core";
+import { computed, readonly, signal, watch } from "@sigrea/core";
 import type { ReadonlySignal, Signal } from "@sigrea/core";
 
-import { defaultWindow } from "../../shared";
+import { defaultWindow, resolveTarget } from "../../shared";
 import { tryOnScopeDispose } from "../tryOnScopeDispose";
 import type {
 	MaybeTarget,
@@ -244,6 +244,15 @@ export function useMagicKeys<
 		reset,
 		{ passive },
 	);
+	const stopTargetWatch = watch(
+		() => resolveTarget(target as MaybeTarget<EventTarget | null | undefined>),
+		(nextTarget, previousTarget) => {
+			if (previousTarget !== undefined && nextTarget !== previousTarget) {
+				reset();
+			}
+		},
+		{ flush: "sync" },
+	);
 
 	let stopped = false;
 	const stop = () => {
@@ -255,6 +264,7 @@ export function useMagicKeys<
 		keydown.stop();
 		keyup.stop();
 		resetListener.stop();
+		stopTargetWatch();
 	};
 
 	tryOnScopeDispose(stop);
