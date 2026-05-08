@@ -1,7 +1,11 @@
 import { computed, readonly, signal } from "@sigrea/core";
 import { describe, expect, it } from "vitest";
 
-import type { CssSupportsLike, UseCssSupportsWindowLike } from "../types";
+import type {
+	CssSupportsLike,
+	MaybeValue,
+	UseCssSupportsWindowLike,
+} from "../types";
 import { useCssSupports } from "./index";
 
 type CssSupportsCall =
@@ -131,16 +135,55 @@ describe("useCssSupports", () => {
 		expect(fakeWindow.CSS.calls).toEqual([["display: flex"]]);
 	});
 
-	it("uses property and value mode when the second argument is undefined", () => {
-		const fakeWindow = new FakeWindow(() => false);
+	it("treats an undefined second argument as omitted options", () => {
+		const fakeWindow = new FakeWindow(
+			(call) => call.length === 1 && call[0] === "display: flex",
+		);
 		const isSupported = useCssSupports(
 			"display: flex",
 			undefined as unknown as string,
 			{ window: fakeWindow },
 		);
 
-		expect(isSupported.value).toBe(false);
-		expect(fakeWindow.CSS.calls).toEqual([["display: flex", "undefined"]]);
+		expect(isSupported.value).toBe(true);
+		expect(fakeWindow.CSS.calls).toEqual([["display: flex"]]);
+	});
+
+	it("treats reactive undefined second arguments as omitted values", () => {
+		const fakeWindow = new FakeWindow(
+			(call) =>
+				(call.length === 1 && call[0] === "display: flex") ||
+				(call.length === 2 && call[0] === "display" && call[1] === "grid"),
+		);
+		const propertyOrCondition = signal("display: flex");
+		const value = signal<string | undefined>(undefined);
+		const isSupported = useCssSupports(
+			propertyOrCondition,
+			value as MaybeValue<string>,
+			{ window: fakeWindow },
+		);
+
+		expect(isSupported.value).toBe(true);
+		expect(fakeWindow.CSS.calls).toEqual([["display: flex"]]);
+
+		propertyOrCondition.value = "display";
+		value.value = "grid";
+
+		expect(isSupported.value).toBe(true);
+		expect(fakeWindow.CSS.calls).toEqual([
+			["display: flex"],
+			["display", "grid"],
+		]);
+
+		propertyOrCondition.value = "display: flex";
+		value.value = undefined;
+
+		expect(isSupported.value).toBe(true);
+		expect(fakeWindow.CSS.calls).toEqual([
+			["display: flex"],
+			["display", "grid"],
+			["display: flex"],
+		]);
 	});
 
 	it("uses the initial value without a CSS.supports implementation", () => {

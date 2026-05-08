@@ -36,17 +36,14 @@ export function useCssSupports<
 	]
 ): UseCssSupportsReturn {
 	const [first, secondOrOptions, thirdOptions] = input;
-	const args: unknown[] = [first];
-	if (input.length >= 2) {
-		args.push(secondOrOptions);
-	}
+	let hasValueArgument = input.length >= 2 && secondOrOptions !== undefined;
 
 	let options: UseCssSupportsOptions<TWindow> = {};
 	if (input.length >= 3) {
 		options = thirdOptions ?? {};
 	} else if (isOptionsObject(secondOrOptions)) {
 		options = secondOrOptions;
-		args.pop();
+		hasValueArgument = false;
 	}
 
 	const windowTarget =
@@ -54,7 +51,6 @@ export function useCssSupports<
 			? options.window
 			: (defaultWindow as MaybeTarget<TWindow> | undefined);
 	const initialValue = options.initialValue ?? false;
-	const hasValue = args.length === 2;
 	const propertyOrCondition = first;
 	const value = secondOrOptions as MaybeValue<string> | undefined;
 
@@ -76,13 +72,11 @@ export function useCssSupports<
 			const currentPropertyOrCondition = String(
 				resolveValue(propertyOrCondition),
 			);
-			const currentValue = hasValue ? String(resolveValue(value)) : undefined;
+			const resolvedValue = hasValueArgument ? resolveValue(value) : undefined;
+			const hasCurrentValue = resolvedValue !== undefined;
 
-			return hasValue
-				? currentCss.supports(
-						currentPropertyOrCondition,
-						currentValue as string,
-					)
+			return hasCurrentValue
+				? currentCss.supports(currentPropertyOrCondition, String(resolvedValue))
 				: currentCss.supports(currentPropertyOrCondition);
 		}),
 	);
