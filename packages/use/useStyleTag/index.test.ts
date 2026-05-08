@@ -139,6 +139,100 @@ describe("useStyleTag", () => {
 		expect(existing.nonce).toBe("");
 	});
 
+	it("keeps the active owner when shared created styles unload", () => {
+		const first = useStyleTag(".shared { color: red; }", {
+			document,
+			id: "shared-style",
+			manual: true,
+		});
+		const second = useStyleTag(".shared { color: blue; }", {
+			document,
+			id: "shared-style",
+			manual: true,
+		});
+
+		first.load();
+		second.load();
+		first.css.value = ".shared { color: green; }";
+		first.load();
+
+		expect(styleTags()).toHaveLength(1);
+		expect(styleTags()[0]?.textContent).toBe(".shared { color: blue; }");
+
+		second.unload();
+
+		expect(styleTags()).toHaveLength(1);
+		expect(styleTags()[0]?.textContent).toBe(".shared { color: green; }");
+		expect(first.isLoaded.value).toBe(true);
+
+		first.unload();
+
+		expect(styleTags()).toHaveLength(0);
+	});
+
+	it("does not remove shared created styles while another owner is active", () => {
+		const first = useStyleTag(".shared { color: red; }", {
+			document,
+			id: "shared-created-style",
+			manual: true,
+		});
+		const second = useStyleTag(".shared { color: blue; }", {
+			document,
+			id: "shared-created-style",
+			manual: true,
+		});
+
+		first.load();
+		second.load();
+		first.unload();
+
+		expect(styleTags()).toHaveLength(1);
+		expect(styleTags()[0]?.textContent).toBe(".shared { color: blue; }");
+		expect(second.isLoaded.value).toBe(true);
+
+		second.unload();
+
+		expect(styleTags()).toHaveLength(0);
+	});
+
+	it("restores original style after shared reused styles unload", () => {
+		const existing = document.createElement("style");
+		existing.id = "shared-existing-style";
+		existing.media = "screen";
+		existing.nonce = "existing-nonce";
+		existing.textContent = ".existing { color: black; }";
+		document.head.append(existing);
+		const first = useStyleTag(".existing { color: red; }", {
+			document,
+			id: "shared-existing-style",
+			manual: true,
+			media: "print",
+			nonce: "first-nonce",
+		});
+		const second = useStyleTag(".existing { color: blue; }", {
+			document,
+			id: "shared-existing-style",
+			manual: true,
+		});
+
+		first.load();
+		second.load();
+		first.unload();
+
+		expect(styleTags()).toEqual([existing]);
+		expect(existing.textContent).toBe(".existing { color: blue; }");
+		expect(existing.media).toBe("print");
+		expect(existing.nonce).toBe("first-nonce");
+		expect(second.isLoaded.value).toBe(true);
+
+		second.unload();
+
+		expect(styleTags()).toEqual([existing]);
+		expect(existing.textContent).toBe(".existing { color: black; }");
+		expect(existing.media).toBe("screen");
+		expect(existing.nonce).toBe("existing-nonce");
+	});
+
 	it("does not use the global document when document is null", () => {
 		const globalStyle = document.createElement("style");
 		globalStyle.id = "global-style";

@@ -16,7 +16,24 @@ interface StyleSnapshot {
 	textContent: string | null;
 }
 
+interface StyleOwner {
+	css: () => string;
+	media: string | null;
+	nonce: string | null;
+}
+
+interface StyleEntry {
+	created: boolean;
+	owners: StyleOwner[];
+	originalSnapshot: StyleSnapshot | null;
+	style: HTMLStyleElement;
+}
+
 let styleId = 0;
+const styleRegistry = new WeakMap<
+	UseStyleTagDocumentLike,
+	Map<string, StyleEntry>
+>();
 
 function isUsableDocument(
 	document: UseStyleTagDocumentLike | null | undefined,
@@ -66,6 +83,30 @@ function restoreSnapshot(
 	}
 }
 
+function registryFor(
+	document: UseStyleTagDocumentLike,
+): Map<string, StyleEntry> {
+	let registry = styleRegistry.get(document);
+	if (registry === undefined) {
+		registry = new Map();
+		styleRegistry.set(document, registry);
+	}
+
+	return registry;
+}
+
+function applyOwner(style: HTMLStyleElement, owner: StyleOwner): void {
+	restoreSnapshot(style, {
+		media: owner.media,
+		nonce: owner.nonce,
+		textContent: owner.css(),
+	});
+}
+
+function activeOwner(entry: StyleEntry): StyleOwner | undefined {
+	return entry.owners.at(-1);
+}
+
 /**
  * Injects a reactive `<style>` element in the document head.
  */
@@ -89,9 +130,8 @@ export function useStyleTag<
 	const cssSignal = signal(resolveValue(css));
 	const isLoaded = signal(false);
 	let managedDocument: UseStyleTagDocumentLike | undefined;
-	let managedStyle: HTMLStyleElement | null = null;
-	let managedSnapshot: StyleSnapshot | null = null;
-	let createdStyle: HTMLStyleElement | null = null;
+	let managedEntry: StyleEntry | null = null;
+	let managedOwner: StyleOwner | null = null;
 	let stopCssWatch: (() => void) | undefined;
 	let loadRequested = false;
 
@@ -114,37 +154,73 @@ export function useStyleTag<
 	const cleanupManagedStyle = () => {
 		stopStyleWatch();
 
-		if (managedStyle !== null) {
-			if (managedStyle === createdStyle) {
-				managedStyle.remove();
-			} else if (managedSnapshot !== null) {
-				restoreSnapshot(managedStyle, managedSnapshot);
+		if (
+			managedDocument !== undefined &&
+			managedEntry !== null &&
+			managedOwner !== null
+		) {
+			const ownerIndex = managedEntry.owners.indexOf(managedOwner);
+			if (ownerIndex !== -1) {
+				managedEntry.owners.splice(ownerIndex, 1);
+			}
+
+			const nextOwner = activeOwner(managedEntry);
+			if (nextOwner !== undefined) {
+				applyOwner(managedEntry.style, nextOwner);
+			} else {
+				if (managedEntry.created) {
+					managedEntry.style.remove();
+				} else if (managedEntry.originalSnapshot !== null) {
+					restoreSnapshot(managedEntry.style, managedEntry.originalSnapshot);
+				}
+				registryFor(managedDocument).delete(id);
 			}
 		}
 
-		createdStyle = null;
 		managedDocument = undefined;
-		managedSnapshot = null;
-		managedStyle = null;
+		managedEntry = null;
+		managedOwner = null;
 		isLoaded.value = false;
 	};
 	const ensureStyle = (
 		document: UseStyleTagDocumentLike & { readonly head: HTMLHeadElement },
 	) => {
-		let style = findStyle(document, id);
-		if (style === null) {
-			style = document.createElement("style");
-			style.id = id;
-			createdStyle = style;
-			document.head.appendChild(style);
-		} else {
-			managedSnapshot = readSnapshot(style);
+		const registry = registryFor(document);
+		let entry = registry.get(id);
+		if (entry === undefined) {
+			let style = findStyle(document, id);
+			let created = false;
+			let originalSnapshot: StyleSnapshot | null = null;
+
+			if (style === null) {
+				style = document.createElement("style");
+				style.id = id;
+				created = true;
+				document.head.appendChild(style);
+			} else {
+				originalSnapshot = readSnapshot(style);
+			}
+
+			entry = {
+				created,
+				owners: [],
+				originalSnapshot,
+				style,
+			};
+			registry.set(id, entry);
 		}
 
+		const owner: StyleOwner = {
+			css: () => cssSignal.value,
+			media: media ?? readSnapshot(entry.style).media,
+			nonce: nonce ?? readSnapshot(entry.style).nonce,
+		};
+		entry.owners.push(owner);
 		managedDocument = document;
-		managedStyle = style;
-		applyOptions(style);
-		return style;
+		managedEntry = entry;
+		managedOwner = owner;
+		applyOptions(entry.style);
+		return entry;
 	};
 	const loadCurrentDocument = () => {
 		const document = currentDocument();
@@ -157,23 +233,35 @@ export function useStyleTag<
 		if (
 			isLoaded.value &&
 			managedDocument === document &&
-			managedStyle !== null
+			managedEntry !== null &&
+			managedOwner !== null
 		) {
-			applyOptions(managedStyle);
-			managedStyle.textContent = cssSignal.value;
+			if (activeOwner(managedEntry) === managedOwner) {
+				applyOwner(managedEntry.style, managedOwner);
+			}
 			return;
 		}
 
 		cleanupManagedStyle();
-		const style = ensureStyle(document);
+		const entry = ensureStyle(document);
 
 		stopCssWatch = watch(
 			() => cssSignal.value,
 			(value) => {
-				style.textContent = value;
+				if (
+					managedEntry !== null &&
+					managedOwner !== null &&
+					activeOwner(managedEntry) === managedOwner
+				) {
+					managedEntry.style.textContent = value;
+				}
 			},
 			{ flush: "sync", immediate: true },
 		);
+		const owner = activeOwner(entry);
+		if (owner !== undefined) {
+			applyOwner(entry.style, owner);
+		}
 		isLoaded.value = true;
 	};
 	const load = () => {
@@ -182,7 +270,7 @@ export function useStyleTag<
 	};
 	const unload = () => {
 		loadRequested = false;
-		if (!isLoaded.value && managedStyle === null) {
+		if (!isLoaded.value && managedEntry === null) {
 			return;
 		}
 

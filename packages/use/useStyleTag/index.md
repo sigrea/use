@@ -54,6 +54,8 @@ useStyleTag(".app { color: green; }", {
 If a `<style>` with the same id already exists, it is reused instead of creating
 a duplicate element. `unload()` removes only elements created by this instance.
 For reused elements, the previous text, `media`, and `nonce` values are restored.
+When multiple active calls share the same id, cleanup removes or restores the
+element only after the last active owner unloads.
 
 ## SSR
 
