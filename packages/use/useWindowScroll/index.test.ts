@@ -7,6 +7,7 @@ import { useWindowScroll } from "./index";
 class FakeDocument extends EventTarget implements UseScrollDocumentLike {
 	readonly documentElement = document.createElement("html");
 	readonly body = document.createElement("body");
+	scrollingElement: Element | null = this.documentElement;
 }
 
 class FakeWindow extends EventTarget implements UseScrollWindowLike {
@@ -21,7 +22,8 @@ class FakeWindow extends EventTarget implements UseScrollWindowLike {
 	}
 
 	scrollTo(options: ScrollToOptions = {}): void {
-		const element = this.document.documentElement;
+		const element =
+			this.document.scrollingElement ?? this.document.documentElement;
 		element.scrollLeft = options.left ?? element.scrollLeft;
 		element.scrollTop = options.top ?? element.scrollTop;
 		this.dispatchEvent(new Event("scroll"));
@@ -82,6 +84,28 @@ describe("useWindowScroll", () => {
 
 		expect(scroll.x.value).toBe(24);
 		expect(scroll.y.value).toBe(48);
+	});
+
+	it("reads window scroll from the document scrolling element", () => {
+		const fakeWindow = createWindow();
+		fakeWindow.document.scrollingElement = fakeWindow.document.body;
+		setMetrics(fakeWindow.document.body, {
+			clientHeight: 100,
+			clientWidth: 100,
+			scrollHeight: 200,
+			scrollLeft: 18,
+			scrollTop: 64,
+			scrollWidth: 200,
+		});
+		const scroll = useWindowScroll({ window: fakeWindow });
+
+		expect(scroll.x.value).toBe(18);
+		expect(scroll.y.value).toBe(64);
+
+		fakeWindow.document.body.scrollTop = 96;
+		fakeWindow.dispatchEvent(new Event("scroll"));
+
+		expect(scroll.y.value).toBe(96);
 	});
 
 	it("updates from window scroll and scrollend events", () => {

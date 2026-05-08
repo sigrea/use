@@ -5464,10 +5464,15 @@ export interface UseScrollDirections {
 export interface UseScrollDocumentLike extends DocumentLike {
 	readonly documentElement?: HTMLElement | null;
 	readonly body?: HTMLElement | null;
+	readonly scrollingElement?: Element | null;
 }
 
 export interface UseScrollWindowLike extends UseMutationObserverWindowLike {
 	readonly document?: UseScrollDocumentLike;
+	readonly pageXOffset?: number;
+	readonly pageYOffset?: number;
+	readonly scrollX?: number;
+	readonly scrollY?: number;
 	getComputedStyle?(
 		element: Element,
 		pseudoElt?: string | null,
