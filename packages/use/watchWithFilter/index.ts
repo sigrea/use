@@ -49,6 +49,7 @@ function isSourceList(
 function createFilteredCallback(
 	callback: InternalWatchWithFilterCallback,
 	eventFilter: EventFilter,
+	isStopped: () => boolean,
 ): InternalWatchWithFilterCallback {
 	const filter = eventFilter as EventFilter<
 		InternalCallbackArgs,
@@ -64,10 +65,13 @@ function createFilteredCallback(
 			thisArg: this,
 		};
 
-		return filter(
-			() => callback.apply(this, args),
-			options,
-		) as InternalCallbackResult;
+		return filter(() => {
+			if (isStopped()) {
+				return;
+			}
+
+			return callback.apply(this, args);
+		}, options) as InternalCallbackResult;
 	};
 }
 
@@ -124,12 +128,23 @@ export function watchWithFilter<Immediate extends boolean = false>(
 	options: WatchWithFilterOptions<Immediate> = {},
 ): WatchWithFilterReturn {
 	const { eventFilter = bypassFilter, ...watchOptions } = options;
+	let stopped = false;
 	const run = createFilteredCallback(
 		callback as InternalWatchWithFilterCallback,
 		eventFilter,
+		() => stopped,
 	);
 
-	return isSourceList(source)
+	const stopWatch: WatchStopHandle = isSourceList(source)
 		? watch(source as readonly WatchSource<unknown>[], run, watchOptions)
 		: watch(source as WatchSource<unknown>, run, watchOptions as WatchOptions);
+
+	return () => {
+		if (stopped) {
+			return;
+		}
+
+		stopped = true;
+		stopWatch();
+	};
 }

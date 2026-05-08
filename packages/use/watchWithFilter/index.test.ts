@@ -261,4 +261,46 @@ describe("watchWithFilter", () => {
 
 		expect(callback).not.toHaveBeenCalled();
 	});
+
+	it("does not run deferred filter invocations after stop", () => {
+		vi.useFakeTimers();
+		const source = signal(0);
+		const callback = vi.fn();
+		const stop = watchWithFilter(source, callback, {
+			eventFilter: (invoke) => {
+				setTimeout(invoke, 10);
+			},
+			flush: "sync",
+		});
+
+		source.value = 1;
+		stop();
+		vi.advanceTimersByTime(10);
+
+		expect(callback).not.toHaveBeenCalled();
+	});
+
+	it("does not run async filter invocations after stop", async () => {
+		const source = signal(0);
+		const callback = vi.fn();
+		let resume!: () => void;
+		const resumed = new Promise<void>((resolve) => {
+			resume = resolve;
+		});
+		const stop = watchWithFilter(source, callback, {
+			eventFilter: async (invoke) => {
+				await resumed;
+				return invoke();
+			},
+			flush: "sync",
+		});
+
+		source.value = 1;
+		stop();
+		resume();
+		await resumed;
+		await Promise.resolve();
+
+		expect(callback).not.toHaveBeenCalled();
+	});
 });
