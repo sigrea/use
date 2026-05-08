@@ -249,11 +249,51 @@ describe("useTransition", () => {
 		expect(onStarted).not.toHaveBeenCalled();
 	});
 
+	it("does not call onFinished after a manual abort", async () => {
+		const frameWindow = new FakeFrameWindow();
+		const source = signal(0);
+		const onFinished = vi.fn();
+		let shouldAbort = false;
+		const value = useTransition(source, {
+			abort: () => shouldAbort,
+			duration: 100,
+			onFinished,
+			window: frameWindow,
+		});
+
+		source.value = 1;
+		await flushMicrotasks();
+		vi.advanceTimersByTime(50);
+		frameWindow.flushNextFrame();
+		expectBetween(value.value, 0, 1);
+
+		shouldAbort = true;
+		frameWindow.flushNextFrame();
+		await flushMicrotasks();
+
+		expectBetween(value.value, 0, 1);
+		expect(onFinished).not.toHaveBeenCalled();
+
+		shouldAbort = false;
+		source.value = 2;
+		await flushMicrotasks();
+		vi.advanceTimersByTime(50);
+		frameWindow.flushNextFrame();
+		vi.advanceTimersByTime(50);
+		frameWindow.flushNextFrame();
+		await flushMicrotasks();
+
+		expect(value.value).toBe(2);
+		expect(onFinished).toHaveBeenCalledOnce();
+	});
+
 	it("starts a new transition from the interrupted value", async () => {
 		const frameWindow = new FakeFrameWindow();
 		const source = signal(0);
+		const onFinished = vi.fn();
 		const value = useTransition(source, {
 			duration: 100,
+			onFinished,
 			window: frameWindow,
 		});
 
@@ -269,6 +309,13 @@ describe("useTransition", () => {
 		frameWindow.flushNextFrame();
 
 		expectBetween(value.value, 0, 0.5);
+
+		vi.advanceTimersByTime(75);
+		frameWindow.flushNextFrame();
+		await flushMicrotasks();
+
+		expect(value.value).toBe(0);
+		expect(onFinished).toHaveBeenCalledOnce();
 	});
 
 	it("supports custom interpolation functions", async () => {

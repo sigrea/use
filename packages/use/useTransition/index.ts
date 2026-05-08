@@ -283,12 +283,24 @@ export function useTransition<T>(
 
 		options.onStarted?.();
 
+		let manuallyAborted = false;
 		await transition(output, output.value, to, {
 			...options,
-			abort: () => id !== currentId || Boolean(options.abort?.()),
+			abort: () => {
+				if (id !== currentId) {
+					return true;
+				}
+
+				if (options.abort?.()) {
+					manuallyAborted = true;
+					return true;
+				}
+
+				return false;
+			},
 		});
 
-		if (id === currentId) {
+		if (id === currentId && !manuallyAborted) {
 			options.onFinished?.();
 		}
 	};
