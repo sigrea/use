@@ -149,9 +149,10 @@ export function useDraggable(
 			return;
 		}
 
+		const handleElement = resolveTarget(draggingHandle);
 		if (
 			resolveBoolean(options.exact, false) &&
-			event.target !== targetElement
+			(handleElement === undefined || event.target !== handleElement)
 		) {
 			return;
 		}

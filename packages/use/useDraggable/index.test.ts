@@ -294,6 +294,38 @@ describe("useDraggable", () => {
 		draggable.stop();
 	});
 
+	it("uses the handle as the exact pointerdown target", () => {
+		const handle = document.createElement("button");
+		const handleChild = document.createElement("span");
+		handle.appendChild(handleChild);
+		const draggable = useDraggable(element, {
+			draggingElement,
+			exact: true,
+			handle,
+		});
+
+		handleChild.dispatchEvent(
+			pointerEvent("pointerdown", { clientX: 15, clientY: 25 }),
+		);
+		draggingElement.dispatchEvent(
+			pointerEvent("pointermove", { clientX: 50, clientY: 70 }),
+		);
+		expect(draggable.isDragging.value).toBe(false);
+		expect(draggable.position.value).toEqual({ x: 0, y: 0 });
+
+		handle.dispatchEvent(
+			pointerEvent("pointerdown", { clientX: 15, clientY: 25 }),
+		);
+		expect(draggable.isDragging.value).toBe(true);
+
+		draggingElement.dispatchEvent(
+			pointerEvent("pointermove", { clientX: 50, clientY: 70 }),
+		);
+		expect(draggable.position.value).toEqual({ x: 45, y: 65 });
+
+		draggable.stop();
+	});
+
 	it("clamps movement to a container", () => {
 		const container = document.createElement("div");
 		setRect(container, { left: 0, top: 0 });
