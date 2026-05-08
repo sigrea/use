@@ -284,6 +284,80 @@ describe("useFileDialog", () => {
 		dialog.stop();
 	});
 
+	it("waits for a nullable input target instead of creating an internal input", () => {
+		const internal = fileInput();
+		const input = fileInput();
+		const createElement = vi
+			.spyOn(document, "createElement")
+			.mockReturnValue(internal);
+		const inputTarget = signal<UseFileDialogInputLike | null>(null);
+		const accept = signal("image/*");
+		const multiple = signal(false);
+		const directory = signal(true);
+		const capture = signal<string | undefined>("user");
+		const files = createFileList([new File(["content"], "file.txt")]);
+		const dialog = useFileDialog({
+			accept,
+			capture,
+			directory,
+			input: inputTarget,
+			multiple,
+		});
+		const listener = vi.fn();
+		dialog.onChange(listener);
+
+		accept.value = "video/*";
+		dialog.open();
+		dialog.reset();
+
+		expect(createElement).not.toHaveBeenCalled();
+		expect(internal.click).not.toHaveBeenCalled();
+		expect(input.click).not.toHaveBeenCalled();
+		expect(dialog.files.value).toBeNull();
+		expect(listener).not.toHaveBeenCalled();
+
+		inputTarget.value = input;
+
+		expect(createElement).not.toHaveBeenCalled();
+		expect(input.type).toBe("file");
+		expect(input.accept).toBe("video/*");
+		expect(input.multiple).toBe(false);
+		expect(input.webkitdirectory).toBe(true);
+		expect(input.capture).toBe("user");
+
+		setFiles(input, files);
+		input.dispatchEvent(new Event("change"));
+		dialog.open({
+			accept: "text/plain",
+			capture: undefined,
+			directory: false,
+			multiple: true,
+		});
+
+		expect(input.accept).toBe("text/plain");
+		expect(input.multiple).toBe(true);
+		expect(input.webkitdirectory).toBe(false);
+		expect(input.getAttribute("capture")).toBeNull();
+		expect(dialog.files.value).toBe(files);
+		expect(listener).toHaveBeenCalledWith(files);
+		expect(input.click).toHaveBeenCalledOnce();
+		expect(createElement).not.toHaveBeenCalled();
+
+		dialog.stop();
+	});
+
+	it("treats an explicitly undefined input target as no input", () => {
+		const createElement = vi.spyOn(document, "createElement");
+		const dialog = useFileDialog({ input: undefined });
+
+		dialog.open();
+
+		expect(createElement).not.toHaveBeenCalled();
+		expect(dialog.files.value).toBeNull();
+
+		dialog.stop();
+	});
+
 	it("does not fall back to the global document when document is null", () => {
 		const createElement = vi.spyOn(document, "createElement");
 		const dialog = useFileDialog({ document: null });

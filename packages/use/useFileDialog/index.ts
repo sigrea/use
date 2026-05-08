@@ -114,6 +114,7 @@ export function useFileDialog<
 		"document" in options && options.document !== undefined
 			? options.document
 			: (defaultDocument as MaybeTarget<TDocument> | undefined);
+	const hasInputTarget = "input" in options;
 	const inputTarget = options.input;
 	const currentDocument = () =>
 		documentTarget === undefined
@@ -123,12 +124,10 @@ export function useFileDialog<
 	let stopped = false;
 
 	const currentInput = (): UseFileDialogInputLike | undefined => {
-		const input =
-			inputTarget === undefined
+		if (hasInputTarget) {
+			return inputTarget === undefined
 				? undefined
 				: resolveTarget<UseFileDialogInputLike>(inputTarget);
-		if (input !== undefined) {
-			return input;
 		}
 
 		const document = currentDocument();
