@@ -1,4 +1,5 @@
 export { computedAsync } from "./computedAsync";
+export { computedEager } from "./computedEager";
 export { onClickOutside } from "./onClickOutside";
 export { useBreakpoints } from "./useBreakpoints";
 export { useCounter } from "./useCounter";
@@ -37,6 +38,8 @@ export type {
 	Arrayable,
 	Breakpoints,
 	CloneFn,
+	ComputedEagerOptions,
+	ComputedEagerReturn,
 	DocumentLike,
 	DocumentVisibilityDocumentLike,
 	ElementSize,

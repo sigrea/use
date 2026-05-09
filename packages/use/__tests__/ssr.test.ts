@@ -11,6 +11,7 @@ describe("SSR safety", () => {
 		const mod = await import("../../../index");
 
 		expect(typeof mod.computedAsync).toBe("function");
+		expect(typeof mod.computedEager).toBe("function");
 		expect(typeof mod.useCounter).toBe("function");
 		expect(typeof mod.onClickOutside).toBe("function");
 		expect(typeof mod.useBreakpoints).toBe("function");
@@ -118,6 +119,14 @@ describe("SSR safety", () => {
 
 		expect(globalThis.window).toBeUndefined();
 		expect(value.value).toBe("initial");
+	});
+
+	it("creates computedEager without a window", async () => {
+		const { computedEager } = await import("../../../index");
+		const value = computedEager(() => "ready");
+
+		expect(globalThis.window).toBeUndefined();
+		expect(value.value).toBe("ready");
 	});
 
 	it("auto-starts timers when timer APIs are available without a browser window", async () => {

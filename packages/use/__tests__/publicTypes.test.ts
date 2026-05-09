@@ -5,6 +5,8 @@ import type {
 	Arrayable,
 	AsyncComputedOptions,
 	Breakpoints,
+	ComputedEagerOptions,
+	ComputedEagerReturn,
 	DocumentVisibilityDocumentLike,
 	FocusableElementLike,
 	MatchMediaWindow,
@@ -29,6 +31,7 @@ import type {
 import {
 	StorageSerializers,
 	computedAsync,
+	computedEager,
 	onClickOutside,
 	useBreakpoints,
 	useDebounceFn,
@@ -112,6 +115,22 @@ describe("public types", () => {
 			expectTypeOf(withEvaluatingSignal).toEqualTypeOf<
 				ReadonlySignal<boolean>
 			>();
+			// @ts-expect-error returned values are readonly signals
+			value.value = 2;
+		});
+	});
+
+	it("types eager computed values and options", () => {
+		typeOnly(() => {
+			const options: ComputedEagerOptions = {
+				flush: "sync",
+				onTrack: (_event) => {},
+				onTrigger: (_event) => {},
+			};
+			const value = computedEager(() => 1, options);
+
+			expectTypeOf(value).toEqualTypeOf<ReadonlySignal<number>>();
+			expectTypeOf(value).toEqualTypeOf<ComputedEagerReturn<number>>();
 			// @ts-expect-error returned values are readonly signals
 			value.value = 2;
 		});

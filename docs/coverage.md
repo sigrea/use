@@ -10,7 +10,7 @@ is not complete in `@sigrea/use` yet.
 | Reference API | `@sigrea/use` API | Status |
 | --- | --- | --- |
 | `computedAsync` | `computedAsync` | Done |
-| `computedEager` | `-` | Todo |
+| `computedEager` | `computedEager` | Done |
 | `computedInject` | `-` | Todo |
 | `computedWithControl` | `-` | Todo |
 | `createDisposableDirective` | `-` | Todo |
