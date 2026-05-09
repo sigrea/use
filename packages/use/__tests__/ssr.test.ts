@@ -10,6 +10,7 @@ describe("SSR safety", () => {
 	it("imports the root entry in a node environment", async () => {
 		const mod = await import("../../../index");
 
+		expect(typeof mod.computedAsync).toBe("function");
 		expect(typeof mod.useCounter).toBe("function");
 		expect(typeof mod.onClickOutside).toBe("function");
 		expect(typeof mod.useBreakpoints).toBe("function");
@@ -109,6 +110,14 @@ describe("SSR safety", () => {
 		storageValue.stop();
 		elementSize.stop();
 		size.stop();
+	});
+
+	it("creates computedAsync without a window", async () => {
+		const { computedAsync } = await import("../../../index");
+		const value = computedAsync(async () => "ready", "initial");
+
+		expect(globalThis.window).toBeUndefined();
+		expect(value.value).toBe("initial");
 	});
 
 	it("auto-starts timers when timer APIs are available without a browser window", async () => {

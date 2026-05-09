@@ -1,3 +1,4 @@
+export { computedAsync } from "./computedAsync";
 export { onClickOutside } from "./onClickOutside";
 export { useBreakpoints } from "./useBreakpoints";
 export { useCounter } from "./useCounter";
@@ -28,6 +29,11 @@ export { useTimeoutFn } from "./useTimeoutFn";
 export { useToggle } from "./useToggle";
 export { useWindowSize } from "./useWindowSize";
 export type {
+	AsyncComputedCancelCallback,
+	AsyncComputedEvaluationCallback,
+	AsyncComputedOnCancel,
+	AsyncComputedOptions,
+	AsyncComputedOptionsOrSignal,
 	Arrayable,
 	Breakpoints,
 	CloneFn,

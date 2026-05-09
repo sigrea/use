@@ -3,6 +3,7 @@ import { describe, expectTypeOf, it } from "vitest";
 
 import type {
 	Arrayable,
+	AsyncComputedOptions,
 	Breakpoints,
 	DocumentVisibilityDocumentLike,
 	FocusableElementLike,
@@ -27,6 +28,7 @@ import type {
 } from "../../../index";
 import {
 	StorageSerializers,
+	computedAsync,
 	onClickOutside,
 	useBreakpoints,
 	useDebounceFn,
@@ -78,6 +80,43 @@ interface StorageOnlyWindow extends StorageWindowLike {
 function typeOnly(_callback: () => void): void {}
 
 describe("public types", () => {
+	it("types async computed values and options", () => {
+		typeOnly(() => {
+			const evaluating = signal(false);
+			const options: AsyncComputedOptions = {
+				evaluating,
+				flush: "sync",
+				lazy: true,
+				onError: (_error) => {},
+				shallow: false,
+			};
+			const value = computedAsync(
+				async (onCancel) => {
+					onCancel(() => {});
+					return 1;
+				},
+				0,
+				options,
+			);
+			const optional = computedAsync(async () => "ready");
+			const withEvaluatingSignal = computedAsync(
+				async () => true,
+				false,
+				evaluating,
+			);
+
+			expectTypeOf(value).toEqualTypeOf<ReadonlySignal<number>>();
+			expectTypeOf(optional).toEqualTypeOf<
+				ReadonlySignal<string | undefined>
+			>();
+			expectTypeOf(withEvaluatingSignal).toEqualTypeOf<
+				ReadonlySignal<boolean>
+			>();
+			// @ts-expect-error returned values are readonly signals
+			value.value = 2;
+		});
+	});
+
 	it("infers window event payloads when the target is omitted", () => {
 		const listener = useEventListener("resize", (event) => {
 			expectTypeOf(event).toEqualTypeOf<UIEvent>();

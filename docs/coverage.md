@@ -9,7 +9,7 @@ is not complete in `@sigrea/use` yet.
 
 | Reference API | `@sigrea/use` API | Status |
 | --- | --- | --- |
-| `computedAsync` | `-` | Todo |
+| `computedAsync` | `computedAsync` | Done |
 | `computedEager` | `-` | Todo |
 | `computedInject` | `-` | Todo |
 | `computedWithControl` | `-` | Todo |
