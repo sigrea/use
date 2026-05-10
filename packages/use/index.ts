@@ -3,6 +3,7 @@ export { computedEager } from "./computedEager";
 export { computedWithControl } from "./computedWithControl";
 export { createEventHook } from "./createEventHook";
 export { createSignal } from "./createSignal";
+export { createResolveValueFn } from "./createResolveValueFn";
 export { onClickOutside } from "./onClickOutside";
 export { useBreakpoints } from "./useBreakpoints";
 export { useCounter } from "./useCounter";
@@ -66,6 +67,7 @@ export type {
 	FocusMethodOptions,
 	FunctionArgs,
 	MatchMediaWindow,
+	MaybeValueArgs,
 	MaybeTarget,
 	MaybeValue,
 	MouseWindowLike,
@@ -82,6 +84,7 @@ export type {
 	PromisifyFn,
 	RemovableSignal,
 	ResizeObserverWindowLike,
+	ResolveValueFn,
 	StorageEventLike,
 	StorageLike,
 	StorageSerializer,

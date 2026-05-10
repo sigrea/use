@@ -26,7 +26,7 @@ Status values:
 | `createReusableTemplate` | `-` | Out of scope |
 | `createSharedComposable` | `-` | Needs design |
 | `createTemplatePromise` | `-` | Out of scope |
-| `createUnrefFn` | `-` | Todo |
+| `createUnrefFn` | `createResolveValueFn` | Done |
 | `extendRef` | `-` | Todo |
 | `get` | `-` | Todo |
 | `injectLocal` | `-` | Out of scope |

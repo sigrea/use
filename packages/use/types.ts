@@ -55,6 +55,21 @@ export type PromisifyFn<T> = T extends (
 		: never
 	: never;
 
+export type MaybeValueArgs<TArgs extends readonly unknown[]> = {
+	[K in keyof TArgs]: TArgs[K] extends (...args: never[]) => unknown
+		? Signal<TArgs[K]> | ReadonlySignal<TArgs[K]> | Computed<TArgs[K]>
+		: MaybeValue<TArgs[K]>;
+};
+
+export type ResolveValueFn<T> = T extends (
+	this: infer TThis,
+	...args: infer TArgs
+) => infer TReturn
+	? TArgs extends unknown[]
+		? (this: TThis, ...args: MaybeValueArgs<TArgs>) => TReturn
+		: never
+	: never;
+
 export type AsyncComputedCancelCallback = () => void;
 
 export type AsyncComputedOnCancel = (
