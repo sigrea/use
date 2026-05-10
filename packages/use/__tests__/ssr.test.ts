@@ -22,6 +22,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.resolveValue).toBe("function");
 		expect(typeof mod.useCounter).toBe("function");
 		expect(typeof mod.onClickOutside).toBe("function");
+		expect(typeof mod.onElementRemoval).toBe("function");
 		expect(typeof mod.useBreakpoints).toBe("function");
 		expect(typeof mod.useDocumentVisibility).toBe("function");
 		expect(typeof mod.useElementSize).toBe("function");
@@ -58,6 +59,7 @@ describe("SSR safety", () => {
 			useMouse,
 			useOnline,
 			usePreferredDark,
+			onElementRemoval,
 			useSessionStorage,
 			useStorage,
 			useWindowSize,
@@ -70,6 +72,7 @@ describe("SSR safety", () => {
 			window: undefined,
 		});
 		const outside = onClickOutside(null, () => {});
+		const removal = onElementRemoval(null, () => {});
 		const focus = useFocus(null);
 		const mouse = useMouse();
 		const mediaQuery = useMediaQuery("(min-width: 640px)");
@@ -109,6 +112,7 @@ describe("SSR safety", () => {
 		listener.stop();
 		localStorageValue.stop();
 		outside();
+		removal();
 		focus.stop();
 		mouse.stop();
 		mediaQuery.stop();

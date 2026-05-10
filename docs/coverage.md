@@ -33,7 +33,7 @@ Status values:
 | `isDefined` | `isDefined` | Done |
 | `makeDestructurable` | `makeDestructurable` | Done |
 | `onClickOutside` | `onClickOutside` | Done |
-| `onElementRemoval` | `-` | Todo |
+| `onElementRemoval` | `onElementRemoval` | Done |
 | `onKeyStroke` | `-` | Todo |
 | `onLongPress` | `-` | Todo |
 | `onStartTyping` | `-` | Todo |

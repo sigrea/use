@@ -565,6 +565,28 @@ export interface OnClickOutsideControlsReturn {
 export type OnClickOutsideReturn<Controls extends boolean = false> =
 	Controls extends true ? OnClickOutsideControlsReturn : () => void;
 
+export type OnElementRemovalDocumentLike = Node;
+
+export interface OnElementRemovalWindowLike extends WindowLike {
+	readonly document?: OnElementRemovalDocumentLike;
+	readonly MutationObserver?: typeof MutationObserver;
+}
+
+export interface OnElementRemovalOptions<
+	TWindow extends OnElementRemovalWindowLike = OnElementRemovalWindowLike,
+	TDocument extends OnElementRemovalDocumentLike = OnElementRemovalDocumentLike,
+> {
+	window?: MaybeTarget<TWindow>;
+	document?: MaybeTarget<TDocument>;
+	flush?: WatchOptions["flush"];
+}
+
+export type OnElementRemovalCallback = (
+	mutationRecords: MutationRecord[],
+) => void;
+
+export type OnElementRemovalReturn = () => void;
+
 export type UseMouseCoordType = "page" | "client" | "screen" | "movement";
 export type UseMouseSourceType = "mouse" | "touch" | null;
 export type UseMouseEventExtractor = (
