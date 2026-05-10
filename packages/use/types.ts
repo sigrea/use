@@ -118,6 +118,11 @@ export type ComputedWithControlRef<T> =
 	| ComputedWithControlReturn<T>
 	| WritableComputedWithControlReturn<T>;
 
+export type CreateSignalReturn<
+	T = unknown,
+	D extends boolean = false,
+> = D extends true ? Signal<T> : Signal<T>;
+
 type IsAny<T> = 0 extends 1 & T ? true : false;
 type IsUnknown<T> = IsAny<T> extends true
 	? false

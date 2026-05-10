@@ -2,6 +2,7 @@ export { computedAsync } from "./computedAsync";
 export { computedEager } from "./computedEager";
 export { computedWithControl } from "./computedWithControl";
 export { createEventHook } from "./createEventHook";
+export { createSignal } from "./createSignal";
 export { onClickOutside } from "./onClickOutside";
 export { useBreakpoints } from "./useBreakpoints";
 export { useCounter } from "./useCounter";
@@ -50,6 +51,7 @@ export type {
 	ComputedWithControlSetter,
 	ComputedWithControlSource,
 	ComputedWithControlSourceList,
+	CreateSignalReturn,
 	EventHook,
 	EventHookArgs,
 	EventHookCallback,

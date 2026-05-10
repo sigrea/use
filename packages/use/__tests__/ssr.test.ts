@@ -14,6 +14,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.computedEager).toBe("function");
 		expect(typeof mod.computedWithControl).toBe("function");
 		expect(typeof mod.createEventHook).toBe("function");
+		expect(typeof mod.createSignal).toBe("function");
 		expect(typeof mod.useCounter).toBe("function");
 		expect(typeof mod.onClickOutside).toBe("function");
 		expect(typeof mod.useBreakpoints).toBe("function");
@@ -151,6 +152,14 @@ describe("SSR safety", () => {
 
 		expect(globalThis.window).toBeUndefined();
 		expect(calls).toEqual(["ready"]);
+	});
+
+	it("creates signals without a window", async () => {
+		const { createSignal } = await import("../../../index");
+		const value = createSignal("ready");
+
+		expect(globalThis.window).toBeUndefined();
+		expect(value.value).toBe("ready");
 	});
 
 	it("auto-starts timers when timer APIs are available without a browser window", async () => {
