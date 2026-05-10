@@ -27,7 +27,7 @@ Status values:
 | `createSharedComposable` | `-` | Needs design |
 | `createTemplatePromise` | `-` | Out of scope |
 | `createUnrefFn` | `createResolveValueFn` | Done |
-| `extendRef` | `-` | Todo |
+| `extendRef` | `extendSignal` | Done |
 | `get` | `-` | Todo |
 | `injectLocal` | `-` | Out of scope |
 | `isDefined` | `-` | Todo |

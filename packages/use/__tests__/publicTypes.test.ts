@@ -1,4 +1,11 @@
-import { type ReadonlySignal, type Signal, signal } from "@sigrea/core";
+import {
+	type Computed,
+	type ReadonlySignal,
+	type Signal,
+	computed,
+	readonly,
+	signal,
+} from "@sigrea/core";
 import { describe, expectTypeOf, it } from "vitest";
 
 import type {
@@ -15,6 +22,10 @@ import type {
 	EventHookArgs,
 	EventHookCallback,
 	EventHookReturn,
+	ExtendSignalOptions,
+	ExtendSignalReturn,
+	ExtendSignalSource,
+	ExtendSignalUnwrapped,
 	FocusableElementLike,
 	MatchMediaWindow,
 	MaybeValue,
@@ -47,6 +58,7 @@ import {
 	createEventHook,
 	createResolveValueFn,
 	createSignal,
+	extendSignal,
 	onClickOutside,
 	useBreakpoints,
 	useDebounceFn,
@@ -293,6 +305,96 @@ describe("public types", () => {
 			shallow.value = { nested: { count: 1 } };
 			deep.value.nested.count = 1;
 			primitive.value = 1;
+		});
+	});
+
+	it("types extended signals", () => {
+		typeOnly(() => {
+			const source = signal(0);
+			const count = signal(1);
+			const label = computed({
+				get: () => "ready",
+				set: (_next: string) => {},
+			});
+			const readonlyCount: ReadonlySignal<number> = readonly(count);
+			const options: ExtendSignalOptions<true> = {
+				enumerable: true,
+				unwrap: true,
+			};
+			const noUnwrapOptions: ExtendSignalOptions<false> = {
+				unwrap: false,
+			};
+			const extended = extendSignal(
+				source,
+				{
+					count,
+					label,
+					plain: true,
+					peek: () => "ignored",
+					readonlyCount,
+					value: "ignored",
+				},
+				options,
+			);
+			const preserved = extendSignal(
+				source,
+				{ count, label, readonlyCount },
+				noUnwrapOptions,
+			);
+			const withEnumerable = extendSignal(
+				source,
+				{ count },
+				{ enumerable: true },
+			);
+			const withEmptyOptions = extendSignal(source, { count }, {});
+
+			expectTypeOf(source).toMatchTypeOf<ExtendSignalSource<number>>();
+			expectTypeOf(extended).toMatchTypeOf<
+				ExtendSignalReturn<
+					typeof source,
+					{
+						count: typeof count;
+						label: typeof label;
+						plain: boolean;
+						peek: () => string;
+						readonlyCount: typeof readonlyCount;
+						value: string;
+					}
+				>
+			>();
+			expectTypeOf(extended).toMatchTypeOf<Signal<number>>();
+			expectTypeOf(extended.value).toEqualTypeOf<number>();
+			expectTypeOf(extended.count).toEqualTypeOf<number>();
+			expectTypeOf(extended.label).toEqualTypeOf<string>();
+			expectTypeOf(extended.peek).toEqualTypeOf<() => number>();
+			expectTypeOf(extended.plain).toEqualTypeOf<boolean>();
+			expectTypeOf(extended.readonlyCount).toEqualTypeOf<number>();
+			expectTypeOf(withEnumerable.count).toEqualTypeOf<number>();
+			expectTypeOf(withEmptyOptions.count).toEqualTypeOf<number>();
+			extended.count = 2;
+			extended.label = "updated";
+			expectTypeOf(extended.peek()).toEqualTypeOf<number>();
+			// @ts-expect-error value extension does not replace the source value type
+			extended.value = "ignored";
+			// @ts-expect-error readonly signals expose a readonly unwrapped property
+			extended.readonlyCount = 2;
+
+			expectTypeOf(preserved.count).toEqualTypeOf<Signal<number>>();
+			expectTypeOf(preserved.label).toEqualTypeOf<Computed<string>>();
+			expectTypeOf(preserved.readonlyCount).toEqualTypeOf<
+				ReadonlySignal<number>
+			>();
+			preserved.count.value = 2;
+
+			expectTypeOf<
+				ExtendSignalUnwrapped<{
+					count: Signal<number>;
+					readonlyCount: ReadonlySignal<number>;
+				}>
+			>().toMatchTypeOf<{
+				count: number;
+				readonly readonlyCount: number;
+			}>();
 		});
 	});
 

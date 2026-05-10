@@ -4,6 +4,7 @@ export { computedWithControl } from "./computedWithControl";
 export { createEventHook } from "./createEventHook";
 export { createSignal } from "./createSignal";
 export { createResolveValueFn } from "./createResolveValueFn";
+export { extendSignal } from "./extendSignal";
 export { onClickOutside } from "./onClickOutside";
 export { useBreakpoints } from "./useBreakpoints";
 export { useCounter } from "./useCounter";
@@ -60,6 +61,10 @@ export type {
 	EventHookOn,
 	EventHookReturn,
 	EventHookTrigger,
+	ExtendSignalOptions,
+	ExtendSignalReturn,
+	ExtendSignalSource,
+	ExtendSignalUnwrapped,
 	DocumentLike,
 	DocumentVisibilityDocumentLike,
 	ElementSize,
