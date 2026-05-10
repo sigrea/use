@@ -1,6 +1,7 @@
 export { computedAsync } from "./computedAsync";
 export { computedEager } from "./computedEager";
 export { computedWithControl } from "./computedWithControl";
+export { createEventHook } from "./createEventHook";
 export { onClickOutside } from "./onClickOutside";
 export { useBreakpoints } from "./useBreakpoints";
 export { useCounter } from "./useCounter";
@@ -49,6 +50,13 @@ export type {
 	ComputedWithControlSetter,
 	ComputedWithControlSource,
 	ComputedWithControlSourceList,
+	EventHook,
+	EventHookArgs,
+	EventHookCallback,
+	EventHookOff,
+	EventHookOn,
+	EventHookReturn,
+	EventHookTrigger,
 	DocumentLike,
 	DocumentVisibilityDocumentLike,
 	ElementSize,

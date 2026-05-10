@@ -19,7 +19,7 @@ Status values:
 | `computedInject` | `-` | Out of scope |
 | `computedWithControl` | `computedWithControl` | Done |
 | `createDisposableDirective` | `-` | Out of scope |
-| `createEventHook` | `-` | Todo |
+| `createEventHook` | `createEventHook` | Done |
 | `createGlobalState` | `-` | Needs design |
 | `createInjectionState` | `-` | Out of scope |
 | `createRef` | `-` | Todo |
