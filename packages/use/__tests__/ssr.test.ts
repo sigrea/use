@@ -23,6 +23,10 @@ describe("SSR safety", () => {
 		expect(typeof mod.useCounter).toBe("function");
 		expect(typeof mod.onClickOutside).toBe("function");
 		expect(typeof mod.onElementRemoval).toBe("function");
+		expect(typeof mod.onKeyDown).toBe("function");
+		expect(typeof mod.onKeyPressed).toBe("function");
+		expect(typeof mod.onKeyStroke).toBe("function");
+		expect(typeof mod.onKeyUp).toBe("function");
 		expect(typeof mod.useBreakpoints).toBe("function");
 		expect(typeof mod.useDocumentVisibility).toBe("function");
 		expect(typeof mod.useElementSize).toBe("function");
@@ -60,6 +64,10 @@ describe("SSR safety", () => {
 			useOnline,
 			usePreferredDark,
 			onElementRemoval,
+			onKeyDown,
+			onKeyPressed,
+			onKeyStroke,
+			onKeyUp,
 			useSessionStorage,
 			useStorage,
 			useWindowSize,
@@ -73,6 +81,10 @@ describe("SSR safety", () => {
 		});
 		const outside = onClickOutside(null, () => {});
 		const removal = onElementRemoval(null, () => {});
+		const keyStroke = onKeyStroke("Escape", () => {});
+		const keyDown = onKeyDown("Escape", () => {});
+		const keyPressed = onKeyPressed("Enter", () => {});
+		const keyUp = onKeyUp("Shift", () => {});
 		const focus = useFocus(null);
 		const mouse = useMouse();
 		const mediaQuery = useMediaQuery("(min-width: 640px)");
@@ -113,6 +125,10 @@ describe("SSR safety", () => {
 		localStorageValue.stop();
 		outside();
 		removal();
+		keyStroke();
+		keyDown();
+		keyPressed();
+		keyUp();
 		focus.stop();
 		mouse.stop();
 		mediaQuery.stop();

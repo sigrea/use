@@ -587,6 +587,20 @@ export type OnElementRemovalCallback = (
 
 export type OnElementRemovalReturn = () => void;
 
+export type KeyPredicate = (event: KeyboardEvent) => boolean;
+export type KeyFilter = true | Arrayable<string> | KeyPredicate;
+export type KeyStrokeEventName = "keydown" | "keypress" | "keyup";
+
+export interface OnKeyStrokeOptions<TTarget extends EventTarget = EventTarget> {
+	eventName?: KeyStrokeEventName;
+	target?: MaybeTarget<TTarget>;
+	passive?: boolean;
+	dedupe?: MaybeValue<boolean>;
+}
+
+export type OnKeyStrokeHandler = (event: KeyboardEvent) => void;
+export type OnKeyStrokeReturn = () => void;
+
 export type UseMouseCoordType = "page" | "client" | "screen" | "movement";
 export type UseMouseSourceType = "mouse" | "touch" | null;
 export type UseMouseEventExtractor = (

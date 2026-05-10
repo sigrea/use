@@ -9,6 +9,7 @@ export { isDefined } from "./isDefined";
 export { makeDestructurable } from "./makeDestructurable";
 export { onClickOutside } from "./onClickOutside";
 export { onElementRemoval } from "./onElementRemoval";
+export { onKeyDown, onKeyPressed, onKeyStroke, onKeyUp } from "./onKeyStroke";
 export { resolveValue } from "./resolveValue";
 export { useBreakpoints } from "./useBreakpoints";
 export { useCounter } from "./useCounter";
@@ -76,6 +77,9 @@ export type {
 	FocusMethodOptions,
 	FunctionArgs,
 	IsDefinedReturn,
+	KeyFilter,
+	KeyPredicate,
+	KeyStrokeEventName,
 	MatchMediaWindow,
 	MaybeValueArgs,
 	MaybeTarget,
@@ -95,6 +99,9 @@ export type {
 	OnElementRemovalOptions,
 	OnElementRemovalReturn,
 	OnElementRemovalWindowLike,
+	OnKeyStrokeHandler,
+	OnKeyStrokeOptions,
+	OnKeyStrokeReturn,
 	Position,
 	PromisifyFn,
 	RemovableSignal,
