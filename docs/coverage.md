@@ -31,7 +31,7 @@ Status values:
 | `get` | `resolveValue` | Done |
 | `injectLocal` | `-` | Out of scope |
 | `isDefined` | `isDefined` | Done |
-| `makeDestructurable` | `-` | Todo |
+| `makeDestructurable` | `makeDestructurable` | Done |
 | `onClickOutside` | `onClickOutside` | Done |
 | `onElementRemoval` | `-` | Todo |
 | `onKeyStroke` | `-` | Todo |

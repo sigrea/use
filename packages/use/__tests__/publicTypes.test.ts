@@ -61,6 +61,7 @@ import {
 	createSignal,
 	extendSignal,
 	isDefined,
+	makeDestructurable,
 	onClickOutside,
 	resolveValue,
 	useBreakpoints,
@@ -497,6 +498,25 @@ describe("public types", () => {
 			if (isDefined(factory)) {
 				expectTypeOf(factory.value).toEqualTypeOf<() => string>();
 			}
+		});
+	});
+
+	it("types destructurable objects and tuples", () => {
+		typeOnly(() => {
+			const foo = { name: "foo" };
+			const bar: number = 1024;
+			const result = makeDestructurable(
+				{ bar, foo } as const,
+				[foo, bar] as const,
+			);
+			const { bar: objectBar, foo: objectFoo } = result;
+			const [arrayFoo, arrayBar] = result;
+
+			expectTypeOf(objectFoo).toEqualTypeOf<{ name: string }>();
+			expectTypeOf(objectBar).toEqualTypeOf<number>();
+			expectTypeOf(arrayFoo).toEqualTypeOf<{ name: string }>();
+			expectTypeOf(arrayBar).toEqualTypeOf<number>();
+			expectTypeOf(result.length).toEqualTypeOf<2>();
 		});
 	});
 
