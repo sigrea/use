@@ -12,6 +12,7 @@ describe("SSR safety", () => {
 
 		expect(typeof mod.computedAsync).toBe("function");
 		expect(typeof mod.computedEager).toBe("function");
+		expect(typeof mod.computedWithControl).toBe("function");
 		expect(typeof mod.useCounter).toBe("function");
 		expect(typeof mod.onClickOutside).toBe("function");
 		expect(typeof mod.useBreakpoints).toBe("function");
@@ -124,6 +125,16 @@ describe("SSR safety", () => {
 	it("creates computedEager without a window", async () => {
 		const { computedEager } = await import("../../../index");
 		const value = computedEager(() => "ready");
+
+		expect(globalThis.window).toBeUndefined();
+		expect(value.value).toBe("ready");
+	});
+
+	it("creates computedWithControl without a window", async () => {
+		const { signal } = await import("@sigrea/core");
+		const { computedWithControl } = await import("../../../index");
+		const source = signal(0);
+		const value = computedWithControl(source, () => "ready");
 
 		expect(globalThis.window).toBeUndefined();
 		expect(value.value).toBe("ready");

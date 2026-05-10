@@ -1,8 +1,11 @@
 import type {
 	Computed,
+	DeepSignal,
+	ReadonlyDeepSignal,
 	ReadonlySignal,
 	Signal,
 	WatchOptions,
+	WatchSource,
 } from "@sigrea/core";
 import type {
 	DocumentLike as SharedDocumentLike,
@@ -81,6 +84,39 @@ export interface ComputedEagerOptions {
 }
 
 export type ComputedEagerReturn<T> = ReadonlySignal<T>;
+
+export type ComputedWithControlSource<T = unknown> =
+	| WatchSource<T>
+	| DeepSignal<object>
+	| ReadonlyDeepSignal<object>;
+
+export type ComputedWithControlSourceList =
+	readonly ComputedWithControlSource[];
+
+export type ComputedWithControlGetter<T> = (oldValue?: T) => T;
+
+export type ComputedWithControlSetter<T> = (value: T) => void;
+
+export interface WritableComputedWithControlOptions<T> {
+	get: ComputedWithControlGetter<T>;
+	set: ComputedWithControlSetter<T>;
+}
+
+export type ComputedWithControlOptions = WatchOptions;
+
+export interface ComputedWithControlExtra {
+	trigger(): void;
+}
+
+export type ComputedWithControlReturn<T> = ReadonlySignal<T> &
+	ComputedWithControlExtra;
+
+export type WritableComputedWithControlReturn<T> = Signal<T> &
+	ComputedWithControlExtra;
+
+export type ComputedWithControlRef<T> =
+	| ComputedWithControlReturn<T>
+	| WritableComputedWithControlReturn<T>;
 
 export interface Position {
 	x: number;

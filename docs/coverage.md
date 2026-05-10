@@ -17,7 +17,7 @@ Status values:
 | `computedAsync` | `computedAsync` | Done |
 | `computedEager` | `computedEager` | Done |
 | `computedInject` | `-` | Out of scope |
-| `computedWithControl` | `-` | Todo |
+| `computedWithControl` | `computedWithControl` | Done |
 | `createDisposableDirective` | `-` | Out of scope |
 | `createEventHook` | `-` | Todo |
 | `createGlobalState` | `-` | Needs design |
