@@ -17,6 +17,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.createSignal).toBe("function");
 		expect(typeof mod.createResolveValueFn).toBe("function");
 		expect(typeof mod.extendSignal).toBe("function");
+		expect(typeof mod.resolveValue).toBe("function");
 		expect(typeof mod.useCounter).toBe("function");
 		expect(typeof mod.onClickOutside).toBe("function");
 		expect(typeof mod.useBreakpoints).toBe("function");
@@ -184,6 +185,15 @@ describe("SSR safety", () => {
 
 		expect(globalThis.window).toBeUndefined();
 		expect(resolveValueFn(value)).toBe("ready");
+	});
+
+	it("resolves values without a window", async () => {
+		const { signal } = await import("@sigrea/core");
+		const { resolveValue } = await import("../../../index");
+		const value = signal("ready");
+
+		expect(globalThis.window).toBeUndefined();
+		expect(resolveValue(value)).toBe("ready");
 	});
 
 	it("auto-starts timers when timer APIs are available without a browser window", async () => {

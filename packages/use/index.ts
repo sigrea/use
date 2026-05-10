@@ -6,6 +6,7 @@ export { createSignal } from "./createSignal";
 export { createResolveValueFn } from "./createResolveValueFn";
 export { extendSignal } from "./extendSignal";
 export { onClickOutside } from "./onClickOutside";
+export { resolveValue } from "./resolveValue";
 export { useBreakpoints } from "./useBreakpoints";
 export { useCounter } from "./useCounter";
 export { useDebounceFn } from "./useDebounceFn";

@@ -60,6 +60,7 @@ import {
 	createSignal,
 	extendSignal,
 	onClickOutside,
+	resolveValue,
 	useBreakpoints,
 	useDebounceFn,
 	useDocumentVisibility,
@@ -427,6 +428,32 @@ describe("public types", () => {
 			resolveJoin.call({ prefix: "item" }, first, "1");
 			// @ts-expect-error function values must be wrapped to avoid getter handling
 			resolveFactory(() => "ready");
+		});
+	});
+
+	it("types resolved values", () => {
+		typeOnly(() => {
+			const count = signal(1);
+			const readonlyCount = readonly(count);
+			const doubled = computed(() => count.value * 2);
+			const factory = signal((): string => "ready");
+			const getter = (): string => "ready";
+			const functionValue = (_input: string): string => "ready";
+			const getterReturningSignal = (): Signal<string> => signal("ready");
+
+			expectTypeOf(resolveValue("ready")).toEqualTypeOf<string>();
+			expectTypeOf(resolveValue(count)).toEqualTypeOf<number>();
+			expectTypeOf(resolveValue(readonlyCount)).toEqualTypeOf<number>();
+			expectTypeOf(resolveValue(doubled)).toEqualTypeOf<number>();
+			expectTypeOf(resolveValue(getter)).toEqualTypeOf<string>();
+			expectTypeOf(resolveValue(factory)).toEqualTypeOf<() => string>();
+			expectTypeOf(resolveValue(getterReturningSignal)).toEqualTypeOf<
+				Signal<string>
+			>();
+			// @ts-expect-error resolveValue does not provide VueUse get key access
+			resolveValue({ count: 1 }, "count");
+			// @ts-expect-error function values must be wrapped to avoid getter handling
+			resolveValue(functionValue);
 		});
 	});
 
