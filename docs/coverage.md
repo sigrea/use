@@ -30,7 +30,7 @@ Status values:
 | `extendRef` | `extendSignal` | Done |
 | `get` | `resolveValue` | Done |
 | `injectLocal` | `-` | Out of scope |
-| `isDefined` | `-` | Todo |
+| `isDefined` | `isDefined` | Done |
 | `makeDestructurable` | `-` | Todo |
 | `onClickOutside` | `onClickOutside` | Done |
 | `onElementRemoval` | `-` | Todo |
