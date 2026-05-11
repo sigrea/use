@@ -42,6 +42,11 @@ import type {
 	OnKeyStrokeHandler,
 	OnKeyStrokeOptions,
 	OnKeyStrokeReturn,
+	OnLongPressDelay,
+	OnLongPressHandler,
+	OnLongPressModifiers,
+	OnLongPressOptions,
+	OnLongPressReturn,
 	OnlineNavigatorLike,
 	RemovableSignal,
 	ResizeObserverWindowLike,
@@ -78,6 +83,7 @@ import {
 	onKeyPressed,
 	onKeyStroke,
 	onKeyUp,
+	onLongPress,
 	resolveValue,
 	useBreakpoints,
 	useDebounceFn,
@@ -665,6 +671,43 @@ describe("public types", () => {
 			expectTypeOf(stopUp).toEqualTypeOf<OnKeyStrokeReturn>();
 			// @ts-expect-error keyboard stroke event names are limited
 			onKeyStroke("Enter", handler, { eventName: "click" });
+		});
+	});
+
+	it("types long press targets and options", () => {
+		typeOnly(() => {
+			const target = signal<Element | null>(document.createElement("button"));
+			const modifiers: OnLongPressModifiers = {
+				capture: true,
+				once: true,
+				prevent: true,
+				self: true,
+				stop: true,
+			};
+			const delay: OnLongPressDelay = (event) => {
+				expectTypeOf(event).toEqualTypeOf<PointerEvent>();
+				return 500;
+			};
+			const handler: OnLongPressHandler = (event) => {
+				expectTypeOf(event).toEqualTypeOf<PointerEvent>();
+			};
+			const options: OnLongPressOptions = {
+				delay,
+				distanceThreshold: false,
+				modifiers,
+				onMouseUp(duration, distance, isLongPress, event) {
+					expectTypeOf(duration).toEqualTypeOf<number>();
+					expectTypeOf(distance).toEqualTypeOf<number>();
+					expectTypeOf(isLongPress).toEqualTypeOf<boolean>();
+					expectTypeOf(event).toEqualTypeOf<PointerEvent>();
+				},
+			};
+			const stop = onLongPress(target, handler, options);
+
+			expectTypeOf(stop).toEqualTypeOf<OnLongPressReturn>();
+			stop();
+			// @ts-expect-error onLongPress targets must be elements
+			onLongPress(new EventTarget(), handler);
 		});
 	});
 

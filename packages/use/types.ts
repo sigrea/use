@@ -601,6 +601,31 @@ export interface OnKeyStrokeOptions<TTarget extends EventTarget = EventTarget> {
 export type OnKeyStrokeHandler = (event: KeyboardEvent) => void;
 export type OnKeyStrokeReturn = () => void;
 
+export interface OnLongPressModifiers {
+	stop?: boolean;
+	once?: boolean;
+	prevent?: boolean;
+	capture?: boolean;
+	self?: boolean;
+}
+
+export type OnLongPressDelay = number | ((event: PointerEvent) => number);
+
+export interface OnLongPressOptions {
+	delay?: OnLongPressDelay;
+	modifiers?: OnLongPressModifiers;
+	distanceThreshold?: number | false;
+	onMouseUp?: (
+		duration: number,
+		distance: number,
+		isLongPress: boolean,
+		event: PointerEvent,
+	) => void;
+}
+
+export type OnLongPressHandler = (event: PointerEvent) => void;
+export type OnLongPressReturn = () => void;
+
 export type UseMouseCoordType = "page" | "client" | "screen" | "movement";
 export type UseMouseSourceType = "mouse" | "touch" | null;
 export type UseMouseEventExtractor = (
