@@ -11,6 +11,7 @@ export { onClickOutside } from "./onClickOutside";
 export { onElementRemoval } from "./onElementRemoval";
 export { onKeyDown, onKeyPressed, onKeyStroke, onKeyUp } from "./onKeyStroke";
 export { onLongPress } from "./onLongPress";
+export { onStartTyping } from "./onStartTyping";
 export { resolveValue } from "./resolveValue";
 export { useBreakpoints } from "./useBreakpoints";
 export { useCounter } from "./useCounter";
@@ -108,6 +109,10 @@ export type {
 	OnLongPressModifiers,
 	OnLongPressOptions,
 	OnLongPressReturn,
+	OnStartTypingDocumentLike,
+	OnStartTypingHandler,
+	OnStartTypingOptions,
+	OnStartTypingReturn,
 	Position,
 	PromisifyFn,
 	RemovableSignal,

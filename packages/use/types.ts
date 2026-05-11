@@ -626,6 +626,19 @@ export interface OnLongPressOptions {
 export type OnLongPressHandler = (event: PointerEvent) => void;
 export type OnLongPressReturn = () => void;
 
+export interface OnStartTypingDocumentLike extends DocumentLike {
+	readonly activeElement?: Element | null;
+}
+
+export interface OnStartTypingOptions<
+	TDocument extends OnStartTypingDocumentLike = OnStartTypingDocumentLike,
+> {
+	document?: MaybeTarget<TDocument>;
+}
+
+export type OnStartTypingHandler = (event: KeyboardEvent) => void;
+export type OnStartTypingReturn = () => void;
+
 export type UseMouseCoordType = "page" | "client" | "screen" | "movement";
 export type UseMouseSourceType = "mouse" | "touch" | null;
 export type UseMouseEventExtractor = (
