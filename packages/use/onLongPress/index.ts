@@ -74,10 +74,11 @@ function isSelfEvent(
 
 function createListenerOptions(
 	modifiers: OnLongPressModifiers | undefined,
+	includeOnce = true,
 ): AddEventListenerOptions {
 	return {
 		capture: modifiers?.capture,
-		once: modifiers?.once,
+		...(includeOnce ? { once: modifiers?.once } : {}),
 	};
 }
 
@@ -105,6 +106,7 @@ export function onLongPress(
 	};
 	const { modifiers } = options;
 	const listenerOptions = createListenerOptions(modifiers);
+	const continuousListenerOptions = createListenerOptions(modifiers, false);
 	let stopped = false;
 
 	const stopWatch = watch(
@@ -188,14 +190,29 @@ export function onLongPress(
 
 			const cleanups = [
 				listenPointer(element, "pointerdown", onDown, listenerOptions),
-				listenPointer(element, "pointermove", onMove, listenerOptions),
-				listenPointer(element, "pointerup", onRelease, listenerOptions),
-				listenPointer(element, "pointerleave", onRelease, listenerOptions),
+				listenPointer(
+					element,
+					"pointermove",
+					onMove,
+					continuousListenerOptions,
+				),
+				listenPointer(
+					element,
+					"pointerup",
+					onRelease,
+					continuousListenerOptions,
+				),
+				listenPointer(
+					element,
+					"pointerleave",
+					onRelease,
+					continuousListenerOptions,
+				),
 				listenPointer(
 					element,
 					"pointercancel",
 					() => clearState(state),
-					listenerOptions,
+					continuousListenerOptions,
 				),
 			];
 
