@@ -1,5 +1,5 @@
 import { getCurrentScope, onDispose, watch } from "@sigrea/core";
-import { defaultWindow, resolveTarget } from "../../shared";
+import { defaultWindow, resolveTarget, resolveValue } from "../../shared";
 import type {
 	MaybeTarget,
 	OnElementRemovalCallback,
@@ -55,10 +55,8 @@ export function onElementRemoval<
 	let stopped = false;
 
 	const currentWindow = () =>
-		windowTarget === undefined
-			? undefined
-			: resolveTarget<TWindow>(windowTarget);
-	const currentDocument = (windowValue: TWindow | undefined) =>
+		windowTarget === undefined ? undefined : resolveValue(windowTarget);
+	const currentDocument = (windowValue: TWindow | null | undefined) =>
 		documentTarget === undefined
 			? windowValue?.document
 			: resolveTarget(documentTarget);
@@ -74,13 +72,13 @@ export function onElementRemoval<
 			};
 		},
 		({ document, element, window }, _previousValue, onCleanup) => {
-			if (stopped || !document || !element || !window) {
+			if (stopped || !document || !element) {
 				return;
 			}
 
 			const MutationObserverCtor = getMutationObserver(
-				window,
-				useDefaultWindow,
+				window ?? undefined,
+				useDefaultWindow || window === undefined,
 			);
 			if (typeof MutationObserverCtor !== "function") {
 				return;
