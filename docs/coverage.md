@@ -44,7 +44,7 @@ Status values:
 | `reactiveComputed` | `reactiveComputed` | Done |
 | `reactiveOmit` | `reactiveOmit` | Done |
 | `reactivePick` | `reactivePick` | Done |
-| `refAutoReset` | `-` | Todo |
+| `refAutoReset` | `signalAutoReset` | Done |
 | `refDebounced` | `-` | Todo |
 | `refDefault` | `-` | Todo |
 | `refManualReset` | `-` | Todo |

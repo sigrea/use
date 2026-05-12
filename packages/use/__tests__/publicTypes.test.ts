@@ -67,6 +67,7 @@ import type {
 	RemovableSignal,
 	ResizeObserverWindowLike,
 	ResolveValueFn,
+	SignalAutoResetReturn,
 	StorageSerializer,
 	StorageWindowLike,
 	UseBreakpointsOptions,
@@ -107,6 +108,7 @@ import {
 	reactiveOmit,
 	reactivePick,
 	resolveValue,
+	signalAutoReset,
 	useBreakpoints,
 	useDebounceFn,
 	useDocumentVisibility,
@@ -899,6 +901,29 @@ describe("public types", () => {
 			resolveValue({ count: 1 }, "count");
 			// @ts-expect-error function values must be wrapped to avoid getter handling
 			resolveValue(functionValue);
+		});
+	});
+
+	it("types auto-reset signals", () => {
+		typeOnly(() => {
+			const defaultText: MaybeValue<string> = () => "idle";
+			const delay: MaybeValue<number> = computed(() => 100);
+			const text = signalAutoReset(defaultText, delay);
+			const count = signalAutoReset(signal(0), signal(100));
+			const literal = signalAutoReset<"idle" | "done">("idle", 100);
+
+			expectTypeOf(text).toEqualTypeOf<SignalAutoResetReturn<string>>();
+			expectTypeOf(text).toEqualTypeOf<Signal<string>>();
+			expectTypeOf(count).toEqualTypeOf<Signal<number>>();
+			expectTypeOf(literal).toEqualTypeOf<Signal<"idle" | "done">>();
+
+			text.value = "ready";
+			count.value = 1;
+			literal.value = "done";
+			// @ts-expect-error value type is preserved
+			literal.value = "other";
+			// @ts-expect-error afterMs must resolve to a number
+			signalAutoReset("idle", "100");
 		});
 	});
 
