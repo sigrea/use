@@ -49,6 +49,7 @@ export { useBattery } from "./useBattery";
 export { useBluetooth } from "./useBluetooth";
 export { useBroadcastChannel } from "./useBroadcastChannel";
 export { useBrowserLocation } from "./useBrowserLocation";
+export { useCached } from "./useCached";
 export { useBreakpoints } from "./useBreakpoints";
 export { useCounter } from "./useCounter";
 export { useDebounceFn } from "./useDebounceFn";
@@ -130,6 +131,9 @@ export type {
 	UseBroadcastChannelReturn,
 	UseBrowserLocationOptions,
 	UseBrowserLocationReturn,
+	UseCachedComparator,
+	UseCachedOptions,
+	UseCachedReturn,
 	Arrayable,
 	Breakpoints,
 	CloneFn,

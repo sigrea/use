@@ -86,7 +86,7 @@ Status values:
 | `useBreakpoints` | `useBreakpoints` | Done |
 | `useBroadcastChannel` | `useBroadcastChannel` | Done |
 | `useBrowserLocation` | `useBrowserLocation` | Done |
-| `useCached` | `-` | Todo |
+| `useCached` | `useCached` | Done |
 | `useClipboard` | `-` | Todo |
 | `useClipboardItems` | `-` | Todo |
 | `useCloned` | `-` | Todo |

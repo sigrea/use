@@ -65,6 +65,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.useBluetooth).toBe("function");
 		expect(typeof mod.useBroadcastChannel).toBe("function");
 		expect(typeof mod.useBrowserLocation).toBe("function");
+		expect(typeof mod.useCached).toBe("function");
 		expect(typeof mod.useBreakpoints).toBe("function");
 		expect(typeof mod.useDocumentVisibility).toBe("function");
 		expect(typeof mod.useElementSize).toBe("function");
@@ -420,6 +421,20 @@ describe("SSR safety", () => {
 		result.hash.value = "#local";
 		expect(result.hash.value).toBe("#local");
 		result.stop();
+	});
+
+	it("creates useCached without a window", async () => {
+		const { signal } = await import("@sigrea/core");
+		const { useCached } = await import("../../../index");
+		const source = signal(1);
+		const cached = useCached(source);
+
+		expect(globalThis.window).toBeUndefined();
+		expect(cached.value).toBe(1);
+
+		source.value = 2;
+
+		expect(cached.value).toBe(2);
 	});
 
 	it("creates event hooks without a window", async () => {
