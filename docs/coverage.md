@@ -197,7 +197,7 @@ Status values:
 | `useThrottleFn` | `useThrottleFn` | Done |
 | `useThrottledRefHistory` | `useThrottledRefHistory` | Done |
 | `useTimeAgo` | `useTimeAgo` | Done |
-| `useTimeAgoIntl` | `-` | Todo |
+| `useTimeAgoIntl` | `useTimeAgoIntl` | Done |
 | `useTimeout` | `useTimeout` | Done |
 | `useTimeoutFn` | `useTimeoutFn` | Done |
 | `useTimeoutPoll` | `-` | Todo |

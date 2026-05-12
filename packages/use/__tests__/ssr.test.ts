@@ -79,6 +79,8 @@ describe("SSR safety", () => {
 		expect(typeof mod.useDateFormat).toBe("function");
 		expect(typeof mod.formatDate).toBe("function");
 		expect(typeof mod.formatTimeAgo).toBe("function");
+		expect(typeof mod.formatTimeAgoIntl).toBe("function");
+		expect(typeof mod.formatTimeAgoIntlParts).toBe("function");
 		expect(typeof mod.normalizeDate).toBe("function");
 		expect(typeof mod.useDebouncedRefHistory).toBe("function");
 		expect(typeof mod.useThrottledRefHistory).toBe("function");
@@ -170,6 +172,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.useTextSelection).toBe("function");
 		expect(typeof mod.useTextareaAutosize).toBe("function");
 		expect(typeof mod.useTimeAgo).toBe("function");
+		expect(typeof mod.useTimeAgoIntl).toBe("function");
 		expect(typeof mod.useSessionStorage).toBe("function");
 		expect(typeof mod.useStorage).toBe("function");
 		expect(typeof mod.useStorageAsync).toBe("function");
@@ -1401,9 +1404,12 @@ describe("SSR safety", () => {
 			syncSignal,
 			syncSignals,
 			formatTimeAgo,
+			formatTimeAgoIntl,
+			formatTimeAgoIntlParts,
 			useDebouncedRefHistory,
 			useThrottledRefHistory,
 			useTimeAgo,
+			useTimeAgoIntl,
 		} = await import("../../../index");
 		const value = createSignal("ready");
 		const autoResetValue = signalAutoReset("default", 100);
@@ -1416,6 +1422,10 @@ describe("SSR safety", () => {
 			throttle: 100,
 		});
 		const timeAgo = useTimeAgo("2026-05-07T00:00:00.000Z", {
+			updateInterval: 0,
+		});
+		const timeAgoIntl = useTimeAgoIntl("2026-05-07T00:00:00.000Z", {
+			locale: "en",
 			updateInterval: 0,
 		});
 		const manualResetValue = signalManualReset("manual");
@@ -1435,7 +1445,17 @@ describe("SSR safety", () => {
 		expect(debouncedHistory.history.value[0].snapshot).toBe("source");
 		expect(throttledHistory.history.value[0].snapshot).toBe("source");
 		expect(formatTimeAgo(new Date(), {}, new Date())).toBe("just now");
+		expect(formatTimeAgoIntl(new Date(), { locale: "en" }, new Date())).toBe(
+			"now",
+		);
+		expect(
+			formatTimeAgoIntlParts([
+				{ type: "integer", value: "1", unit: "second" },
+				{ type: "literal", value: " second ago" },
+			]),
+		).toBe("1 second ago");
 		expect(timeAgo.value).toBeTruthy();
+		expect(timeAgoIntl.value).toBeTruthy();
 		expect(manualResetValue.value).toBe("manual");
 		expect(throttledValue.value).toBe("source");
 		expect(right.value).toBe("left");

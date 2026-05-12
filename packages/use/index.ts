@@ -161,6 +161,11 @@ export {
 export { useStorageAsync } from "./useStorageAsync";
 export { useThrottleFn } from "./useThrottleFn";
 export { formatTimeAgo, useTimeAgo } from "./useTimeAgo";
+export {
+	formatTimeAgoIntl,
+	formatTimeAgoIntlParts,
+	useTimeAgoIntl,
+} from "./useTimeAgoIntl";
 export { useTimeout } from "./useTimeout";
 export { useTimeoutFn } from "./useTimeoutFn";
 export { useToggle } from "./useToggle";
@@ -825,6 +830,12 @@ export type {
 	UseTimeAgoControlsReturn,
 	UseTimeAgoFormatOptions,
 	UseTimeAgoFormatter,
+	UseTimeAgoIntlControlsReturn,
+	UseTimeAgoIntlFormatOptions,
+	UseTimeAgoIntlJoinParts,
+	UseTimeAgoIntlOptions,
+	UseTimeAgoIntlReturn,
+	UseTimeAgoIntlUnit,
 	UseTimeAgoMessages,
 	UseTimeAgoMessagesBuiltIn,
 	UseTimeAgoOptions,

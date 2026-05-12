@@ -2719,6 +2719,71 @@ export interface UseTimeAgoControlsReturn extends UseIntervalFnReturn {
 export type UseTimeAgoReturn<Controls extends boolean = false> =
 	Controls extends true ? UseTimeAgoControlsReturn : ReadonlySignal<string>;
 
+export interface UseTimeAgoIntlUnit {
+	name: Intl.RelativeTimeFormatUnit;
+	ms: number;
+}
+
+export type UseTimeAgoIntlJoinParts = (
+	parts: Intl.RelativeTimeFormatPart[],
+	locale?: Intl.LocalesArgument,
+) => string;
+
+export interface UseTimeAgoIntlFormatOptions {
+	/**
+	 * Locale used by Intl.RelativeTimeFormat.
+	 */
+	locale?: MaybeValue<Intl.LocalesArgument>;
+	/**
+	 * Options passed to Intl.RelativeTimeFormat.
+	 *
+	 * @default { numeric: "auto" }
+	 */
+	relativeTimeFormatOptions?: Intl.RelativeTimeFormatOptions;
+	/**
+	 * Insert spaces between formatted parts.
+	 *
+	 * @default true
+	 */
+	insertSpace?: boolean;
+	/**
+	 * Custom formatter for Intl.RelativeTimeFormat.formatToParts output.
+	 */
+	joinParts?: UseTimeAgoIntlJoinParts;
+	/**
+	 * Units used to choose the display granularity.
+	 */
+	units?: UseTimeAgoIntlUnit[];
+}
+
+export interface UseTimeAgoIntlOptions<Controls extends boolean = false>
+	extends UseTimeAgoIntlFormatOptions {
+	/**
+	 * Expose pause and resume controls and Intl parts.
+	 *
+	 * @default false
+	 */
+	controls?: Controls;
+	/**
+	 * Intervals to update in milliseconds. Set 0 to disable auto update.
+	 *
+	 * @default 30000
+	 */
+	updateInterval?: MaybeValue<number>;
+	/**
+	 * Custom scheduler. When provided, it owns the update timing.
+	 */
+	scheduler?: UseNowScheduler;
+}
+
+export interface UseTimeAgoIntlControlsReturn extends UseIntervalFnReturn {
+	readonly timeAgoIntl: ReadonlySignal<string>;
+	readonly parts: ReadonlySignal<Intl.RelativeTimeFormatPart[]>;
+}
+
+export type UseTimeAgoIntlReturn<Controls extends boolean = false> =
+	Controls extends true ? UseTimeAgoIntlControlsReturn : ReadonlySignal<string>;
+
 export interface UseNowWindowLike extends WindowLike {
 	requestAnimationFrame?(callback: FrameRequestCallback): number;
 	cancelAnimationFrame?(handle: number): void;
