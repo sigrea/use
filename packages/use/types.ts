@@ -3226,6 +3226,46 @@ export interface UseMouseInElementReturn extends UseMouseReturn {
 	readonly isOutside: ReadonlySignal<boolean>;
 }
 
+export interface UseParallaxScreenOrientationLike extends EventTarget {
+	readonly type?: OrientationType;
+}
+
+export interface UseParallaxWindowLike extends WindowLike {
+	readonly document?: UseMouseInElementWindowLike["document"];
+	readonly navigator?: UseMouseInElementWindowLike["navigator"];
+	readonly scrollX: number;
+	readonly scrollY: number;
+	readonly ResizeObserver?: typeof ResizeObserver;
+	readonly MutationObserver?: typeof MutationObserver;
+	readonly DeviceOrientationEvent?: DeviceOrientationEventConstructorLike;
+	readonly screen?: {
+		readonly orientation?: UseParallaxScreenOrientationLike;
+	};
+}
+
+export type UseParallaxSource = "deviceOrientation" | "mouse";
+export type UseParallaxAdjust = (value: number) => number;
+
+export interface UseParallaxOptions<
+	TWindow extends UseParallaxWindowLike = UseParallaxWindowLike,
+> {
+	deviceOrientationTiltAdjust?: UseParallaxAdjust;
+	deviceOrientationRollAdjust?: UseParallaxAdjust;
+	absolute?: MaybeValue<boolean>;
+	requestPermissions?: MaybeValue<boolean>;
+	mouseTiltAdjust?: UseParallaxAdjust;
+	mouseRollAdjust?: UseParallaxAdjust;
+	window?: MaybeTarget<TWindow | null | undefined>;
+}
+
+export interface UseParallaxReturn {
+	readonly roll: ReadonlySignal<number>;
+	readonly tilt: ReadonlySignal<number>;
+	readonly source: ReadonlySignal<UseParallaxSource>;
+	ensurePermissions(absolute?: boolean): Promise<void>;
+	stop(): void;
+}
+
 export type UseMousePressedSourceEvent = MouseEvent | TouchEvent | DragEvent;
 
 export interface UseMousePressedWindowLike extends WindowLike {}

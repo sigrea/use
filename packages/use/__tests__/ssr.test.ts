@@ -135,6 +135,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.useOffsetPagination).toBe("function");
 		expect(typeof mod.useOnline).toBe("function");
 		expect(typeof mod.usePageLeave).toBe("function");
+		expect(typeof mod.useParallax).toBe("function");
 		expect(typeof mod.usePreferredDark).toBe("function");
 		expect(typeof mod.usePrevious).toBe("function");
 		expect(typeof mod.useRefHistory).toBe("function");
@@ -197,6 +198,7 @@ describe("SSR safety", () => {
 			useOffsetPagination,
 			useOnline,
 			usePageLeave,
+			useParallax,
 			usePreferredDark,
 			onElementRemoval,
 			onKeyDown,
@@ -257,6 +259,7 @@ describe("SSR safety", () => {
 		const mediaQuery = useMediaQuery("(min-width: 640px)");
 		const online = useOnline();
 		const pageLeave = usePageLeave({ window: null });
+		const parallax = useParallax(null, { window: null });
 		const preferredDark = usePreferredDark();
 		const cssSupports = useCssSupports("display", "grid", { window: null });
 		const initialCssSupports = useCssSupports("display: grid", {
@@ -370,6 +373,9 @@ describe("SSR safety", () => {
 		expect(mediaQuery.matches.value).toBe(false);
 		expect(online.isOnline.value).toBe(true);
 		expect(pageLeave.isLeft.value).toBe(false);
+		expect(parallax.source.value).toBe("mouse");
+		expect(parallax.roll.value).toBe(0);
+		expect(parallax.tilt.value).toBe(0);
 		expect(preferredDark.matches.value).toBe(false);
 		expect(cssSupports.value).toBe(false);
 		expect(initialCssSupports.value).toBe(true);
@@ -489,6 +495,7 @@ describe("SSR safety", () => {
 		mediaQuery.stop();
 		online.stop();
 		pageLeave.stop();
+		parallax.stop();
 		preferredDark.stop();
 		cssVar.value = "blue";
 		expect(cssVar.value).toBe("blue");
