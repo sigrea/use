@@ -189,6 +189,7 @@ export { useWindowScroll } from "./useWindowScroll";
 export { useWindowSize } from "./useWindowSize";
 export { watchArray } from "./watchArray";
 export { watchAtMost } from "./watchAtMost";
+export { watchDebounced } from "./watchDebounced";
 export type {
 	AsyncComputedCancelCallback,
 	AsyncComputedEvaluationCallback,
@@ -982,6 +983,13 @@ export type {
 	WatchAtMostSourceListCallback,
 	WatchAtMostSourceValue,
 	WatchAtMostSourceValues,
+	WatchDebouncedCallback,
+	WatchDebouncedOnCleanup,
+	WatchDebouncedOptions,
+	WatchDebouncedReturn,
+	WatchDebouncedSource,
+	WatchDebouncedSourceValue,
+	WatchDebouncedSourceValues,
 	WindowSizeLike,
 	WritableComputedWithControlOptions,
 	WritableComputedWithControlReturn,
