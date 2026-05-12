@@ -112,6 +112,7 @@ export { useMouse } from "./useMouse";
 export { useMouseInElement } from "./useMouseInElement";
 export { useMousePressed } from "./useMousePressed";
 export { useMutationObserver } from "./useMutationObserver";
+export { useNavigatorLanguage } from "./useNavigatorLanguage";
 export { useOnline } from "./useOnline";
 export { usePreferredDark } from "./usePreferredDark";
 export { usePrevious } from "./usePrevious";
@@ -601,6 +602,9 @@ export type {
 	UseMutationObserverReturn,
 	UseMutationObserverTarget,
 	UseMutationObserverWindowLike,
+	UseNavigatorLanguageNavigatorLike,
+	UseNavigatorLanguageOptions,
+	UseNavigatorLanguageReturn,
 	UseOnlineOptions,
 	UseOnlineReturn,
 	UseRefHistoryOptions,

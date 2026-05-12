@@ -414,11 +414,15 @@ import type {
 	UseMutationObserverReturn,
 	UseMutationObserverTarget,
 	UseMutationObserverWindowLike,
+	UseNavigatorLanguageNavigatorLike,
+	UseNavigatorLanguageOptions,
+	UseNavigatorLanguageReturn,
 	UseOnlineOptions,
 	UseRefHistoryRecord,
 	UseStorageOptions,
 	UseToggleOptions,
 	UseWindowSizeOptions,
+	WindowLike,
 	WritableComputedWithControlReturn,
 } from "../../../index";
 import {
@@ -543,6 +547,7 @@ import {
 	useMouseInElement,
 	useMousePressed,
 	useMutationObserver,
+	useNavigatorLanguage,
 	useOnline,
 	usePreferredDark,
 	usePrevious,
@@ -592,6 +597,10 @@ interface MousePressedWindow extends UseMousePressedWindowLike {
 
 interface MutationObserverWindow extends UseMutationObserverWindowLike {
 	readonly label: string;
+}
+
+interface NavigatorLanguageWindow extends EventTarget, WindowLike {
+	readonly navigator?: UseNavigatorLanguageNavigatorLike;
 }
 
 interface ResizeWindow extends EventTarget {
@@ -5770,6 +5779,41 @@ describe("public types", () => {
 					"node",
 					() => {},
 				);
+			});
+		});
+	});
+
+	it("types navigator language values and options", () => {
+		typeOnly(() => {
+			const navigatorTarget: UseNavigatorLanguageNavigatorLike = {
+				language: "en-US",
+			};
+			const languageWindow = new EventTarget() as NavigatorLanguageWindow;
+			const options: UseNavigatorLanguageOptions<
+				NavigatorLanguageWindow,
+				UseNavigatorLanguageNavigatorLike
+			> = {
+				navigator: signal(navigatorTarget),
+				window: signal(languageWindow),
+			};
+			const language = useNavigatorLanguage(options);
+			const languageReturn: UseNavigatorLanguageReturn = language;
+
+			expectTypeOf(language).toEqualTypeOf<UseNavigatorLanguageReturn>();
+			expectTypeOf(languageReturn.isSupported).toEqualTypeOf<
+				ReadonlySignal<boolean>
+			>();
+			expectTypeOf(language.language).toEqualTypeOf<
+				ReadonlySignal<string | undefined>
+			>();
+			expectTypeOf(language.stop()).toEqualTypeOf<void>();
+			typeOnly(() => {
+				// @ts-expect-error returned values are readonly signals
+				language.language.value = "ja-JP";
+				useNavigatorLanguage({
+					// @ts-expect-error navigator must be navigator-like
+					navigator: "en-US",
+				});
 			});
 		});
 	});
