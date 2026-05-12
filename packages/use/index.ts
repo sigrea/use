@@ -33,6 +33,7 @@ export { useAnimate } from "./useAnimate";
 export { useArrayDifference } from "./useArrayDifference";
 export { useArrayEvery } from "./useArrayEvery";
 export { useArrayFilter } from "./useArrayFilter";
+export { useArrayFind } from "./useArrayFind";
 export { useBreakpoints } from "./useBreakpoints";
 export { useCounter } from "./useCounter";
 export { useDebounceFn } from "./useDebounceFn";
@@ -188,6 +189,8 @@ export type {
 	UseArrayEveryReturn,
 	UseArrayFilterPredicate,
 	UseArrayFilterReturn,
+	UseArrayFindPredicate,
+	UseArrayFindReturn,
 	UseBreakpointsOptions,
 	UseBreakpointsReturn,
 	UseCounterOptions,
