@@ -144,7 +144,7 @@ Status values:
 | `useMediaQuery` | `useMediaQuery` | Done |
 | `useMemoize` | `useMemoize` | Done |
 | `useMemory` | `useMemory` | Done |
-| `useMounted` | `-` | Needs design |
+| `useMounted` | `useMounted` | Done |
 | `useMouse` | `useMouse` | Done |
 | `useMouseInElement` | `-` | Todo |
 | `useMousePressed` | `-` | Todo |
