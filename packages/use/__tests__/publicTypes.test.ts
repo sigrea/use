@@ -95,6 +95,9 @@ import type {
 	UseAnimateOptions,
 	UseAnimateReturn,
 	UseAnimateWindowLike,
+	UseArrayDifferenceCompareFn,
+	UseArrayDifferenceOptions,
+	UseArrayDifferenceReturn,
 	UseBreakpointsOptions,
 	UseDocumentVisibilityOptions,
 	UseElementSizeOptions,
@@ -145,6 +148,7 @@ import {
 	until,
 	useActiveElement,
 	useAnimate,
+	useArrayDifference,
 	useBreakpoints,
 	useDebounceFn,
 	useDocumentVisibility,
@@ -249,6 +253,46 @@ describe("public types", () => {
 			expectTypeOf(value).toEqualTypeOf<ComputedEagerReturn<number>>();
 			// @ts-expect-error returned values are readonly signals
 			value.value = 2;
+		});
+	});
+
+	it("types array difference values", () => {
+		typeOnly(() => {
+			const list = signal([1, 2, 3]);
+			const readonlyList = readonly(signal([1, 2, 3]));
+			const values = computed(() => [2]);
+			const getter = () => [1];
+			const options: UseArrayDifferenceOptions = {
+				symmetric: true,
+			};
+			const compare: UseArrayDifferenceCompareFn<number> = (
+				value,
+				otherValue,
+			) => value === otherValue;
+			const result = useArrayDifference(list, values);
+			const readonlyResult = useArrayDifference(readonlyList, getter);
+			const compared = useArrayDifference(list, values, compare, options);
+			const keyed = useArrayDifference(
+				signal([{ id: 1 }, { id: 2 }]),
+				signal([{ id: 2 }]),
+				"id",
+			);
+
+			expectTypeOf(result).toEqualTypeOf<UseArrayDifferenceReturn<number>>();
+			expectTypeOf(result).toEqualTypeOf<ReadonlySignal<number[]>>();
+			expectTypeOf(readonlyResult).toEqualTypeOf<
+				UseArrayDifferenceReturn<number>
+			>();
+			expectTypeOf(compared.value).toEqualTypeOf<number[]>();
+			expectTypeOf(keyed.value).toEqualTypeOf<{ id: number }[]>();
+			// @ts-expect-error returned value is readonly
+			result.value = [];
+			// @ts-expect-error primitive values do not have this comparison key
+			useArrayDifference(signal([1]), signal([1]), "id");
+			// @ts-expect-error object comparison key must exist
+			useArrayDifference(signal([{ id: 1 }]), signal([{ id: 1 }]), "name");
+			// @ts-expect-error comparison function must return boolean
+			useArrayDifference(signal([1]), signal([1]), () => "matched");
 		});
 	});
 

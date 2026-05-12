@@ -66,7 +66,7 @@ Status values:
 | `until` | `until` | Done |
 | `useActiveElement` | `useActiveElement` | Done |
 | `useAnimate` | `useAnimate` | Done |
-| `useArrayDifference` | `-` | Todo |
+| `useArrayDifference` | `useArrayDifference` | Done |
 | `useArrayEvery` | `-` | Todo |
 | `useArrayFilter` | `-` | Todo |
 | `useArrayFind` | `-` | Todo |
