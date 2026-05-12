@@ -94,6 +94,7 @@ export { useGamepad } from "./useGamepad";
 export { useGeolocation } from "./useGeolocation";
 export { useIdle } from "./useIdle";
 export { useImage } from "./useImage";
+export { useInfiniteScroll } from "./useInfiniteScroll";
 export { useInterval } from "./useInterval";
 export { useIntervalFn } from "./useIntervalFn";
 export { useLocalStorage } from "./useLocalStorage";
@@ -524,6 +525,14 @@ export type {
 	UseImageOptions,
 	UseImageReturn,
 	UseImageWindowLike,
+	UseInfiniteScrollArrivedState,
+	UseInfiniteScrollDirection,
+	UseInfiniteScrollDirections,
+	UseInfiniteScrollElement,
+	UseInfiniteScrollOptions,
+	UseInfiniteScrollReturn,
+	UseInfiniteScrollState,
+	UseInfiniteScrollWindowLike,
 	UseIntervalControlsReturn,
 	UseIntervalFnOptions,
 	UseIntervalFnReturn,

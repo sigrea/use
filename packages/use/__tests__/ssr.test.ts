@@ -110,6 +110,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.useGeolocation).toBe("function");
 		expect(typeof mod.useIdle).toBe("function");
 		expect(typeof mod.useImage).toBe("function");
+		expect(typeof mod.useInfiniteScroll).toBe("function");
 		expect(typeof mod.useInterval).toBe("function");
 		expect(typeof mod.useIntervalFn).toBe("function");
 		expect(typeof mod.useLocalStorage).toBe("function");
@@ -163,6 +164,7 @@ describe("SSR safety", () => {
 			useGeolocation,
 			useIdle,
 			useImage,
+			useInfiniteScroll,
 			useMouse,
 			useOnline,
 			usePreferredDark,
@@ -263,6 +265,9 @@ describe("SSR safety", () => {
 			{ src: "https://example.com/image.png" },
 			{ immediate: false, window: null },
 		);
+		const infiniteScroll = useInfiniteScroll(null, async () => {}, {
+			window: null,
+		});
 		const fetchValue = useFetch("https://example.com", {
 			fetch: async () => new Response("ok"),
 			immediate: false,
@@ -358,6 +363,8 @@ describe("SSR safety", () => {
 		expect(image.state.value).toBeUndefined();
 		expect(image.isLoading.value).toBe(false);
 		expect(image.error.value).toBeUndefined();
+		expect(infiniteScroll.isLoading.value).toBe(false);
+		expect(infiniteScroll.error.value).toBeUndefined();
 		expect(fetchValue.data.value).toBeNull();
 		expect(sessionStorageValue.value).toBe("fallback");
 		expect(ssrMediaQuery.matches.value).toBe(true);
@@ -443,6 +450,8 @@ describe("SSR safety", () => {
 		idle.start();
 		idle.reset();
 		idle.stop();
+		infiniteScroll.reset();
+		infiniteScroll.stop();
 		expect(await fetchValue.execute()).toBeInstanceOf(Response);
 		expect(fetchValue.data.value).toBe("ok");
 		expect(fetchValue.statusCode.value).toBe(200);

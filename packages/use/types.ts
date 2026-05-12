@@ -3157,6 +3157,103 @@ export type UseImageReturn = UseAsyncStateReturn<
 	[]
 >;
 
+export type UseInfiniteScrollDirection = "top" | "bottom" | "left" | "right";
+
+export type UseInfiniteScrollElement =
+	| HTMLElement
+	| SVGElement
+	| Window
+	| Document
+	| null
+	| undefined;
+
+export interface UseInfiniteScrollArrivedState {
+	readonly left: boolean;
+	readonly right: boolean;
+	readonly top: boolean;
+	readonly bottom: boolean;
+}
+
+export interface UseInfiniteScrollDirections {
+	readonly left: boolean;
+	readonly right: boolean;
+	readonly top: boolean;
+	readonly bottom: boolean;
+}
+
+export interface UseInfiniteScrollWindowLike
+	extends UseElementVisibilityWindowLike {
+	getComputedStyle?(
+		element: Element,
+		pseudoElt?: string | null,
+	): CSSStyleDeclaration;
+}
+
+export interface UseInfiniteScrollState {
+	readonly x: ReadonlySignal<number>;
+	readonly y: ReadonlySignal<number>;
+	readonly isScrolling: ReadonlySignal<boolean>;
+	readonly arrivedState: ReadonlySignal<UseInfiniteScrollArrivedState>;
+	readonly directions: ReadonlySignal<UseInfiniteScrollDirections>;
+	measure(): void;
+}
+
+export interface UseInfiniteScrollOptions<
+	TElement extends UseInfiniteScrollElement = UseInfiniteScrollElement,
+	TWindow extends UseInfiniteScrollWindowLike = UseInfiniteScrollWindowLike,
+> {
+	/**
+	 * The minimum distance between the configured edge and the viewport edge.
+	 *
+	 * @default 0
+	 */
+	distance?: number;
+	/**
+	 * The direction in which to listen the scroll.
+	 *
+	 * @default "bottom"
+	 */
+	direction?: UseInfiniteScrollDirection;
+	/**
+	 * The minimum time between load calls.
+	 *
+	 * @default 100
+	 */
+	interval?: number;
+	/**
+	 * Return false when all content has been loaded.
+	 */
+	canLoadMore?: (element: HTMLElement | SVGElement) => boolean;
+	/**
+	 * Offset arrived states by pixels.
+	 */
+	offset?: Partial<Record<UseInfiniteScrollDirection, number>>;
+	/**
+	 * Throttle time for scroll events.
+	 *
+	 * @default 0
+	 */
+	throttle?: number;
+	/**
+	 * Time to wait after scroll events before reporting scrolling as stopped.
+	 *
+	 * @default 200
+	 */
+	idle?: number;
+	onScroll?: (event: Event) => void;
+	onStop?: (event: Event) => void;
+	onError?: (error: unknown) => void;
+	eventListenerOptions?: boolean | AddEventListenerOptions;
+	window?: MaybeTarget<TWindow | null | undefined>;
+}
+
+export interface UseInfiniteScrollReturn {
+	readonly isLoading: ReadonlySignal<boolean>;
+	readonly error: ReadonlySignal<unknown | undefined>;
+	reset(): void;
+	stop(): void;
+}
+
 export interface ElementSize {
 	width: number;
 	height: number;
