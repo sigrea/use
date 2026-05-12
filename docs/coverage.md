@@ -148,7 +148,7 @@ Status values:
 | `useMouse` | `useMouse` | Done |
 | `useMouseInElement` | `useMouseInElement` | Done |
 | `useMousePressed` | `useMousePressed` | Done |
-| `useMutationObserver` | `-` | Todo |
+| `useMutationObserver` | `useMutationObserver` | Done |
 | `useNavigatorLanguage` | `-` | Todo |
 | `useNetwork` | `-` | Todo |
 | `useNow` | `-` | Todo |
