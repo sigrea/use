@@ -2499,6 +2499,69 @@ export interface UseElementBoundingReturn {
 	stop(): void;
 }
 
+export interface UseElementByPointDocumentLike extends DocumentLike {
+	readonly defaultView?: UseElementByPointWindowLike | null;
+	elementFromPoint?(x: number, y: number): Element | null;
+	elementsFromPoint?(x: number, y: number): Element[];
+}
+
+export interface UseElementByPointWindowLike extends WindowLike {
+	readonly document?: UseElementByPointDocumentLike;
+	requestAnimationFrame?(callback: FrameRequestCallback): number;
+	cancelAnimationFrame?(handle: number): void;
+}
+
+export type UseElementByPointElement<
+	Multiple extends boolean = false,
+	TElement extends Element = Element,
+> = Multiple extends true ? readonly TElement[] : TElement | null;
+
+export type UseElementByPointInterval =
+	| MaybeValue<number>
+	| "requestAnimationFrame";
+
+export type UseElementByPointScheduler = (
+	callback: () => void,
+) => UseIntervalFnReturn;
+
+export interface UseElementByPointOptions<
+	Multiple extends boolean = false,
+	TDocument extends
+		UseElementByPointDocumentLike = UseElementByPointDocumentLike,
+	TWindow extends UseElementByPointWindowLike = UseElementByPointWindowLike,
+> {
+	x: MaybeValue<number>;
+	y: MaybeValue<number>;
+	multiple?: MaybeValue<Multiple>;
+	document?: MaybeTarget<TDocument>;
+	window?: MaybeTarget<TWindow>;
+	scheduler?: UseElementByPointScheduler;
+	/**
+	 * Polling interval or animation frame scheduler.
+	 *
+	 * @default "requestAnimationFrame"
+	 */
+	interval?: UseElementByPointInterval;
+	/**
+	 * Start point tracking immediately.
+	 *
+	 * @default true
+	 */
+	immediate?: boolean;
+}
+
+export interface UseElementByPointReturn<
+	Multiple extends boolean = false,
+	TElement extends Element = Element,
+> extends UseIntervalFnReturn {
+	readonly element: ReadonlySignal<
+		UseElementByPointElement<Multiple, TElement>
+	>;
+	readonly isSupported: ReadonlySignal<boolean>;
+	update(): void;
+	stop(): void;
+}
+
 export interface UseElementSizeOptions<
 	TWindow extends ResizeObserverWindowLike = ResizeObserverWindowLike,
 > extends ResizeObserverOptions {

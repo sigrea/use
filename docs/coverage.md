@@ -111,7 +111,7 @@ Status values:
 | `useDraggable` | `useDraggable` | Done |
 | `useDropZone` | `useDropZone` | Done |
 | `useElementBounding` | `useElementBounding` | Done |
-| `useElementByPoint` | `-` | Todo |
+| `useElementByPoint` | `useElementByPoint` | Done |
 | `useElementHover` | `-` | Todo |
 | `useElementSize` | `useElementSize` | Done |
 | `useElementVisibility` | `-` | Todo |

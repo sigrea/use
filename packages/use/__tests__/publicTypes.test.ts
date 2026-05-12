@@ -262,6 +262,13 @@ import type {
 	UseElementBoundingReturn,
 	UseElementBoundingUpdateTiming,
 	UseElementBoundingWindowLike,
+	UseElementByPointDocumentLike,
+	UseElementByPointElement,
+	UseElementByPointInterval,
+	UseElementByPointOptions,
+	UseElementByPointReturn,
+	UseElementByPointScheduler,
+	UseElementByPointWindowLike,
 	UseElementSizeOptions,
 	UseFocusOptions,
 	UseMediaQueryOptions,
@@ -356,6 +363,7 @@ import {
 	useDraggable,
 	useDropZone,
 	useElementBounding,
+	useElementByPoint,
 	useElementSize,
 	useEventListener,
 	useFocus,
@@ -409,6 +417,14 @@ interface ResizeWindow extends EventTarget {
 }
 
 interface BoundingWindow extends UseElementBoundingWindowLike {
+	readonly label: string;
+}
+
+interface PointDocument extends UseElementByPointDocumentLike {
+	readonly label: string;
+}
+
+interface PointWindow extends UseElementByPointWindowLike {
 	readonly label: string;
 }
 
@@ -4424,6 +4440,90 @@ describe("public types", () => {
 				useElementBounding(document.createElement("div"), {
 					// @ts-expect-error windowResize must be boolean
 					windowResize: "true",
+				});
+			});
+		});
+	});
+
+	it("types element by point values and options", () => {
+		typeOnly(() => {
+			const pointDocument = new EventTarget() as PointDocument;
+			const pointWindow = new EventTarget() as PointWindow;
+			const interval: UseElementByPointInterval = signal(16);
+			const scheduler: UseElementByPointScheduler = (_callback) => ({
+				isActive: readonly(signal(false)),
+				pause() {},
+				resume() {},
+			});
+			const options: UseElementByPointOptions<
+				false,
+				PointDocument,
+				PointWindow
+			> = {
+				document: signal(pointDocument),
+				immediate: false,
+				interval,
+				scheduler,
+				window: signal(pointWindow),
+				x: signal(1),
+				y: signal(2),
+			};
+			const single = useElementByPoint(options);
+			const multiple = useElementByPoint<true, HTMLButtonElement>({
+				document: pointDocument,
+				multiple: true,
+				x: 1,
+				y: 2,
+			});
+			const dynamic = useElementByPoint<boolean, HTMLButtonElement>({
+				document: pointDocument,
+				multiple: signal<boolean>(false),
+				x: 1,
+				y: 2,
+			});
+			const singleReturn: UseElementByPointReturn = single;
+			const elementValue: UseElementByPointElement<true, HTMLButtonElement> = [
+				document.createElement("button"),
+			];
+
+			expectTypeOf(elementValue).toMatchTypeOf<
+				UseElementByPointElement<true, HTMLButtonElement>
+			>();
+			expectTypeOf(single).toEqualTypeOf<UseElementByPointReturn>();
+			expectTypeOf(singleReturn.element).toEqualTypeOf<
+				ReadonlySignal<Element | null>
+			>();
+			expectTypeOf(single.isSupported).toEqualTypeOf<ReadonlySignal<boolean>>();
+			expectTypeOf(single.isActive).toEqualTypeOf<ReadonlySignal<boolean>>();
+			expectTypeOf(single.pause()).toEqualTypeOf<void>();
+			expectTypeOf(single.resume()).toEqualTypeOf<void>();
+			expectTypeOf(single.update()).toEqualTypeOf<void>();
+			expectTypeOf(single.stop()).toEqualTypeOf<void>();
+			expectTypeOf(multiple.element).toEqualTypeOf<
+				ReadonlySignal<readonly HTMLButtonElement[]>
+			>();
+			expectTypeOf(dynamic.element).toEqualTypeOf<
+				ReadonlySignal<HTMLButtonElement | readonly HTMLButtonElement[] | null>
+			>();
+			typeOnly(() => {
+				// @ts-expect-error returned values are readonly signals
+				single.element.value = null;
+				useElementByPoint({
+					// @ts-expect-error x must be numeric
+					x: "1",
+					y: 2,
+				});
+				useElementByPoint({
+					// @ts-expect-error multiple must be boolean
+					multiple: "true",
+					x: 1,
+					y: 2,
+				});
+				useElementByPoint({
+					// @ts-expect-error interval must be numeric or requestAnimationFrame
+					interval: "slow",
+					x: 1,
+					y: 2,
 				});
 			});
 		});

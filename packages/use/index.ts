@@ -74,6 +74,7 @@ export { useDocumentVisibility } from "./useDocumentVisibility";
 export { useDraggable } from "./useDraggable";
 export { useDropZone } from "./useDropZone";
 export { useElementBounding } from "./useElementBounding";
+export { useElementByPoint } from "./useElementByPoint";
 export { useElementSize } from "./useElementSize";
 export { useEventListener } from "./useEventListener";
 export { useFocus } from "./useFocus";
@@ -396,6 +397,13 @@ export type {
 	UseElementBoundingReturn,
 	UseElementBoundingUpdateTiming,
 	UseElementBoundingWindowLike,
+	UseElementByPointDocumentLike,
+	UseElementByPointElement,
+	UseElementByPointInterval,
+	UseElementByPointOptions,
+	UseElementByPointReturn,
+	UseElementByPointScheduler,
+	UseElementByPointWindowLike,
 	UseElementSizeOptions,
 	UseElementSizeReturn,
 	UseEventListenerOptions,
