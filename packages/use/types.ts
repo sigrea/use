@@ -3266,6 +3266,43 @@ export interface UseParallaxReturn {
 	stop(): void;
 }
 
+export interface UsePerformanceObserverWindowLike extends WindowLike {
+	readonly PerformanceObserver?: typeof PerformanceObserver;
+}
+
+export type UsePerformanceObserverObserveOptions =
+	| {
+			entryTypes: readonly string[];
+			type?: never;
+			buffered?: never;
+			durationThreshold?: never;
+	  }
+	| {
+			type: string;
+			buffered?: boolean;
+			durationThreshold?: DOMHighResTimeStamp;
+			entryTypes?: never;
+	  };
+
+export type UsePerformanceObserverOptions<
+	TWindow extends
+		UsePerformanceObserverWindowLike = UsePerformanceObserverWindowLike,
+> = UsePerformanceObserverObserveOptions & {
+	/**
+	 * Start the observer immediately.
+	 *
+	 * @default true
+	 */
+	immediate?: boolean;
+	window?: MaybeTarget<TWindow | null | undefined>;
+};
+
+export interface UsePerformanceObserverReturn {
+	readonly isSupported: ReadonlySignal<boolean>;
+	start(): void;
+	stop(): void;
+}
+
 export type UseMousePressedSourceEvent = MouseEvent | TouchEvent | DragEvent;
 
 export interface UseMousePressedWindowLike extends WindowLike {}

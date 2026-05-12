@@ -158,7 +158,7 @@ Status values:
 | `usePageLeave` | `usePageLeave` | Done |
 | `useParallax` | `useParallax` | Done |
 | `useParentElement` | `-` | Needs design |
-| `usePerformanceObserver` | `-` | Todo |
+| `usePerformanceObserver` | `usePerformanceObserver` | Done |
 | `usePermission` | `-` | Todo |
 | `usePointer` | `-` | Todo |
 | `usePointerLock` | `-` | Todo |

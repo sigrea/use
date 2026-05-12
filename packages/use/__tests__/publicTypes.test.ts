@@ -446,6 +446,10 @@ import type {
 	UseParallaxScreenOrientationLike,
 	UseParallaxSource,
 	UseParallaxWindowLike,
+	UsePerformanceObserverObserveOptions,
+	UsePerformanceObserverOptions,
+	UsePerformanceObserverReturn,
+	UsePerformanceObserverWindowLike,
 	UseRefHistoryRecord,
 	UseStorageOptions,
 	UseToggleOptions,
@@ -583,6 +587,7 @@ import {
 	useOnline,
 	usePageLeave,
 	useParallax,
+	usePerformanceObserver,
 	usePreferredDark,
 	usePrevious,
 	useRefHistory,
@@ -5452,6 +5457,31 @@ describe("public types", () => {
 		};
 		const parallax = useParallax(document.body, parallaxOptions);
 		const parallaxReturn: UseParallaxReturn = parallax;
+		const performanceWindow =
+			new EventTarget() as UsePerformanceObserverWindowLike;
+		const performanceOptions: UsePerformanceObserverOptions<
+			typeof performanceWindow
+		> = {
+			entryTypes: ["mark", "measure"],
+			immediate: false,
+			window: performanceWindow,
+		};
+		const bufferedPerformanceOptions: UsePerformanceObserverObserveOptions = {
+			buffered: true,
+			type: "resource",
+		};
+		const thresholdPerformanceOptions: UsePerformanceObserverObserveOptions = {
+			durationThreshold: 16,
+			type: "event",
+		};
+		const performance = usePerformanceObserver(
+			performanceOptions,
+			(list, observer) => {
+				expectTypeOf(list.getEntries()).toEqualTypeOf<PerformanceEntryList>();
+				expectTypeOf(observer).toEqualTypeOf<PerformanceObserver>();
+			},
+		);
+		const performanceReturn: UsePerformanceObserverReturn = performance;
 
 		expectTypeOf(online.isOnline.value).toEqualTypeOf<boolean>();
 		expectTypeOf(pageLeave).toEqualTypeOf<UsePageLeaveReturn>();
@@ -5469,6 +5499,44 @@ describe("public types", () => {
 			Promise<void>
 		>();
 		expectTypeOf(parallax.stop()).toEqualTypeOf<void>();
+		expectTypeOf(performance).toEqualTypeOf<UsePerformanceObserverReturn>();
+		expectTypeOf(performanceReturn.isSupported.value).toEqualTypeOf<boolean>();
+		expectTypeOf(performance.start()).toEqualTypeOf<void>();
+		expectTypeOf(performance.stop()).toEqualTypeOf<void>();
+		usePerformanceObserver(
+			{
+				...bufferedPerformanceOptions,
+				window: performanceWindow,
+			},
+			() => {},
+		);
+		usePerformanceObserver(thresholdPerformanceOptions, () => {});
+		typeOnly(() => {
+			usePerformanceObserver(
+				// @ts-expect-error entryTypes cannot be used with type
+				{
+					entryTypes: ["mark"],
+					type: "mark",
+				},
+				() => {},
+			);
+			usePerformanceObserver(
+				// @ts-expect-error entryTypes cannot be used with buffered
+				{
+					buffered: true,
+					entryTypes: ["resource"],
+				},
+				() => {},
+			);
+			usePerformanceObserver(
+				// @ts-expect-error entryTypes cannot be used with durationThreshold
+				{
+					durationThreshold: 16,
+					entryTypes: ["event"],
+				},
+				() => {},
+			);
+		});
 
 		breakpoints.stop();
 		preferredDark.stop();
@@ -5484,6 +5552,7 @@ describe("public types", () => {
 		online.stop();
 		pageLeave.stop();
 		parallax.stop();
+		performance.stop();
 	});
 
 	it("forwards timeout start arguments", () => {
