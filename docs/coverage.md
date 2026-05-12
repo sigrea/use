@@ -138,7 +138,7 @@ Status values:
 | `useKeyModifier` | `useKeyModifier` | Done |
 | `useLastChanged` | `useLastChanged` | Done |
 | `useLocalStorage` | `useLocalStorage` | Done |
-| `useMagicKeys` | `-` | Todo |
+| `useMagicKeys` | `useMagicKeys` | Done |
 | `useManualRefHistory` | `useManualRefHistory` | Done |
 | `useMediaControls` | `-` | Todo |
 | `useMediaQuery` | `useMediaQuery` | Done |

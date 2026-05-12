@@ -114,6 +114,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.useIntersectionObserver).toBe("function");
 		expect(typeof mod.useKeyModifier).toBe("function");
 		expect(typeof mod.useLastChanged).toBe("function");
+		expect(typeof mod.useMagicKeys).toBe("function");
 		expect(typeof mod.useInterval).toBe("function");
 		expect(typeof mod.useIntervalFn).toBe("function");
 		expect(typeof mod.useLocalStorage).toBe("function");
@@ -170,6 +171,7 @@ describe("SSR safety", () => {
 			useInfiniteScroll,
 			useIntersectionObserver,
 			useKeyModifier,
+			useMagicKeys,
 			useMouse,
 			useOnline,
 			usePreferredDark,
@@ -277,6 +279,7 @@ describe("SSR safety", () => {
 			window: null,
 		});
 		const keyModifier = useKeyModifier("CapsLock", { document: null });
+		const magicKeys = useMagicKeys({ window: null });
 		const fetchValue = useFetch("https://example.com", {
 			fetch: async () => new Response("ok"),
 			immediate: false,
@@ -377,6 +380,8 @@ describe("SSR safety", () => {
 		expect(intersectionObserver.isSupported.value).toBe(false);
 		expect(intersectionObserver.isActive.value).toBe(true);
 		expect(keyModifier.value).toBeNull();
+		expect(magicKeys.a.value).toBe(false);
+		expect(magicKeys.current.value).toEqual(new Set());
 		expect(fetchValue.data.value).toBeNull();
 		expect(sessionStorageValue.value).toBe("fallback");
 		expect(ssrMediaQuery.matches.value).toBe(true);
@@ -468,6 +473,7 @@ describe("SSR safety", () => {
 		intersectionObserver.resume();
 		intersectionObserver.stop();
 		keyModifier.stop();
+		magicKeys.stop();
 		expect(await fetchValue.execute()).toBeInstanceOf(Response);
 		expect(fetchValue.data.value).toBe("ok");
 		expect(fetchValue.statusCode.value).toBe(200);
@@ -855,6 +861,16 @@ describe("SSR safety", () => {
 
 		expect(globalThis.window).toBeUndefined();
 		expect(lastChanged.value).toBe(123);
+	});
+
+	it("creates useMagicKeys without a window", async () => {
+		const { useMagicKeys } = await import("../../../index");
+		const keys = useMagicKeys({ window: null });
+
+		expect(globalThis.window).toBeUndefined();
+		expect(keys.a.value).toBe(false);
+		expect(keys.current.value).toEqual(new Set());
+		keys.stop();
 	});
 
 	it("creates useClipboard without a window", async () => {

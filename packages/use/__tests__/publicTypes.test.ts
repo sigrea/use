@@ -91,6 +91,7 @@ import type {
 	KeyFilter,
 	KeyPredicate,
 	KeyStrokeEventName,
+	MagicKeysInternal,
 	MatchMediaWindow,
 	MaybeValue,
 	MaybeValueArgs,
@@ -380,6 +381,9 @@ import type {
 	UseKeyModifierReturn,
 	UseLastChangedOptions,
 	UseLastChangedReturn,
+	UseMagicKeysOptions,
+	UseMagicKeysReturn,
+	UseMagicKeysWindowLike,
 	UseMediaQueryOptions,
 	UseMouseOptions,
 	UseOnlineOptions,
@@ -390,6 +394,7 @@ import type {
 	WritableComputedWithControlReturn,
 } from "../../../index";
 import {
+	DefaultMagicKeysAliasMap,
 	StorageSerializers,
 	cloneStructured,
 	computedAsync,
@@ -499,6 +504,7 @@ import {
 	useKeyModifier,
 	useLastChanged,
 	useLocalStorage,
+	useMagicKeys,
 	useManualRefHistory,
 	useMediaQuery,
 	useMouse,
@@ -599,6 +605,10 @@ interface IntersectionObserverWindow extends UseIntersectionObserverWindowLike {
 }
 
 interface KeyModifierDocument extends UseKeyModifierDocumentLike {
+	readonly label: string;
+}
+
+interface MagicKeysWindow extends UseMagicKeysWindowLike {
 	readonly label: string;
 }
 
@@ -4237,6 +4247,64 @@ describe("public types", () => {
 					initialValue: "now",
 				};
 				expectTypeOf(invalidOptions).toEqualTypeOf<UseLastChangedOptions>();
+			});
+		});
+	});
+
+	it("types magic keys", () => {
+		typeOnly(() => {
+			const target = new EventTarget();
+			const windowTarget = Object.assign(new EventTarget(), {
+				label: "window",
+			}) as MagicKeysWindow;
+			const options: UseMagicKeysOptions<false, EventTarget, MagicKeysWindow> =
+				{
+					aliasMap: {
+						cool: "space",
+					},
+					onEventFired(event) {
+						expectTypeOf(event).toEqualTypeOf<KeyboardEvent>();
+					},
+					passive: false,
+					target: signal(target),
+					window: signal(windowTarget),
+				};
+			const keys = useMagicKeys(options);
+			const reactiveKeys = useMagicKeys({ reactive: true, target });
+			const returnValue: UseMagicKeysReturn = keys;
+			const reactiveReturn: UseMagicKeysReturn<true> = reactiveKeys;
+			const internal: MagicKeysInternal = keys;
+
+			expectTypeOf(DefaultMagicKeysAliasMap).toEqualTypeOf<
+				Readonly<Record<string, string>>
+			>();
+			expectTypeOf(keys.a).toEqualTypeOf<ReadonlySignal<boolean>>();
+			expectTypeOf(keys.ctrl_shift_a).toEqualTypeOf<ReadonlySignal<boolean>>();
+			expectTypeOf(keys.current).toEqualTypeOf<
+				ReadonlySignal<ReadonlySet<string>>
+			>();
+			expectTypeOf(keys.stop()).toEqualTypeOf<void>();
+			expectTypeOf(reactiveKeys.a).toEqualTypeOf<boolean>();
+			expectTypeOf(reactiveKeys.current).toEqualTypeOf<ReadonlySet<string>>();
+			expectTypeOf(returnValue).toEqualTypeOf<UseMagicKeysReturn>();
+			expectTypeOf(reactiveReturn).toEqualTypeOf<UseMagicKeysReturn<true>>();
+			expectTypeOf(internal.current).toEqualTypeOf<
+				ReadonlySignal<ReadonlySet<string>>
+			>();
+
+			typeOnly(() => {
+				// @ts-expect-error key state is readonly
+				keys.a.value = true;
+				// @ts-expect-error passive must be a boolean
+				useMagicKeys({ passive: "false" });
+				useMagicKeys({
+					// @ts-expect-error target must be an EventTarget
+					target: {},
+				});
+				useMagicKeys({
+					// @ts-expect-error window must be an EventTarget-compatible object
+					window: {},
+				});
 			});
 		});
 	});

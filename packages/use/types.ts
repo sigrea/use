@@ -2762,6 +2762,59 @@ export type UseLastChangedReturn<
 			: number | null
 >;
 
+export interface UseMagicKeysWindowLike extends WindowLike {}
+
+export interface UseMagicKeysOptions<
+	Reactive extends boolean = false,
+	TTarget extends EventTarget = EventTarget,
+	TWindow extends UseMagicKeysWindowLike = UseMagicKeysWindowLike,
+> {
+	/**
+	 * Return booleans from the proxy instead of readonly signals.
+	 *
+	 * @default false
+	 */
+	reactive?: Reactive;
+	/**
+	 * Target for keydown and keyup listeners.
+	 *
+	 * @default window
+	 */
+	target?: MaybeTarget<TTarget | null | undefined>;
+	/**
+	 * Window target for focus and blur reset listeners.
+	 *
+	 * @default window
+	 */
+	window?: MaybeTarget<TWindow | null | undefined>;
+	/**
+	 * Alias map for key names. Alias names should be lowercase.
+	 */
+	aliasMap?: Record<string, string>;
+	/**
+	 * Register passive key and reset listeners.
+	 *
+	 * @default true
+	 */
+	passive?: boolean;
+	/**
+	 * Custom handler called after key state is updated.
+	 */
+	onEventFired?: (event: KeyboardEvent) => void | boolean;
+}
+
+export interface MagicKeysInternal<Reactive extends boolean = false> {
+	readonly current: Reactive extends true
+		? ReadonlySet<string>
+		: ReadonlySignal<ReadonlySet<string>>;
+	stop(): void;
+}
+
+export type UseMagicKeysReturn<Reactive extends boolean = false> = Readonly<
+	Record<string, Reactive extends true ? boolean : ReadonlySignal<boolean>> &
+		MagicKeysInternal<Reactive>
+>;
+
 export interface OnLongPressModifiers {
 	stop?: boolean;
 	once?: boolean;
