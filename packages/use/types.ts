@@ -56,10 +56,19 @@ export type PromisifyFn<T> = T extends (
 		: never
 	: never;
 
+type FunctionValue = (...args: never[]) => unknown;
+type NonFunctionValue<T> = Exclude<T, FunctionValue>;
+type WrappedValue<T> = Signal<T> | ReadonlySignal<T> | Computed<T>;
+type MaybeValueArg<T> = [Extract<T, FunctionValue>] extends [never]
+	? MaybeValue<T>
+	:
+			| WrappedValue<T>
+			| ([NonFunctionValue<T>] extends [never]
+					? never
+					: NonFunctionValue<T> | WrappedValue<NonFunctionValue<T>>);
+
 export type MaybeValueArgs<TArgs extends readonly unknown[]> = {
-	[K in keyof TArgs]: TArgs[K] extends (...args: never[]) => unknown
-		? Signal<TArgs[K]> | ReadonlySignal<TArgs[K]> | Computed<TArgs[K]>
-		: MaybeValue<TArgs[K]>;
+	[K in keyof TArgs]: MaybeValueArg<TArgs[K]>;
 };
 
 export type ResolveValueFn<T> = T extends (
@@ -68,6 +77,15 @@ export type ResolveValueFn<T> = T extends (
 ) => infer TReturn
 	? TArgs extends unknown[]
 		? (this: TThis, ...args: MaybeValueArgs<TArgs>) => TReturn
+		: never
+	: never;
+
+export type ReactifyReturn<T> = T extends (
+	this: infer TThis,
+	...args: infer TArgs
+) => infer TReturn
+	? TArgs extends unknown[]
+		? (this: TThis, ...args: MaybeValueArgs<TArgs>) => ReadonlySignal<TReturn>
 		: never
 	: never;
 

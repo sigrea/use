@@ -29,6 +29,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.onKeyUp).toBe("function");
 		expect(typeof mod.onLongPress).toBe("function");
 		expect(typeof mod.onStartTyping).toBe("function");
+		expect(typeof mod.reactify).toBe("function");
 		expect(typeof mod.useBreakpoints).toBe("function");
 		expect(typeof mod.useDocumentVisibility).toBe("function");
 		expect(typeof mod.useElementSize).toBe("function");
@@ -215,6 +216,16 @@ describe("SSR safety", () => {
 
 		expect(globalThis.window).toBeUndefined();
 		expect(resolveValueFn(value)).toBe("ready");
+	});
+
+	it("creates reactified functions without a window", async () => {
+		const { signal } = await import("@sigrea/core");
+		const { reactify } = await import("../../../index");
+		const value = signal("ready");
+		const result = reactify((input: string) => input)(value);
+
+		expect(globalThis.window).toBeUndefined();
+		expect(result.value).toBe("ready");
 	});
 
 	it("resolves values without a window", async () => {
