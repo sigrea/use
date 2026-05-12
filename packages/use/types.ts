@@ -2694,6 +2694,15 @@ export interface UseOnlineReturn {
 	stop(): void;
 }
 
+export interface UsePageLeaveOptions<TWindow extends WindowLike = WindowLike> {
+	window?: MaybeTarget<TWindow>;
+}
+
+export interface UsePageLeaveReturn {
+	readonly isLeft: ReadonlySignal<boolean>;
+	stop(): void;
+}
+
 export interface UseNetworkOptions<
 	TWindow extends WindowLike = WindowLike,
 	TNavigator extends UseNetworkNavigatorLike = UseNetworkNavigatorLike,

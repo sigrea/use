@@ -134,6 +134,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.useObjectUrl).toBe("function");
 		expect(typeof mod.useOffsetPagination).toBe("function");
 		expect(typeof mod.useOnline).toBe("function");
+		expect(typeof mod.usePageLeave).toBe("function");
 		expect(typeof mod.usePreferredDark).toBe("function");
 		expect(typeof mod.usePrevious).toBe("function");
 		expect(typeof mod.useRefHistory).toBe("function");
@@ -195,6 +196,7 @@ describe("SSR safety", () => {
 			useObjectUrl,
 			useOffsetPagination,
 			useOnline,
+			usePageLeave,
 			usePreferredDark,
 			onElementRemoval,
 			onKeyDown,
@@ -254,6 +256,7 @@ describe("SSR safety", () => {
 		const pagination = useOffsetPagination({ total: 0 });
 		const mediaQuery = useMediaQuery("(min-width: 640px)");
 		const online = useOnline();
+		const pageLeave = usePageLeave({ window: null });
 		const preferredDark = usePreferredDark();
 		const cssSupports = useCssSupports("display", "grid", { window: null });
 		const initialCssSupports = useCssSupports("display: grid", {
@@ -366,6 +369,7 @@ describe("SSR safety", () => {
 		expect(pagination.pageCount.value).toBe(1);
 		expect(mediaQuery.matches.value).toBe(false);
 		expect(online.isOnline.value).toBe(true);
+		expect(pageLeave.isLeft.value).toBe(false);
 		expect(preferredDark.matches.value).toBe(false);
 		expect(cssSupports.value).toBe(false);
 		expect(initialCssSupports.value).toBe(true);
@@ -484,6 +488,7 @@ describe("SSR safety", () => {
 		pagination.stop();
 		mediaQuery.stop();
 		online.stop();
+		pageLeave.stop();
 		preferredDark.stop();
 		cssVar.value = "blue";
 		expect(cssVar.value).toBe("blue");
