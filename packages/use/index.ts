@@ -178,6 +178,7 @@ export { useToggle } from "./useToggle";
 export { useUrlSearchParams } from "./useUrlSearchParams";
 export { useUserMedia } from "./useUserMedia";
 export { useVibrate } from "./useVibrate";
+export { useVirtualList } from "./useVirtualList";
 export { useWindowSize } from "./useWindowSize";
 export type {
 	AsyncComputedCancelCallback,
@@ -489,6 +490,13 @@ export type {
 	UseVibratePattern,
 	UseVibrateReturn,
 	UseVibrateScheduler,
+	UseVirtualListHorizontalOptions,
+	UseVirtualListItem,
+	UseVirtualListItemSize,
+	UseVirtualListOptions,
+	UseVirtualListOptionsBase,
+	UseVirtualListReturn,
+	UseVirtualListVerticalOptions,
 	UseDocumentVisibilityOptions,
 	UseDocumentVisibilityReturn,
 	UseDraggableAxis,
