@@ -62,6 +62,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.useAsyncState).toBe("function");
 		expect(typeof mod.useBase64).toBe("function");
 		expect(typeof mod.useBattery).toBe("function");
+		expect(typeof mod.useBluetooth).toBe("function");
 		expect(typeof mod.useBreakpoints).toBe("function");
 		expect(typeof mod.useDocumentVisibility).toBe("function");
 		expect(typeof mod.useElementSize).toBe("function");
@@ -367,6 +368,23 @@ describe("SSR safety", () => {
 		expect(result.chargingTime.value).toBe(0);
 		expect(result.dischargingTime.value).toBe(0);
 		expect(result.level.value).toBe(1);
+		result.stop();
+	});
+
+	it("creates useBluetooth without a window", async () => {
+		const { useBluetooth } = await import("../../../index");
+		const result = useBluetooth();
+
+		expect(globalThis.window).toBeUndefined();
+		expect(result.isSupported.value).toBe(false);
+		expect(result.isConnected.value).toBe(false);
+		expect(result.device.value).toBeUndefined();
+		expect(result.server.value).toBeUndefined();
+		expect(result.error.value).toBeNull();
+
+		await result.requestDevice();
+		await result.connect();
+		result.disconnect();
 		result.stop();
 	});
 

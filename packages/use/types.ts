@@ -654,6 +654,108 @@ export interface UseBatteryReturn {
 	stop(): void;
 }
 
+export type BluetoothServiceUUIDLike = number | string;
+
+export interface BluetoothDataFilterLike {
+	dataPrefix?: BufferSource;
+	mask?: BufferSource;
+}
+
+export interface BluetoothManufacturerDataFilterLike
+	extends BluetoothDataFilterLike {
+	companyIdentifier: number;
+}
+
+export interface BluetoothServiceDataFilterLike
+	extends BluetoothDataFilterLike {
+	service: BluetoothServiceUUIDLike;
+}
+
+export interface BluetoothLEScanFilterLike {
+	services?: readonly BluetoothServiceUUIDLike[];
+	name?: string;
+	namePrefix?: string;
+	manufacturerData?: readonly BluetoothManufacturerDataFilterLike[];
+	serviceData?: readonly BluetoothServiceDataFilterLike[];
+}
+
+export interface BluetoothRequestDeviceOptionsLike {
+	acceptAllDevices?: boolean;
+	filters?: readonly BluetoothLEScanFilterLike[];
+	optionalServices?: readonly BluetoothServiceUUIDLike[];
+}
+
+export interface BluetoothRemoteGATTCharacteristicLike extends EventTarget {
+	readValue?(): Promise<DataView>;
+	startNotifications?(): Promise<BluetoothRemoteGATTCharacteristicLike>;
+	stopNotifications?(): Promise<BluetoothRemoteGATTCharacteristicLike>;
+	writeValue?(value: BufferSource): Promise<void>;
+}
+
+export interface BluetoothRemoteGATTServiceLike {
+	getCharacteristic?(
+		characteristic: BluetoothServiceUUIDLike,
+	): Promise<BluetoothRemoteGATTCharacteristicLike>;
+}
+
+export interface BluetoothRemoteGATTServerLike {
+	readonly connected: boolean;
+	connect(): Promise<BluetoothRemoteGATTServerLike>;
+	disconnect(): void;
+	getPrimaryService?(
+		service: BluetoothServiceUUIDLike,
+	): Promise<BluetoothRemoteGATTServiceLike>;
+}
+
+export interface BluetoothDeviceLike extends EventTarget {
+	readonly id?: string;
+	readonly name?: string;
+	readonly gatt?: BluetoothRemoteGATTServerLike | null;
+}
+
+export interface BluetoothLike extends EventTarget {
+	getAvailability?(): Promise<boolean>;
+	getDevices?(): Promise<BluetoothDeviceLike[]>;
+	requestDevice(
+		options?: BluetoothRequestDeviceOptionsLike,
+	): Promise<BluetoothDeviceLike>;
+}
+
+export interface BluetoothNavigatorLike extends NavigatorLike {
+	readonly bluetooth?: BluetoothLike | null;
+}
+
+export interface UseBluetoothRequestDeviceOptions {
+	filters?: MaybeValue<readonly BluetoothLEScanFilterLike[] | undefined>;
+	optionalServices?: MaybeValue<
+		readonly BluetoothServiceUUIDLike[] | undefined
+	>;
+}
+
+export interface UseBluetoothOptions<
+	TNavigator extends NavigatorLike = BluetoothNavigatorLike,
+> extends UseBluetoothRequestDeviceOptions {
+	/**
+	 * Show all nearby Bluetooth devices in the chooser.
+	 *
+	 * @default false
+	 */
+	acceptAllDevices?: MaybeValue<boolean>;
+	navigator?: MaybeValue<TNavigator | null | undefined>;
+}
+
+export interface UseBluetoothReturn {
+	readonly isSupported: ReadonlySignal<boolean>;
+	readonly isConnected: ReadonlySignal<boolean>;
+	readonly device: ReadonlySignal<BluetoothDeviceLike | undefined>;
+	readonly server: ReadonlySignal<BluetoothRemoteGATTServerLike | undefined>;
+	readonly error: ReadonlySignal<unknown | null>;
+	requestDevice(): Promise<void>;
+	connect(): Promise<void>;
+	disconnect(): void;
+	stop(): void;
+}
+
 export interface ComputedEagerOptions {
 	flush?: WatchOptions["flush"];
 	onTrack?: WatchOptions["onTrack"];

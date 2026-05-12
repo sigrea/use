@@ -46,6 +46,7 @@ export { useAsyncQueue } from "./useAsyncQueue";
 export { useAsyncState } from "./useAsyncState";
 export { useBase64 } from "./useBase64";
 export { useBattery } from "./useBattery";
+export { useBluetooth } from "./useBluetooth";
 export { useBreakpoints } from "./useBreakpoints";
 export { useCounter } from "./useCounter";
 export { useDebounceFn } from "./useDebounceFn";
@@ -99,8 +100,23 @@ export type {
 	UseBase64WindowLike,
 	BatteryManagerLike,
 	BatteryNavigatorLike,
+	BluetoothDataFilterLike,
+	BluetoothDeviceLike,
+	BluetoothLEScanFilterLike,
+	BluetoothLike,
+	BluetoothManufacturerDataFilterLike,
+	BluetoothNavigatorLike,
+	BluetoothRemoteGATTCharacteristicLike,
+	BluetoothRemoteGATTServerLike,
+	BluetoothRemoteGATTServiceLike,
+	BluetoothRequestDeviceOptionsLike,
+	BluetoothServiceDataFilterLike,
+	BluetoothServiceUUIDLike,
 	UseBatteryOptions,
 	UseBatteryReturn,
+	UseBluetoothOptions,
+	UseBluetoothRequestDeviceOptions,
+	UseBluetoothReturn,
 	Arrayable,
 	Breakpoints,
 	CloneFn,

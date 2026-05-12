@@ -82,7 +82,7 @@ Status values:
 | `useAsyncState` | `useAsyncState` | Done |
 | `useBase64` | `useBase64` | Done |
 | `useBattery` | `useBattery` | Done |
-| `useBluetooth` | `-` | Todo |
+| `useBluetooth` | `useBluetooth` | Done |
 | `useBreakpoints` | `useBreakpoints` | Done |
 | `useBroadcastChannel` | `-` | Todo |
 | `useBrowserLocation` | `-` | Todo |
