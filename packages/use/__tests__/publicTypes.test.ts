@@ -68,6 +68,8 @@ import type {
 	ResizeObserverWindowLike,
 	ResolveValueFn,
 	SignalAutoResetReturn,
+	SignalDebouncedOptions,
+	SignalDebouncedReturn,
 	StorageSerializer,
 	StorageWindowLike,
 	UseBreakpointsOptions,
@@ -109,6 +111,7 @@ import {
 	reactivePick,
 	resolveValue,
 	signalAutoReset,
+	signalDebounced,
 	useBreakpoints,
 	useDebounceFn,
 	useDocumentVisibility,
@@ -924,6 +927,41 @@ describe("public types", () => {
 			literal.value = "other";
 			// @ts-expect-error afterMs must resolve to a number
 			signalAutoReset("idle", "100");
+		});
+	});
+
+	it("types debounced signals", () => {
+		typeOnly(() => {
+			const source = signal(0);
+			const readonlySource = readonly(source);
+			const computedSource = computed(() => source.value * 2);
+			const delay: MaybeValue<number> = computed(() => 100);
+			const maxWait: MaybeValue<number> = signal(200);
+			const options: SignalDebouncedOptions = { maxWait };
+			const fromRaw = signalDebounced(0, delay, options);
+			const fromWritable = signalDebounced(source, delay, options);
+			const fromReadonly = signalDebounced(readonlySource, signal(100));
+			const fromComputed = signalDebounced(computedSource, () => 50);
+			const fromGetter = signalDebounced(() => source.value, 100);
+
+			expectTypeOf(options.maxWait).toEqualTypeOf<
+				MaybeValue<number> | undefined
+			>();
+			expectTypeOf(fromRaw).toEqualTypeOf<SignalDebouncedReturn<number>>();
+			expectTypeOf(fromWritable).toEqualTypeOf<SignalDebouncedReturn<number>>();
+			expectTypeOf(fromWritable).toEqualTypeOf<ReadonlySignal<number>>();
+			expectTypeOf(fromReadonly).toEqualTypeOf<ReadonlySignal<number>>();
+			expectTypeOf(fromComputed.value).toEqualTypeOf<number>();
+			expectTypeOf(fromGetter.value).toEqualTypeOf<number>();
+
+			// @ts-expect-error returned value is readonly
+			fromWritable.value = 1;
+			// @ts-expect-error ms must resolve to a number
+			signalDebounced(source, "100");
+			// @ts-expect-error maxWait must resolve to a number
+			signalDebounced(source, 100, { maxWait: "100" });
+			// @ts-expect-error rejectOnCancel is not exposed because no promise is returned
+			signalDebounced(source, 100, { rejectOnCancel: true });
 		});
 	});
 
