@@ -101,6 +101,7 @@ import type {
 	KeyPredicate,
 	KeyStrokeEventName,
 	LogicAndReturn,
+	LogicNotReturn,
 	MagicKeysInternal,
 	MatchMediaWindow,
 	MaybeTransitionEasing,
@@ -797,6 +798,7 @@ import {
 	formatTimeAgoIntlParts,
 	isDefined,
 	logicAnd,
+	logicNot,
 	makeDestructurable,
 	normalizeDate,
 	onClickOutside,
@@ -5665,6 +5667,20 @@ describe("public types", () => {
 			logicAnd(functionValue);
 			// @ts-expect-error function value unions must be wrapped to avoid getter handling
 			logicAnd(maybeFunctionValue);
+		});
+	});
+
+	it("types logical NOT", () => {
+		typeOnly(() => {
+			const result = logicNot(signal(false));
+			const getter = logicNot(() => "ready");
+			const logicReturn: LogicNotReturn = result;
+
+			expectTypeOf(result).toEqualTypeOf<LogicNotReturn>();
+			expectTypeOf(getter.value).toEqualTypeOf<boolean>();
+			expectTypeOf(logicReturn.value).toEqualTypeOf<boolean>();
+			// @ts-expect-error logical result is readonly
+			result.value = true;
 		});
 	});
 
