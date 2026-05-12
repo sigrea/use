@@ -48,6 +48,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.useAnimate).toBe("function");
 		expect(typeof mod.useArrayDifference).toBe("function");
 		expect(typeof mod.useArrayEvery).toBe("function");
+		expect(typeof mod.useArrayFilter).toBe("function");
 		expect(typeof mod.useBreakpoints).toBe("function");
 		expect(typeof mod.useDocumentVisibility).toBe("function");
 		expect(typeof mod.useElementSize).toBe("function");
@@ -222,6 +223,14 @@ describe("SSR safety", () => {
 
 		expect(globalThis.window).toBeUndefined();
 		expect(result.value).toBe(true);
+	});
+
+	it("creates useArrayFilter without a window", async () => {
+		const { useArrayFilter } = await import("../../../index");
+		const result = useArrayFilter([1, 2, 3], (value) => value > 1);
+
+		expect(globalThis.window).toBeUndefined();
+		expect(result.value).toEqual([2, 3]);
 	});
 
 	it("creates event hooks without a window", async () => {

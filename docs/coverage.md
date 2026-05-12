@@ -68,7 +68,7 @@ Status values:
 | `useAnimate` | `useAnimate` | Done |
 | `useArrayDifference` | `useArrayDifference` | Done |
 | `useArrayEvery` | `useArrayEvery` | Done |
-| `useArrayFilter` | `-` | Todo |
+| `useArrayFilter` | `useArrayFilter` | Done |
 | `useArrayFind` | `-` | Todo |
 | `useArrayFindIndex` | `-` | Todo |
 | `useArrayFindLast` | `-` | Todo |

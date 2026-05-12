@@ -481,6 +481,14 @@ export type UseArrayEveryPredicate<T> = (
 
 export type UseArrayEveryReturn = ReadonlySignal<boolean>;
 
+export type UseArrayFilterPredicate<T> = (
+	element: T,
+	index: number,
+	array: T[],
+) => unknown;
+
+export type UseArrayFilterReturn<T = unknown> = ReadonlySignal<T[]>;
+
 export type ComputedWithControlSource<T = unknown> =
 	| WatchSource<T>
 	| DeepSignal<object>
