@@ -47,6 +47,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.useActiveElement).toBe("function");
 		expect(typeof mod.useAnimate).toBe("function");
 		expect(typeof mod.useArrayDifference).toBe("function");
+		expect(typeof mod.useArrayEvery).toBe("function");
 		expect(typeof mod.useBreakpoints).toBe("function");
 		expect(typeof mod.useDocumentVisibility).toBe("function");
 		expect(typeof mod.useElementSize).toBe("function");
@@ -213,6 +214,14 @@ describe("SSR safety", () => {
 
 		expect(globalThis.window).toBeUndefined();
 		expect(result.value).toEqual([1, 3]);
+	});
+
+	it("creates useArrayEvery without a window", async () => {
+		const { useArrayEvery } = await import("../../../index");
+		const result = useArrayEvery([1, 2, 3], (value) => value > 0);
+
+		expect(globalThis.window).toBeUndefined();
+		expect(result.value).toBe(true);
 	});
 
 	it("creates event hooks without a window", async () => {

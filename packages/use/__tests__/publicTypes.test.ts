@@ -98,6 +98,8 @@ import type {
 	UseArrayDifferenceCompareFn,
 	UseArrayDifferenceOptions,
 	UseArrayDifferenceReturn,
+	UseArrayEveryPredicate,
+	UseArrayEveryReturn,
 	UseBreakpointsOptions,
 	UseDocumentVisibilityOptions,
 	UseElementSizeOptions,
@@ -149,6 +151,7 @@ import {
 	useActiveElement,
 	useAnimate,
 	useArrayDifference,
+	useArrayEvery,
 	useBreakpoints,
 	useDebounceFn,
 	useDocumentVisibility,
@@ -293,6 +296,56 @@ describe("public types", () => {
 			useArrayDifference(signal([{ id: 1 }]), signal([{ id: 1 }]), "name");
 			// @ts-expect-error comparison function must return boolean
 			useArrayDifference(signal([1]), signal([1]), () => "matched");
+		});
+	});
+
+	it("types array every values", () => {
+		typeOnly(() => {
+			const first = signal(2);
+			const second = computed(() => 4);
+			const third = signal(6);
+			const list = signal([first, second, () => third.value]);
+			const rawList = [1, 2, 3];
+			const predicate: UseArrayEveryPredicate<number> = (
+				element,
+				index,
+				array,
+			) => {
+				expectTypeOf(element).toEqualTypeOf<number>();
+				expectTypeOf(index).toEqualTypeOf<number>();
+				expectTypeOf(array).toEqualTypeOf<readonly MaybeValue<number>[]>();
+				return element % 2 === 0;
+			};
+			const result = useArrayEvery(list, predicate);
+			const getterResult = useArrayEvery(
+				() => [1, 2, 3],
+				(value) => {
+					expectTypeOf(value).toEqualTypeOf<number>();
+					return value > 0;
+				},
+			);
+			const rawResult = useArrayEvery(rawList, (value) => value > 0);
+			const readonlyResult = useArrayEvery(readonly(list), predicate);
+
+			expectTypeOf(result).toEqualTypeOf<UseArrayEveryReturn>();
+			expectTypeOf(result).toEqualTypeOf<ReadonlySignal<boolean>>();
+			expectTypeOf(getterResult).toEqualTypeOf<UseArrayEveryReturn>();
+			expectTypeOf(rawResult).toEqualTypeOf<UseArrayEveryReturn>();
+			expectTypeOf(readonlyResult).toEqualTypeOf<UseArrayEveryReturn>();
+			// @ts-expect-error returned value is readonly
+			result.value = false;
+			// @ts-expect-error predicate element type must match the array item type
+			useArrayEvery(signal([1]), (value: string) => value.length > 0);
+			useArrayEvery(
+				signal([1]),
+				// @ts-expect-error predicate is a raw function, not a signal
+				signal((value: number) => value > 0),
+			);
+			useArrayEvery(
+				signal([1]),
+				// @ts-expect-error predicate is a raw function, not a computed value
+				computed(() => (value: number) => value > 0),
+			);
 		});
 	});
 

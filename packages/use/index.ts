@@ -31,6 +31,7 @@ export { until } from "./until";
 export { useActiveElement } from "./useActiveElement";
 export { useAnimate } from "./useAnimate";
 export { useArrayDifference } from "./useArrayDifference";
+export { useArrayEvery } from "./useArrayEvery";
 export { useBreakpoints } from "./useBreakpoints";
 export { useCounter } from "./useCounter";
 export { useDebounceFn } from "./useDebounceFn";
@@ -182,6 +183,8 @@ export type {
 	UseArrayDifferenceCompareFn,
 	UseArrayDifferenceOptions,
 	UseArrayDifferenceReturn,
+	UseArrayEveryPredicate,
+	UseArrayEveryReturn,
 	UseBreakpointsOptions,
 	UseBreakpointsReturn,
 	UseCounterOptions,

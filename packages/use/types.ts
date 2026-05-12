@@ -473,6 +473,14 @@ export type UseArrayDifferenceCompareFn<T> = (
 
 export type UseArrayDifferenceReturn<T = unknown> = ReadonlySignal<T[]>;
 
+export type UseArrayEveryPredicate<T> = (
+	element: T,
+	index: number,
+	array: readonly MaybeValue<T>[],
+) => unknown;
+
+export type UseArrayEveryReturn = ReadonlySignal<boolean>;
+
 export type ComputedWithControlSource<T = unknown> =
 	| WatchSource<T>
 	| DeepSignal<object>

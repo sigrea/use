@@ -67,7 +67,7 @@ Status values:
 | `useActiveElement` | `useActiveElement` | Done |
 | `useAnimate` | `useAnimate` | Done |
 | `useArrayDifference` | `useArrayDifference` | Done |
-| `useArrayEvery` | `-` | Todo |
+| `useArrayEvery` | `useArrayEvery` | Done |
 | `useArrayFilter` | `-` | Todo |
 | `useArrayFind` | `-` | Todo |
 | `useArrayFindIndex` | `-` | Todo |
