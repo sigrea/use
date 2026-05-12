@@ -423,6 +423,12 @@ import type {
 	UseNetworkOptions,
 	UseNetworkReturn,
 	UseNetworkType,
+	UseNowControlsReturn,
+	UseNowInterval,
+	UseNowOptions,
+	UseNowReturn,
+	UseNowScheduler,
+	UseNowWindowLike,
 	UseOnlineOptions,
 	UseRefHistoryRecord,
 	UseStorageOptions,
@@ -555,6 +561,7 @@ import {
 	useMutationObserver,
 	useNavigatorLanguage,
 	useNetwork,
+	useNow,
 	useOnline,
 	usePreferredDark,
 	usePrevious,
@@ -612,6 +619,10 @@ interface NavigatorLanguageWindow extends EventTarget, WindowLike {
 
 interface NetworkWindow extends EventTarget, WindowLike {
 	readonly navigator?: UseNetworkNavigatorLike;
+}
+
+interface NowWindow extends EventTarget, UseNowWindowLike {
+	readonly label: string;
 }
 
 interface ResizeWindow extends EventTarget {
@@ -5879,6 +5890,54 @@ describe("public types", () => {
 				useNetwork({
 					// @ts-expect-error navigator must be network navigator-like
 					navigator: "online",
+				});
+			});
+		});
+	});
+
+	it("types now signals and controls", () => {
+		typeOnly(() => {
+			const scheduler: UseNowScheduler = () => ({
+				isActive: signal(false),
+				pause: () => {},
+				resume: () => {},
+			});
+			const interval: UseNowInterval = signal(1000);
+			const nowWindow = Object.assign(new EventTarget(), {
+				cancelAnimationFrame: (_handle: number) => {},
+				label: "now",
+				requestAnimationFrame: (_callback: FrameRequestCallback) => 1,
+			}) as NowWindow;
+			const options: UseNowOptions<true> = {
+				controls: true,
+				interval,
+				scheduler,
+				window: signal(nowWindow),
+			};
+			const now = useNow();
+			const controlled = useNow(options);
+			const controlledReturn: UseNowReturn<true> = controlled;
+
+			expectTypeOf(now).toEqualTypeOf<ReadonlySignal<Date>>();
+			expectTypeOf(controlled).toEqualTypeOf<UseNowControlsReturn>();
+			expectTypeOf(controlledReturn.now).toEqualTypeOf<ReadonlySignal<Date>>();
+			expectTypeOf(controlled.isActive).toEqualTypeOf<
+				ReadonlySignal<boolean>
+			>();
+			expectTypeOf(controlled.pause()).toEqualTypeOf<void>();
+			expectTypeOf(controlled.resume()).toEqualTypeOf<void>();
+			typeOnly(() => {
+				// @ts-expect-error returned values are readonly signals
+				now.value = new Date();
+				// @ts-expect-error returned values are readonly signals
+				controlled.now.value = new Date();
+				useNow({
+					// @ts-expect-error interval must be numeric or requestAnimationFrame
+					interval: "slow",
+				});
+				useNow({
+					// @ts-expect-error window must provide animation frame methods when present
+					window: { requestAnimationFrame: true },
 				});
 			});
 		});

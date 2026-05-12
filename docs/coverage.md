@@ -151,7 +151,7 @@ Status values:
 | `useMutationObserver` | `useMutationObserver` | Done |
 | `useNavigatorLanguage` | `useNavigatorLanguage` | Done |
 | `useNetwork` | `useNetwork` | Done |
-| `useNow` | `-` | Todo |
+| `useNow` | `useNow` | Done |
 | `useObjectUrl` | `-` | Todo |
 | `useOffsetPagination` | `-` | Todo |
 | `useOnline` | `useOnline` | Done |
