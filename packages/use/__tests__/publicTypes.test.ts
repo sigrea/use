@@ -373,6 +373,7 @@ import type {
 	UseFileSystemAccessOptions,
 	UseFileSystemAccessReturn,
 	UseFileSystemAccessSaveOptions,
+	UseFloorReturn,
 	UseFocusOptions,
 	UseFocusWithinReturn,
 	UseFpsOptions,
@@ -894,6 +895,7 @@ import {
 	useFetch,
 	useFileDialog,
 	useFileSystemAccess,
+	useFloor,
 	useFocus,
 	useFocusWithin,
 	useFps,
@@ -5816,6 +5818,22 @@ describe("public types", () => {
 			useClamp(10, "0", 100);
 			// @ts-expect-error max must resolve to a number
 			useClamp(10, 0, "100");
+		});
+	});
+
+	it("types floor values", () => {
+		typeOnly(() => {
+			const result = useFloor(signal(1.8));
+			const getter = useFloor(() => 2.9);
+			const floorReturn: UseFloorReturn = result;
+
+			expectTypeOf(result).toEqualTypeOf<UseFloorReturn>();
+			expectTypeOf(getter.value).toEqualTypeOf<number>();
+			expectTypeOf(floorReturn.value).toEqualTypeOf<number>();
+			// @ts-expect-error floor result is readonly
+			result.value = 1;
+			// @ts-expect-error value must resolve to a number
+			useFloor("1");
 		});
 	});
 

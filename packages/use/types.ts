@@ -65,6 +65,7 @@ export type UseAverageReturn = ReadonlySignal<number>;
 export type UseCeilReturn = ReadonlySignal<number>;
 export type UseClampReturn = ReadonlySignal<number>;
 export type UseClampWritableReturn = Computed<number>;
+export type UseFloorReturn = ReadonlySignal<number>;
 export type PromisifyFn<T> = T extends (
 	this: infer TThis,
 	...args: infer TArgs
