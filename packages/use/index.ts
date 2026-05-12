@@ -95,6 +95,7 @@ export { useGeolocation } from "./useGeolocation";
 export { useIdle } from "./useIdle";
 export { useImage } from "./useImage";
 export { useInfiniteScroll } from "./useInfiniteScroll";
+export { useIntersectionObserver } from "./useIntersectionObserver";
 export { useInterval } from "./useInterval";
 export { useIntervalFn } from "./useIntervalFn";
 export { useLocalStorage } from "./useLocalStorage";
@@ -533,6 +534,10 @@ export type {
 	UseInfiniteScrollReturn,
 	UseInfiniteScrollState,
 	UseInfiniteScrollWindowLike,
+	UseIntersectionObserverOptions,
+	UseIntersectionObserverReturn,
+	UseIntersectionObserverTarget,
+	UseIntersectionObserverWindowLike,
 	UseIntervalControlsReturn,
 	UseIntervalFnOptions,
 	UseIntervalFnReturn,

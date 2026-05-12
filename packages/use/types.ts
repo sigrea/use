@@ -3254,6 +3254,43 @@ export interface UseInfiniteScrollReturn {
 	stop(): void;
 }
 
+export type UseIntersectionObserverTarget<TElement extends Element = Element> =
+	| TElement
+	| readonly (TElement | null | undefined)[]
+	| null
+	| undefined;
+
+export interface UseIntersectionObserverWindowLike extends WindowLike {
+	readonly IntersectionObserver?: typeof IntersectionObserver;
+}
+
+export interface UseIntersectionObserverOptions<
+	TWindow extends
+		UseIntersectionObserverWindowLike = UseIntersectionObserverWindowLike,
+> {
+	/**
+	 * Start observing immediately.
+	 *
+	 * @default true
+	 */
+	immediate?: boolean;
+	/**
+	 * The element or document used as the viewport for checking intersections.
+	 */
+	root?: MaybeTarget<Element | Document | null | undefined>;
+	rootMargin?: MaybeValue<IntersectionObserverInit["rootMargin"]>;
+	threshold?: MaybeValue<IntersectionObserverInit["threshold"]>;
+	window?: MaybeTarget<TWindow | null | undefined>;
+}
+
+export interface UseIntersectionObserverReturn {
+	readonly isSupported: ReadonlySignal<boolean>;
+	readonly isActive: ReadonlySignal<boolean>;
+	pause(): void;
+	resume(): void;
+	stop(): void;
+}
+
 export interface ElementSize {
 	width: number;
 	height: number;
