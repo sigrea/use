@@ -8,6 +8,7 @@ export { createSignal } from "./createSignal";
 export { createResolveValueFn } from "./createResolveValueFn";
 export { extendSignal } from "./extendSignal";
 export { isDefined } from "./isDefined";
+export { logicAnd } from "./logicAnd";
 export { makeDestructurable } from "./makeDestructurable";
 export { onClickOutside } from "./onClickOutside";
 export { onElementRemoval } from "./onElementRemoval";
@@ -354,6 +355,7 @@ export type {
 	KeyFilter,
 	KeyPredicate,
 	KeyStrokeEventName,
+	LogicAndReturn,
 	MatchMediaWindow,
 	MaybeValueArgs,
 	MaybeTarget,

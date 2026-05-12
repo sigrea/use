@@ -57,6 +57,7 @@ export type FunctionArgs<
 	TThis = unknown,
 > = (this: TThis, ...args: TArgs) => TReturn;
 export type IsDefinedReturn = boolean;
+export type LogicAndReturn = ReadonlySignal<boolean>;
 export type PromisifyFn<T> = T extends (
 	this: infer TThis,
 	...args: infer TArgs

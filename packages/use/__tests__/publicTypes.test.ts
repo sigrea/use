@@ -100,6 +100,7 @@ import type {
 	KeyFilter,
 	KeyPredicate,
 	KeyStrokeEventName,
+	LogicAndReturn,
 	MagicKeysInternal,
 	MatchMediaWindow,
 	MaybeTransitionEasing,
@@ -795,6 +796,7 @@ import {
 	formatTimeAgoIntl,
 	formatTimeAgoIntlParts,
 	isDefined,
+	logicAnd,
 	makeDestructurable,
 	normalizeDate,
 	onClickOutside,
@@ -5635,6 +5637,34 @@ describe("public types", () => {
 			if (isDefined(factory)) {
 				expectTypeOf(factory.value).toEqualTypeOf<() => string>();
 			}
+		});
+	});
+
+	it("types logical AND", () => {
+		typeOnly(() => {
+			const functionValue = (_input: string): string => "ready";
+			const maybeFunctionValue = functionValue as
+				| ((input: string) => string)
+				| undefined;
+			const result = logicAnd(
+				signal(true),
+				true,
+				() => "ready",
+				signal(functionValue),
+				() => functionValue,
+			);
+			const empty = logicAnd();
+			const logicReturn: LogicAndReturn = result;
+
+			expectTypeOf(result).toEqualTypeOf<LogicAndReturn>();
+			expectTypeOf(empty.value).toEqualTypeOf<boolean>();
+			expectTypeOf(logicReturn.value).toEqualTypeOf<boolean>();
+			// @ts-expect-error logical result is readonly
+			result.value = false;
+			// @ts-expect-error function values must be wrapped to avoid getter handling
+			logicAnd(functionValue);
+			// @ts-expect-error function value unions must be wrapped to avoid getter handling
+			logicAnd(maybeFunctionValue);
 		});
 	});
 
