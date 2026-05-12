@@ -176,7 +176,7 @@ Status values:
 | `useSSRWidth` | `-` | Out of scope |
 | `useScreenOrientation` | `useScreenOrientation` | Done |
 | `useScreenSafeArea` | `useScreenSafeArea` | Done |
-| `useScriptTag` | `-` | Todo |
+| `useScriptTag` | `useScriptTag` | Done |
 | `useScroll` | `-` | Todo |
 | `useScrollLock` | `-` | Todo |
 | `useSessionStorage` | `useSessionStorage` | Done |

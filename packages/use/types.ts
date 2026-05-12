@@ -2234,6 +2234,36 @@ export interface UseScreenSafeAreaReturn {
 	stop(): void;
 }
 
+export interface UseScriptTagDocumentLike extends DocumentLike {
+	readonly head?: HTMLHeadElement | null;
+	createElement(tagName: "script"): HTMLScriptElement;
+	querySelectorAll<TElement extends Element = Element>(
+		selectors: string,
+	): NodeListOf<TElement>;
+}
+
+export interface UseScriptTagOptions<
+	TDocument extends UseScriptTagDocumentLike = UseScriptTagDocumentLike,
+> {
+	immediate?: boolean;
+	manual?: boolean;
+	async?: boolean;
+	type?: string;
+	defer?: boolean;
+	crossOrigin?: "anonymous" | "use-credentials" | "";
+	referrerPolicy?: ReferrerPolicy;
+	noModule?: boolean;
+	nonce?: string;
+	attrs?: Record<string, string>;
+	document?: MaybeTarget<TDocument | null | undefined>;
+}
+
+export interface UseScriptTagReturn {
+	readonly scriptTag: ReadonlySignal<HTMLScriptElement | null>;
+	load(waitForScriptLoad?: boolean): Promise<HTMLScriptElement | false>;
+	unload(): void;
+}
+
 export interface OnlineNavigatorLike extends NavigatorLike {
 	readonly onLine?: boolean;
 }

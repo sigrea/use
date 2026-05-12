@@ -504,6 +504,9 @@ import type {
 	UseScreenSafeAreaReturn,
 	UseScreenSafeAreaVisualViewportLike,
 	UseScreenSafeAreaWindowLike,
+	UseScriptTagDocumentLike,
+	UseScriptTagOptions,
+	UseScriptTagReturn,
 	UseStorageOptions,
 	UseToggleOptions,
 	UseWindowSizeOptions,
@@ -657,6 +660,7 @@ import {
 	useResizeObserver,
 	useScreenOrientation,
 	useScreenSafeArea,
+	useScriptTag,
 	useSessionStorage,
 	useStorage,
 	useThrottleFn,
@@ -2725,6 +2729,71 @@ describe("public types", () => {
 			});
 			// @ts-expect-error favicon value must be string, null, or undefined
 			favicon.value = 1;
+		});
+	});
+
+	it("types script tags", () => {
+		typeOnly(() => {
+			const source = signal("/sdk.js");
+			const customDocument = document as UseScriptTagDocumentLike;
+			const documentTarget = signal<UseScriptTagDocumentLike | null>(
+				customDocument,
+			);
+			const options: UseScriptTagOptions<UseScriptTagDocumentLike> = {
+				async: false,
+				attrs: {
+					integrity: "sha384-test",
+				},
+				crossOrigin: "anonymous",
+				defer: true,
+				document: documentTarget,
+				immediate: false,
+				manual: true,
+				noModule: false,
+				nonce: "nonce-value",
+				referrerPolicy: "no-referrer",
+				type: "module",
+			};
+			const script = useScriptTag(
+				source,
+				(element) => {
+					expectTypeOf(element).toEqualTypeOf<HTMLScriptElement>();
+				},
+				options,
+			);
+			const fallback = useScriptTag("/fallback.js", undefined, {
+				document: null,
+			});
+
+			useScriptTag(() => "/getter.js", undefined, { document: customDocument });
+			expectTypeOf(customDocument).toMatchTypeOf<UseScriptTagDocumentLike>();
+			expectTypeOf(script).toEqualTypeOf<UseScriptTagReturn>();
+			expectTypeOf(script.scriptTag).toEqualTypeOf<
+				ReadonlySignal<HTMLScriptElement | null>
+			>();
+			expectTypeOf(
+				script.scriptTag.value,
+			).toEqualTypeOf<HTMLScriptElement | null>();
+			expectTypeOf(script.load()).toEqualTypeOf<
+				Promise<HTMLScriptElement | false>
+			>();
+			expectTypeOf(script.load(false)).toEqualTypeOf<
+				Promise<HTMLScriptElement | false>
+			>();
+			expectTypeOf(script.unload()).toEqualTypeOf<void>();
+			expectTypeOf(fallback).toEqualTypeOf<UseScriptTagReturn>();
+			// @ts-expect-error src must be a string value
+			useScriptTag(1);
+			useScriptTag("/sdk.js", undefined, {
+				// @ts-expect-error crossOrigin must be a valid script CORS setting
+				crossOrigin: "include",
+			});
+			useScriptTag("/sdk.js", undefined, {
+				// @ts-expect-error document must be a script document-like target
+				document: {},
+			});
+			// @ts-expect-error scriptTag is readonly
+			script.scriptTag.value = document.createElement("script");
 		});
 	});
 
