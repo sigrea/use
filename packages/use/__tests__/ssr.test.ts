@@ -40,6 +40,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.signalManualReset).toBe("function");
 		expect(typeof mod.signalThrottled).toBe("function");
 		expect(typeof mod.syncSignal).toBe("function");
+		expect(typeof mod.syncSignals).toBe("function");
 		expect(typeof mod.useBreakpoints).toBe("function");
 		expect(typeof mod.useDocumentVisibility).toBe("function");
 		expect(typeof mod.useElementSize).toBe("function");
@@ -208,6 +209,7 @@ describe("SSR safety", () => {
 			signalManualReset,
 			signalThrottled,
 			syncSignal,
+			syncSignals,
 		} = await import("../../../index");
 		const value = createSignal("ready");
 		const autoResetValue = signalAutoReset("default", 100);
@@ -218,6 +220,9 @@ describe("SSR safety", () => {
 		const left = signal("left");
 		const right = signal("right");
 		const stopSync = syncSignal(left, right);
+		const source = signal("source");
+		const target = signal("target");
+		const stopSyncSignals = syncSignals(source, target);
 
 		expect(globalThis.window).toBeUndefined();
 		expect(value.value).toBe("ready");
@@ -227,8 +232,10 @@ describe("SSR safety", () => {
 		expect(manualResetValue.value).toBe("manual");
 		expect(throttledValue.value).toBe("source");
 		expect(right.value).toBe("left");
+		expect(target.value).toBe("source");
 
 		stopSync();
+		stopSyncSignals();
 	});
 
 	it("extends signals without a window", async () => {

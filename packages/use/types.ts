@@ -681,6 +681,14 @@ export type SyncSignalOptions<L, R, D extends SyncSignalDirection = "both"> = {
 
 export type SyncSignalReturn = () => void;
 
+export interface SyncSignalsOptions {
+	deep?: WatchOptions["deep"];
+	flush?: WatchOptions["flush"];
+	immediate?: boolean;
+}
+
+export type SyncSignalsReturn = () => void;
+
 export interface UseTimeoutFnOptions {
 	immediate?: boolean;
 	immediateCallback?: boolean;
