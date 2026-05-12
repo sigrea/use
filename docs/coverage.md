@@ -201,7 +201,7 @@ Status values:
 | `useTimeout` | `useTimeout` | Done |
 | `useTimeoutFn` | `useTimeoutFn` | Done |
 | `useTimeoutPoll` | `useTimeoutPoll` | Done |
-| `useTimestamp` | `-` | Todo |
+| `useTimestamp` | `useTimestamp` | Done |
 | `useTitle` | `-` | Todo |
 | `useToNumber` | `-` | Todo |
 | `useToString` | `-` | Todo |

@@ -169,6 +169,7 @@ export {
 export { useTimeout } from "./useTimeout";
 export { useTimeoutFn } from "./useTimeoutFn";
 export { useTimeoutPoll } from "./useTimeoutPoll";
+export { useTimestamp } from "./useTimestamp";
 export { useToggle } from "./useToggle";
 export { useWindowSize } from "./useWindowSize";
 export type {
@@ -851,6 +852,11 @@ export type {
 	UseTimeoutPollOptions,
 	UseTimeoutPollReturn,
 	UseTimeoutReturn,
+	UseTimestampControlsReturn,
+	UseTimestampInterval,
+	UseTimestampOptions,
+	UseTimestampReturn,
+	UseTimestampScheduler,
 	UseToggleOptions,
 	UseToggleReturn,
 	ValueGetter,
