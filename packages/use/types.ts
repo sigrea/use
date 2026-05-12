@@ -4276,6 +4276,35 @@ export type UseScrollLockReturn = Computed<boolean> & {
 	stop(): void;
 };
 
+export interface UseShareData {
+	files?: readonly File[];
+	title?: string;
+	text?: string;
+	url?: string;
+}
+
+export interface UseShareNavigatorLike extends NavigatorLike {
+	canShare?(data?: UseShareData): boolean;
+	share?(data?: UseShareData): Promise<void>;
+}
+
+export interface UseShareOptions<
+	TNavigator extends UseShareNavigatorLike = UseShareNavigatorLike,
+> {
+	navigator?: MaybeValue<TNavigator | null | undefined>;
+}
+
+export interface UseShareReturn {
+	readonly isSupported: ReadonlySignal<boolean>;
+	canShare(
+		overrideOptions?: MaybeValue<UseShareData | null | undefined>,
+	): boolean;
+	share(
+		overrideOptions?: MaybeValue<UseShareData | null | undefined>,
+	): Promise<void>;
+	stop(): void;
+}
+
 export type UseInfiniteScrollDirection = "top" | "bottom" | "left" | "right";
 
 export type UseInfiniteScrollElement =

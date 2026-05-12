@@ -141,6 +141,7 @@ export { useScriptTag } from "./useScriptTag";
 export { useScroll } from "./useScroll";
 export { useScrollLock } from "./useScrollLock";
 export { useSessionStorage } from "./useSessionStorage";
+export { useShare } from "./useShare";
 export {
 	customStorageEventName,
 	StorageSerializers,
@@ -732,6 +733,10 @@ export type {
 	UseScrollOptions,
 	UseScrollReturn,
 	UseScrollWindowLike,
+	UseShareData,
+	UseShareNavigatorLike,
+	UseShareOptions,
+	UseShareReturn,
 	UseScriptTagDocumentLike,
 	UseScriptTagOptions,
 	UseScriptTagReturn,

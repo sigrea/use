@@ -518,6 +518,10 @@ import type {
 	UseScrollOptions,
 	UseScrollReturn,
 	UseScrollWindowLike,
+	UseShareData,
+	UseShareNavigatorLike,
+	UseShareOptions,
+	UseShareReturn,
 	UseStorageOptions,
 	UseToggleOptions,
 	UseWindowSizeOptions,
@@ -675,6 +679,7 @@ import {
 	useScroll,
 	useScrollLock,
 	useSessionStorage,
+	useShare,
 	useStorage,
 	useThrottleFn,
 	useTimeout,
@@ -7313,6 +7318,59 @@ describe("public types", () => {
 				useScrollLock(element, false, {
 					// @ts-expect-error window must be window-like or nullish
 					window: 1,
+				});
+			});
+		});
+	});
+
+	it("types share controls", () => {
+		typeOnly(() => {
+			const file = new File(["content"], "content.txt");
+			const shareData: UseShareData = {
+				files: [file] as const,
+				text: "",
+				title: "Title",
+				url: "https://example.com",
+			};
+			const shareNavigator = {
+				canShare: (data?: UseShareData) => {
+					expectTypeOf(data).toEqualTypeOf<UseShareData | undefined>();
+					return true;
+				},
+				share: async (data?: UseShareData) => {
+					expectTypeOf(data).toEqualTypeOf<UseShareData | undefined>();
+				},
+			} satisfies UseShareNavigatorLike;
+			const options: UseShareOptions<typeof shareNavigator> = {
+				navigator: signal(shareNavigator),
+			};
+			const share = useShare(signal(shareData), options);
+			const shareReturn: UseShareReturn = share;
+
+			expectTypeOf(share).toEqualTypeOf<UseShareReturn>();
+			expectTypeOf(shareReturn.isSupported.value).toEqualTypeOf<boolean>();
+			expectTypeOf(share.canShare()).toEqualTypeOf<boolean>();
+			expectTypeOf(
+				share.canShare({ text: "override" }),
+			).toEqualTypeOf<boolean>();
+			expectTypeOf(share.share()).toEqualTypeOf<Promise<void>>();
+			expectTypeOf(share.share({ files: [file] })).toEqualTypeOf<
+				Promise<void>
+			>();
+			expectTypeOf(share.stop()).toEqualTypeOf<void>();
+			useShare(null, { navigator: null });
+			typeOnly(() => {
+				useShare({
+					// @ts-expect-error files must be File values
+					files: ["file"],
+				});
+				useShare({
+					// @ts-expect-error title must be a string
+					title: 1,
+				});
+				useShare(shareData, {
+					// @ts-expect-error navigator must be navigator-like or nullish
+					navigator: 1,
 				});
 			});
 		});
