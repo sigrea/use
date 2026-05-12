@@ -449,6 +449,67 @@ export type AsyncComputedOptionsOrSignal =
 	| Signal<boolean>
 	| AsyncComputedOptions;
 
+export type UseAsyncQueueResultState =
+	| "aborted"
+	| "fulfilled"
+	| "pending"
+	| "rejected";
+
+export type UseAsyncQueueTask<T = unknown> = (
+	...args: never[]
+) => T | Promise<T>;
+
+export type UseAsyncQueueResult<T = unknown> =
+	| {
+			readonly state: "pending";
+			readonly data: null;
+	  }
+	| {
+			readonly state: "fulfilled";
+			readonly data: T;
+	  }
+	| {
+			readonly state: "rejected";
+			readonly data: unknown;
+	  }
+	| {
+			readonly state: "aborted";
+			readonly data: unknown;
+	  };
+
+type UseAsyncQueueTaskResult<TTask> = TTask extends (
+	...args: never[]
+) => infer TReturn
+	? Awaited<TReturn>
+	: never;
+
+export type UseAsyncQueueResultList<
+	TTasks extends readonly UseAsyncQueueTask[],
+> = {
+	readonly [TKey in keyof TTasks]: UseAsyncQueueResult<
+		UseAsyncQueueTaskResult<TTasks[TKey]>
+	>;
+};
+
+export interface UseAsyncQueueReturn<
+	TTasks extends readonly UseAsyncQueueTask[],
+> {
+	activeIndex: ReadonlySignal<number>;
+	result: ReadonlySignal<UseAsyncQueueResultList<TTasks>>;
+}
+
+export interface UseAsyncQueueOptions {
+	/**
+	 * Interrupt tasks when the current task fails.
+	 *
+	 * @default true
+	 */
+	interrupt?: boolean;
+	onError?: () => void;
+	onFinished?: () => void;
+	signal?: AbortSignal;
+}
+
 export interface ComputedEagerOptions {
 	flush?: WatchOptions["flush"];
 	onTrack?: WatchOptions["onTrack"];

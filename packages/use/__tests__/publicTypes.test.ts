@@ -120,6 +120,12 @@ import type {
 	UseArraySomeReturn,
 	UseArrayUniqueCompareFn,
 	UseArrayUniqueReturn,
+	UseAsyncQueueOptions,
+	UseAsyncQueueResult,
+	UseAsyncQueueResultList,
+	UseAsyncQueueResultState,
+	UseAsyncQueueReturn,
+	UseAsyncQueueTask,
 	UseBreakpointsOptions,
 	UseDocumentVisibilityOptions,
 	UseElementSizeOptions,
@@ -182,6 +188,7 @@ import {
 	useArrayReduce,
 	useArraySome,
 	useArrayUnique,
+	useAsyncQueue,
 	useBreakpoints,
 	useDebounceFn,
 	useDocumentVisibility,
@@ -270,6 +277,78 @@ describe("public types", () => {
 			>();
 			// @ts-expect-error returned values are readonly signals
 			value.value = 2;
+		});
+	});
+
+	it("types async queue values and options", () => {
+		typeOnly(() => {
+			const firstTask = () => Promise.resolve(1);
+			const secondTask = (value: number) => Promise.resolve(`${value}`);
+			const syncTask = (value: string) => value.length;
+			const options: UseAsyncQueueOptions = {
+				interrupt: false,
+				onError() {},
+				onFinished() {},
+				signal: new AbortController().signal,
+			};
+			const task: UseAsyncQueueTask<number> = () => 1;
+			const resultEntry: UseAsyncQueueResult<number> = {
+				state: "fulfilled",
+				data: 1,
+			};
+			const state: UseAsyncQueueResultState = "pending";
+			const queue = useAsyncQueue([firstTask, secondTask, syncTask], options);
+			const emptyQueue = useAsyncQueue([]);
+
+			expectTypeOf(task).toEqualTypeOf<UseAsyncQueueTask<number>>();
+			expectTypeOf(queue).toEqualTypeOf<
+				UseAsyncQueueReturn<
+					[typeof firstTask, typeof secondTask, typeof syncTask]
+				>
+			>();
+			expectTypeOf(queue.activeIndex).toEqualTypeOf<ReadonlySignal<number>>();
+			expectTypeOf(queue.result).toEqualTypeOf<
+				ReadonlySignal<
+					UseAsyncQueueResultList<
+						[typeof firstTask, typeof secondTask, typeof syncTask]
+					>
+				>
+			>();
+			expectTypeOf(queue.result.value[0]).toEqualTypeOf<
+				UseAsyncQueueResult<number>
+			>();
+			expectTypeOf(queue.result.value[1]).toEqualTypeOf<
+				UseAsyncQueueResult<string>
+			>();
+			expectTypeOf(queue.result.value[2]).toEqualTypeOf<
+				UseAsyncQueueResult<number>
+			>();
+			if (queue.result.value[0].state === "fulfilled") {
+				expectTypeOf(queue.result.value[0].data).toEqualTypeOf<number>();
+			}
+			if (queue.result.value[1].state === "fulfilled") {
+				expectTypeOf(queue.result.value[1].data).toEqualTypeOf<string>();
+			}
+			if (queue.result.value[2].state === "fulfilled") {
+				expectTypeOf(queue.result.value[2].data).toEqualTypeOf<number>();
+			}
+			expectTypeOf(emptyQueue.activeIndex).toEqualTypeOf<
+				ReadonlySignal<number>
+			>();
+			// @ts-expect-error activeIndex is readonly
+			queue.activeIndex.value = 1;
+			// @ts-expect-error result is readonly
+			queue.result.value = [];
+			// @ts-expect-error result entries are readonly
+			queue.result.value[0] = resultEntry;
+			// @ts-expect-error result state is readonly
+			queue.result.value[0].state = "fulfilled";
+			// @ts-expect-error invalid result state
+			resultEntry.state = "ready";
+			// @ts-expect-error interrupt must be boolean
+			useAsyncQueue([], { interrupt: "no" });
+			// @ts-expect-error tasks must be functions
+			useAsyncQueue([1]);
 		});
 	});
 

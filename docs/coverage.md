@@ -78,7 +78,7 @@ Status values:
 | `useArrayReduce` | `useArrayReduce` | Done |
 | `useArraySome` | `useArraySome` | Done |
 | `useArrayUnique` | `useArrayUnique` | Done |
-| `useAsyncQueue` | `-` | Todo |
+| `useAsyncQueue` | `useAsyncQueue` | Done |
 | `useAsyncState` | `-` | Todo |
 | `useBase64` | `-` | Todo |
 | `useBattery` | `-` | Todo |
