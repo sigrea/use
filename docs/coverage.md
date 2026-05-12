@@ -152,7 +152,7 @@ Status values:
 | `useNavigatorLanguage` | `useNavigatorLanguage` | Done |
 | `useNetwork` | `useNetwork` | Done |
 | `useNow` | `useNow` | Done |
-| `useObjectUrl` | `-` | Todo |
+| `useObjectUrl` | `useObjectUrl` | Done |
 | `useOffsetPagination` | `-` | Todo |
 | `useOnline` | `useOnline` | Done |
 | `usePageLeave` | `-` | Todo |

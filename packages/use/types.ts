@@ -2399,6 +2399,26 @@ export interface UseNowControlsReturn extends UseIntervalFnReturn {
 export type UseNowReturn<Controls extends boolean = false> =
 	Controls extends true ? UseNowControlsReturn : ReadonlySignal<Date>;
 
+export type UseObjectUrlObject = Blob | MediaSource;
+
+export interface UseObjectUrlUrlLike {
+	createObjectURL(object: UseObjectUrlObject): string;
+	revokeObjectURL(objectURL: string): void;
+}
+
+export interface UseObjectUrlWindowLike extends WindowLike {
+	readonly URL?: UseObjectUrlUrlLike;
+}
+
+export interface UseObjectUrlOptions {
+	window?: MaybeTarget<UseObjectUrlWindowLike | null | undefined>;
+}
+
+export interface UseObjectUrlReturn {
+	readonly url: ReadonlySignal<string | undefined>;
+	stop(): void;
+}
+
 export interface UseDebounceFnOptions {
 	maxWait?: MaybeValue<number>;
 	rejectOnCancel?: boolean;

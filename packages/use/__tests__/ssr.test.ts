@@ -131,6 +131,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.useNavigatorLanguage).toBe("function");
 		expect(typeof mod.useNetwork).toBe("function");
 		expect(typeof mod.useNow).toBe("function");
+		expect(typeof mod.useObjectUrl).toBe("function");
 		expect(typeof mod.useOnline).toBe("function");
 		expect(typeof mod.usePreferredDark).toBe("function");
 		expect(typeof mod.usePrevious).toBe("function");
@@ -190,6 +191,7 @@ describe("SSR safety", () => {
 			useNavigatorLanguage,
 			useNetwork,
 			useNow,
+			useObjectUrl,
 			useOnline,
 			usePreferredDark,
 			onElementRemoval,
@@ -246,6 +248,7 @@ describe("SSR safety", () => {
 			controls: true,
 			window: null,
 		});
+		const objectUrl = useObjectUrl(new Blob(["ssr"]), { window: null });
 		const mediaQuery = useMediaQuery("(min-width: 640px)");
 		const online = useOnline();
 		const preferredDark = usePreferredDark();
@@ -354,6 +357,7 @@ describe("SSR safety", () => {
 		expect(network.type.value).toBe("unknown");
 		expect(now.now.value).toBeInstanceOf(Date);
 		expect(now.isActive.value).toBe(false);
+		expect(objectUrl.url.value).toBeUndefined();
 		expect(mediaQuery.matches.value).toBe(false);
 		expect(online.isOnline.value).toBe(true);
 		expect(preferredDark.matches.value).toBe(false);
@@ -470,6 +474,7 @@ describe("SSR safety", () => {
 		navigatorLanguage.stop();
 		network.stop();
 		now.pause();
+		objectUrl.stop();
 		mediaQuery.stop();
 		online.stop();
 		preferredDark.stop();
@@ -727,6 +732,15 @@ describe("SSR safety", () => {
 
 		await result.execute();
 		expect(result.base64.value).toBe("data:text/plain;base64,aGVsbG8=");
+	});
+
+	it("creates useObjectUrl without a window", async () => {
+		const { useObjectUrl } = await import("../../../index");
+		const result = useObjectUrl(new Blob(["hello"]));
+
+		expect(globalThis.window).toBeUndefined();
+		expect(result.url.value).toBeUndefined();
+		result.stop();
 	});
 
 	it("creates useBattery without a window", async () => {
