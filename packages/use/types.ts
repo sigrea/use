@@ -58,6 +58,33 @@ export type PromisifyFn<T> = T extends (
 		: never
 	: never;
 
+export interface FunctionWrapperOptions<
+	TArgs extends unknown[] = unknown[],
+	TThis = unknown,
+	TFn extends FunctionArgs<TArgs, unknown, TThis> = FunctionArgs<
+		TArgs,
+		unknown,
+		TThis
+	>,
+> {
+	fn: TFn;
+	args: TArgs;
+	thisArg: TThis;
+}
+
+export type EventFilter<
+	TArgs extends unknown[] = unknown[],
+	TThis = unknown,
+	TInvoke extends FunctionArgs<[], unknown> = FunctionArgs<[], unknown>,
+> = (
+	invoke: TInvoke,
+	options: FunctionWrapperOptions<TArgs, TThis>,
+) => ReturnType<TInvoke> | Promise<Awaited<ReturnType<TInvoke>>>;
+
+export interface ConfigurableEventFilter {
+	eventFilter?: EventFilter;
+}
+
 type FunctionValue = (...args: never[]) => unknown;
 type NonFunctionValue<T> = Exclude<T, FunctionValue>;
 type WrappedValue<T> = Signal<T> | ReadonlySignal<T> | Computed<T>;
@@ -4380,6 +4407,48 @@ export interface WatchTriggerableReturn<TriggerReturn = void>
 	extends WatchIgnorableReturn {
 	trigger(): TriggerReturn | undefined;
 }
+
+type WatchWithFilterDeepSource<T> = T extends object
+	? DeepSignal<T> | ReadonlyDeepSignal<T>
+	: never;
+
+export type WatchWithFilterSource<T = unknown> =
+	| WatchSource<T>
+	| WatchWithFilterDeepSource<T>;
+
+export type WatchWithFilterSourceValue<TSource> = TSource extends Signal<
+	infer Value
+>
+	? Value
+	: TSource extends ReadonlySignal<infer Value>
+		? Value
+		: TSource extends Computed<infer Value>
+			? Value
+			: TSource extends () => infer Value
+				? Value
+				: TSource extends DeepSignal<infer Value>
+					? Value
+					: TSource extends ReadonlyDeepSignal<infer Value>
+						? Value
+						: TSource;
+
+export type WatchWithFilterSourceValues<TSources extends readonly unknown[]> = {
+	[K in keyof TSources]: WatchWithFilterSourceValue<TSources[K]>;
+};
+
+export type WatchWithFilterOnCleanup = (cleanupFn: Cleanup) => void;
+
+export type WatchWithFilterCallback<Value = unknown, OldValue = Value> = (
+	value: Value,
+	oldValue: OldValue,
+	onCleanup: WatchWithFilterOnCleanup,
+) => void | Cleanup | Promise<void | Cleanup>;
+
+export interface WatchWithFilterOptions<Immediate extends boolean = false>
+	extends WatchOptions<Immediate>,
+		ConfigurableEventFilter {}
+
+export type WatchWithFilterReturn = WatchStopHandle;
 
 type WatchImmediateDeepSource<T> = T extends object
 	? DeepSignal<T> | ReadonlyDeepSignal<T>
