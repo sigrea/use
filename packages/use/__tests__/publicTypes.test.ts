@@ -714,6 +714,11 @@ import type {
 	WatchDebouncedReturn,
 	WatchDebouncedSource,
 	WatchDebouncedSourceValues,
+	WatchDeepCallback,
+	WatchDeepOptions,
+	WatchDeepReturn,
+	WatchDeepSource,
+	WatchDeepSourceValues,
 	WebSocketConstructorLike,
 	WebSocketLike,
 	WindowLike,
@@ -918,6 +923,7 @@ import {
 	watchArray,
 	watchAtMost,
 	watchDebounced,
+	watchDeep,
 } from "../../../index";
 
 interface MatchMediaOnlyWindow extends MatchMediaWindow {
@@ -4618,6 +4624,54 @@ describe("public types", () => {
 			watchDebounced(1, callback, { debounce: 1 });
 			// @ts-expect-error callback value type must match the source value
 			watchDebounced(signal("1"), callback, { debounce: 1 });
+		});
+	});
+
+	it("types deep watchers", () => {
+		typeOnly(() => {
+			const source = deepSignal({ nested: { count: 0 } });
+			const count = signal(0);
+			const label = computed(() => `${count.value}`);
+			const watchSource: WatchDeepSource<{ nested: { count: number } }> =
+				source;
+			const options: WatchDeepOptions<true> = {
+				flush: "sync",
+				immediate: true,
+			};
+			const callback: WatchDeepCallback<{ nested: { count: number } }, true> = (
+				value,
+				oldValue,
+				onCleanup,
+			) => {
+				expectTypeOf(value).toEqualTypeOf<{ nested: { count: number } }>();
+				expectTypeOf(oldValue).toEqualTypeOf<
+					{ nested: { count: number } } | undefined
+				>();
+				onCleanup(() => {});
+			};
+			const stop = watchDeep(watchSource, callback, options);
+			const sourceValues: WatchDeepSourceValues<[typeof count, typeof label]> =
+				[1, "1"];
+			const tupleStop = watchDeep(
+				[count, label] as const,
+				(value, oldValue) => {
+					expectTypeOf(value).toEqualTypeOf<[number, string]>();
+					expectTypeOf(oldValue).toEqualTypeOf<[number, string]>();
+				},
+				{ flush: "sync" },
+			);
+			const watchReturn: WatchDeepReturn = stop;
+
+			expectTypeOf(sourceValues).toEqualTypeOf<[number, string]>();
+			expectTypeOf(stop).toEqualTypeOf<WatchDeepReturn>();
+			expectTypeOf(tupleStop).toEqualTypeOf<WatchDeepReturn>();
+			expectTypeOf(watchReturn()).toEqualTypeOf<void>();
+			// @ts-expect-error deep is always enabled by this helper
+			watchDeep(source, callback, { deep: false });
+			// @ts-expect-error source must be watchable
+			watchDeep(1, callback);
+			// @ts-expect-error callback value type must match the source value
+			watchDeep(signal("1"), callback);
 		});
 	});
 

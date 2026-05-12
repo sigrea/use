@@ -224,7 +224,7 @@ Status values:
 | `watchArray` | `watchArray` | Done |
 | `watchAtMost` | `watchAtMost` | Done |
 | `watchDebounced` | `watchDebounced` | Done |
-| `watchDeep` | `-` | Todo |
+| `watchDeep` | `watchDeep` | Done |
 | `watchIgnorable` | `-` | Todo |
 | `watchImmediate` | `-` | Todo |
 | `watchOnce` | `-` | Todo |

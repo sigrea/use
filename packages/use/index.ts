@@ -190,6 +190,7 @@ export { useWindowSize } from "./useWindowSize";
 export { watchArray } from "./watchArray";
 export { watchAtMost } from "./watchAtMost";
 export { watchDebounced } from "./watchDebounced";
+export { watchDeep } from "./watchDeep";
 export type {
 	AsyncComputedCancelCallback,
 	AsyncComputedEvaluationCallback,
@@ -990,6 +991,13 @@ export type {
 	WatchDebouncedSource,
 	WatchDebouncedSourceValue,
 	WatchDebouncedSourceValues,
+	WatchDeepCallback,
+	WatchDeepOnCleanup,
+	WatchDeepOptions,
+	WatchDeepReturn,
+	WatchDeepSource,
+	WatchDeepSourceValue,
+	WatchDeepSourceValues,
 	WindowSizeLike,
 	WritableComputedWithControlOptions,
 	WritableComputedWithControlReturn,
