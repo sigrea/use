@@ -81,6 +81,7 @@ import type {
 	SyncSignalTransform,
 	SyncSignalsOptions,
 	SyncSignalsReturn,
+	ToDeepSignalReturn,
 	UseBreakpointsOptions,
 	UseDocumentVisibilityOptions,
 	UseElementSizeOptions,
@@ -126,6 +127,7 @@ import {
 	signalThrottled,
 	syncSignal,
 	syncSignals,
+	toDeepSignal,
 	useBreakpoints,
 	useDebounceFn,
 	useDocumentVisibility,
@@ -892,6 +894,76 @@ describe("public types", () => {
 			optionalTarget.foo = "next";
 			// @ts-expect-error optional source keys stay optional
 			const requiredTarget: { foo: string | undefined } = optionalPicked;
+		});
+	});
+
+	it("types deep signal conversion", () => {
+		typeOnly(() => {
+			const count = signal(1);
+			const readonlyCount = readonly(signal(1));
+			const nested = signal({ inner: signal(1) });
+			const source = {
+				count,
+				label: "ready",
+				nested,
+				readonlyCount,
+			};
+			const optionalSource: {
+				count: Signal<number>;
+				optional?: string;
+			} = {
+				count,
+			};
+			const state = toDeepSignal(source);
+			const signalState = toDeepSignal(signal(source));
+			const readonlySignalState = toDeepSignal(readonly(signal(source)));
+			const computedState = toDeepSignal(computed(() => source));
+			const optionalState = toDeepSignal(optionalSource);
+
+			expectTypeOf(state).toEqualTypeOf<ToDeepSignalReturn<typeof source>>();
+			expectTypeOf(signalState).toEqualTypeOf<
+				ToDeepSignalReturn<typeof source>
+			>();
+			expectTypeOf(readonlySignalState).toEqualTypeOf<
+				ToDeepSignalReturn<typeof source>
+			>();
+			expectTypeOf(computedState).toEqualTypeOf<
+				ToDeepSignalReturn<typeof source>
+			>();
+			expectTypeOf(state).toMatchTypeOf<DeepSignal<object>>();
+			expectTypeOf(state.count).toEqualTypeOf<number>();
+			expectTypeOf(state.label).toEqualTypeOf<string>();
+			expectTypeOf(state.nested.inner).toEqualTypeOf<number>();
+			expectTypeOf(state.readonlyCount).toEqualTypeOf<number>();
+			expectTypeOf(optionalState.optional).toEqualTypeOf<string | undefined>();
+
+			state.count = 2;
+			state.label = "next";
+			state.nested.inner = 2;
+			optionalState.optional = "next";
+			// @ts-expect-error signal property unwrap keeps the source value type
+			state.count = "2";
+			// @ts-expect-error nested signal object unwrap keeps the nested source value type
+			state.nested.inner = "2";
+			// @ts-expect-error readonly signal source stays readonly
+			state.readonlyCount = 2;
+			// @ts-expect-error optional source keys stay optional
+			const requiredTarget: { optional: string | undefined } = optionalState;
+			expectTypeOf(requiredTarget).toEqualTypeOf<{
+				optional: string | undefined;
+			}>();
+			// @ts-expect-error toDeepSignal only accepts object values
+			toDeepSignal(1);
+			// @ts-expect-error toDeepSignal source replacement only supports plain objects
+			toDeepSignal([1]);
+			// @ts-expect-error toDeepSignal source replacement only supports plain objects
+			toDeepSignal(signal(new Map<string, number>()));
+			// @ts-expect-error toDeepSignal source replacement only supports plain objects
+			toDeepSignal(new Map<string, number>() as ReadonlyMap<string, number>);
+			// @ts-expect-error toDeepSignal source replacement only supports plain objects
+			toDeepSignal(new Set<number>() as ReadonlySet<number>);
+			// @ts-expect-error toDeepSignal source replacement only supports plain objects
+			toDeepSignal(new ArrayBuffer(8));
 		});
 	});
 

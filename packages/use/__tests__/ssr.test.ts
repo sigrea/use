@@ -41,6 +41,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.signalThrottled).toBe("function");
 		expect(typeof mod.syncSignal).toBe("function");
 		expect(typeof mod.syncSignals).toBe("function");
+		expect(typeof mod.toDeepSignal).toBe("function");
 		expect(typeof mod.useBreakpoints).toBe("function");
 		expect(typeof mod.useDocumentVisibility).toBe("function");
 		expect(typeof mod.useElementSize).toBe("function");
@@ -301,6 +302,14 @@ describe("SSR safety", () => {
 	it("creates reactive picked objects without a window", async () => {
 		const { reactivePick } = await import("../../../index");
 		const state = reactivePick({ ready: true, hidden: false }, "ready");
+
+		expect(globalThis.window).toBeUndefined();
+		expect(state.ready).toBe(true);
+	});
+
+	it("creates deep signal objects without a window", async () => {
+		const { toDeepSignal } = await import("../../../index");
+		const state = toDeepSignal({ ready: true });
 
 		expect(globalThis.window).toBeUndefined();
 		expect(state.ready).toBe(true);
