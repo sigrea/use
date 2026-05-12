@@ -143,6 +143,7 @@ export { useScrollLock } from "./useScrollLock";
 export { useSessionStorage } from "./useSessionStorage";
 export { useShare } from "./useShare";
 export { useSorted } from "./useSorted";
+export { useSpeechRecognition } from "./useSpeechRecognition";
 export {
 	customStorageEventName,
 	StorageSerializers,
@@ -742,6 +743,19 @@ export type {
 	UseSortedOptions,
 	UseSortedReturn,
 	UseSortedSortFn,
+	SpeechRecognitionAlternativeLike,
+	SpeechRecognitionConstructorLike,
+	SpeechRecognitionErrorCode,
+	SpeechRecognitionErrorEventLike,
+	SpeechRecognitionEventLike,
+	SpeechRecognitionForWindow,
+	SpeechRecognitionLike,
+	SpeechRecognitionResultLike,
+	SpeechRecognitionResultListLike,
+	UseSpeechRecognitionOptions,
+	UseSpeechRecognitionReturn,
+	UseSpeechRecognitionWindowLike,
+	UseSpeechRecognitionWindowOptions,
 	UseScriptTagDocumentLike,
 	UseScriptTagOptions,
 	UseScriptTagReturn,

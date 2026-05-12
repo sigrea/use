@@ -158,6 +158,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.useScrollLock).toBe("function");
 		expect(typeof mod.useShare).toBe("function");
 		expect(typeof mod.useSorted).toBe("function");
+		expect(typeof mod.useSpeechRecognition).toBe("function");
 		expect(typeof mod.useSessionStorage).toBe("function");
 		expect(typeof mod.useStorage).toBe("function");
 		expect(typeof mod.useTimeout).toBe("function");
@@ -238,6 +239,7 @@ describe("SSR safety", () => {
 			useScrollLock,
 			useShare,
 			useSorted,
+			useSpeechRecognition,
 			onElementRemoval,
 			onKeyDown,
 			onKeyPressed,
@@ -324,6 +326,7 @@ describe("SSR safety", () => {
 		const scrollLock = useScrollLock(null, true, { window: null });
 		const share = useShare({ text: "ssr" }, { navigator: null });
 		const sorted = useSorted([3, 1, 2]);
+		const speechRecognition = useSpeechRecognition({ window: null });
 		const cssSupports = useCssSupports("display", "grid", { window: null });
 		const initialCssSupports = useCssSupports("display: grid", {
 			initialValue: true,
@@ -494,6 +497,12 @@ describe("SSR safety", () => {
 		await expect(share.share()).resolves.toBeUndefined();
 		share.stop();
 		expect(sorted.value).toEqual([1, 2, 3]);
+		expect(speechRecognition.isSupported.value).toBe(false);
+		expect(speechRecognition.isListening.value).toBe(false);
+		expect(speechRecognition.isFinal.value).toBe(false);
+		expect(speechRecognition.recognition.value).toBeUndefined();
+		expect(speechRecognition.result.value).toBe("");
+		expect(speechRecognition.error.value).toBeNull();
 		expect(cssSupports.value).toBe(false);
 		expect(initialCssSupports.value).toBe(true);
 		expect(cssVar.value).toBe("red");
@@ -647,6 +656,10 @@ describe("SSR safety", () => {
 		devicesList.stop();
 		expect(await displayMedia.start()).toBeUndefined();
 		displayMedia.stop();
+		speechRecognition.start();
+		speechRecognition.stop();
+		speechRecognition.abort();
+		speechRecognition.toggle();
 		draggable.stop();
 		dropZone.stop();
 		bounding.update();

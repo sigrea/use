@@ -182,7 +182,7 @@ Status values:
 | `useSessionStorage` | `useSessionStorage` | Done |
 | `useShare` | `useShare` | Done |
 | `useSorted` | `useSorted` | Done |
-| `useSpeechRecognition` | `-` | Todo |
+| `useSpeechRecognition` | `useSpeechRecognition` | Done |
 | `useSpeechSynthesis` | `-` | Todo |
 | `useStepper` | `-` | Todo |
 | `useStorage` | `useStorage` | Done |
