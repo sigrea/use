@@ -5368,3 +5368,24 @@ export type UseDebouncedRefHistoryReturn<
 	Raw,
 	Serialized = Raw,
 > = UseRefHistoryReturn<Raw, Serialized>;
+
+export interface UseThrottledRefHistoryOptions<Raw, Serialized = Raw>
+	extends UseRefHistoryOptions<Raw, Serialized> {
+	/**
+	 * Milliseconds before another automatic history commit can run.
+	 *
+	 * @default 200
+	 */
+	throttle?: MaybeValue<number>;
+	/**
+	 * Commit the latest pending source value at the end of the throttle window.
+	 *
+	 * @default true
+	 */
+	trailing?: boolean;
+}
+
+export type UseThrottledRefHistoryReturn<
+	Raw,
+	Serialized = Raw,
+> = UseRefHistoryReturn<Raw, Serialized>;

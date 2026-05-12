@@ -195,7 +195,7 @@ Status values:
 | `useTextSelection` | `useTextSelection` | Done |
 | `useTextareaAutosize` | `useTextareaAutosize` | Done |
 | `useThrottleFn` | `useThrottleFn` | Done |
-| `useThrottledRefHistory` | `-` | Todo |
+| `useThrottledRefHistory` | `useThrottledRefHistory` | Done |
 | `useTimeAgo` | `-` | Todo |
 | `useTimeAgoIntl` | `-` | Todo |
 | `useTimeout` | `useTimeout` | Done |

@@ -587,6 +587,8 @@ import type {
 	UseTextareaAutosizeStyleProp,
 	UseTextareaAutosizeWatchSource,
 	UseTextareaAutosizeWindowLike,
+	UseThrottledRefHistoryOptions,
+	UseThrottledRefHistoryReturn,
 	UseToggleOptions,
 	UseWindowSizeOptions,
 	WindowLike,
@@ -757,6 +759,7 @@ import {
 	useTextSelection,
 	useTextareaAutosize,
 	useThrottleFn,
+	useThrottledRefHistory,
 	useTimeout,
 	useTimeoutFn,
 	useToggle,
@@ -8609,6 +8612,43 @@ describe("public types", () => {
 
 		// @ts-expect-error debounce must be a number-like MaybeValue.
 		useDebouncedRefHistory(source, { debounce: "100" });
+	});
+
+	it("infers throttled ref history options", () => {
+		const source = signal(0);
+		const delay = signal(100);
+		const options: UseThrottledRefHistoryOptions<number> = {
+			shouldCommit: (oldValue, newValue) => {
+				expectTypeOf(oldValue).toEqualTypeOf<number | undefined>();
+				expectTypeOf(newValue).toEqualTypeOf<number>();
+				return true;
+			},
+			throttle: delay,
+			trailing: true,
+		};
+		const history = useThrottledRefHistory(source, options);
+		const serialized = useThrottledRefHistory(signal({ count: 0 }), {
+			dump: JSON.stringify,
+			parse: (value: string) => JSON.parse(value) as { count: number },
+			throttle: () => delay.value,
+		});
+
+		expectTypeOf(history).toEqualTypeOf<UseThrottledRefHistoryReturn<number>>();
+		expectTypeOf(history.history.value).toEqualTypeOf<
+			UseRefHistoryRecord<number>[]
+		>();
+		expectTypeOf(history.isTracking.value).toEqualTypeOf<boolean>();
+		expectTypeOf(serialized).toEqualTypeOf<
+			UseThrottledRefHistoryReturn<{ count: number }, string>
+		>();
+		expectTypeOf(serialized.history.value[0].snapshot).toEqualTypeOf<string>();
+		history.dispose();
+		serialized.dispose();
+
+		// @ts-expect-error throttle must be a number-like MaybeValue.
+		useThrottledRefHistory(source, { throttle: "100" });
+		// @ts-expect-error trailing must be a boolean.
+		useThrottledRefHistory(source, { trailing: "true" });
 	});
 
 	it("types previous values with and without an initial value", () => {

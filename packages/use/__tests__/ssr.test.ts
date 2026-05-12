@@ -80,6 +80,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.formatDate).toBe("function");
 		expect(typeof mod.normalizeDate).toBe("function");
 		expect(typeof mod.useDebouncedRefHistory).toBe("function");
+		expect(typeof mod.useThrottledRefHistory).toBe("function");
 		expect(typeof mod.useDeviceMotion).toBe("function");
 		expect(typeof mod.useDeviceOrientation).toBe("function");
 		expect(typeof mod.useDevicePixelRatio).toBe("function");
@@ -1398,6 +1399,7 @@ describe("SSR safety", () => {
 			syncSignal,
 			syncSignals,
 			useDebouncedRefHistory,
+			useThrottledRefHistory,
 		} = await import("../../../index");
 		const value = createSignal("ready");
 		const autoResetValue = signalAutoReset("default", 100);
@@ -1405,6 +1407,9 @@ describe("SSR safety", () => {
 		const debouncedValue = signalDebounced(signal("source"), 100);
 		const debouncedHistory = useDebouncedRefHistory(signal("source"), {
 			debounce: 100,
+		});
+		const throttledHistory = useThrottledRefHistory(signal("source"), {
+			throttle: 100,
 		});
 		const manualResetValue = signalManualReset("manual");
 		const throttledValue = signalThrottled(signal("source"), 100);
@@ -1421,6 +1426,7 @@ describe("SSR safety", () => {
 		expect(defaultValue.value).toBe("default");
 		expect(debouncedValue.value).toBe("source");
 		expect(debouncedHistory.history.value[0].snapshot).toBe("source");
+		expect(throttledHistory.history.value[0].snapshot).toBe("source");
 		expect(manualResetValue.value).toBe("manual");
 		expect(throttledValue.value).toBe("source");
 		expect(right.value).toBe("left");
@@ -1429,6 +1435,7 @@ describe("SSR safety", () => {
 		stopSync();
 		stopSyncSignals();
 		debouncedHistory.dispose();
+		throttledHistory.dispose();
 	});
 
 	it("extends signals without a window", async () => {
