@@ -51,6 +51,7 @@ export { useBroadcastChannel } from "./useBroadcastChannel";
 export { useBrowserLocation } from "./useBrowserLocation";
 export { useCached } from "./useCached";
 export { useClipboard } from "./useClipboard";
+export { useClipboardItems } from "./useClipboardItems";
 export { useBreakpoints } from "./useBreakpoints";
 export { useCounter } from "./useCounter";
 export { useDebounceFn } from "./useDebounceFn";
@@ -125,6 +126,8 @@ export type {
 	BrowserLocationWritableProperty,
 	ClipboardDocumentBodyLike,
 	ClipboardDocumentLike,
+	ClipboardItemLike,
+	ClipboardItemPresentationStyleLike,
 	ClipboardLike,
 	ClipboardNavigatorLike,
 	ClipboardTextareaLike,
@@ -141,6 +144,11 @@ export type {
 	UseCachedOptions,
 	UseCachedReturn,
 	UseClipboardCopyFn,
+	UseClipboardItemsCopyFn,
+	UseClipboardItemsOptions,
+	UseClipboardItemsReturn,
+	UseClipboardItemsSource,
+	UseClipboardItemsWindowLike,
 	UseClipboardOptions,
 	UseClipboardReturn,
 	UseClipboardTextSource,
