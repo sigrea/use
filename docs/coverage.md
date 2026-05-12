@@ -118,7 +118,7 @@ Status values:
 | `useEventBus` | `useEventBus` | Done |
 | `useEventListener` | `useEventListener` | Done |
 | `useEventSource` | `useEventSource` | Done |
-| `useEyeDropper` | `-` | Todo |
+| `useEyeDropper` | `useEyeDropper` | Done |
 | `useFavicon` | `-` | Todo |
 | `useFetch` | `-` | Todo |
 | `useFileDialog` | `-` | Todo |
