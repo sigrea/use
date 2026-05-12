@@ -25,6 +25,8 @@ import type {
 	BluetoothRequestDeviceOptionsLike,
 	BluetoothServiceUUIDLike,
 	Breakpoints,
+	BroadcastChannelLike,
+	BroadcastChannelWindowLike,
 	ComputedEagerOptions,
 	ComputedEagerReturn,
 	ComputedWithControlOptions,
@@ -152,6 +154,8 @@ import type {
 	UseBluetoothOptions,
 	UseBluetoothReturn,
 	UseBreakpointsOptions,
+	UseBroadcastChannelOptions,
+	UseBroadcastChannelReturn,
 	UseDocumentVisibilityOptions,
 	UseElementSizeOptions,
 	UseFocusOptions,
@@ -219,6 +223,7 @@ import {
 	useBattery,
 	useBluetooth,
 	useBreakpoints,
+	useBroadcastChannel,
 	useDebounceFn,
 	useDocumentVisibility,
 	useElementSize,
@@ -626,6 +631,70 @@ describe("public types", () => {
 				navigator: { bluetooth: { requestDevice: () => new TypedDevice() } },
 			};
 			useBluetooth(invalidOptions);
+		});
+	});
+
+	it("types broadcast channel values and options", () => {
+		typeOnly(() => {
+			class TypedBroadcastChannel
+				extends EventTarget
+				implements BroadcastChannelLike
+			{
+				constructor(readonly name: string) {
+					super();
+				}
+
+				close() {}
+				postMessage(_message: unknown) {}
+			}
+
+			const name = signal("sigrea");
+			const windowTarget: BroadcastChannelWindowLike = {
+				BroadcastChannel: TypedBroadcastChannel,
+			} as BroadcastChannelWindowLike;
+			const options: UseBroadcastChannelOptions<BroadcastChannelWindowLike> = {
+				name,
+				window: signal(windowTarget),
+			};
+			const result = useBroadcastChannel<string, string>(options);
+			const fallback = useBroadcastChannel({ name: "fallback", window: null });
+			const returnValue: UseBroadcastChannelReturn<string, string> = result;
+
+			expectTypeOf(result).toEqualTypeOf<
+				UseBroadcastChannelReturn<string, string>
+			>();
+			expectTypeOf(returnValue.isSupported).toEqualTypeOf<
+				ReadonlySignal<boolean>
+			>();
+			expectTypeOf(result.isClosed).toEqualTypeOf<ReadonlySignal<boolean>>();
+			expectTypeOf(result.channel).toEqualTypeOf<
+				ReadonlySignal<BroadcastChannelLike | undefined>
+			>();
+			expectTypeOf(result.data).toEqualTypeOf<
+				ReadonlySignal<string | undefined>
+			>();
+			expectTypeOf(result.error).toEqualTypeOf<
+				ReadonlySignal<unknown | null>
+			>();
+			expectTypeOf(result.postMessage("ready")).toEqualTypeOf<void>();
+			expectTypeOf(result.close()).toEqualTypeOf<void>();
+			expectTypeOf(result.stop()).toEqualTypeOf<void>();
+			expectTypeOf(fallback).toEqualTypeOf<
+				UseBroadcastChannelReturn<unknown, unknown>
+			>();
+			// @ts-expect-error returned values are readonly signals
+			result.data.value = "next";
+			// @ts-expect-error name must be a string
+			useBroadcastChannel({ name: 1 });
+			// @ts-expect-error payload must match the configured type
+			result.postMessage(1);
+			const invalidOptions: UseBroadcastChannelOptions<BroadcastChannelWindowLike> =
+				{
+					name: "invalid",
+					// @ts-expect-error BroadcastChannel must be a constructor
+					window: { BroadcastChannel: () => new TypedBroadcastChannel("x") },
+				};
+			useBroadcastChannel(invalidOptions);
 		});
 	});
 

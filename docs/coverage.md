@@ -84,7 +84,7 @@ Status values:
 | `useBattery` | `useBattery` | Done |
 | `useBluetooth` | `useBluetooth` | Done |
 | `useBreakpoints` | `useBreakpoints` | Done |
-| `useBroadcastChannel` | `-` | Todo |
+| `useBroadcastChannel` | `useBroadcastChannel` | Done |
 | `useBrowserLocation` | `-` | Todo |
 | `useCached` | `-` | Todo |
 | `useClipboard` | `-` | Todo |
