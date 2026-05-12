@@ -180,6 +180,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.useTimeoutFn).toBe("function");
 		expect(typeof mod.useTimeoutPoll).toBe("function");
 		expect(typeof mod.useTimestamp).toBe("function");
+		expect(typeof mod.useTitle).toBe("function");
 		expect(typeof mod.useToggle).toBe("function");
 		expect(typeof mod.useWindowSize).toBe("function");
 	}, 30_000);
@@ -277,6 +278,7 @@ describe("SSR safety", () => {
 			useStorageAsync,
 			useTimeoutPoll,
 			useTimestamp,
+			useTitle,
 			useWindowSize,
 			useActiveElement,
 			useAnimate,
@@ -453,6 +455,7 @@ describe("SSR safety", () => {
 			immediate: false,
 		});
 		const timestamp = useTimestamp({ controls: true });
+		const title = useTitle("SSR title", { document: null });
 		const elementSize = useElementSize(null, { width: 10, height: 20 });
 		const size = useWindowSize();
 
@@ -678,6 +681,7 @@ describe("SSR safety", () => {
 		expect(timeoutPoll.isActive.value).toBe(false);
 		expect(typeof timestamp.timestamp.value).toBe("number");
 		expect(timestamp.isActive.value).toBe(false);
+		expect(title.value).toBe("SSR title");
 		expect(elementSize.width.value).toBe(10);
 		expect(elementSize.height.value).toBe(20);
 		expect(size.width.value).toBe(0);
@@ -828,6 +832,9 @@ describe("SSR safety", () => {
 		expect(timeoutPoll.isActive.value).toBe(true);
 		timeoutPoll.pause();
 		timestamp.pause();
+		title.value = "Next SSR title";
+		expect(title.value).toBe("Next SSR title");
+		title.stop();
 		elementSize.stop();
 		size.stop();
 	});
