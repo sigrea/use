@@ -114,6 +114,8 @@ import type {
 	UseArrayJoinReturn,
 	UseArrayMapCallback,
 	UseArrayMapReturn,
+	UseArrayReduceReducer,
+	UseArrayReduceReturn,
 	UseBreakpointsOptions,
 	UseDocumentVisibilityOptions,
 	UseElementSizeOptions,
@@ -173,6 +175,7 @@ import {
 	useArrayIncludes,
 	useArrayJoin,
 	useArrayMap,
+	useArrayReduce,
 	useBreakpoints,
 	useDebounceFn,
 	useDocumentVisibility,
@@ -754,6 +757,82 @@ describe("public types", () => {
 				signal([1]),
 				// @ts-expect-error callback is a raw function, not a computed value
 				computed(() => (value: number) => value * 2),
+			);
+		});
+	});
+
+	it("types array reduce values", () => {
+		typeOnly(() => {
+			const first = signal<number | null>(1);
+			const second = computed<number | null>(() => null);
+			const third = signal<number | null>(3);
+			const list = signal([first, second, () => third.value]);
+			const rawList = [1, 2, 3];
+			const reducer: UseArrayReduceReducer<number, number | null, number> = (
+				sum,
+				element,
+				index,
+			) => {
+				expectTypeOf(sum).toEqualTypeOf<number>();
+				expectTypeOf(element).toEqualTypeOf<number | null>();
+				expectTypeOf(index).toEqualTypeOf<number>();
+				return sum + (element ?? 0);
+			};
+			const result = useArrayReduce(list, reducer, signal(0));
+			const rawResult = useArrayReduce(rawList, (sum, value) => sum + value);
+			const getterResult = useArrayReduce(
+				() => [1, 2, 3],
+				(sum, value) => sum + value,
+				() => 0,
+			);
+			const readonlyResult = useArrayReduce(readonly(list), reducer, 0);
+			const stringResult = useArrayReduce(
+				rawList,
+				(text, value) => `${text}:${value}`,
+				"start",
+			);
+			const undefinedInitial = useArrayReduce<number, number | undefined>(
+				rawList,
+				(sum, value) => (sum ?? 0) + value,
+				undefined,
+			);
+
+			expectTypeOf(result).toEqualTypeOf<UseArrayReduceReturn<number>>();
+			expectTypeOf(result).toEqualTypeOf<ReadonlySignal<number>>();
+			expectTypeOf(rawResult).toEqualTypeOf<UseArrayReduceReturn<number>>();
+			expectTypeOf(getterResult).toEqualTypeOf<UseArrayReduceReturn<number>>();
+			expectTypeOf(readonlyResult).toEqualTypeOf<
+				UseArrayReduceReturn<number>
+			>();
+			expectTypeOf(stringResult).toEqualTypeOf<UseArrayReduceReturn<string>>();
+			expectTypeOf(undefinedInitial).toEqualTypeOf<
+				UseArrayReduceReturn<number | undefined>
+			>();
+			// @ts-expect-error returned value is readonly
+			result.value = 1;
+			// @ts-expect-error reducer element type must match the array item type
+			useArrayReduce(signal([1]), (sum: string, value: string) => sum + value);
+			useArrayReduce(
+				signal([1]),
+				// @ts-expect-error reducer is a raw function, not a signal
+				signal((sum: number, value: number) => sum + value),
+			);
+			useArrayReduce(
+				signal([1]),
+				// @ts-expect-error reducer is a raw function, not a computed value
+				computed(() => (sum: number, value: number) => sum + value),
+			);
+			useArrayReduce(
+				signal([1]),
+				(sum: string, value) => `${sum}:${value}`,
+				// @ts-expect-error reducer return type must match the initial value type
+				0,
+			);
+			useArrayReduce(
+				signal([1]),
+				(sum: number, value) => sum + value,
+				// @ts-expect-error reducer accumulator type must match the initial value type
+				"start",
 			);
 		});
 	});
