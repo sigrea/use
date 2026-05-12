@@ -1086,6 +1086,32 @@ export interface UseColorModeReturn<T extends string = BasicColorMode> {
 	stop(): void;
 }
 
+export type UseConfirmDialogResult<ConfirmData, CancelData> =
+	| {
+			readonly data?: ConfirmData;
+			readonly isCanceled: false;
+	  }
+	| {
+			readonly data?: CancelData;
+			readonly isCanceled: true;
+	  };
+
+export interface UseConfirmDialogReturn<
+	OpenData = unknown,
+	ConfirmData = unknown,
+	CancelData = unknown,
+> {
+	readonly isOpen: ReadonlySignal<boolean>;
+	open(
+		data?: OpenData,
+	): Promise<UseConfirmDialogResult<ConfirmData, CancelData>>;
+	confirm(data?: ConfirmData): void;
+	cancel(data?: CancelData): void;
+	onOpen: EventHookOn<[OpenData | undefined]>;
+	onConfirm: EventHookOn<[ConfirmData | undefined]>;
+	onCancel: EventHookOn<[CancelData | undefined]>;
+}
+
 export interface ComputedEagerOptions {
 	flush?: WatchOptions["flush"];
 	onTrack?: WatchOptions["onTrack"];

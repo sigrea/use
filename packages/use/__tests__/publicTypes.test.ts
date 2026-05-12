@@ -194,6 +194,8 @@ import type {
 	UseColorModeOptions,
 	UseColorModeReturn,
 	UseColorModeWindowLike,
+	UseConfirmDialogResult,
+	UseConfirmDialogReturn,
 	UseDocumentVisibilityOptions,
 	UseElementSizeOptions,
 	UseFocusOptions,
@@ -269,6 +271,7 @@ import {
 	useClipboardItems,
 	useCloned,
 	useColorMode,
+	useConfirmDialog,
 	useDebounceFn,
 	useDocumentVisibility,
 	useElementSize,
@@ -1916,6 +1919,65 @@ describe("public types", () => {
 			readonlyArray.trigger("ready", "done");
 			// @ts-expect-error payload type must match
 			single.trigger("ready");
+		});
+	});
+
+	it("types confirm dialogs", () => {
+		typeOnly(() => {
+			interface OpenData {
+				id: string;
+			}
+			interface ConfirmData {
+				accepted: true;
+			}
+			interface CancelData {
+				reason: string;
+			}
+
+			const isOpen = signal(false);
+			const dialog = useConfirmDialog<OpenData, ConfirmData, CancelData>(
+				isOpen,
+			);
+			const internalDialog = useConfirmDialog();
+			const result = {} as UseConfirmDialogResult<ConfirmData, CancelData>;
+
+			dialog.onOpen((data) => {
+				expectTypeOf(data).toEqualTypeOf<OpenData | undefined>();
+			});
+			dialog.onConfirm((data) => {
+				expectTypeOf(data).toEqualTypeOf<ConfirmData | undefined>();
+			});
+			dialog.onCancel((data) => {
+				expectTypeOf(data).toEqualTypeOf<CancelData | undefined>();
+			});
+
+			expectTypeOf(dialog).toEqualTypeOf<
+				UseConfirmDialogReturn<OpenData, ConfirmData, CancelData>
+			>();
+			expectTypeOf(dialog.isOpen).toEqualTypeOf<ReadonlySignal<boolean>>();
+			expectTypeOf(dialog.open({ id: "item" })).toEqualTypeOf<
+				Promise<UseConfirmDialogResult<ConfirmData, CancelData>>
+			>();
+			expectTypeOf(internalDialog).toEqualTypeOf<UseConfirmDialogReturn>();
+
+			dialog.open();
+			dialog.confirm({ accepted: true });
+			dialog.cancel({ reason: "dismissed" });
+
+			if (result.isCanceled) {
+				expectTypeOf(result.data).toEqualTypeOf<CancelData | undefined>();
+			} else {
+				expectTypeOf(result.data).toEqualTypeOf<ConfirmData | undefined>();
+			}
+
+			// @ts-expect-error isOpen is readonly
+			dialog.isOpen.value = true;
+			// @ts-expect-error open data must match
+			dialog.open({ id: 1 });
+			// @ts-expect-error confirm data must match
+			dialog.confirm({ accepted: false });
+			// @ts-expect-error cancel data must match
+			dialog.cancel({ reason: 1 });
 		});
 	});
 
