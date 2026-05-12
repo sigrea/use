@@ -635,6 +635,12 @@ import type {
 	UseUrlSearchParamsOptions,
 	UseUrlSearchParamsWindowLike,
 	UseUrlSearchParamsWriteMode,
+	UseUserMediaMediaDevicesLike,
+	UseUserMediaMediaStreamLike,
+	UseUserMediaMediaStreamTrackLike,
+	UseUserMediaNavigatorLike,
+	UseUserMediaOptions,
+	UseUserMediaReturn,
 	UseWindowSizeOptions,
 	WindowLike,
 	WritableComputedWithControlReturn,
@@ -822,6 +828,7 @@ import {
 	useToggle,
 	useTransition,
 	useUrlSearchParams,
+	useUserMedia,
 	useWindowSize,
 } from "../../../index";
 
@@ -6135,6 +6142,84 @@ describe("public types", () => {
 				useDisplayMedia({ enabled: "true" });
 				// @ts-expect-error display media options must use valid option types
 				useDisplayMedia({ constraints: { audio: "true" } });
+			});
+		});
+
+		typeOnly(() => {
+			const userTrack: UseUserMediaMediaStreamTrackLike =
+				new EventTarget() as UseUserMediaMediaStreamTrackLike;
+			userTrack.stop = () => {};
+			const userStream: UseUserMediaMediaStreamLike = {
+				getTracks: () => [userTrack],
+			};
+			const userMediaDevices = {
+				getUserMedia: (_constraints?: MediaStreamConstraints) =>
+					Promise.resolve(userStream),
+			} satisfies UseUserMediaMediaDevicesLike<UseUserMediaMediaStreamLike>;
+			const userNavigator: UseUserMediaNavigatorLike<UseUserMediaMediaStreamLike> =
+				{
+					mediaDevices: userMediaDevices,
+				};
+			const userOptions: UseUserMediaOptions<
+				UseUserMediaMediaStreamLike,
+				UseUserMediaNavigatorLike<UseUserMediaMediaStreamLike>
+			> = {
+				autoSwitch: signal(true),
+				constraints: signal({
+					audio: true,
+					video: { facingMode: "user" },
+				}),
+				enabled: signal(false),
+				navigator: signal(userNavigator),
+			};
+			const userMedia = useUserMedia(userOptions);
+			const userFallback = useUserMedia({ navigator: null });
+			const userReturn: UseUserMediaReturn<UseUserMediaMediaStreamLike> =
+				userMedia;
+
+			expectTypeOf(userMedia).toEqualTypeOf<
+				UseUserMediaReturn<UseUserMediaMediaStreamLike>
+			>();
+			expectTypeOf(userReturn.stream).toEqualTypeOf<
+				ReadonlySignal<UseUserMediaMediaStreamLike | undefined>
+			>();
+			expectTypeOf(userMedia.isSupported).toEqualTypeOf<
+				ReadonlySignal<boolean>
+			>();
+			expectTypeOf(userMedia.isStarting).toEqualTypeOf<
+				ReadonlySignal<boolean>
+			>();
+			expectTypeOf(userMedia.isStreaming).toEqualTypeOf<
+				ReadonlySignal<boolean>
+			>();
+			expectTypeOf(userMedia.error).toEqualTypeOf<
+				ReadonlySignal<unknown | null>
+			>();
+			expectTypeOf(userMedia.enabled).toEqualTypeOf<Signal<boolean>>();
+			expectTypeOf(userMedia.autoSwitch).toEqualTypeOf<Signal<boolean>>();
+			expectTypeOf(userMedia.constraints).toEqualTypeOf<
+				Signal<MediaStreamConstraints>
+			>();
+			expectTypeOf(userMedia.start()).toEqualTypeOf<
+				Promise<UseUserMediaMediaStreamLike | undefined>
+			>();
+			expectTypeOf(userMedia.stop()).toEqualTypeOf<void>();
+			expectTypeOf(userMedia.restart()).toEqualTypeOf<
+				Promise<UseUserMediaMediaStreamLike | undefined>
+			>();
+			expectTypeOf(userFallback).toEqualTypeOf<UseUserMediaReturn>();
+			userMedia.enabled.value = true;
+			userMedia.autoSwitch.value = false;
+			userMedia.constraints.value = { audio: false, video: true };
+			typeOnly(() => {
+				// @ts-expect-error returned stream is a readonly signal
+				userMedia.stream.value = userStream;
+				// @ts-expect-error enabled must be boolean
+				useUserMedia({ enabled: "true" });
+				// @ts-expect-error autoSwitch must be boolean
+				useUserMedia({ autoSwitch: "true" });
+				// @ts-expect-error user media options must use valid constraint types
+				useUserMedia({ constraints: { audio: "true" } });
 			});
 		});
 

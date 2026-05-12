@@ -3420,6 +3420,68 @@ export interface UseDisplayMediaReturn<
 	stop(): void;
 }
 
+export interface UseUserMediaMediaStreamTrackLike extends EventTarget {
+	stop(): void;
+}
+
+export interface UseUserMediaMediaStreamLike {
+	getTracks(): UseUserMediaMediaStreamTrackLike[];
+}
+
+export interface UseUserMediaMediaDevicesLike<
+	TStream extends UseUserMediaMediaStreamLike = MediaStream,
+> {
+	getUserMedia(constraints?: MediaStreamConstraints): Promise<TStream>;
+}
+
+export interface UseUserMediaNavigatorLike<
+	TStream extends UseUserMediaMediaStreamLike = MediaStream,
+> extends NavigatorLike {
+	readonly mediaDevices?: UseUserMediaMediaDevicesLike<TStream> | null;
+}
+
+export interface UseUserMediaOptions<
+	TStream extends UseUserMediaMediaStreamLike = MediaStream,
+	TNavigator extends
+		UseUserMediaNavigatorLike<TStream> = UseUserMediaNavigatorLike<TStream>,
+> {
+	/**
+	 * Recreate the stream when constraints change.
+	 *
+	 * @default true
+	 */
+	autoSwitch?: MaybeValue<boolean>;
+	/**
+	 * Media constraints passed to getUserMedia().
+	 *
+	 * @default { audio: true, video: true }
+	 */
+	constraints?: MaybeValue<MediaStreamConstraints | undefined>;
+	/**
+	 * Start or stop capture when this value changes.
+	 *
+	 * @default false
+	 */
+	enabled?: MaybeValue<boolean>;
+	navigator?: MaybeValue<TNavigator | null | undefined>;
+}
+
+export interface UseUserMediaReturn<
+	TStream extends UseUserMediaMediaStreamLike = MediaStream,
+> {
+	readonly stream: ReadonlySignal<TStream | undefined>;
+	readonly isSupported: ReadonlySignal<boolean>;
+	readonly isStarting: ReadonlySignal<boolean>;
+	readonly isStreaming: ReadonlySignal<boolean>;
+	readonly error: ReadonlySignal<unknown | null>;
+	readonly enabled: Signal<boolean>;
+	readonly autoSwitch: Signal<boolean>;
+	readonly constraints: Signal<MediaStreamConstraints>;
+	start(): Promise<TStream | undefined>;
+	stop(): void;
+	restart(): Promise<TStream | undefined>;
+}
+
 export interface UseOnlineOptions<
 	TWindow extends WindowLike = WindowLike,
 	TNavigator extends OnlineNavigatorLike = OnlineNavigatorLike,
