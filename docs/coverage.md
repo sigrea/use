@@ -97,7 +97,7 @@ Status values:
 | `useCssSupports` | `useCssSupports` | Done |
 | `useCssVar` | `useCssVar` | Done |
 | `useCurrentElement` | `-` | Out of scope |
-| `useCycleList` | `-` | Todo |
+| `useCycleList` | `useCycleList` | Done |
 | `useDark` | `-` | Todo |
 | `useDateFormat` | `-` | Todo |
 | `useDebounceFn` | `useDebounceFn` | Done |
