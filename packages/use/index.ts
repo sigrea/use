@@ -123,6 +123,7 @@ export { useParallax } from "./useParallax";
 export { usePerformanceObserver } from "./usePerformanceObserver";
 export { usePermission } from "./usePermission";
 export { usePointer } from "./usePointer";
+export { usePointerLock } from "./usePointerLock";
 export { usePreferredDark } from "./usePreferredDark";
 export { usePrevious } from "./usePrevious";
 export { useRefHistory } from "./useRefHistory";
@@ -657,6 +658,11 @@ export type {
 	UsePermissionSource,
 	UsePermissionStatusLike,
 	UsePointerOptions,
+	UsePointerLockDocumentLike,
+	UsePointerLockElementLike,
+	UsePointerLockOptions,
+	UsePointerLockReturn,
+	UsePointerLockRootLike,
 	UsePointerReturn,
 	UsePointerState,
 	UsePointerType,

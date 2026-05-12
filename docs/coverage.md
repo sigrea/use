@@ -161,7 +161,7 @@ Status values:
 | `usePerformanceObserver` | `usePerformanceObserver` | Done |
 | `usePermission` | `usePermission` | Done |
 | `usePointer` | `usePointer` | Done |
-| `usePointerLock` | `-` | Todo |
+| `usePointerLock` | `usePointerLock` | Done |
 | `usePointerSwipe` | `-` | Todo |
 | `usePreferredColorScheme` | `-` | Todo |
 | `usePreferredContrast` | `-` | Todo |

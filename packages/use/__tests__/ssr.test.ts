@@ -139,6 +139,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.usePerformanceObserver).toBe("function");
 		expect(typeof mod.usePermission).toBe("function");
 		expect(typeof mod.usePointer).toBe("function");
+		expect(typeof mod.usePointerLock).toBe("function");
 		expect(typeof mod.usePreferredDark).toBe("function");
 		expect(typeof mod.usePrevious).toBe("function");
 		expect(typeof mod.useRefHistory).toBe("function");
@@ -205,6 +206,7 @@ describe("SSR safety", () => {
 			usePerformanceObserver,
 			usePermission,
 			usePointer,
+			usePointerLock,
 			usePreferredDark,
 			onElementRemoval,
 			onKeyDown,
@@ -273,6 +275,7 @@ describe("SSR safety", () => {
 		const permission = usePermission("geolocation", { navigator: null });
 		const pointer = usePointer({ window: null });
 		const targetlessPointer = usePointer({ target: null });
+		const pointerLock = usePointerLock(undefined, { document: null });
 		const preferredDark = usePreferredDark();
 		const cssSupports = useCssSupports("display", "grid", { window: null });
 		const initialCssSupports = useCssSupports("display: grid", {
@@ -398,6 +401,9 @@ describe("SSR safety", () => {
 		expect(pointer.isInside.value).toBe(false);
 		expect(targetlessPointer.x.value).toBe(0);
 		expect(targetlessPointer.isInside.value).toBe(false);
+		expect(pointerLock.isSupported.value).toBe(false);
+		expect(pointerLock.isLocked.value).toBe(false);
+		expect(pointerLock.element.value).toBeNull();
 		expect(preferredDark.matches.value).toBe(false);
 		expect(cssSupports.value).toBe(false);
 		expect(initialCssSupports.value).toBe(true);
@@ -524,6 +530,10 @@ describe("SSR safety", () => {
 		permission.stop();
 		pointer.stop();
 		targetlessPointer.stop();
+		await pointerLock.lock();
+		await pointerLock.unlock();
+		await pointerLock.toggle();
+		pointerLock.stop();
 		preferredDark.stop();
 		cssVar.value = "blue";
 		expect(cssVar.value).toBe("blue");

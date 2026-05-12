@@ -3398,6 +3398,45 @@ export interface UsePointerReturn {
 	stop(): void;
 }
 
+export interface UsePointerLockElementLike extends EventTarget {
+	getRootNode?(): UsePointerLockRootLike | Node;
+	requestPointerLock?(options?: PointerLockOptions): Promise<void> | void;
+}
+
+export interface UsePointerLockRootLike {
+	readonly pointerLockElement?: UsePointerLockElementLike | null;
+}
+
+export interface UsePointerLockDocumentLike extends DocumentLike {
+	readonly documentElement?: UsePointerLockElementLike | null;
+	readonly pointerLockElement?: UsePointerLockElementLike | null;
+	exitPointerLock?(): Promise<void> | void;
+}
+
+export interface UsePointerLockOptions<
+	TDocument extends UsePointerLockDocumentLike = UsePointerLockDocumentLike,
+> {
+	/**
+	 * Automatically unlock pointer lock when the current Sigrea scope is disposed.
+	 *
+	 * @default false
+	 */
+	autoUnlock?: boolean;
+	document?: MaybeTarget<TDocument | null | undefined>;
+}
+
+export interface UsePointerLockReturn<
+	TElement extends UsePointerLockElementLike = UsePointerLockElementLike,
+> {
+	readonly element: ReadonlySignal<TElement | UsePointerLockElementLike | null>;
+	readonly isLocked: ReadonlySignal<boolean>;
+	readonly isSupported: ReadonlySignal<boolean>;
+	lock(options?: PointerLockOptions): Promise<void>;
+	unlock(): Promise<void>;
+	toggle(options?: PointerLockOptions): Promise<void>;
+	stop(): void;
+}
+
 export type UseMousePressedSourceEvent = MouseEvent | TouchEvent | DragEvent;
 
 export interface UseMousePressedWindowLike extends WindowLike {}
