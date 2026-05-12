@@ -251,6 +251,8 @@ import type {
 	UseCachedOptions,
 	UseCachedReturn,
 	UseCeilReturn,
+	UseClampReturn,
+	UseClampWritableReturn,
 	UseClipboardCopyFn,
 	UseClipboardItemsCopyFn,
 	UseClipboardItemsOptions,
@@ -857,6 +859,7 @@ import {
 	useBrowserLocation,
 	useCached,
 	useCeil,
+	useClamp,
 	useClipboard,
 	useClipboardItems,
 	useCloned,
@@ -5757,6 +5760,62 @@ describe("public types", () => {
 			result.value = 1;
 			// @ts-expect-error value must resolve to a number
 			useCeil("1");
+		});
+	});
+
+	it("types clamped values", () => {
+		typeOnly(() => {
+			const source = signal(10);
+			const min = signal(0);
+			const max = signal(100);
+			const signalResult = useClamp(source, min, max);
+			const plain = useClamp(10, min, () => max.value);
+			const getter = useClamp(() => source.value, min, max);
+			const readonlyResult = useClamp(readonly(source), min, max);
+			const computedResult = useClamp(
+				computed(() => source.value),
+				min,
+				max,
+			);
+			const writableComputedResult = useClamp(
+				computed({
+					get: () => source.value,
+					set: (next: number) => {
+						source.value = next;
+					},
+				}),
+				min,
+				max,
+			);
+			const clampReturn: UseClampReturn = getter;
+			const clampWritableReturn: UseClampWritableReturn = plain;
+
+			expectTypeOf(signalResult).toEqualTypeOf<UseClampReturn>();
+			expectTypeOf(plain).toEqualTypeOf<UseClampWritableReturn>();
+			expectTypeOf(getter).toEqualTypeOf<UseClampReturn>();
+			expectTypeOf(readonlyResult).toEqualTypeOf<UseClampReturn>();
+			expectTypeOf(computedResult).toEqualTypeOf<UseClampReturn>();
+			expectTypeOf(writableComputedResult).toEqualTypeOf<UseClampReturn>();
+			expectTypeOf(clampReturn.value).toEqualTypeOf<number>();
+			expectTypeOf(clampWritableReturn.value).toEqualTypeOf<number>();
+
+			plain.value = 50;
+			// @ts-expect-error signal source returns a readonly result
+			signalResult.value = 50;
+			// @ts-expect-error getter source returns a readonly result
+			getter.value = 50;
+			// @ts-expect-error readonly source returns a readonly result
+			readonlyResult.value = 50;
+			// @ts-expect-error computed source returns a readonly result
+			computedResult.value = 50;
+			// @ts-expect-error writable computed source is treated as readonly input
+			writableComputedResult.value = 50;
+			// @ts-expect-error value must resolve to a number
+			useClamp("10", 0, 100);
+			// @ts-expect-error min must resolve to a number
+			useClamp(10, "0", 100);
+			// @ts-expect-error max must resolve to a number
+			useClamp(10, 0, "100");
 		});
 	});
 
