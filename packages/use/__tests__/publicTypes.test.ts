@@ -430,6 +430,10 @@ import type {
 	UseMagicKeysOptions,
 	UseMagicKeysReturn,
 	UseMagicKeysWindowLike,
+	UseMathArgs,
+	UseMathKeys,
+	UseMathMethod,
+	UseMathReturn,
 	UseMediaControlsDocumentLike,
 	UseMediaControlsOptions,
 	UseMediaControlsReturn,
@@ -913,6 +917,7 @@ import {
 	useLocalStorage,
 	useMagicKeys,
 	useManualRefHistory,
+	useMath,
 	useMediaControls,
 	useMediaQuery,
 	useMemoize,
@@ -5834,6 +5839,41 @@ describe("public types", () => {
 			result.value = 1;
 			// @ts-expect-error value must resolve to a number
 			useFloor("1");
+		});
+	});
+
+	it("types Math methods", () => {
+		typeOnly(() => {
+			const pow = useMath("pow", signal(2), () => 3);
+			const sqrt = useMath(
+				"sqrt",
+				computed(() => 16),
+			);
+			const max = useMath("max", signal(1), 2, () => 3);
+			const key: UseMathKeys = "pow";
+			const args: UseMathArgs<"pow"> = [signal(2), () => 3];
+			const method: UseMathMethod<"pow"> = Math.pow;
+			const mathReturn: UseMathReturn<"pow"> = pow;
+
+			expectTypeOf(pow).toEqualTypeOf<UseMathReturn<"pow">>();
+			expectTypeOf(sqrt.value).toEqualTypeOf<number>();
+			expectTypeOf(max.value).toEqualTypeOf<number>();
+			expectTypeOf(key).toMatchTypeOf<UseMathKeys>();
+			expectTypeOf(args).toEqualTypeOf<UseMathArgs<"pow">>();
+			expectTypeOf(method).toEqualTypeOf<UseMathMethod<"pow">>();
+			expectTypeOf(mathReturn.value).toEqualTypeOf<number>();
+			// @ts-expect-error Math results are readonly
+			pow.value = 1;
+			// @ts-expect-error non-function Math keys are rejected
+			const badKey: UseMathKeys = "PI";
+			// @ts-expect-error non-function Math keys are rejected
+			useMath("PI");
+			// @ts-expect-error pow requires two arguments
+			useMath("pow", 2);
+			// @ts-expect-error sqrt accepts one argument
+			useMath("sqrt", 4, 2);
+			// @ts-expect-error rest arguments are passed individually
+			useMath("max", [1, 2] as const);
 		});
 	});
 
