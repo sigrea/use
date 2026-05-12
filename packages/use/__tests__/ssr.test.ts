@@ -60,6 +60,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.useArrayUnique).toBe("function");
 		expect(typeof mod.useAsyncQueue).toBe("function");
 		expect(typeof mod.useAsyncState).toBe("function");
+		expect(typeof mod.useBase64).toBe("function");
 		expect(typeof mod.useBreakpoints).toBe("function");
 		expect(typeof mod.useDocumentVisibility).toBe("function");
 		expect(typeof mod.useElementSize).toBe("function");
@@ -341,6 +342,18 @@ describe("SSR safety", () => {
 
 		await result.execute();
 		expect(result.state.value).toBe("ready");
+	});
+
+	it("creates useBase64 without a window", async () => {
+		const { useBase64 } = await import("../../../index");
+		const result = useBase64("hello");
+
+		expect(globalThis.window).toBeUndefined();
+		await result.promise.value;
+		expect(result.base64.value).toBe("data:text/plain;base64,aGVsbG8=");
+
+		await result.execute();
+		expect(result.base64.value).toBe("data:text/plain;base64,aGVsbG8=");
 	});
 
 	it("creates event hooks without a window", async () => {
