@@ -10,6 +10,7 @@ export { extendSignal } from "./extendSignal";
 export { isDefined } from "./isDefined";
 export { logicAnd } from "./logicAnd";
 export { logicNot } from "./logicNot";
+export { logicOr } from "./logicOr";
 export { makeDestructurable } from "./makeDestructurable";
 export { onClickOutside } from "./onClickOutside";
 export { onElementRemoval } from "./onElementRemoval";
@@ -358,6 +359,7 @@ export type {
 	KeyStrokeEventName,
 	LogicAndReturn,
 	LogicNotReturn,
+	LogicOrReturn,
 	MatchMediaWindow,
 	MaybeValueArgs,
 	MaybeTarget,
