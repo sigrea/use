@@ -231,6 +231,7 @@ import type {
 	UseAsyncStateReturn,
 	UseAsyncStateReturnBase,
 	UseAsyncStateSource,
+	UseAverageReturn,
 	UseBase64ImageOptions,
 	UseBase64ObjectOptions,
 	UseBase64Options,
@@ -846,6 +847,7 @@ import {
 	useArrayUnique,
 	useAsyncQueue,
 	useAsyncState,
+	useAverage,
 	useBase64,
 	useBattery,
 	useBluetooth,
@@ -5715,6 +5717,28 @@ describe("public types", () => {
 			result.value = 1;
 			// @ts-expect-error value must resolve to a number
 			useAbs("1");
+		});
+	});
+
+	it("types average values", () => {
+		typeOnly(() => {
+			const rest = useAverage(signal(1), 2, () => 3);
+			const array = useAverage([signal(1), 2, () => 3] as const);
+			const signalArray = useAverage(signal([1, 2, 3] as const));
+			const averageReturn: UseAverageReturn = rest;
+
+			expectTypeOf(rest).toEqualTypeOf<UseAverageReturn>();
+			expectTypeOf(array).toEqualTypeOf<UseAverageReturn>();
+			expectTypeOf(signalArray.value).toEqualTypeOf<number>();
+			expectTypeOf(averageReturn.value).toEqualTypeOf<number>();
+			// @ts-expect-error average result is readonly
+			rest.value = 1;
+			// @ts-expect-error value must resolve to a number
+			useAverage("1");
+			// @ts-expect-error array entries must resolve to numbers
+			useAverage([1, "2"] as const);
+			// @ts-expect-error array form does not mix with rest arguments
+			useAverage([1, 2] as const, 3);
 		});
 	});
 
