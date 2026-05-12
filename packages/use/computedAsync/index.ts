@@ -23,6 +23,10 @@ interface AsyncComputedState<T> {
 function defaultOnError(error: unknown): void {
 	if (typeof globalThis.reportError === "function") {
 		globalThis.reportError(error);
+		return;
+	}
+	if (typeof globalThis.console?.error === "function") {
+		globalThis.console.error(error);
 	}
 }
 
@@ -93,7 +97,11 @@ export function computedAsync<T>(
 			onCleanup(() => {
 				canceled = true;
 				if (evaluating !== undefined) {
-					evaluating.value = false;
+					Promise.resolve().then(() => {
+						if (counterAtStart === counter) {
+							evaluating.value = false;
+						}
+					});
 				}
 				if (!hasFinished) {
 					for (const cancelCallback of cancelCallbacks) {

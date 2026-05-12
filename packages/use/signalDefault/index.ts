@@ -30,14 +30,19 @@ function getValueDescriptor(source: object): PropertyDescriptor | undefined {
 	}
 }
 
+function getComputedSetter(source: object): unknown {
+	return Reflect.get(source, "setter");
+}
+
 function isWritableSignalSource(source: unknown): source is Signal<unknown> {
-	return (
-		typeof source === "object" &&
-		source !== null &&
-		isSignal(source) &&
-		!isComputed(source) &&
-		typeof getValueDescriptor(source)?.set === "function"
-	);
+	if (typeof source !== "object" || source === null || !isSignal(source)) {
+		return false;
+	}
+	if (isComputed(source)) {
+		return typeof getComputedSetter(source) === "function";
+	}
+
+	return typeof getValueDescriptor(source)?.set === "function";
 }
 
 export function signalDefault<
