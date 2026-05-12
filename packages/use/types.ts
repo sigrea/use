@@ -513,6 +513,20 @@ export type UseArrayFindLastPredicate<T> = (
 
 export type UseArrayFindLastReturn<T = unknown> = ReadonlySignal<T | undefined>;
 
+export type UseArrayIncludesComparatorFn<T, V = T> = (
+	element: T,
+	value: V,
+	index: number,
+	array: readonly MaybeValue<T>[],
+) => boolean;
+
+export interface UseArrayIncludesOptions<T, V = T> {
+	fromIndex?: MaybeValue<number>;
+	comparator?: UseArrayIncludesComparatorFn<T, V> | keyof T;
+}
+
+export type UseArrayIncludesReturn = ReadonlySignal<boolean>;
+
 export type ComputedWithControlSource<T = unknown> =
 	| WatchSource<T>
 	| DeepSignal<object>

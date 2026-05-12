@@ -36,6 +36,7 @@ export { useArrayFilter } from "./useArrayFilter";
 export { useArrayFind } from "./useArrayFind";
 export { useArrayFindIndex } from "./useArrayFindIndex";
 export { useArrayFindLast } from "./useArrayFindLast";
+export { useArrayIncludes } from "./useArrayIncludes";
 export { useBreakpoints } from "./useBreakpoints";
 export { useCounter } from "./useCounter";
 export { useDebounceFn } from "./useDebounceFn";
@@ -197,6 +198,9 @@ export type {
 	UseArrayFindLastReturn,
 	UseArrayFindPredicate,
 	UseArrayFindReturn,
+	UseArrayIncludesComparatorFn,
+	UseArrayIncludesOptions,
+	UseArrayIncludesReturn,
 	UseBreakpointsOptions,
 	UseBreakpointsReturn,
 	UseCounterOptions,
