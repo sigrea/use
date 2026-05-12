@@ -125,7 +125,7 @@ Status values:
 | `useFileSystemAccess` | `useFileSystemAccess` | Done |
 | `useFocus` | `useFocus` | Done |
 | `useFocusWithin` | `useFocusWithin` | Done |
-| `useFps` | `-` | Todo |
+| `useFps` | `useFps` | Done |
 | `useFullscreen` | `-` | Todo |
 | `useGamepad` | `-` | Todo |
 | `useGeolocation` | `-` | Todo |

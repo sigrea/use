@@ -330,6 +330,10 @@ import type {
 	UseFileSystemAccessSaveOptions,
 	UseFocusOptions,
 	UseFocusWithinReturn,
+	UseFpsOptions,
+	UseFpsPerformanceLike,
+	UseFpsReturn,
+	UseFpsWindowLike,
 	UseMediaQueryOptions,
 	UseMouseOptions,
 	UseOnlineOptions,
@@ -436,6 +440,7 @@ import {
 	useFileSystemAccess,
 	useFocus,
 	useFocusWithin,
+	useFps,
 	useInterval,
 	useIntervalFn,
 	useLocalStorage,
@@ -506,6 +511,14 @@ interface HoverDocument extends UseElementHoverDocumentLike {
 }
 
 interface VisibilityWindow extends UseElementVisibilityWindowLike {
+	readonly label: string;
+}
+
+interface FpsPerformance extends UseFpsPerformanceLike {
+	readonly label: string;
+}
+
+interface FpsWindow extends UseFpsWindowLike {
 	readonly label: string;
 }
 
@@ -5099,6 +5112,47 @@ describe("public types", () => {
 			useFocusWithin({ matches: () => true });
 		});
 		focusWithin.stop();
+	});
+
+	it("types FPS signal and injectable targets", () => {
+		typeOnly(() => {
+			const performanceTarget: FpsPerformance = {
+				label: "perf",
+				now: () => 0,
+			};
+			const fpsWindow = Object.assign(new EventTarget(), {
+				label: "fps",
+				performance: performanceTarget,
+			}) as FpsWindow;
+			const options: UseFpsOptions<FpsWindow> = {
+				every: signal(5),
+				window: signal(fpsWindow),
+			};
+			const fps = useFps(options);
+			const fpsReturn: UseFpsReturn = fps;
+
+			expectTypeOf(fps).toEqualTypeOf<UseFpsReturn>();
+			expectTypeOf(fpsReturn).toEqualTypeOf<ReadonlySignal<number>>();
+			expectTypeOf(fps.value).toEqualTypeOf<number>();
+			typeOnly(() => {
+				// @ts-expect-error returned values are readonly signals
+				fps.value = 1;
+				useFps({
+					// @ts-expect-error every must be numeric
+					every: "10",
+				});
+				useFps({
+					// @ts-expect-error window must be EventTarget-like
+					window: { performance: performanceTarget },
+				});
+				useFps({
+					window: {
+						// @ts-expect-error performance must expose now()
+						performance: {},
+					},
+				});
+			});
+		});
 	});
 
 	it("accepts ResizeObserver windows for element size", () => {

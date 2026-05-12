@@ -104,6 +104,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.useFileSystemAccess).toBe("function");
 		expect(typeof mod.useFocus).toBe("function");
 		expect(typeof mod.useFocusWithin).toBe("function");
+		expect(typeof mod.useFps).toBe("function");
 		expect(typeof mod.useInterval).toBe("function");
 		expect(typeof mod.useIntervalFn).toBe("function");
 		expect(typeof mod.useLocalStorage).toBe("function");
@@ -151,6 +152,7 @@ describe("SSR safety", () => {
 			useFileSystemAccess,
 			useMediaQuery,
 			useFocusWithin,
+			useFps,
 			useMouse,
 			useOnline,
 			usePreferredDark,
@@ -242,6 +244,7 @@ describe("SSR safety", () => {
 		const favicon = useFavicon("favicon.ico", { document: null });
 		const fileDialog = useFileDialog({ document: null });
 		const fileSystemAccess = useFileSystemAccess({ window: null });
+		const fps = useFps({ window: null });
 		const fetchValue = useFetch("https://example.com", {
 			fetch: async () => new Response("ok"),
 			immediate: false,
@@ -320,6 +323,7 @@ describe("SSR safety", () => {
 		expect(fileSystemAccess.fileSize.value).toBe(0);
 		expect(fileSystemAccess.fileLastModified.value).toBe(0);
 		expect(fileSystemAccess.error.value).toBeNull();
+		expect(fps.value).toBe(0);
 		expect(fetchValue.data.value).toBeNull();
 		expect(sessionStorageValue.value).toBe("fallback");
 		expect(ssrMediaQuery.matches.value).toBe(true);
