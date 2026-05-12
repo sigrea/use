@@ -213,7 +213,7 @@ Status values:
 | `useVModels` | `-` | Out of scope |
 | `useVibrate` | `useVibrate` | Done |
 | `useVirtualList` | `useVirtualList` | Done |
-| `useWakeLock` | `-` | Todo |
+| `useWakeLock` | `useWakeLock` | Done |
 | `useWebNotification` | `-` | Todo |
 | `useWebSocket` | `-` | Todo |
 | `useWebWorker` | `-` | Todo |

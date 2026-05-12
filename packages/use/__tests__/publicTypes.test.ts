@@ -654,7 +654,14 @@ import type {
 	UseVirtualListOptionsBase,
 	UseVirtualListReturn,
 	UseVirtualListVerticalOptions,
+	UseWakeLockDocumentLike,
+	UseWakeLockNavigatorLike,
+	UseWakeLockOptions,
+	UseWakeLockReturn,
+	UseWakeLockSentinelLike,
+	UseWakeLockWakeLockLike,
 	UseWindowSizeOptions,
+	WakeLockType,
 	WindowLike,
 	WritableComputedWithControlReturn,
 } from "../../../index";
@@ -844,6 +851,7 @@ import {
 	useUserMedia,
 	useVibrate,
 	useVirtualList,
+	useWakeLock,
 	useWindowSize,
 } from "../../../index";
 
@@ -6351,6 +6359,69 @@ describe("public types", () => {
 				useVirtualList([1], { overscan: 1 });
 				// @ts-expect-error overscan must be numeric
 				useVirtualList([1], { itemHeight: 20, overscan: "1" });
+			});
+		});
+
+		typeOnly(() => {
+			class TypeWakeLockSentinel
+				extends EventTarget
+				implements UseWakeLockSentinelLike
+			{
+				readonly released = false;
+				readonly type: WakeLockType = "screen";
+
+				async release() {}
+			}
+			const wakeLockApi = {
+				request: (_type: WakeLockType) =>
+					Promise.resolve(new TypeWakeLockSentinel()),
+			} satisfies UseWakeLockWakeLockLike<TypeWakeLockSentinel>;
+			const wakeLockNavigator: UseWakeLockNavigatorLike<TypeWakeLockSentinel> =
+				{
+					wakeLock: wakeLockApi,
+				};
+			const wakeLockDocument: UseWakeLockDocumentLike =
+				new EventTarget() as UseWakeLockDocumentLike;
+			const wakeLockOptions: UseWakeLockOptions<
+				TypeWakeLockSentinel,
+				UseWakeLockNavigatorLike<TypeWakeLockSentinel>,
+				UseWakeLockDocumentLike
+			> = {
+				document: signal(wakeLockDocument),
+				navigator: signal(wakeLockNavigator),
+			};
+			const wakeLock = useWakeLock(wakeLockOptions);
+			const fallbackWakeLock = useWakeLock({ navigator: null });
+			const wakeLockReturn: UseWakeLockReturn<TypeWakeLockSentinel> = wakeLock;
+
+			expectTypeOf(wakeLock).toEqualTypeOf<
+				UseWakeLockReturn<TypeWakeLockSentinel>
+			>();
+			expectTypeOf(wakeLockReturn.sentinel).toEqualTypeOf<
+				ReadonlySignal<TypeWakeLockSentinel | null>
+			>();
+			expectTypeOf(wakeLock.isSupported).toEqualTypeOf<
+				ReadonlySignal<boolean>
+			>();
+			expectTypeOf(wakeLock.isActive).toEqualTypeOf<Computed<boolean>>();
+			expectTypeOf(wakeLock.request()).toEqualTypeOf<Promise<void>>();
+			expectTypeOf(wakeLock.request("screen")).toEqualTypeOf<Promise<void>>();
+			expectTypeOf(wakeLock.forceRequest()).toEqualTypeOf<Promise<void>>();
+			expectTypeOf(wakeLock.forceRequest("screen")).toEqualTypeOf<
+				Promise<void>
+			>();
+			expectTypeOf(wakeLock.release()).toEqualTypeOf<Promise<void>>();
+			expectTypeOf(wakeLock.stop()).toEqualTypeOf<void>();
+			expectTypeOf(fallbackWakeLock).toEqualTypeOf<UseWakeLockReturn>();
+			typeOnly(() => {
+				// @ts-expect-error sentinel is readonly
+				wakeLock.sentinel.value = new TypeWakeLockSentinel();
+				// @ts-expect-error only screen is currently supported
+				wakeLock.request("system");
+				// @ts-expect-error navigator must expose wakeLock.request
+				useWakeLock({ navigator: { wakeLock: {} } });
+				// @ts-expect-error sentinel must be an EventTarget-like object
+				useWakeLock({ navigator: { wakeLock: { request: async () => ({}) } } });
 			});
 		});
 

@@ -179,6 +179,7 @@ export { useUrlSearchParams } from "./useUrlSearchParams";
 export { useUserMedia } from "./useUserMedia";
 export { useVibrate } from "./useVibrate";
 export { useVirtualList } from "./useVirtualList";
+export { useWakeLock } from "./useWakeLock";
 export { useWindowSize } from "./useWindowSize";
 export type {
 	AsyncComputedCancelCallback,
@@ -497,6 +498,13 @@ export type {
 	UseVirtualListOptionsBase,
 	UseVirtualListReturn,
 	UseVirtualListVerticalOptions,
+	UseWakeLockDocumentLike,
+	UseWakeLockNavigatorLike,
+	UseWakeLockOptions,
+	UseWakeLockReturn,
+	UseWakeLockSentinelLike,
+	UseWakeLockWakeLockLike,
+	WakeLockType,
 	UseDocumentVisibilityOptions,
 	UseDocumentVisibilityReturn,
 	UseDraggableAxis,
