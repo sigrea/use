@@ -122,6 +122,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.useManualRefHistory).toBe("function");
 		expect(typeof mod.useMediaQuery).toBe("function");
 		expect(typeof mod.useMemoize).toBe("function");
+		expect(typeof mod.useMemory).toBe("function");
 		expect(typeof mod.useMouse).toBe("function");
 		expect(typeof mod.useOnline).toBe("function");
 		expect(typeof mod.usePreferredDark).toBe("function");
@@ -888,6 +889,22 @@ describe("SSR safety", () => {
 
 		memo.delete(1);
 		memo.clear();
+	});
+
+	it("creates useMemory without a window", async () => {
+		const { useMemory } = await import("../../../index");
+		const memory = useMemory({ window: null });
+
+		expect(globalThis.window).toBeUndefined();
+		expect(memory.isSupported.value).toBe(false);
+		expect(memory.memory.value).toBeUndefined();
+		expect(memory.isActive.value).toBe(false);
+
+		memory.resume();
+
+		expect(memory.isActive.value).toBe(false);
+		memory.pause();
+		memory.stop();
 	});
 
 	it("creates useLastChanged without a window", async () => {
