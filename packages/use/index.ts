@@ -13,6 +13,7 @@ export { onKeyDown, onKeyPressed, onKeyStroke, onKeyUp } from "./onKeyStroke";
 export { onLongPress } from "./onLongPress";
 export { onStartTyping } from "./onStartTyping";
 export { reactify } from "./reactify";
+export { reactifyObject } from "./reactifyObject";
 export { resolveValue } from "./resolveValue";
 export { useBreakpoints } from "./useBreakpoints";
 export { useCounter } from "./useCounter";
@@ -117,6 +118,9 @@ export type {
 	Position,
 	PromisifyFn,
 	ReactifyReturn,
+	ReactifyNested,
+	ReactifyObjectOptions,
+	ReactifyObjectReturn,
 	RemovableSignal,
 	ResizeObserverWindowLike,
 	ResolveValueFn,

@@ -30,6 +30,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.onLongPress).toBe("function");
 		expect(typeof mod.onStartTyping).toBe("function");
 		expect(typeof mod.reactify).toBe("function");
+		expect(typeof mod.reactifyObject).toBe("function");
 		expect(typeof mod.useBreakpoints).toBe("function");
 		expect(typeof mod.useDocumentVisibility).toBe("function");
 		expect(typeof mod.useElementSize).toBe("function");
@@ -226,6 +227,18 @@ describe("SSR safety", () => {
 
 		expect(globalThis.window).toBeUndefined();
 		expect(result.value).toBe("ready");
+	});
+
+	it("creates reactified objects without a window", async () => {
+		const { reactifyObject } = await import("../../../index");
+		const result = reactifyObject({
+			double(value: number) {
+				return value * 2;
+			},
+		});
+
+		expect(globalThis.window).toBeUndefined();
+		expect(result.double(2).value).toBe(4);
 	});
 
 	it("resolves values without a window", async () => {

@@ -89,6 +89,28 @@ export type ReactifyReturn<T> = T extends (
 		: never
 	: never;
 
+type ReactifyObjectValue<TValue> = TValue extends (
+	this: infer _TThis,
+	...args: infer TArgs
+) => infer TReturn
+	? TArgs extends unknown[]
+		? (...args: MaybeValueArgs<TArgs>) => ReadonlySignal<TReturn>
+		: never
+	: TValue;
+
+export type ReactifyNested<T, TKeys extends keyof T = keyof T> = {
+	[TKey in TKeys]: ReactifyObjectValue<T[TKey]>;
+};
+
+export type ReactifyObjectReturn<
+	T,
+	TKeys extends keyof T = keyof T,
+> = ReactifyNested<T, TKeys>;
+
+export interface ReactifyObjectOptions {
+	includeOwnProperties?: boolean;
+}
+
 export type AsyncComputedCancelCallback = () => void;
 
 export type AsyncComputedOnCancel = (
