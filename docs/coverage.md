@@ -244,7 +244,7 @@ Status values:
 | `math/useClamp` | `useClamp` | Done |
 | `math/useFloor` | `useFloor` | Done |
 | `math/useMath` | `useMath` | Done |
-| `math/useMax` | `-` | Todo |
+| `math/useMax` | `useMax` | Done |
 | `math/useMin` | `-` | Todo |
 | `math/usePrecision` | `-` | Todo |
 | `math/useProjection` | `-` | Todo |
