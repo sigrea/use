@@ -144,6 +144,7 @@ export { useSessionStorage } from "./useSessionStorage";
 export { useShare } from "./useShare";
 export { useSorted } from "./useSorted";
 export { useSpeechRecognition } from "./useSpeechRecognition";
+export { useSpeechSynthesis } from "./useSpeechSynthesis";
 export {
 	customStorageEventName,
 	StorageSerializers,
@@ -756,6 +757,21 @@ export type {
 	UseSpeechRecognitionReturn,
 	UseSpeechRecognitionWindowLike,
 	UseSpeechRecognitionWindowOptions,
+	SpeechSynthesisErrorCode,
+	SpeechSynthesisErrorEventLike,
+	SpeechSynthesisEventLike,
+	SpeechSynthesisForWindow,
+	SpeechSynthesisLike,
+	SpeechSynthesisStatus,
+	SpeechSynthesisUtteranceConstructorLike,
+	SpeechSynthesisUtteranceForWindow,
+	SpeechSynthesisUtteranceLike,
+	SpeechSynthesisVoiceForWindow,
+	SpeechSynthesisVoiceLike,
+	UseSpeechSynthesisOptions,
+	UseSpeechSynthesisReturn,
+	UseSpeechSynthesisWindowLike,
+	UseSpeechSynthesisWindowOptions,
 	UseScriptTagDocumentLike,
 	UseScriptTagOptions,
 	UseScriptTagReturn,
