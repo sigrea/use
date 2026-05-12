@@ -93,6 +93,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.useElementByPoint).toBe("function");
 		expect(typeof mod.useElementHover).toBe("function");
 		expect(typeof mod.useElementSize).toBe("function");
+		expect(typeof mod.useElementVisibility).toBe("function");
 		expect(typeof mod.useEventListener).toBe("function");
 		expect(typeof mod.useFocus).toBe("function");
 		expect(typeof mod.useInterval).toBe("function");
@@ -132,6 +133,7 @@ describe("SSR safety", () => {
 			useElementBounding,
 			useElementByPoint,
 			useElementHover,
+			useElementVisibility,
 			useLocalStorage,
 			useMediaQuery,
 			useMouse,
@@ -214,6 +216,11 @@ describe("SSR safety", () => {
 			y: 0,
 		});
 		const hover = useElementHover(null);
+		const elementVisibility = useElementVisibility(null, { window: null });
+		const initialElementVisibility = useElementVisibility(null, {
+			initialValue: true,
+			window: null,
+		});
 		const sessionStorageValue = useSessionStorage("session", "fallback", {
 			window: undefined,
 		});
@@ -266,6 +273,10 @@ describe("SSR safety", () => {
 		expect(points.isSupported.value).toBe(false);
 		expect(points.element.value).toEqual([]);
 		expect(hover.isHovered.value).toBe(false);
+		expect(elementVisibility.isVisible.value).toBe(false);
+		expect(elementVisibility.isSupported.value).toBe(false);
+		expect(initialElementVisibility.isVisible.value).toBe(true);
+		expect(initialElementVisibility.isSupported.value).toBe(false);
 		expect(sessionStorageValue.value).toBe("fallback");
 		expect(ssrMediaQuery.matches.value).toBe(true);
 		expect(storageValue.value).toBe("fallback");
@@ -316,6 +327,8 @@ describe("SSR safety", () => {
 		point.stop();
 		points.stop();
 		hover.stop();
+		elementVisibility.stop();
+		initialElementVisibility.stop();
 		sessionStorageValue.stop();
 		ssrMediaQuery.stop();
 		storageValue.stop();
