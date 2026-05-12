@@ -57,6 +57,7 @@ export { useBluetooth } from "./useBluetooth";
 export { useBroadcastChannel } from "./useBroadcastChannel";
 export { useBrowserLocation } from "./useBrowserLocation";
 export { useCached } from "./useCached";
+export { useCeil } from "./useCeil";
 export { useClipboard } from "./useClipboard";
 export { useClipboardItems } from "./useClipboardItems";
 export { cloneStructured, useCloned } from "./useCloned";
@@ -475,6 +476,7 @@ export type {
 	UseAverageReturn,
 	UseBreakpointsOptions,
 	UseBreakpointsReturn,
+	UseCeilReturn,
 	UseCounterOptions,
 	UseCounterReturn,
 	UseCycleListOptions,

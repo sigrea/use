@@ -250,6 +250,7 @@ import type {
 	UseCachedComparator,
 	UseCachedOptions,
 	UseCachedReturn,
+	UseCeilReturn,
 	UseClipboardCopyFn,
 	UseClipboardItemsCopyFn,
 	UseClipboardItemsOptions,
@@ -855,6 +856,7 @@ import {
 	useBroadcastChannel,
 	useBrowserLocation,
 	useCached,
+	useCeil,
 	useClipboard,
 	useClipboardItems,
 	useCloned,
@@ -5739,6 +5741,22 @@ describe("public types", () => {
 			useAverage([1, "2"] as const);
 			// @ts-expect-error array form does not mix with rest arguments
 			useAverage([1, 2] as const, 3);
+		});
+	});
+
+	it("types ceiling values", () => {
+		typeOnly(() => {
+			const result = useCeil(signal(1.2));
+			const getter = useCeil(() => 2.1);
+			const ceilReturn: UseCeilReturn = result;
+
+			expectTypeOf(result).toEqualTypeOf<UseCeilReturn>();
+			expectTypeOf(getter.value).toEqualTypeOf<number>();
+			expectTypeOf(ceilReturn.value).toEqualTypeOf<number>();
+			// @ts-expect-error ceiling result is readonly
+			result.value = 1;
+			// @ts-expect-error value must resolve to a number
+			useCeil("1");
 		});
 	});
 

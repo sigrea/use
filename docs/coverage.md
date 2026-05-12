@@ -240,7 +240,7 @@ Status values:
 | `math/logicOr` | `logicOr` | Done |
 | `math/useAbs` | `useAbs` | Done |
 | `math/useAverage` | `useAverage` | Done |
-| `math/useCeil` | `-` | Todo |
+| `math/useCeil` | `useCeil` | Done |
 | `math/useClamp` | `-` | Todo |
 | `math/useFloor` | `-` | Todo |
 | `math/useMath` | `-` | Todo |
