@@ -186,7 +186,7 @@ Status values:
 | `useSpeechSynthesis` | `useSpeechSynthesis` | Done |
 | `useStepper` | `useStepper` | Done |
 | `useStorage` | `useStorage` | Done |
-| `useStorageAsync` | `-` | Todo |
+| `useStorageAsync` | `useStorageAsync` | Done |
 | `useStyleTag` | `-` | Todo |
 | `useSupported` | `-` | Todo |
 | `useSwipe` | `-` | Todo |

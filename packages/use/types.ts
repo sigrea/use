@@ -2019,6 +2019,14 @@ export interface StorageLike {
 	removeItem(key: string): void;
 }
 
+export type Awaitable<T> = T | PromiseLike<T>;
+
+export interface AsyncStorageLike {
+	getItem(key: string): Awaitable<string | null>;
+	setItem(key: string, value: string): Awaitable<void>;
+	removeItem(key: string): Awaitable<void>;
+}
+
 export interface StorageWindowLike extends WindowLike {
 	readonly localStorage?: StorageLike;
 	readonly sessionStorage?: StorageLike;
@@ -2040,6 +2048,11 @@ export type StorageWatchFlushType = "pre" | "post" | "sync";
 export interface StorageSerializer<T = unknown> {
 	read(raw: string): T;
 	write(value: T): string;
+}
+
+export interface AsyncStorageSerializer<T = unknown> {
+	read(raw: string): Awaitable<T>;
+	write(value: T): Awaitable<string>;
 }
 
 export interface StorageEventLike {
@@ -2130,6 +2143,17 @@ export interface UseStorageOptions<
 	window?: MaybeTarget<TWindow>;
 	writeDefaults?: boolean;
 }
+
+export interface UseStorageAsyncOptions<
+	T = unknown,
+	TWindow extends StorageWindowLike = StorageWindowLike,
+> extends Omit<UseStorageOptions<T, TWindow>, "serializer"> {
+	onReady?: (value: T | null) => void;
+	serializer?: AsyncStorageSerializer<NoInfer<T>>;
+}
+
+export type UseStorageAsyncReturn<T> = RemovableSignal<T | null> &
+	PromiseLike<RemovableSignal<T | null>>;
 
 export interface WindowSizeDocumentLike extends DocumentLike {
 	readonly documentElement?: {

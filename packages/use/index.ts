@@ -151,6 +151,7 @@ export {
 	StorageSerializers,
 	useStorage,
 } from "./useStorage";
+export { useStorageAsync } from "./useStorageAsync";
 export { useThrottleFn } from "./useThrottleFn";
 export { useTimeout } from "./useTimeout";
 export { useTimeoutFn } from "./useTimeoutFn";
@@ -254,6 +255,7 @@ export type {
 	UseClipboardTextSource,
 	UseClipboardWindowLike,
 	Arrayable,
+	Awaitable,
 	Breakpoints,
 	CloneFn,
 	ComputedEagerOptions,
@@ -371,8 +373,10 @@ export type {
 	UntilBaseInstance,
 	UntilToMatchOptions,
 	UntilValueInstance,
+	AsyncStorageLike,
 	StorageEventLike,
 	StorageLike,
+	AsyncStorageSerializer,
 	StorageSerializer,
 	StorageSerializerType,
 	StorageWatchFlushType,
@@ -783,6 +787,8 @@ export type {
 	UseScriptTagDocumentLike,
 	UseScriptTagOptions,
 	UseScriptTagReturn,
+	UseStorageAsyncOptions,
+	UseStorageAsyncReturn,
 	UseStorageOptions,
 	UseThrottleFnReturn,
 	UseTimeoutControlsReturn,
