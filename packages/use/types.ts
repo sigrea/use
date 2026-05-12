@@ -2499,6 +2499,26 @@ export interface UseElementBoundingReturn {
 	stop(): void;
 }
 
+export type UseElementHoverDocumentLike = OnElementRemovalDocumentLike;
+
+export interface UseElementHoverWindowLike extends OnElementRemovalWindowLike {}
+
+export interface UseElementHoverOptions<
+	TWindow extends UseElementHoverWindowLike = UseElementHoverWindowLike,
+	TDocument extends UseElementHoverDocumentLike = UseElementHoverDocumentLike,
+> {
+	delayEnter?: MaybeValue<number>;
+	delayLeave?: MaybeValue<number>;
+	triggerOnRemoval?: boolean;
+	document?: MaybeTarget<TDocument>;
+	window?: MaybeTarget<TWindow>;
+}
+
+export interface UseElementHoverReturn {
+	readonly isHovered: ReadonlySignal<boolean>;
+	stop(): void;
+}
+
 export interface UseElementByPointDocumentLike extends DocumentLike {
 	readonly defaultView?: UseElementByPointWindowLike | null;
 	elementFromPoint?(x: number, y: number): Element | null;

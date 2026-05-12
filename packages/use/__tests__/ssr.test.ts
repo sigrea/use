@@ -91,6 +91,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.useDropZone).toBe("function");
 		expect(typeof mod.useElementBounding).toBe("function");
 		expect(typeof mod.useElementByPoint).toBe("function");
+		expect(typeof mod.useElementHover).toBe("function");
 		expect(typeof mod.useElementSize).toBe("function");
 		expect(typeof mod.useEventListener).toBe("function");
 		expect(typeof mod.useFocus).toBe("function");
@@ -130,6 +131,7 @@ describe("SSR safety", () => {
 			useDropZone,
 			useElementBounding,
 			useElementByPoint,
+			useElementHover,
 			useLocalStorage,
 			useMediaQuery,
 			useMouse,
@@ -211,6 +213,7 @@ describe("SSR safety", () => {
 			x: 0,
 			y: 0,
 		});
+		const hover = useElementHover(null);
 		const sessionStorageValue = useSessionStorage("session", "fallback", {
 			window: undefined,
 		});
@@ -262,6 +265,7 @@ describe("SSR safety", () => {
 		expect(point.element.value).toBeNull();
 		expect(points.isSupported.value).toBe(false);
 		expect(points.element.value).toEqual([]);
+		expect(hover.isHovered.value).toBe(false);
 		expect(sessionStorageValue.value).toBe("fallback");
 		expect(ssrMediaQuery.matches.value).toBe(true);
 		expect(storageValue.value).toBe("fallback");
@@ -311,6 +315,7 @@ describe("SSR safety", () => {
 		point.pause();
 		point.stop();
 		points.stop();
+		hover.stop();
 		sessionStorageValue.stop();
 		ssrMediaQuery.stop();
 		storageValue.stop();

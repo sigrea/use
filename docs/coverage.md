@@ -112,7 +112,7 @@ Status values:
 | `useDropZone` | `useDropZone` | Done |
 | `useElementBounding` | `useElementBounding` | Done |
 | `useElementByPoint` | `useElementByPoint` | Done |
-| `useElementHover` | `-` | Todo |
+| `useElementHover` | `useElementHover` | Done |
 | `useElementSize` | `useElementSize` | Done |
 | `useElementVisibility` | `-` | Todo |
 | `useEventBus` | `-` | Todo |
