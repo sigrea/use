@@ -76,6 +76,9 @@ describe("SSR safety", () => {
 		expect(typeof mod.useCssVar).toBe("function");
 		expect(typeof mod.useCycleList).toBe("function");
 		expect(typeof mod.useDark).toBe("function");
+		expect(typeof mod.useDateFormat).toBe("function");
+		expect(typeof mod.formatDate).toBe("function");
+		expect(typeof mod.normalizeDate).toBe("function");
 		expect(typeof mod.useBreakpoints).toBe("function");
 		expect(typeof mod.useDocumentVisibility).toBe("function");
 		expect(typeof mod.useElementSize).toBe("function");
@@ -334,6 +337,14 @@ describe("SSR safety", () => {
 
 		expect(globalThis.window).toBeUndefined();
 		expect(result.value).toBe("1-2-3");
+	});
+
+	it("creates useDateFormat without a window", async () => {
+		const { useDateFormat } = await import("../../../index");
+		const result = useDateFormat(new Date(2022, 0, 1, 10, 24, 0));
+
+		expect(globalThis.window).toBeUndefined();
+		expect(result.value).toBe("10:24:00");
 	});
 
 	it("creates useArrayMap without a window", async () => {

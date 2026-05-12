@@ -1114,6 +1114,26 @@ export type UseDarkReturn = Computed<boolean> & {
 	stop(): void;
 };
 
+export type DateLike = Date | number | string | undefined;
+
+export interface UseDateFormatOptions {
+	/**
+	 * Locale used for month, weekday, and timezone names.
+	 */
+	locales?: MaybeValue<Intl.LocalesArgument>;
+	/**
+	 * Custom meridiem formatter for A/AA/a/aa tokens.
+	 */
+	customMeridiem?: (
+		hours: number,
+		minutes: number,
+		isLowercase?: boolean,
+		hasPeriod?: boolean,
+	) => string;
+}
+
+export type UseDateFormatReturn = ReadonlySignal<string>;
+
 export type UseConfirmDialogResult<ConfirmData, CancelData> =
 	| {
 			readonly data?: ConfirmData;

@@ -48,6 +48,7 @@ import type {
 	ComputedWithControlReturn,
 	CreateSignalReturn,
 	CssSupportsLike,
+	DateLike,
 	DocumentVisibilityDocumentLike,
 	EventHook,
 	EventHookArgs,
@@ -210,6 +211,8 @@ import type {
 	UseCycleListReturn,
 	UseDarkOptions,
 	UseDarkReturn,
+	UseDateFormatOptions,
+	UseDateFormatReturn,
 	UseDocumentVisibilityOptions,
 	UseElementSizeOptions,
 	UseFocusOptions,
@@ -232,8 +235,10 @@ import {
 	createResolveValueFn,
 	createSignal,
 	extendSignal,
+	formatDate,
 	isDefined,
 	makeDestructurable,
+	normalizeDate,
 	onClickOutside,
 	onElementRemoval,
 	onKeyDown,
@@ -291,6 +296,7 @@ import {
 	useCssVar,
 	useCycleList,
 	useDark,
+	useDateFormat,
 	useDebounceFn,
 	useDocumentVisibility,
 	useElementSize,
@@ -3730,6 +3736,51 @@ describe("public types", () => {
 				resume() {},
 			});
 			invalidScheduler;
+		});
+	});
+
+	it("types date formatting values", () => {
+		typeOnly(() => {
+			const date = signal<DateLike>(new Date());
+			const format = computed(() => "YYYY-MM-DD");
+			const locales = signal<Intl.LocalesArgument>("en-US");
+			const options: UseDateFormatOptions = {
+				customMeridiem: (hours, minutes, isLowercase, hasPeriod) => {
+					expectTypeOf(hours).toEqualTypeOf<number>();
+					expectTypeOf(minutes).toEqualTypeOf<number>();
+					expectTypeOf(isLowercase).toEqualTypeOf<boolean | undefined>();
+					expectTypeOf(hasPeriod).toEqualTypeOf<boolean | undefined>();
+
+					return "AM";
+				},
+				locales,
+			};
+			const result = useDateFormat(date, format, options);
+			const getterResult = useDateFormat(() => Date.now());
+
+			expectTypeOf(result).toEqualTypeOf<UseDateFormatReturn>();
+			expectTypeOf(result).toEqualTypeOf<ReadonlySignal<string>>();
+			expectTypeOf(getterResult).toEqualTypeOf<UseDateFormatReturn>();
+			expectTypeOf(
+				formatDate(new Date(), "YYYY", options),
+			).toEqualTypeOf<string>();
+			expectTypeOf(normalizeDate(undefined)).toEqualTypeOf<Date>();
+			// @ts-expect-error returned value is readonly
+			result.value = "next";
+			// @ts-expect-error source must resolve to Date, number, string, or undefined
+			useDateFormat({});
+			// @ts-expect-error format must resolve to string
+			useDateFormat(new Date(), signal(1));
+			const invalidOptions: UseDateFormatOptions = {
+				// @ts-expect-error locales must match Intl.LocalesArgument
+				locales: signal(1),
+			};
+			invalidOptions;
+			const invalidMeridiemOptions: UseDateFormatOptions = {
+				// @ts-expect-error custom meridiem must return a string
+				customMeridiem: () => 1,
+			};
+			invalidMeridiemOptions;
 		});
 	});
 
