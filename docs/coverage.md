@@ -119,7 +119,7 @@ Status values:
 | `useEventListener` | `useEventListener` | Done |
 | `useEventSource` | `useEventSource` | Done |
 | `useEyeDropper` | `useEyeDropper` | Done |
-| `useFavicon` | `-` | Todo |
+| `useFavicon` | `useFavicon` | Done |
 | `useFetch` | `-` | Todo |
 | `useFileDialog` | `-` | Todo |
 | `useFileSystemAccess` | `-` | Todo |
