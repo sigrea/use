@@ -736,6 +736,12 @@ import type {
 	WatchOnceReturn,
 	WatchOnceSource,
 	WatchOnceSourceValues,
+	WatchPausableCallback,
+	WatchPausableInitialState,
+	WatchPausableOptions,
+	WatchPausableReturn,
+	WatchPausableSource,
+	WatchPausableSourceValues,
 	WebSocketConstructorLike,
 	WebSocketLike,
 	WindowLike,
@@ -944,6 +950,7 @@ import {
 	watchIgnorable,
 	watchImmediate,
 	watchOnce,
+	watchPausable,
 } from "../../../index";
 
 interface MatchMediaOnlyWindow extends MatchMediaWindow {
@@ -4840,6 +4847,65 @@ describe("public types", () => {
 			watchOnce(1, callback);
 			// @ts-expect-error callback value type must match the source value
 			watchOnce(signal("1"), callback);
+		});
+	});
+
+	it("types pausable watchers", () => {
+		typeOnly(() => {
+			const count = signal(0);
+			const label = computed(() => `${count.value}`);
+			const source: WatchPausableSource<number> = count;
+			const initialState: WatchPausableInitialState = "paused";
+			const options: WatchPausableOptions<true> = {
+				deep: true,
+				flush: "sync",
+				immediate: true,
+				initialState,
+			};
+			const callback: WatchPausableCallback<number, number | undefined> = (
+				value,
+				oldValue,
+				onCleanup,
+			) => {
+				expectTypeOf(value).toEqualTypeOf<number>();
+				expectTypeOf(oldValue).toEqualTypeOf<number | undefined>();
+				onCleanup(() => {});
+			};
+			const controls = watchPausable(source, callback, options);
+			const sourceValues: WatchPausableSourceValues<
+				[typeof count, typeof label]
+			> = [1, "1"];
+			const tupleControls = watchPausable(
+				[count, label] as const,
+				(value, oldValue) => {
+					expectTypeOf(value).toEqualTypeOf<[number, string]>();
+					expectTypeOf(oldValue).toEqualTypeOf<[number, string] | []>();
+				},
+				{ flush: "sync", immediate: true },
+			);
+			const watchReturn: WatchPausableReturn = controls;
+
+			expectTypeOf(sourceValues).toEqualTypeOf<[number, string]>();
+			expectTypeOf(controls).toEqualTypeOf<WatchPausableReturn>();
+			expectTypeOf(tupleControls).toEqualTypeOf<WatchPausableReturn>();
+			expectTypeOf(controls.isActive).toEqualTypeOf<ReadonlySignal<boolean>>();
+			expectTypeOf(controls.pause()).toEqualTypeOf<void>();
+			expectTypeOf(controls.resume()).toEqualTypeOf<void>();
+			expectTypeOf(watchReturn.stop()).toEqualTypeOf<void>();
+			watchPausable(count, callback, {
+				// @ts-expect-error eventFilter is not supported without watchWithFilter
+				eventFilter(invoke: () => void) {
+					invoke();
+				},
+			});
+			watchPausable(count, callback, {
+				// @ts-expect-error initialState must be active or paused
+				initialState: "idle",
+			});
+			// @ts-expect-error source must be watchable
+			watchPausable(1, callback);
+			// @ts-expect-error callback value type must match the source value
+			watchPausable(signal("1"), callback);
 		});
 	});
 
