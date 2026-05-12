@@ -168,7 +168,7 @@ Status values:
 | `usePreferredDark` | `usePreferredDark` | Done |
 | `usePreferredLanguages` | `usePreferredLanguages` | Done |
 | `usePreferredReducedMotion` | `usePreferredReducedMotion` | Done |
-| `usePreferredReducedTransparency` | `-` | Todo |
+| `usePreferredReducedTransparency` | `usePreferredReducedTransparency` | Done |
 | `usePrevious` | `usePrevious` | Done |
 | `useRafFn` | `-` | Todo |
 | `useRefHistory` | `useRefHistory` | Done |

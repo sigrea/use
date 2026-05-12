@@ -130,6 +130,7 @@ export { usePreferredContrast } from "./usePreferredContrast";
 export { usePreferredDark } from "./usePreferredDark";
 export { usePreferredLanguages } from "./usePreferredLanguages";
 export { usePreferredReducedMotion } from "./usePreferredReducedMotion";
+export { usePreferredReducedTransparency } from "./usePreferredReducedTransparency";
 export { usePrevious } from "./usePrevious";
 export { useRefHistory } from "./useRefHistory";
 export { useSessionStorage } from "./useSessionStorage";
@@ -685,6 +686,8 @@ export type {
 	UsePreferredLanguagesReturn,
 	UsePreferredReducedMotion,
 	UsePreferredReducedMotionReturn,
+	UsePreferredReducedTransparency,
+	UsePreferredReducedTransparencyReturn,
 	UseRefHistoryOptions,
 	UseRefHistoryRecord,
 	UseRefHistoryReturn,
