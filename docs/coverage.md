@@ -221,7 +221,7 @@ Status values:
 | `useWindowFocus` | `useWindowFocus` | Done |
 | `useWindowScroll` | `useWindowScroll` | Done |
 | `useWindowSize` | `useWindowSize` | Done |
-| `watchArray` | `-` | Todo |
+| `watchArray` | `watchArray` | Done |
 | `watchAtMost` | `-` | Todo |
 | `watchDebounced` | `-` | Todo |
 | `watchDeep` | `-` | Todo |
