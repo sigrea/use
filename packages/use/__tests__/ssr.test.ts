@@ -154,6 +154,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.useScreenOrientation).toBe("function");
 		expect(typeof mod.useScreenSafeArea).toBe("function");
 		expect(typeof mod.useScriptTag).toBe("function");
+		expect(typeof mod.useScroll).toBe("function");
 		expect(typeof mod.useSessionStorage).toBe("function");
 		expect(typeof mod.useStorage).toBe("function");
 		expect(typeof mod.useTimeout).toBe("function");
@@ -230,6 +231,7 @@ describe("SSR safety", () => {
 			useScreenOrientation,
 			useScreenSafeArea,
 			useScriptTag,
+			useScroll,
 			onElementRemoval,
 			onKeyDown,
 			onKeyPressed,
@@ -312,6 +314,7 @@ describe("SSR safety", () => {
 		const screenOrientation = useScreenOrientation({ window: null });
 		const screenSafeArea = useScreenSafeArea({ window: null });
 		const scriptTag = useScriptTag("https://example.com/script.js");
+		const scroll = useScroll(null, { window: null });
 		const cssSupports = useCssSupports("display", "grid", { window: null });
 		const initialCssSupports = useCssSupports("display: grid", {
 			initialValue: true,
@@ -462,6 +465,17 @@ describe("SSR safety", () => {
 		expect(scriptTag.scriptTag.value).toBeNull();
 		await expect(scriptTag.load()).resolves.toBe(false);
 		scriptTag.unload();
+		expect(scroll.x.value).toBe(0);
+		expect(scroll.y.value).toBe(0);
+		expect(scroll.isScrolling.value).toBe(false);
+		expect(scroll.arrivedState.value).toEqual({
+			bottom: false,
+			left: true,
+			right: false,
+			top: true,
+		});
+		scroll.scrollTo({ left: 1, top: 2 });
+		scroll.stop();
 		expect(cssSupports.value).toBe(false);
 		expect(initialCssSupports.value).toBe(true);
 		expect(cssVar.value).toBe("red");

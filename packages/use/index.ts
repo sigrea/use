@@ -138,6 +138,7 @@ export { useResizeObserver } from "./useResizeObserver";
 export { useScreenOrientation } from "./useScreenOrientation";
 export { useScreenSafeArea } from "./useScreenSafeArea";
 export { useScriptTag } from "./useScriptTag";
+export { useScroll } from "./useScroll";
 export { useSessionStorage } from "./useSessionStorage";
 export {
 	customStorageEventName,
@@ -716,6 +717,14 @@ export type {
 	UseScreenSafeAreaReturn,
 	UseScreenSafeAreaVisualViewportLike,
 	UseScreenSafeAreaWindowLike,
+	UseScrollArrivedState,
+	UseScrollDirection,
+	UseScrollDirections,
+	UseScrollDocumentLike,
+	UseScrollElement,
+	UseScrollOptions,
+	UseScrollReturn,
+	UseScrollWindowLike,
 	UseScriptTagDocumentLike,
 	UseScriptTagOptions,
 	UseScriptTagReturn,
