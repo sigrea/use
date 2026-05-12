@@ -44,6 +44,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.toDeepSignal).toBe("function");
 		expect(typeof mod.tryOnScopeDispose).toBe("function");
 		expect(typeof mod.until).toBe("function");
+		expect(typeof mod.useActiveElement).toBe("function");
 		expect(typeof mod.useBreakpoints).toBe("function");
 		expect(typeof mod.useDocumentVisibility).toBe("function");
 		expect(typeof mod.useElementSize).toBe("function");
@@ -90,8 +91,10 @@ describe("SSR safety", () => {
 			useSessionStorage,
 			useStorage,
 			useWindowSize,
+			useActiveElement,
 		} = await import("../../../index");
 
+		const active = useActiveElement();
 		const breakpoints = useBreakpoints({ md: 768 }, { ssrWidth: 800 });
 		const visibility = useDocumentVisibility();
 		const listener = useEventListener("resize", () => {});
@@ -123,6 +126,7 @@ describe("SSR safety", () => {
 		const elementSize = useElementSize(null, { width: 10, height: 20 });
 		const size = useWindowSize();
 
+		expect(active.activeElement.value).toBeUndefined();
 		expect(breakpoints.md.matches.value).toBe(true);
 		expect(visibility.visibility.value).toBe("visible");
 		expect(localStorageValue.value).toBe("fallback");
@@ -140,6 +144,7 @@ describe("SSR safety", () => {
 		expect(size.width.value).toBe(0);
 		expect(size.height.value).toBe(0);
 
+		active.stop();
 		breakpoints.md.stop();
 		visibility.stop();
 		listener.stop();

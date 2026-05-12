@@ -28,6 +28,7 @@ export { syncSignals } from "./syncSignals";
 export { toDeepSignal } from "./toDeepSignal";
 export { tryOnScopeDispose } from "./tryOnScopeDispose";
 export { until } from "./until";
+export { useActiveElement } from "./useActiveElement";
 export { useBreakpoints } from "./useBreakpoints";
 export { useCounter } from "./useCounter";
 export { useDebounceFn } from "./useDebounceFn";
@@ -168,6 +169,10 @@ export type {
 	StorageWatchFlushType,
 	StorageWindowLike,
 	TargetEventMap,
+	UseActiveElementDocumentLike,
+	UseActiveElementOptions,
+	UseActiveElementReturn,
+	UseActiveElementWindowLike,
 	UseBreakpointsOptions,
 	UseBreakpointsReturn,
 	UseCounterOptions,
