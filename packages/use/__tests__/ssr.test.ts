@@ -71,6 +71,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.useCloned).toBe("function");
 		expect(typeof mod.useColorMode).toBe("function");
 		expect(typeof mod.useConfirmDialog).toBe("function");
+		expect(typeof mod.useCountdown).toBe("function");
 		expect(typeof mod.useBreakpoints).toBe("function");
 		expect(typeof mod.useDocumentVisibility).toBe("function");
 		expect(typeof mod.useElementSize).toBe("function");
@@ -704,22 +705,35 @@ describe("SSR safety", () => {
 
 	it("auto-starts timers when timer APIs are available without a browser window", async () => {
 		vi.useFakeTimers();
-		const { useInterval, useTimeout } = await import("../../../index");
+		const { useCountdown, useInterval, useTimeout } = await import(
+			"../../../index"
+		);
+		const countdown = useCountdown(2, { interval: 1 });
 		const interval = useInterval(1, { controls: true });
 		const timeout = useTimeout(1, { controls: true });
 
 		expect(globalThis.window).toBeUndefined();
+		expect(countdown.remaining.value).toBe(2);
+		expect(countdown.isActive.value).toBe(false);
 		expect(interval.isActive.value).toBe(true);
 		expect(interval.counter.value).toBe(0);
 		expect(timeout.isPending.value).toBe(true);
 		expect(timeout.ready.value).toBe(false);
 
+		countdown.start();
 		vi.advanceTimersByTime(1);
 
+		expect(countdown.remaining.value).toBe(1);
 		expect(interval.counter.value).toBe(1);
 		expect(timeout.ready.value).toBe(true);
 		expect(timeout.isPending.value).toBe(false);
 
+		vi.advanceTimersByTime(1);
+
+		expect(countdown.remaining.value).toBe(0);
+		expect(countdown.isActive.value).toBe(false);
+
+		countdown.stop();
 		interval.pause();
 		timeout.stop();
 	});

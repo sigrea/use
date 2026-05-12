@@ -92,7 +92,7 @@ Status values:
 | `useCloned` | `useCloned` | Done |
 | `useColorMode` | `useColorMode` | Done |
 | `useConfirmDialog` | `useConfirmDialog` | Done |
-| `useCountdown` | `-` | Todo |
+| `useCountdown` | `useCountdown` | Done |
 | `useCounter` | `useCounter` | Done |
 | `useCssSupports` | `-` | Todo |
 | `useCssVar` | `-` | Todo |

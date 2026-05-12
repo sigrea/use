@@ -1112,6 +1112,44 @@ export interface UseConfirmDialogReturn<
 	onCancel: EventHookOn<[CancelData | undefined]>;
 }
 
+export type UseCountdownScheduler = (
+	callback: () => void,
+) => UseIntervalFnReturn;
+
+export interface UseCountdownOptions {
+	/**
+	 * Interval for the countdown in milliseconds.
+	 *
+	 * @default 1000
+	 */
+	interval?: MaybeValue<number>;
+	/**
+	 * Start the countdown immediately.
+	 *
+	 * @default false
+	 */
+	immediate?: boolean;
+	/**
+	 * Custom scheduler used to run countdown ticks.
+	 */
+	scheduler?: UseCountdownScheduler;
+	/**
+	 * Called after each countdown tick with the current remaining value.
+	 */
+	onTick?: (remaining: number) => void;
+	/**
+	 * Called when the countdown reaches 0.
+	 */
+	onComplete?: () => void;
+}
+
+export interface UseCountdownReturn extends UseIntervalFnReturn {
+	readonly remaining: ReadonlySignal<number>;
+	reset(countdown?: MaybeValue<number>): void;
+	stop(): void;
+	start(countdown?: MaybeValue<number>): void;
+}
+
 export interface ComputedEagerOptions {
 	flush?: WatchOptions["flush"];
 	onTrack?: WatchOptions["onTrack"];

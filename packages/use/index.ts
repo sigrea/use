@@ -55,6 +55,7 @@ export { useClipboardItems } from "./useClipboardItems";
 export { cloneStructured, useCloned } from "./useCloned";
 export { useColorMode } from "./useColorMode";
 export { useConfirmDialog } from "./useConfirmDialog";
+export { useCountdown } from "./useCountdown";
 export { useBreakpoints } from "./useBreakpoints";
 export { useCounter } from "./useCounter";
 export { useDebounceFn } from "./useDebounceFn";
@@ -148,6 +149,9 @@ export type {
 	UseColorModeWindowLike,
 	UseConfirmDialogResult,
 	UseConfirmDialogReturn,
+	UseCountdownScheduler,
+	UseCountdownOptions,
+	UseCountdownReturn,
 	UseBluetoothOptions,
 	UseBluetoothRequestDeviceOptions,
 	UseBluetoothReturn,
