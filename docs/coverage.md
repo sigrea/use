@@ -63,7 +63,7 @@ Status values:
 | `tryOnScopeDispose` | `tryOnScopeDispose` | Done |
 | `tryOnUnmounted` | `-` | Needs design |
 | `unrefElement` | `-` | Out of scope |
-| `until` | `-` | Todo |
+| `until` | `until` | Done |
 | `useActiveElement` | `-` | Todo |
 | `useAnimate` | `-` | Todo |
 | `useArrayDifference` | `-` | Todo |

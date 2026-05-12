@@ -27,6 +27,7 @@ export { syncSignal } from "./syncSignal";
 export { syncSignals } from "./syncSignals";
 export { toDeepSignal } from "./toDeepSignal";
 export { tryOnScopeDispose } from "./tryOnScopeDispose";
+export { until } from "./until";
 export { useBreakpoints } from "./useBreakpoints";
 export { useCounter } from "./useCounter";
 export { useDebounceFn } from "./useDebounceFn";
@@ -156,6 +157,10 @@ export type {
 	SyncSignalsReturn,
 	ToDeepSignalReturn,
 	TryOnScopeDisposeReturn,
+	UntilArrayInstance,
+	UntilBaseInstance,
+	UntilToMatchOptions,
+	UntilValueInstance,
 	StorageEventLike,
 	StorageLike,
 	StorageSerializer,
