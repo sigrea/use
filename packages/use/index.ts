@@ -50,6 +50,7 @@ export { useBluetooth } from "./useBluetooth";
 export { useBroadcastChannel } from "./useBroadcastChannel";
 export { useBrowserLocation } from "./useBrowserLocation";
 export { useCached } from "./useCached";
+export { useClipboard } from "./useClipboard";
 export { useBreakpoints } from "./useBreakpoints";
 export { useCounter } from "./useCounter";
 export { useDebounceFn } from "./useDebounceFn";
@@ -122,6 +123,11 @@ export type {
 	BrowserLocationTrigger,
 	BrowserLocationWindowLike,
 	BrowserLocationWritableProperty,
+	ClipboardDocumentBodyLike,
+	ClipboardDocumentLike,
+	ClipboardLike,
+	ClipboardNavigatorLike,
+	ClipboardTextareaLike,
 	UseBatteryOptions,
 	UseBatteryReturn,
 	UseBluetoothOptions,
@@ -134,6 +140,11 @@ export type {
 	UseCachedComparator,
 	UseCachedOptions,
 	UseCachedReturn,
+	UseClipboardCopyFn,
+	UseClipboardOptions,
+	UseClipboardReturn,
+	UseClipboardTextSource,
+	UseClipboardWindowLike,
 	Arrayable,
 	Breakpoints,
 	CloneFn,

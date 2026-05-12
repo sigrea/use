@@ -845,6 +845,95 @@ export interface UseCachedOptions {
 
 export type UseCachedReturn<T = unknown> = ReadonlySignal<T>;
 
+export interface ClipboardLike {
+	addEventListener?(
+		type: "clipboardchange",
+		listener: (event: Event) => void,
+		options?: boolean | AddEventListenerOptions,
+	): void;
+	readText?(): Promise<string>;
+	removeEventListener?(
+		type: "clipboardchange",
+		listener: (event: Event) => void,
+		options?: boolean | EventListenerOptions,
+	): void;
+	writeText?(data: string): Promise<void>;
+}
+
+export interface ClipboardNavigatorLike extends NavigatorLike {
+	readonly clipboard?: ClipboardLike | null;
+}
+
+export interface ClipboardTextareaLike {
+	value: string;
+	readonly style: {
+		opacity?: string;
+		position?: string;
+	};
+	remove(): void;
+	select(): void;
+	setAttribute(name: string, value: string): void;
+}
+
+export interface ClipboardDocumentBodyLike {
+	appendChild(node: ClipboardTextareaLike & Node): void;
+}
+
+export interface ClipboardDocumentLike extends DocumentLike {
+	readonly body?: ClipboardDocumentBodyLike;
+	createElement(tagName: "textarea"): ClipboardTextareaLike;
+	execCommand?(command: "copy"): boolean;
+}
+
+export interface UseClipboardWindowLike extends WindowLike {}
+
+export type UseClipboardTextSource = MaybeValue<string | null | undefined>;
+
+export interface UseClipboardOptions<
+	Source extends UseClipboardTextSource | undefined = undefined,
+	TNavigator extends ClipboardNavigatorLike = ClipboardNavigatorLike,
+	TDocument extends ClipboardDocumentLike = ClipboardDocumentLike,
+	TWindow extends UseClipboardWindowLike = UseClipboardWindowLike,
+> {
+	/**
+	 * Milliseconds before copied resets to false.
+	 *
+	 * @default 1500
+	 */
+	copiedDuring?: MaybeValue<number>;
+	/**
+	 * Fallback to document.execCommand("copy") when async Clipboard API is unavailable or rejected.
+	 *
+	 * @default false
+	 */
+	legacy?: boolean;
+	/**
+	 * Read clipboard text when copy or cut events are observed on the configured window.
+	 *
+	 * @default false
+	 */
+	read?: boolean;
+	source?: Source;
+	document?: MaybeTarget<TDocument>;
+	navigator?: MaybeValue<TNavigator | null | undefined>;
+	window?: MaybeTarget<TWindow>;
+}
+
+export type UseClipboardCopyFn<Optional extends boolean> = Optional extends true
+	? (text?: UseClipboardTextSource) => Promise<void>
+	: (text: UseClipboardTextSource) => Promise<void>;
+
+export interface UseClipboardReturn<Optional extends boolean = false> {
+	readonly isSupported: ReadonlySignal<boolean>;
+	readonly text: ReadonlySignal<string>;
+	readonly copied: ReadonlySignal<boolean>;
+	readonly isCopying: ReadonlySignal<boolean>;
+	readonly error: ReadonlySignal<unknown | null>;
+	copy: UseClipboardCopyFn<Optional>;
+	read(): Promise<string | undefined>;
+	stop(): void;
+}
+
 export interface ComputedEagerOptions {
 	flush?: WatchOptions["flush"];
 	onTrack?: WatchOptions["onTrack"];

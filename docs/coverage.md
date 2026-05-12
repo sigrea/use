@@ -87,7 +87,7 @@ Status values:
 | `useBroadcastChannel` | `useBroadcastChannel` | Done |
 | `useBrowserLocation` | `useBrowserLocation` | Done |
 | `useCached` | `useCached` | Done |
-| `useClipboard` | `-` | Todo |
+| `useClipboard` | `useClipboard` | Done |
 | `useClipboardItems` | `-` | Todo |
 | `useCloned` | `-` | Todo |
 | `useColorMode` | `-` | Todo |
