@@ -127,7 +127,7 @@ Status values:
 | `useFocusWithin` | `useFocusWithin` | Done |
 | `useFps` | `useFps` | Done |
 | `useFullscreen` | `useFullscreen` | Done |
-| `useGamepad` | `-` | Todo |
+| `useGamepad` | `useGamepad` | Done |
 | `useGeolocation` | `-` | Todo |
 | `useIdle` | `-` | Todo |
 | `useImage` | `-` | Todo |
