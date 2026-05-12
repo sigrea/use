@@ -548,6 +548,7 @@ import type {
 	UseResizeObserverOptions,
 	UseResizeObserverReturn,
 	UseResizeObserverTarget,
+	UseRoundReturn,
 	UseScreenOrientationOptions,
 	UseScreenOrientationReturn,
 	UseScreenOrientationScreenOrientationLike,
@@ -960,6 +961,7 @@ import {
 	useRafFn,
 	useRefHistory,
 	useResizeObserver,
+	useRound,
 	useScreenOrientation,
 	useScreenSafeArea,
 	useScriptTag,
@@ -5991,6 +5993,22 @@ describe("public types", () => {
 			usePrecision(1, 2, "round");
 			// @ts-expect-error math must be floor, ceil, or round
 			usePrecision(1, 2, { math: "trunc" });
+		});
+	});
+
+	it("types round values", () => {
+		typeOnly(() => {
+			const result = useRound(signal(1.5));
+			const getter = useRound(() => 2.5);
+			const roundReturn: UseRoundReturn = result;
+
+			expectTypeOf(result).toEqualTypeOf<UseRoundReturn>();
+			expectTypeOf(getter.value).toEqualTypeOf<number>();
+			expectTypeOf(roundReturn.value).toEqualTypeOf<number>();
+			// @ts-expect-error round result is readonly
+			result.value = 1;
+			// @ts-expect-error value must resolve to a number
+			useRound("1");
 		});
 	});
 
