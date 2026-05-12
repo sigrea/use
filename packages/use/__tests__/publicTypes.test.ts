@@ -88,6 +88,7 @@ import type {
 	OnStartTypingOptions,
 	OnStartTypingReturn,
 	OnlineNavigatorLike,
+	Position,
 	ReactifyNested,
 	ReactifyObjectOptions,
 	ReactifyObjectReturn,
@@ -244,6 +245,12 @@ import type {
 	UseDisplayMediaOptions,
 	UseDisplayMediaReturn,
 	UseDocumentVisibilityOptions,
+	UseDraggableAxis,
+	UseDraggableDraggingElement,
+	UseDraggableElement,
+	UseDraggableOptions,
+	UseDraggablePointerType,
+	UseDraggableReturn,
 	UseElementSizeOptions,
 	UseFocusOptions,
 	UseMediaQueryOptions,
@@ -335,6 +342,7 @@ import {
 	useDevicesList,
 	useDisplayMedia,
 	useDocumentVisibility,
+	useDraggable,
 	useElementSize,
 	useEventListener,
 	useFocus,
@@ -3950,6 +3958,66 @@ describe("public types", () => {
 				useDisplayMedia({ enabled: "true" });
 				// @ts-expect-error display media options must use valid option types
 				useDisplayMedia({ constraints: { audio: "true" } });
+			});
+		});
+
+		typeOnly(() => {
+			const axis: UseDraggableAxis = "both";
+			const pointerType: UseDraggablePointerType = "mouse";
+			const draggableElement = document.createElement(
+				"div",
+			) as UseDraggableElement;
+			const draggingElement: UseDraggableDraggingElement = window;
+			const handle = document.createElement("button");
+			const draggableOptions: UseDraggableOptions = {
+				axis: signal(axis),
+				buttons: signal([0] as const),
+				capture: signal(true),
+				containerElement: signal(draggableElement),
+				disabled: signal(false),
+				draggingElement: signal(draggingElement),
+				exact: signal(false),
+				handle: signal(handle),
+				initialValue: signal({ x: 1, y: 2 }),
+				onEnd: (position, event) => {
+					expectTypeOf(position).toEqualTypeOf<Position>();
+					expectTypeOf(event).toEqualTypeOf<PointerEvent>();
+				},
+				onMove: (position, event) => {
+					expectTypeOf(position).toEqualTypeOf<Position>();
+					expectTypeOf(event).toEqualTypeOf<PointerEvent>();
+				},
+				onStart: (position, event) => {
+					expectTypeOf(position).toEqualTypeOf<Position>();
+					expectTypeOf(event).toEqualTypeOf<PointerEvent>();
+					return false;
+				},
+				pointerTypes: signal([pointerType] as const),
+				preventDefault: signal(false),
+				stopPropagation: signal(false),
+			};
+			const draggable = useDraggable(
+				signal(draggableElement),
+				draggableOptions,
+			);
+			const draggableReturn: UseDraggableReturn = draggable;
+
+			expectTypeOf(draggable).toEqualTypeOf<UseDraggableReturn>();
+			expectTypeOf(draggableReturn.x).toEqualTypeOf<ReadonlySignal<number>>();
+			expectTypeOf(draggable.y).toEqualTypeOf<ReadonlySignal<number>>();
+			expectTypeOf(draggable.position).toEqualTypeOf<Computed<Position>>();
+			expectTypeOf(draggable.isDragging).toEqualTypeOf<Computed<boolean>>();
+			expectTypeOf(draggable.style).toEqualTypeOf<Computed<string>>();
+			expectTypeOf(draggable.stop()).toEqualTypeOf<void>();
+			typeOnly(() => {
+				// @ts-expect-error returned values are readonly signals
+				draggable.x.value = 1;
+				// @ts-expect-error axis must be x, y, or both
+				useDraggable(draggableElement, { axis: "z" });
+				// @ts-expect-error pointerTypes must be an array
+				useDraggable(draggableElement, { pointerTypes: "mouse" });
+				// @ts-expect-error buttons must be an array
+				useDraggable(draggableElement, { buttons: 0 });
 			});
 		});
 

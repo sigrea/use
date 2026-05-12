@@ -2314,6 +2314,55 @@ export interface UseMouseReturn {
 	stop(): void;
 }
 
+export type UseDraggableAxis = "x" | "y" | "both";
+export type UseDraggablePointerType = "mouse" | "pen" | "touch" | (string & {});
+export type UseDraggableElement = HTMLElement | SVGElement;
+export type UseDraggableDraggingElement =
+	| HTMLElement
+	| SVGElement
+	| Window
+	| Document;
+
+export interface UseDraggableOptions {
+	/**
+	 * Start dragging only when the pointerdown target is the draggable element itself.
+	 */
+	exact?: MaybeValue<boolean>;
+	preventDefault?: MaybeValue<boolean>;
+	stopPropagation?: MaybeValue<boolean>;
+	/**
+	 * Event listener capture option.
+	 *
+	 * @default true
+	 */
+	capture?: MaybeValue<boolean>;
+	draggingElement?: MaybeTarget<UseDraggableDraggingElement>;
+	containerElement?: MaybeTarget<UseDraggableElement>;
+	handle?: MaybeTarget<UseDraggableElement>;
+	pointerTypes?: MaybeValue<readonly UseDraggablePointerType[]>;
+	initialValue?: MaybeValue<Position>;
+	onStart?: (position: Position, event: PointerEvent) => void | false;
+	onMove?: (position: Position, event: PointerEvent) => void;
+	onEnd?: (position: Position, event: PointerEvent) => void;
+	axis?: MaybeValue<UseDraggableAxis>;
+	disabled?: MaybeValue<boolean>;
+	/**
+	 * PointerEvent.button values allowed to start dragging.
+	 *
+	 * @default [0]
+	 */
+	buttons?: MaybeValue<readonly number[]>;
+}
+
+export interface UseDraggableReturn {
+	readonly x: ReadonlySignal<number>;
+	readonly y: ReadonlySignal<number>;
+	readonly position: Computed<Position>;
+	readonly isDragging: Computed<boolean>;
+	readonly style: Computed<string>;
+	stop(): void;
+}
+
 export type FocusMethodOptions = FocusOptions;
 
 export interface FocusableElementLike extends EventTarget {
