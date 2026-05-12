@@ -60,6 +60,10 @@ import type {
 	EventHookArgs,
 	EventHookCallback,
 	EventHookReturn,
+	EventSourceConstructorLike,
+	EventSourceLike,
+	EventSourceStatus,
+	EventSourceWindowLike,
 	ExtendSignalOptions,
 	ExtendSignalReturn,
 	ExtendSignalSource,
@@ -280,6 +284,10 @@ import type {
 	UseElementVisibilityReturn,
 	UseElementVisibilityWindowLike,
 	UseEventBusReturn,
+	UseEventSourceOptions,
+	UseEventSourceReturn,
+	UseEventSourceSerializer,
+	UseEventSourceStatus,
 	UseFocusOptions,
 	UseMediaQueryOptions,
 	UseMouseOptions,
@@ -379,6 +387,7 @@ import {
 	useElementVisibility,
 	useEventBus,
 	useEventListener,
+	useEventSource,
 	useFocus,
 	useInterval,
 	useIntervalFn,
@@ -2178,6 +2187,102 @@ describe("public types", () => {
 			keyed.emit({ id: 1 });
 			// @ts-expect-error plain symbols are not typed event bus identifiers
 			useEventBus<string>(Symbol("plain"));
+		});
+	});
+
+	it("types event sources", () => {
+		typeOnly(() => {
+			interface Payload {
+				readonly id: string;
+			}
+
+			class TypedEventSource extends EventTarget implements EventSourceLike {
+				readonly readyState = 0;
+				constructor(_url: string | URL, _init?: EventSourceInit) {
+					super();
+				}
+				close(): void {}
+			}
+
+			const events = ["notice", "update"] as const;
+			const EventSourceCtor: EventSourceConstructorLike<TypedEventSource> =
+				TypedEventSource;
+			const window = Object.assign(new EventTarget(), {
+				EventSource: EventSourceCtor,
+			}) as EventSourceWindowLike<TypedEventSource>;
+			const serializer: UseEventSourceSerializer<Payload> = {
+				read: (value) => (value === undefined ? undefined : { id: value }),
+			};
+			const options: UseEventSourceOptions<
+				Payload,
+				TypedEventSource,
+				EventSourceWindowLike<TypedEventSource>
+			> = {
+				autoConnect: true,
+				immediate: false,
+				serializer,
+				window,
+				withCredentials: true,
+			};
+			const source = useEventSource<
+				typeof events,
+				Payload,
+				TypedEventSource,
+				EventSourceWindowLike<TypedEventSource>
+			>("https://example.com/events", events, options);
+			const fallback = useEventSource("https://example.com/events", [], {
+				window: null,
+			});
+			const reactiveUrl = signal<string | URL | null | undefined>(
+				"https://example.com/events",
+			);
+
+			useEventSource(reactiveUrl, events, { window });
+			expectTypeOf<EventSourceStatus>().toEqualTypeOf<UseEventSourceStatus>();
+			expectTypeOf(source).toEqualTypeOf<
+				UseEventSourceReturn<typeof events, Payload, TypedEventSource>
+			>();
+			expectTypeOf(source.isSupported).toEqualTypeOf<ReadonlySignal<boolean>>();
+			expectTypeOf(source.eventSource.value).toEqualTypeOf<
+				TypedEventSource | undefined
+			>();
+			expectTypeOf(source.status.value).toEqualTypeOf<UseEventSourceStatus>();
+			expectTypeOf(source.data.value).toEqualTypeOf<Payload | undefined>();
+			expectTypeOf(source.event.value).toEqualTypeOf<
+				"notice" | "update" | undefined
+			>();
+			expectTypeOf(source.error.value).toEqualTypeOf<unknown | null>();
+			expectTypeOf(source.lastEventId.value).toEqualTypeOf<string>();
+			expectTypeOf(source.open()).toEqualTypeOf<void>();
+			expectTypeOf(source.close()).toEqualTypeOf<void>();
+			expectTypeOf(source.stop()).toEqualTypeOf<void>();
+			expectTypeOf(fallback.eventSource.value).toEqualTypeOf<
+				EventSourceLike | undefined
+			>();
+			expectTypeOf(serializer.read()).toEqualTypeOf<Payload | undefined>();
+			// @ts-expect-error url must be a string, URL, or nullish value
+			useEventSource(1);
+			useEventSource("https://example.com/events", [], {
+				// @ts-expect-error credentials option must be boolean
+				withCredentials: "true",
+			});
+			useEventSource<readonly string[], Payload>(
+				"https://example.com/events",
+				[],
+				{
+					serializer: {
+						// @ts-expect-error serializer return must match the data type
+						read: () => "payload",
+					},
+				},
+			);
+			// @ts-expect-error signals returned by useEventSource are readonly
+			source.data.value = { id: "next" };
+			// @ts-expect-error lastEventId is readonly
+			source.lastEventId.value = "2";
+			// @ts-expect-error status must be one of the EventSource states
+			const invalidStatus: EventSourceStatus = "READY";
+			invalidStatus;
 		});
 	});
 

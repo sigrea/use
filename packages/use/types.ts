@@ -1527,6 +1527,65 @@ export interface UseEventBusReturn<T = unknown> {
 	reset(): void;
 }
 
+export type UseEventSourceStatus = "CONNECTING" | "OPEN" | "CLOSED";
+export type EventSourceStatus = UseEventSourceStatus;
+
+export interface EventSourceLike extends EventTarget {
+	readonly readyState: number;
+	readonly CONNECTING?: 0;
+	readonly OPEN?: 1;
+	readonly CLOSED?: 2;
+	close(): void;
+}
+
+export interface EventSourceConstructorLike<
+	TEventSource extends EventSourceLike = EventSourceLike,
+> {
+	new (url: string | URL, eventSourceInitDict?: EventSourceInit): TEventSource;
+	readonly CONNECTING?: 0;
+	readonly OPEN?: 1;
+	readonly CLOSED?: 2;
+}
+
+export interface EventSourceWindowLike<
+	TEventSource extends EventSourceLike = EventSourceLike,
+> extends WindowLike {
+	readonly EventSource?: EventSourceConstructorLike<TEventSource>;
+}
+
+export interface UseEventSourceSerializer<Data> {
+	read(value?: string): Data | undefined;
+}
+
+export interface UseEventSourceOptions<
+	Data = string,
+	TEventSource extends EventSourceLike = EventSourceLike,
+	TWindow extends
+		EventSourceWindowLike<TEventSource> = EventSourceWindowLike<TEventSource>,
+> extends EventSourceInit {
+	immediate?: boolean;
+	autoConnect?: boolean;
+	serializer?: UseEventSourceSerializer<Data>;
+	window?: MaybeTarget<TWindow>;
+}
+
+export interface UseEventSourceReturn<
+	Events extends readonly string[] = readonly string[],
+	Data = string,
+	TEventSource extends EventSourceLike = EventSourceLike,
+> {
+	readonly isSupported: ReadonlySignal<boolean>;
+	readonly eventSource: ReadonlySignal<TEventSource | undefined>;
+	readonly data: ReadonlySignal<Data | undefined>;
+	readonly status: ReadonlySignal<UseEventSourceStatus>;
+	readonly event: ReadonlySignal<Events[number] | undefined>;
+	readonly error: ReadonlySignal<unknown | null>;
+	readonly lastEventId: ReadonlySignal<string>;
+	open(): void;
+	close(): void;
+	stop(): void;
+}
+
 export interface Position {
 	x: number;
 	y: number;

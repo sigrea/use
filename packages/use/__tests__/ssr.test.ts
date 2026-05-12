@@ -96,6 +96,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.useElementVisibility).toBe("function");
 		expect(typeof mod.useEventBus).toBe("function");
 		expect(typeof mod.useEventListener).toBe("function");
+		expect(typeof mod.useEventSource).toBe("function");
 		expect(typeof mod.useFocus).toBe("function");
 		expect(typeof mod.useInterval).toBe("function");
 		expect(typeof mod.useIntervalFn).toBe("function");
@@ -136,6 +137,7 @@ describe("SSR safety", () => {
 			useElementHover,
 			useElementVisibility,
 			useLocalStorage,
+			useEventSource,
 			useMediaQuery,
 			useMouse,
 			useOnline,
@@ -222,6 +224,7 @@ describe("SSR safety", () => {
 			initialValue: true,
 			window: null,
 		});
+		const eventSource = useEventSource("https://example.com/events");
 		const sessionStorageValue = useSessionStorage("session", "fallback", {
 			window: undefined,
 		});
@@ -278,6 +281,9 @@ describe("SSR safety", () => {
 		expect(elementVisibility.isSupported.value).toBe(false);
 		expect(initialElementVisibility.isVisible.value).toBe(true);
 		expect(initialElementVisibility.isSupported.value).toBe(false);
+		expect(eventSource.isSupported.value).toBe(false);
+		expect(eventSource.status.value).toBe("CLOSED");
+		expect(eventSource.eventSource.value).toBeUndefined();
 		expect(sessionStorageValue.value).toBe("fallback");
 		expect(ssrMediaQuery.matches.value).toBe(true);
 		expect(storageValue.value).toBe("fallback");
@@ -330,6 +336,9 @@ describe("SSR safety", () => {
 		hover.stop();
 		elementVisibility.stop();
 		initialElementVisibility.stop();
+		eventSource.open();
+		eventSource.close();
+		eventSource.stop();
 		sessionStorageValue.stop();
 		ssrMediaQuery.stop();
 		storageValue.stop();

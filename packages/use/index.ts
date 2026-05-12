@@ -80,6 +80,7 @@ export { useElementSize } from "./useElementSize";
 export { useElementVisibility } from "./useElementVisibility";
 export { useEventBus } from "./useEventBus";
 export { useEventListener } from "./useEventListener";
+export { useEventSource } from "./useEventSource";
 export { useFocus } from "./useFocus";
 export { useInterval } from "./useInterval";
 export { useIntervalFn } from "./useIntervalFn";
@@ -224,6 +225,10 @@ export type {
 	EventHookOn,
 	EventHookReturn,
 	EventHookTrigger,
+	EventSourceConstructorLike,
+	EventSourceLike,
+	EventSourceStatus,
+	EventSourceWindowLike,
 	ExtendSignalOptions,
 	ExtendSignalReturn,
 	ExtendSignalSource,
@@ -423,6 +428,10 @@ export type {
 	UseEventBusReturn,
 	UseEventListenerOptions,
 	UseEventListenerReturn,
+	UseEventSourceOptions,
+	UseEventSourceReturn,
+	UseEventSourceSerializer,
+	UseEventSourceStatus,
 	UseFocusOptions,
 	UseFocusReturn,
 	UseIntervalControlsReturn,
