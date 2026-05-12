@@ -51,6 +51,7 @@ export type ProjectorFunction<From, To> = (
 export type UseProjection<From, To> = (
 	input: MaybeValue<From>,
 ) => ReadonlySignal<To>;
+export type UseProjectionReturn = ReadonlySignal<number>;
 export type FunctionArgs<
 	TArgs extends unknown[] = unknown[],
 	TReturn = unknown,
