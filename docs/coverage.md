@@ -124,7 +124,7 @@ Status values:
 | `useFileDialog` | `useFileDialog` | Done |
 | `useFileSystemAccess` | `useFileSystemAccess` | Done |
 | `useFocus` | `useFocus` | Done |
-| `useFocusWithin` | `-` | Todo |
+| `useFocusWithin` | `useFocusWithin` | Done |
 | `useFps` | `-` | Todo |
 | `useFullscreen` | `-` | Todo |
 | `useGamepad` | `-` | Todo |

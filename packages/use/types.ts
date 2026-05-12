@@ -2877,6 +2877,12 @@ export interface FocusableElementLike extends EventTarget {
 	matches?(selectors: string): boolean;
 }
 
+export interface FocusWithinElementLike extends EventTarget {
+	contains?(other: Node | null): boolean;
+	matches?(selectors: string): boolean;
+	ownerDocument?: Document;
+}
+
 export interface UseFocusOptions {
 	initialValue?: boolean;
 	focusVisible?: boolean;
@@ -2887,6 +2893,11 @@ export interface UseFocusReturn {
 	readonly focused: Computed<boolean>;
 	focus(): void;
 	blur(): void;
+	stop(): void;
+}
+
+export interface UseFocusWithinReturn {
+	readonly focused: ReadonlySignal<boolean>;
 	stop(): void;
 }
 
