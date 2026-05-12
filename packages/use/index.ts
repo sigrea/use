@@ -146,6 +146,7 @@ export { useSorted } from "./useSorted";
 export { useSpeechRecognition } from "./useSpeechRecognition";
 export { useSpeechSynthesis } from "./useSpeechSynthesis";
 export { useStepper } from "./useStepper";
+export { useStyleTag } from "./useStyleTag";
 export {
 	customStorageEventName,
 	StorageSerializers,
@@ -787,6 +788,9 @@ export type {
 	UseScriptTagDocumentLike,
 	UseScriptTagOptions,
 	UseScriptTagReturn,
+	UseStyleTagDocumentLike,
+	UseStyleTagOptions,
+	UseStyleTagReturn,
 	UseStorageAsyncOptions,
 	UseStorageAsyncReturn,
 	UseStorageOptions,

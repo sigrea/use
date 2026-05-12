@@ -566,6 +566,9 @@ import type {
 	UseStorageAsyncOptions,
 	UseStorageAsyncReturn,
 	UseStorageOptions,
+	UseStyleTagDocumentLike,
+	UseStyleTagOptions,
+	UseStyleTagReturn,
 	UseToggleOptions,
 	UseWindowSizeOptions,
 	WindowLike,
@@ -729,6 +732,7 @@ import {
 	useStepper,
 	useStorage,
 	useStorageAsync,
+	useStyleTag,
 	useThrottleFn,
 	useTimeout,
 	useTimeoutFn,
@@ -3076,6 +3080,55 @@ describe("public types", () => {
 			});
 			// @ts-expect-error scriptTag is readonly
 			script.scriptTag.value = document.createElement("script");
+		});
+	});
+
+	it("types style tags", () => {
+		typeOnly(() => {
+			const source = signal(".demo { color: red; }");
+			const customDocument = document as UseStyleTagDocumentLike;
+			const documentTarget = signal<UseStyleTagDocumentLike | null>(
+				customDocument,
+			);
+			const options: UseStyleTagOptions<UseStyleTagDocumentLike> = {
+				document: documentTarget,
+				id: "custom-style",
+				immediate: false,
+				manual: true,
+				media: "print",
+				nonce: "nonce-value",
+			};
+			const style = useStyleTag(source, options);
+			const fallback = useStyleTag(".fallback {}", {
+				document: null,
+			});
+
+			useStyleTag(() => ".getter {}", { document: customDocument });
+			expectTypeOf(customDocument).toMatchTypeOf<UseStyleTagDocumentLike>();
+			expectTypeOf(style).toEqualTypeOf<UseStyleTagReturn>();
+			expectTypeOf(style.id).toEqualTypeOf<string>();
+			expectTypeOf(style.css).toEqualTypeOf<Signal<string>>();
+			expectTypeOf(style.css.value).toEqualTypeOf<string>();
+			expectTypeOf(style.isLoaded).toEqualTypeOf<ReadonlySignal<boolean>>();
+			expectTypeOf(style.isLoaded.value).toEqualTypeOf<boolean>();
+			expectTypeOf(style.load()).toEqualTypeOf<void>();
+			expectTypeOf(style.unload()).toEqualTypeOf<void>();
+			expectTypeOf(fallback).toEqualTypeOf<UseStyleTagReturn>();
+			style.css.value = ".demo { color: blue; }";
+			// @ts-expect-error css must be a string value
+			useStyleTag(1);
+			useStyleTag(".demo {}", {
+				// @ts-expect-error document must be a style document-like target
+				document: {},
+			});
+			useStyleTag(".demo {}", {
+				// @ts-expect-error id must be a string
+				id: 1,
+			});
+			// @ts-expect-error isLoaded is readonly
+			style.isLoaded.value = false;
+			// @ts-expect-error css value must be a string
+			style.css.value = 1;
 		});
 	});
 

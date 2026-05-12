@@ -2305,6 +2305,31 @@ export interface UseScriptTagReturn {
 	unload(): void;
 }
 
+export interface UseStyleTagDocumentLike extends DocumentLike {
+	readonly head?: HTMLHeadElement | null;
+	createElement(tagName: "style"): HTMLStyleElement;
+	getElementById(elementId: string): HTMLElement | null;
+}
+
+export interface UseStyleTagOptions<
+	TDocument extends UseStyleTagDocumentLike = UseStyleTagDocumentLike,
+> {
+	document?: MaybeTarget<TDocument | null | undefined>;
+	media?: string;
+	immediate?: boolean;
+	manual?: boolean;
+	id?: string;
+	nonce?: string;
+}
+
+export interface UseStyleTagReturn {
+	readonly id: string;
+	readonly css: Signal<string>;
+	load(): void;
+	unload(): void;
+	readonly isLoaded: ReadonlySignal<boolean>;
+}
+
 export interface OnlineNavigatorLike extends NavigatorLike {
 	readonly onLine?: boolean;
 }

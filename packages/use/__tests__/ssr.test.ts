@@ -161,6 +161,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.useSpeechRecognition).toBe("function");
 		expect(typeof mod.useSpeechSynthesis).toBe("function");
 		expect(typeof mod.useStepper).toBe("function");
+		expect(typeof mod.useStyleTag).toBe("function");
 		expect(typeof mod.useSessionStorage).toBe("function");
 		expect(typeof mod.useStorage).toBe("function");
 		expect(typeof mod.useStorageAsync).toBe("function");
@@ -245,6 +246,7 @@ describe("SSR safety", () => {
 			useSpeechRecognition,
 			useSpeechSynthesis,
 			useStepper,
+			useStyleTag,
 			onElementRemoval,
 			onKeyDown,
 			onKeyPressed,
@@ -335,6 +337,7 @@ describe("SSR safety", () => {
 		const speechRecognition = useSpeechRecognition({ window: null });
 		const speechSynthesis = useSpeechSynthesis("hello", { window: null });
 		const stepper = useStepper(["first", "second"], "second");
+		const styleTag = useStyleTag(".ssr { color: red; }", { document: null });
 		const cssSupports = useCssSupports("display", "grid", { window: null });
 		const initialCssSupports = useCssSupports("display: grid", {
 			initialValue: true,
@@ -527,6 +530,11 @@ describe("SSR safety", () => {
 		expect(speechSynthesis.voices.value).toEqual([]);
 		expect(stepper.current.value).toBe("second");
 		expect(stepper.index.value).toBe(1);
+		expect(styleTag.id).toMatch(/^sigrea_style_tag_\d+$/);
+		expect(styleTag.css.value).toBe(".ssr { color: red; }");
+		expect(styleTag.isLoaded.value).toBe(false);
+		styleTag.load();
+		styleTag.unload();
 		speechSynthesis.speak();
 		speechSynthesis.cancel();
 		speechSynthesis.pause();
