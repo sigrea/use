@@ -94,6 +94,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.useElementHover).toBe("function");
 		expect(typeof mod.useElementSize).toBe("function");
 		expect(typeof mod.useElementVisibility).toBe("function");
+		expect(typeof mod.useEventBus).toBe("function");
 		expect(typeof mod.useEventListener).toBe("function");
 		expect(typeof mod.useFocus).toBe("function");
 		expect(typeof mod.useInterval).toBe("function");
@@ -750,22 +751,25 @@ describe("SSR safety", () => {
 		result.stop();
 	});
 
-	it("creates event hooks without a window", async () => {
-		const { createEventHook, useConfirmDialog } = await import(
+	it("creates event hooks and buses without a window", async () => {
+		const { createEventHook, useConfirmDialog, useEventBus } = await import(
 			"../../../index"
 		);
 		const hook = createEventHook<string>();
+		const bus = useEventBus<string>("ssr-bus");
 		const calls: string[] = [];
 
 		hook.on((value) => calls.push(value));
 		await hook.trigger("ready");
+		bus.on((value) => calls.push(value));
+		await bus.emit("bus-ready");
 
 		const dialog = useConfirmDialog<unknown, string, string>();
 		const result = dialog.open();
 		dialog.confirm("accepted");
 
 		expect(globalThis.window).toBeUndefined();
-		expect(calls).toEqual(["ready"]);
+		expect(calls).toEqual(["ready", "bus-ready"]);
 		expect(dialog.isOpen.value).toBe(false);
 		await expect(result).resolves.toEqual({
 			data: "accepted",

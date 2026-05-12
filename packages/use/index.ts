@@ -78,6 +78,7 @@ export { useElementByPoint } from "./useElementByPoint";
 export { useElementHover } from "./useElementHover";
 export { useElementSize } from "./useElementSize";
 export { useElementVisibility } from "./useElementVisibility";
+export { useEventBus } from "./useEventBus";
 export { useEventListener } from "./useEventListener";
 export { useFocus } from "./useFocus";
 export { useInterval } from "./useInterval";
@@ -212,6 +213,10 @@ export type {
 	ComputedWithControlSource,
 	ComputedWithControlSourceList,
 	CreateSignalReturn,
+	EventBusEvents,
+	EventBusIdentifier,
+	EventBusKey,
+	EventBusListener,
 	EventHook,
 	EventHookArgs,
 	EventHookCallback,
@@ -415,6 +420,7 @@ export type {
 	UseElementVisibilityOptions,
 	UseElementVisibilityReturn,
 	UseElementVisibilityWindowLike,
+	UseEventBusReturn,
 	UseEventListenerOptions,
 	UseEventListenerReturn,
 	UseFocusOptions,

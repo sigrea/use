@@ -1458,6 +1458,14 @@ export type CreateSignalReturn<
 	D extends boolean = false,
 > = D extends true ? Signal<T> : Signal<T>;
 
+declare const eventBusKey: unique symbol;
+
+export type EventBusKey<T = unknown> = symbol & {
+	readonly [eventBusKey]: T;
+};
+
+export type EventBusIdentifier<T = unknown> = EventBusKey<T> | string | number;
+
 type IsAny<T> = 0 extends 1 & T ? true : false;
 type IsUnknown<T> = IsAny<T> extends true
 	? false
@@ -1506,6 +1514,18 @@ export interface EventHook<T = unknown> {
 }
 
 export type EventHookReturn<T = unknown> = EventHook<T>;
+
+export type EventBusListener<T = unknown> = EventHookCallback<T>;
+
+export type EventBusEvents<T = unknown> = Set<EventBusListener<T>>;
+
+export interface UseEventBusReturn<T = unknown> {
+	on(listener: EventBusListener<T>): { off: () => void };
+	once(listener: EventBusListener<T>): { off: () => void };
+	off(listener: EventBusListener<T>): void;
+	emit(...args: EventHookArgs<T>): Promise<unknown[]>;
+	reset(): void;
+}
 
 export interface Position {
 	x: number;
