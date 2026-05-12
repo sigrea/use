@@ -731,6 +731,11 @@ import type {
 	WatchImmediateReturn,
 	WatchImmediateSource,
 	WatchImmediateSourceValues,
+	WatchOnceCallback,
+	WatchOnceOptions,
+	WatchOnceReturn,
+	WatchOnceSource,
+	WatchOnceSourceValues,
 	WebSocketConstructorLike,
 	WebSocketLike,
 	WindowLike,
@@ -938,6 +943,7 @@ import {
 	watchDeep,
 	watchIgnorable,
 	watchImmediate,
+	watchOnce,
 } from "../../../index";
 
 interface MatchMediaOnlyWindow extends MatchMediaWindow {
@@ -4787,6 +4793,53 @@ describe("public types", () => {
 			watchImmediate(1, callback);
 			// @ts-expect-error callback value type must match the source value
 			watchImmediate(signal("1"), callback);
+		});
+	});
+
+	it("types once watchers", () => {
+		typeOnly(() => {
+			const count = signal(0);
+			const label = computed(() => `${count.value}`);
+			const source: WatchOnceSource<number> = count;
+			const options: WatchOnceOptions<true> = {
+				deep: true,
+				flush: "sync",
+				immediate: true,
+			};
+			const callback: WatchOnceCallback<number, number | undefined> = (
+				value,
+				oldValue,
+				onCleanup,
+			) => {
+				expectTypeOf(value).toEqualTypeOf<number>();
+				expectTypeOf(oldValue).toEqualTypeOf<number | undefined>();
+				onCleanup(() => {});
+			};
+			const stop = watchOnce(source, callback, options);
+			const sourceValues: WatchOnceSourceValues<[typeof count, typeof label]> =
+				[1, "1"];
+			const tupleStop = watchOnce(
+				[count, label] as const,
+				(value, oldValue) => {
+					expectTypeOf(value).toEqualTypeOf<[number, string]>();
+					expectTypeOf(oldValue).toEqualTypeOf<[number, string] | []>();
+				},
+				{ flush: "sync", immediate: true },
+			);
+			const watchReturn: WatchOnceReturn = stop;
+
+			expectTypeOf(sourceValues).toEqualTypeOf<[number, string]>();
+			expectTypeOf(stop).toEqualTypeOf<WatchOnceReturn>();
+			expectTypeOf(tupleStop).toEqualTypeOf<WatchOnceReturn>();
+			expectTypeOf(watchReturn()).toEqualTypeOf<void>();
+			watchOnce(count, callback, {
+				// @ts-expect-error Sigrea watch does not support once option
+				once: true,
+			});
+			// @ts-expect-error source must be watchable
+			watchOnce(1, callback);
+			// @ts-expect-error callback value type must match the source value
+			watchOnce(signal("1"), callback);
 		});
 	});
 
