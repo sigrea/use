@@ -179,6 +179,7 @@ import type {
 	UntilBaseInstance,
 	UntilToMatchOptions,
 	UntilValueInstance,
+	UrlParams,
 	UseActiveElementDocumentLike,
 	UseActiveElementOptions,
 	UseActiveElementReturn,
@@ -628,6 +629,12 @@ import type {
 	UseTransitionReturn,
 	UseTransitionVector,
 	UseTransitionWindowLike,
+	UseUrlSearchParamsHistoryLike,
+	UseUrlSearchParamsLocationLike,
+	UseUrlSearchParamsMode,
+	UseUrlSearchParamsOptions,
+	UseUrlSearchParamsWindowLike,
+	UseUrlSearchParamsWriteMode,
 	UseWindowSizeOptions,
 	WindowLike,
 	WritableComputedWithControlReturn,
@@ -814,6 +821,7 @@ import {
 	useToString,
 	useToggle,
 	useTransition,
+	useUrlSearchParams,
 	useWindowSize,
 } from "../../../index";
 
@@ -1477,6 +1485,75 @@ describe("public types", () => {
 				hash: 1,
 			};
 			expectTypeOf(invalidLocation).toEqualTypeOf<BrowserLocationLike>();
+		});
+	});
+
+	it("types URL search params values and options", () => {
+		typeOnly(() => {
+			interface CustomParams {
+				customFoo: number | undefined;
+				foo?: string | string[];
+			}
+
+			const location: UseUrlSearchParamsLocationLike = {
+				hash: "",
+				pathname: "/",
+				search: "",
+			};
+			const history: UseUrlSearchParamsHistoryLike = {
+				pushState(_state, _title, _url) {},
+				replaceState(_state, _title, _url) {},
+				state: null,
+			};
+			const windowTarget = Object.assign(new EventTarget(), {
+				document,
+				history,
+				location,
+			}) as UseUrlSearchParamsWindowLike;
+			const mode: UseUrlSearchParamsMode = "hash-params";
+			const writeMode: UseUrlSearchParamsWriteMode = "push";
+			const options: UseUrlSearchParamsOptions<
+				CustomParams,
+				UseUrlSearchParamsWindowLike
+			> = {
+				initialValue: {
+					customFoo: 1,
+					foo: "bar",
+				},
+				removeFalsyValues: true,
+				removeNullishValues: true,
+				stringify: (params) => params.toString(),
+				window: signal(windowTarget),
+				write: true,
+				writeMode,
+			};
+			const params = useUrlSearchParams<CustomParams>(mode, options);
+			const fallback = useUrlSearchParams("history", {
+				initialValue: { foo: "bar" },
+				window: null,
+			});
+			const defaultParams = useUrlSearchParams();
+
+			expectTypeOf(params).toEqualTypeOf<CustomParams>();
+			expectTypeOf(fallback.foo).toEqualTypeOf<string>();
+			expectTypeOf(defaultParams).toEqualTypeOf<UrlParams>();
+			params.customFoo = 2;
+			params.foo = ["bar", "baz"];
+			defaultParams.foo = "bar";
+			defaultParams.foo = ["bar", "baz"];
+			defaultParams.foo = undefined;
+			useUrlSearchParams("hash");
+			useUrlSearchParams("hash-params");
+			useUrlSearchParams("history", {
+				// @ts-expect-error write mode must be replace or push
+				writeMode: "append",
+			});
+			useUrlSearchParams("history", {
+				// @ts-expect-error stringify must return a string
+				stringify: () => 1,
+			});
+			// @ts-expect-error mode must be history, hash, or hash-params
+			useUrlSearchParams("query");
 		});
 	});
 

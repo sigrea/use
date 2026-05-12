@@ -187,6 +187,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.transition).toBe("function");
 		expect(typeof mod.useTransition).toBe("function");
 		expect(typeof mod.useToggle).toBe("function");
+		expect(typeof mod.useUrlSearchParams).toBe("function");
 		expect(typeof mod.useWindowSize).toBe("function");
 	}, 30_000);
 
@@ -288,6 +289,7 @@ describe("SSR safety", () => {
 			useToString,
 			transition,
 			useTransition,
+			useUrlSearchParams,
 			useWindowSize,
 			useActiveElement,
 			useAnimate,
@@ -475,6 +477,10 @@ describe("SSR safety", () => {
 		};
 		await transition(transitionSource, 0, 1, { window: null });
 		const transitionValue = useTransition(1, { window: null });
+		const urlSearchParams = useUrlSearchParams("history", {
+			initialValue: { foo: "bar" },
+			window: null,
+		});
 		const elementSize = useElementSize(null, { width: 10, height: 20 });
 		const size = useWindowSize();
 
@@ -705,6 +711,7 @@ describe("SSR safety", () => {
 		expect(stringValue.value).toBe("123.4");
 		expect(transitionSource.value).toBe(1);
 		expect(transitionValue.value).toBe(1);
+		expect(urlSearchParams.foo).toBe("bar");
 		expect(elementSize.width.value).toBe(10);
 		expect(elementSize.height.value).toBe(20);
 		expect(size.width.value).toBe(0);
