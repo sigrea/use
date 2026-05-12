@@ -233,7 +233,7 @@ Status values:
 | `watchTriggerable` | `watchTriggerable` | Done |
 | `watchWithFilter` | `watchWithFilter` | Done |
 | `whenever` | `whenever` | Done |
-| `math/createGenericProjection` | `-` | Todo |
+| `math/createGenericProjection` | `createGenericProjection` | Done |
 | `math/createProjection` | `-` | Todo |
 | `math/logicAnd` | `-` | Todo |
 | `math/logicNot` | `-` | Todo |

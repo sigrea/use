@@ -127,6 +127,7 @@ import type {
 	OrientationLockType,
 	OrientationType,
 	Position,
+	ProjectorFunction,
 	ReactifyNested,
 	ReactifyObjectOptions,
 	ReactifyObjectReturn,
@@ -518,6 +519,7 @@ import type {
 	UsePreferredReducedMotionReturn,
 	UsePreferredReducedTransparency,
 	UsePreferredReducedTransparencyReturn,
+	UseProjection,
 	UseRafFnCallback,
 	UseRafFnCallbackArguments,
 	UseRafFnOptions,
@@ -783,6 +785,7 @@ import {
 	computedEager,
 	computedWithControl,
 	createEventHook,
+	createGenericProjection,
 	createResolveValueFn,
 	createSignal,
 	extendSignal,
@@ -3060,6 +3063,39 @@ describe("public types", () => {
 			readonlyArray.trigger("ready", "done");
 			// @ts-expect-error payload type must match
 			single.trigger("ready");
+		});
+	});
+
+	it("types generic projections", () => {
+		typeOnly(() => {
+			const from = signal<readonly [number, number]>([0, 10]);
+			const to = signal<readonly ["low", "high"]>(["low", "high"]);
+			const projector: ProjectorFunction<number, string> = (
+				input,
+				fromDomain,
+				toDomain,
+			) => {
+				expectTypeOf(input).toEqualTypeOf<number>();
+				expectTypeOf(fromDomain).toEqualTypeOf<readonly [number, number]>();
+				expectTypeOf(toDomain).toEqualTypeOf<readonly [string, string]>();
+				return input <= fromDomain[1] ? toDomain[0] : toDomain[1];
+			};
+			const useProjection = createGenericProjection(from, to, projector);
+			const output = useProjection(signal(1));
+			const projectionReturn: UseProjection<number, string> = useProjection;
+
+			expectTypeOf(useProjection).toEqualTypeOf<
+				UseProjection<number, string>
+			>();
+			expectTypeOf(output).toMatchTypeOf<ReadonlySignal<string>>();
+			expectTypeOf(output.value).toEqualTypeOf<string>();
+			expectTypeOf(projectionReturn(1).value).toEqualTypeOf<string>();
+			// @ts-expect-error projection output is readonly
+			output.value = "high";
+			// @ts-expect-error input type must match the projection source domain
+			useProjection(signal("1"));
+			// @ts-expect-error projector must return the target domain type
+			createGenericProjection(from, to, () => 1);
 		});
 	});
 
