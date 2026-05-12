@@ -97,6 +97,7 @@ export { useImage } from "./useImage";
 export { useInfiniteScroll } from "./useInfiniteScroll";
 export { useIntersectionObserver } from "./useIntersectionObserver";
 export { useKeyModifier } from "./useKeyModifier";
+export { useLastChanged } from "./useLastChanged";
 export { useInterval } from "./useInterval";
 export { useIntervalFn } from "./useIntervalFn";
 export { useLocalStorage } from "./useLocalStorage";
@@ -544,6 +545,8 @@ export type {
 	UseKeyModifierEventName,
 	UseKeyModifierOptions,
 	UseKeyModifierReturn,
+	UseLastChangedOptions,
+	UseLastChangedReturn,
 	UseIntervalControlsReturn,
 	UseIntervalFnOptions,
 	UseIntervalFnReturn,

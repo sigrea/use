@@ -378,6 +378,8 @@ import type {
 	UseKeyModifierEventName,
 	UseKeyModifierOptions,
 	UseKeyModifierReturn,
+	UseLastChangedOptions,
+	UseLastChangedReturn,
 	UseMediaQueryOptions,
 	UseMouseOptions,
 	UseOnlineOptions,
@@ -495,6 +497,7 @@ import {
 	useInterval,
 	useIntervalFn,
 	useKeyModifier,
+	useLastChanged,
 	useLocalStorage,
 	useManualRefHistory,
 	useMediaQuery,
@@ -4164,6 +4167,76 @@ describe("public types", () => {
 					// @ts-expect-error initial must be boolean or null
 					initial: "false",
 				});
+			});
+		});
+	});
+
+	it("types last changed timestamps", () => {
+		typeOnly(() => {
+			const source = signal(0);
+			const readonlySource = readonly(source);
+			const options: UseLastChangedOptions<false, null> = {
+				deep: true,
+				flush: "sync",
+				initialValue: null,
+			};
+			const initialOptions: UseLastChangedOptions<boolean, number> & {
+				initialValue: number;
+			} = {
+				initialValue: 123,
+			};
+			const immediateValue: boolean = false;
+			const dynamicInitial: number | null = null;
+			const nullable = useLastChanged(source);
+			const getterResult = useLastChanged(() => source.value, options);
+			const readonlyResult = useLastChanged(readonlySource, initialOptions);
+			const immediate = useLastChanged(source, {
+				immediate: true,
+				initialValue: null,
+			});
+			const syncResult = useLastChanged(source, {
+				flush: "sync",
+			});
+			const nullInitialResult = useLastChanged(source, {
+				initialValue: null,
+			});
+			const dynamicInitialResult = useLastChanged(source, {
+				initialValue: dynamicInitial,
+			});
+			const maybeImmediate = useLastChanged(source, {
+				immediate: immediateValue,
+			});
+			const nullableReturn: UseLastChangedReturn = nullable;
+			const numberReturn: UseLastChangedReturn<boolean, number> =
+				readonlyResult;
+
+			expectTypeOf(nullable).toEqualTypeOf<ReadonlySignal<number | null>>();
+			expectTypeOf(getterResult).toEqualTypeOf<ReadonlySignal<number | null>>();
+			expectTypeOf(readonlyResult).toEqualTypeOf<ReadonlySignal<number>>();
+			expectTypeOf(immediate).toEqualTypeOf<ReadonlySignal<number>>();
+			expectTypeOf(syncResult).toEqualTypeOf<ReadonlySignal<number | null>>();
+			expectTypeOf(nullInitialResult).toEqualTypeOf<
+				ReadonlySignal<number | null>
+			>();
+			expectTypeOf(dynamicInitialResult).toEqualTypeOf<
+				ReadonlySignal<number | null>
+			>();
+			expectTypeOf(maybeImmediate).toEqualTypeOf<
+				ReadonlySignal<number | null>
+			>();
+			expectTypeOf(nullableReturn.value).toEqualTypeOf<number | null>();
+			expectTypeOf(numberReturn.value).toEqualTypeOf<number>();
+
+			typeOnly(() => {
+				// @ts-expect-error returned timestamp is readonly
+				nullable.value = 123;
+				// @ts-expect-error source must be reactive or a getter
+				useLastChanged(1);
+				const invalidOptions: UseLastChangedOptions = {
+					// @ts-expect-error initialValue must be a timestamp or null
+					initialValue: "now",
+				};
+				expectTypeOf(invalidOptions).toEqualTypeOf<UseLastChangedOptions>();
 			});
 		});
 	});

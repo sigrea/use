@@ -2744,6 +2744,24 @@ export type UseKeyModifierReturn<Initial extends boolean | null = null> =
 		stop(): void;
 	};
 
+export interface UseLastChangedOptions<
+	Immediate extends boolean = false,
+	InitialValue extends number | null | undefined = undefined,
+> extends WatchOptions<Immediate> {
+	initialValue?: InitialValue;
+}
+
+export type UseLastChangedReturn<
+	Immediate extends boolean = false,
+	InitialValue extends number | null | undefined = undefined,
+> = ReadonlySignal<
+	Immediate extends true
+		? number
+		: InitialValue extends number
+			? number
+			: number | null
+>;
+
 export interface OnLongPressModifiers {
 	stop?: boolean;
 	once?: boolean;
