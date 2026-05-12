@@ -4125,6 +4125,64 @@ export type WatchArrayOptions<Immediate extends boolean = false> =
 
 export type WatchArrayReturn = WatchStopHandle;
 
+type WatchAtMostDeepSource<T> = T extends object
+	? DeepSignal<T> | ReadonlyDeepSignal<T>
+	: never;
+
+export type WatchAtMostSource<T = unknown> =
+	| WatchSource<T>
+	| WatchAtMostDeepSource<T>;
+
+export type WatchAtMostSourceValue<TSource> = TSource extends Signal<
+	infer Value
+>
+	? Value
+	: TSource extends ReadonlySignal<infer Value>
+		? Value
+		: TSource extends Computed<infer Value>
+			? Value
+			: TSource extends () => infer Value
+				? Value
+				: TSource extends DeepSignal<infer Value>
+					? Value
+					: TSource extends ReadonlyDeepSignal<infer Value>
+						? Value
+						: TSource;
+
+export type WatchAtMostSourceValues<TSources extends readonly unknown[]> = {
+	[K in keyof TSources]: WatchAtMostSourceValue<TSources[K]>;
+};
+
+export type WatchAtMostOnCleanup = (cleanupFn: Cleanup) => void;
+
+export type WatchAtMostCallback<
+	Value = unknown,
+	Immediate extends boolean = false,
+> = (
+	value: Value,
+	oldValue: Immediate extends true ? Value | undefined : Value,
+	onCleanup: WatchAtMostOnCleanup,
+) => void | Cleanup | Promise<void | Cleanup>;
+
+export type WatchAtMostSourceListCallback<
+	Value = unknown,
+	Immediate extends boolean = false,
+> = (
+	value: Value,
+	oldValue: Immediate extends true ? Value | [] : Value,
+	onCleanup: WatchAtMostOnCleanup,
+) => void | Cleanup | Promise<void | Cleanup>;
+
+export interface WatchAtMostOptions<Immediate extends boolean = false>
+	extends WatchOptions<Immediate> {
+	count: MaybeValue<number>;
+}
+
+export interface WatchAtMostReturn {
+	readonly count: ReadonlySignal<number>;
+	stop(): void;
+}
+
 export interface OnClickOutsideDocumentLike extends DocumentLike {
 	readonly activeElement?: Element | null;
 	querySelectorAll?(selector: string): Iterable<Element> | ArrayLike<Element>;

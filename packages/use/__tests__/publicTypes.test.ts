@@ -703,6 +703,12 @@ import type {
 	WatchArrayOptions,
 	WatchArrayReturn,
 	WatchArraySource,
+	WatchAtMostCallback,
+	WatchAtMostOptions,
+	WatchAtMostReturn,
+	WatchAtMostSource,
+	WatchAtMostSourceListCallback,
+	WatchAtMostSourceValues,
 	WebSocketConstructorLike,
 	WebSocketLike,
 	WindowLike,
@@ -905,6 +911,7 @@ import {
 	useWindowScroll,
 	useWindowSize,
 	watchArray,
+	watchAtMost,
 } from "../../../index";
 
 interface MatchMediaOnlyWindow extends MatchMediaWindow {
@@ -4484,6 +4491,76 @@ describe("public types", () => {
 			watchArray(signal(1), callback);
 			// @ts-expect-error callback item type must match source items
 			watchArray(signal(["1"]), callback);
+		});
+	});
+
+	it("types count-limited watchers", () => {
+		typeOnly(() => {
+			const count = signal(0);
+			const label = computed(() => `${count.value}`);
+			const source: WatchAtMostSource<number> = count;
+			const options: WatchAtMostOptions<true> = {
+				count: signal(2),
+				deep: true,
+				flush: "sync",
+				immediate: true,
+			};
+			const callback: WatchAtMostCallback<number, true> = (
+				value,
+				oldValue,
+				onCleanup,
+			) => {
+				expectTypeOf(value).toEqualTypeOf<number>();
+				expectTypeOf(oldValue).toEqualTypeOf<number | undefined>();
+				onCleanup(() => {});
+			};
+			const tupleCallback: WatchAtMostSourceListCallback<
+				[number, string],
+				true
+			> = (value, oldValue, onCleanup) => {
+				expectTypeOf(value).toEqualTypeOf<[number, string]>();
+				expectTypeOf(oldValue).toEqualTypeOf<[number, string] | []>();
+				onCleanup(() => {});
+			};
+			const controls = watchAtMost(source, callback, options);
+			const sourceValues: WatchAtMostSourceValues<
+				[typeof count, typeof label]
+			> = [1, "1"];
+			const tupleControls = watchAtMost(
+				[count, label] as const,
+				tupleCallback,
+				{ count: 1, immediate: true },
+			);
+			const nonImmediateTupleControls = watchAtMost(
+				[count, label] as const,
+				(value, oldValue, onCleanup) => {
+					expectTypeOf(value).toEqualTypeOf<[number, string]>();
+					expectTypeOf(oldValue).toEqualTypeOf<[number, string]>();
+					onCleanup(() => {});
+				},
+				{ count: 1 },
+			);
+			const watchReturn: WatchAtMostReturn = controls;
+
+			expectTypeOf(sourceValues).toEqualTypeOf<[number, string]>();
+			expectTypeOf(controls).toEqualTypeOf<WatchAtMostReturn>();
+			expectTypeOf(tupleControls).toEqualTypeOf<WatchAtMostReturn>();
+			expectTypeOf(
+				nonImmediateTupleControls,
+			).toEqualTypeOf<WatchAtMostReturn>();
+			expectTypeOf(controls.count).toEqualTypeOf<ReadonlySignal<number>>();
+			expectTypeOf(controls.stop()).toEqualTypeOf<void>();
+			watchReturn.stop();
+			// @ts-expect-error pause is handled by a dedicated watch helper
+			controls.pause();
+			// @ts-expect-error resume is handled by a dedicated watch helper
+			controls.resume();
+			// @ts-expect-error count must resolve to a number
+			watchAtMost(count, callback, { count: "2" });
+			// @ts-expect-error source must be watchable
+			watchAtMost(1, callback, { count: 1 });
+			// @ts-expect-error callback value type must match the source value
+			watchAtMost(signal("1"), callback, { count: 1 });
 		});
 	});
 
