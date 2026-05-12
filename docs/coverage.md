@@ -245,7 +245,7 @@ Status values:
 | `math/useFloor` | `useFloor` | Done |
 | `math/useMath` | `useMath` | Done |
 | `math/useMax` | `useMax` | Done |
-| `math/useMin` | `-` | Todo |
+| `math/useMin` | `useMin` | Done |
 | `math/usePrecision` | `-` | Todo |
 | `math/useProjection` | `-` | Todo |
 | `math/useRound` | `-` | Todo |
