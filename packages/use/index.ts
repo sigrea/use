@@ -40,6 +40,7 @@ export { useArrayIncludes } from "./useArrayIncludes";
 export { useArrayJoin } from "./useArrayJoin";
 export { useArrayMap } from "./useArrayMap";
 export { useArrayReduce } from "./useArrayReduce";
+export { useArraySome } from "./useArraySome";
 export { useBreakpoints } from "./useBreakpoints";
 export { useCounter } from "./useCounter";
 export { useDebounceFn } from "./useDebounceFn";
@@ -209,6 +210,8 @@ export type {
 	UseArrayMapReturn,
 	UseArrayReduceReducer,
 	UseArrayReduceReturn,
+	UseArraySomePredicate,
+	UseArraySomeReturn,
 	UseBreakpointsOptions,
 	UseBreakpointsReturn,
 	UseCounterOptions,

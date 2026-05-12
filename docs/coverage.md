@@ -76,7 +76,7 @@ Status values:
 | `useArrayJoin` | `useArrayJoin` | Done |
 | `useArrayMap` | `useArrayMap` | Done |
 | `useArrayReduce` | `useArrayReduce` | Done |
-| `useArraySome` | `-` | Todo |
+| `useArraySome` | `useArraySome` | Done |
 | `useArrayUnique` | `-` | Todo |
 | `useAsyncQueue` | `-` | Todo |
 | `useAsyncState` | `-` | Todo |
