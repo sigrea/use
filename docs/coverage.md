@@ -150,7 +150,7 @@ Status values:
 | `useMousePressed` | `useMousePressed` | Done |
 | `useMutationObserver` | `useMutationObserver` | Done |
 | `useNavigatorLanguage` | `useNavigatorLanguage` | Done |
-| `useNetwork` | `-` | Todo |
+| `useNetwork` | `useNetwork` | Done |
 | `useNow` | `-` | Todo |
 | `useObjectUrl` | `-` | Todo |
 | `useOffsetPagination` | `-` | Todo |
