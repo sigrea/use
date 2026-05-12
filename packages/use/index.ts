@@ -53,6 +53,7 @@ export { useCached } from "./useCached";
 export { useClipboard } from "./useClipboard";
 export { useClipboardItems } from "./useClipboardItems";
 export { cloneStructured, useCloned } from "./useCloned";
+export { useColorMode } from "./useColorMode";
 export { useBreakpoints } from "./useBreakpoints";
 export { useCounter } from "./useCounter";
 export { useDebounceFn } from "./useDebounceFn";
@@ -125,6 +126,7 @@ export type {
 	BrowserLocationTrigger,
 	BrowserLocationWindowLike,
 	BrowserLocationWritableProperty,
+	BasicColorMode,
 	ClipboardDocumentBodyLike,
 	ClipboardDocumentLike,
 	ClipboardItemLike,
@@ -132,11 +134,17 @@ export type {
 	ClipboardLike,
 	ClipboardNavigatorLike,
 	ClipboardTextareaLike,
+	ColorModeSelection,
 	UseBatteryOptions,
 	UseBatteryReturn,
 	UseClonedCloneFn,
 	UseClonedOptions,
 	UseClonedReturn,
+	UseColorModeDefaultHandler,
+	UseColorModeDocumentLike,
+	UseColorModeOptions,
+	UseColorModeReturn,
+	UseColorModeWindowLike,
 	UseBluetoothOptions,
 	UseBluetoothRequestDeviceOptions,
 	UseBluetoothReturn,
