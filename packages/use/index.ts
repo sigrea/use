@@ -116,6 +116,7 @@ export { useNavigatorLanguage } from "./useNavigatorLanguage";
 export { useNetwork } from "./useNetwork";
 export { useNow } from "./useNow";
 export { useObjectUrl } from "./useObjectUrl";
+export { useOffsetPagination } from "./useOffsetPagination";
 export { useOnline } from "./useOnline";
 export { usePreferredDark } from "./usePreferredDark";
 export { usePrevious } from "./usePrevious";
@@ -625,6 +626,9 @@ export type {
 	UseObjectUrlReturn,
 	UseObjectUrlWindowLike,
 	UseObjectUrlUrlLike,
+	UseOffsetPaginationChangePayload,
+	UseOffsetPaginationOptions,
+	UseOffsetPaginationReturn,
 	UseOnlineOptions,
 	UseOnlineReturn,
 	UseRefHistoryOptions,

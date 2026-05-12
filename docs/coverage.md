@@ -153,7 +153,7 @@ Status values:
 | `useNetwork` | `useNetwork` | Done |
 | `useNow` | `useNow` | Done |
 | `useObjectUrl` | `useObjectUrl` | Done |
-| `useOffsetPagination` | `-` | Todo |
+| `useOffsetPagination` | `useOffsetPagination` | Done |
 | `useOnline` | `useOnline` | Done |
 | `usePageLeave` | `-` | Todo |
 | `useParallax` | `-` | Todo |

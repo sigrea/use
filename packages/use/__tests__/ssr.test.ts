@@ -132,6 +132,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.useNetwork).toBe("function");
 		expect(typeof mod.useNow).toBe("function");
 		expect(typeof mod.useObjectUrl).toBe("function");
+		expect(typeof mod.useOffsetPagination).toBe("function");
 		expect(typeof mod.useOnline).toBe("function");
 		expect(typeof mod.usePreferredDark).toBe("function");
 		expect(typeof mod.usePrevious).toBe("function");
@@ -192,6 +193,7 @@ describe("SSR safety", () => {
 			useNetwork,
 			useNow,
 			useObjectUrl,
+			useOffsetPagination,
 			useOnline,
 			usePreferredDark,
 			onElementRemoval,
@@ -249,6 +251,7 @@ describe("SSR safety", () => {
 			window: null,
 		});
 		const objectUrl = useObjectUrl(new Blob(["ssr"]), { window: null });
+		const pagination = useOffsetPagination({ total: 0 });
 		const mediaQuery = useMediaQuery("(min-width: 640px)");
 		const online = useOnline();
 		const preferredDark = usePreferredDark();
@@ -358,6 +361,9 @@ describe("SSR safety", () => {
 		expect(now.now.value).toBeInstanceOf(Date);
 		expect(now.isActive.value).toBe(false);
 		expect(objectUrl.url.value).toBeUndefined();
+		expect(pagination.currentPage.value).toBe(1);
+		expect(pagination.currentPageSize.value).toBe(10);
+		expect(pagination.pageCount.value).toBe(1);
 		expect(mediaQuery.matches.value).toBe(false);
 		expect(online.isOnline.value).toBe(true);
 		expect(preferredDark.matches.value).toBe(false);
@@ -475,6 +481,7 @@ describe("SSR safety", () => {
 		network.stop();
 		now.pause();
 		objectUrl.stop();
+		pagination.stop();
 		mediaQuery.stop();
 		online.stop();
 		preferredDark.stop();
