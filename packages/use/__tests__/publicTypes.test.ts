@@ -62,6 +62,8 @@ import type {
 	ReactiveComputedReturn,
 	ReactiveOmitPredicate,
 	ReactiveOmitReturn,
+	ReactivePickPredicate,
+	ReactivePickReturn,
 	RemovableSignal,
 	ResizeObserverWindowLike,
 	ResolveValueFn,
@@ -103,6 +105,7 @@ import {
 	reactifyObject,
 	reactiveComputed,
 	reactiveOmit,
+	reactivePick,
 	resolveValue,
 	useBreakpoints,
 	useDebounceFn,
@@ -786,6 +789,90 @@ describe("public types", () => {
 			optionalTarget.foo = "next";
 			// @ts-expect-error optional source keys stay optional
 			const requiredTarget: { foo: string | undefined } = optionalOmitted;
+		});
+	});
+
+	it("types reactive picked objects", () => {
+		typeOnly(() => {
+			const source = {
+				count: signal(1),
+				label: "ready",
+				hidden: true,
+			};
+			const readonlySource = {
+				readonlyCount: readonly(signal(1)),
+				hidden: true,
+			};
+			const readonlyObjectSource = readonly(
+				deepSignal({
+					label: "ready",
+					hidden: true,
+				}),
+			);
+			const readonlyNestedSource = readonly(
+				deepSignal({
+					nested: { count: 1 },
+					hidden: true,
+				}),
+			);
+			const optionalSource: {
+				foo?: string;
+				hidden: boolean;
+			} = {
+				hidden: true,
+			};
+			const none = reactivePick(source);
+			const picked = reactivePick(source, "count", "label");
+			const pickedFromArray = reactivePick(source, ["count"] as const);
+			const readonlyPicked = reactivePick(readonlySource, "readonlyCount");
+			const readonlyObjectPicked = reactivePick(readonlyObjectSource, "label");
+			const readonlyNestedPicked = reactivePick(readonlyNestedSource, "nested");
+			const optionalPicked = reactivePick(optionalSource, "foo");
+			const predicate: ReactivePickPredicate<typeof source> = (value, key) => {
+				expectTypeOf(value).toEqualTypeOf<string | number | boolean>();
+				expectTypeOf(key).toEqualTypeOf<"count" | "label" | "hidden">();
+				return key !== "hidden" && value !== true;
+			};
+			const predicateResult = reactivePick(source, predicate);
+
+			expectTypeOf(picked).toEqualTypeOf<
+				ReactivePickReturn<typeof source, "count" | "label">
+			>();
+			expectTypeOf(none).toEqualTypeOf<
+				ReactivePickReturn<typeof source, never>
+			>();
+			expectTypeOf(picked.count).toEqualTypeOf<number>();
+			expectTypeOf(picked.label).toEqualTypeOf<string>();
+			expectTypeOf(pickedFromArray.count).toEqualTypeOf<number>();
+			expectTypeOf(readonlyPicked.readonlyCount).toEqualTypeOf<number>();
+			expectTypeOf(readonlyObjectPicked.label).toEqualTypeOf<string>();
+			expectTypeOf(readonlyNestedPicked.nested.count).toEqualTypeOf<number>();
+			expectTypeOf(optionalPicked.foo).toEqualTypeOf<string | undefined>();
+			expectTypeOf(predicateResult).toEqualTypeOf<
+				ReactivePickReturn<typeof source>
+			>();
+			expectTypeOf(predicateResult.count).toEqualTypeOf<number | undefined>();
+			expectTypeOf(predicateResult.label).toEqualTypeOf<string | undefined>();
+
+			picked.count = 2;
+			picked.label = "next";
+			optionalPicked.foo = "next";
+			// @ts-expect-error unpicked keys are not exposed
+			picked.hidden;
+			// @ts-expect-error unpicked keys are not exposed from array keys
+			pickedFromArray.label;
+			// @ts-expect-error signal property unwrap keeps the source value type
+			picked.count = "2";
+			// @ts-expect-error readonly signal source stays readonly
+			readonlyPicked.readonlyCount = 2;
+			// @ts-expect-error readonly object source stays readonly
+			readonlyObjectPicked.label = "next";
+			// @ts-expect-error readonly deep signal source stays readonly
+			readonlyNestedPicked.nested.count = 2;
+			const optionalTarget: { foo?: string } = optionalPicked;
+			optionalTarget.foo = "next";
+			// @ts-expect-error optional source keys stay optional
+			const requiredTarget: { foo: string | undefined } = optionalPicked;
 		});
 	});
 

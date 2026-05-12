@@ -43,7 +43,7 @@ Status values:
 | `reactifyObject` | `reactifyObject` | Done |
 | `reactiveComputed` | `reactiveComputed` | Done |
 | `reactiveOmit` | `reactiveOmit` | Done |
-| `reactivePick` | `-` | Todo |
+| `reactivePick` | `reactivePick` | Done |
 | `refAutoReset` | `-` | Todo |
 | `refDebounced` | `-` | Todo |
 | `refDefault` | `-` | Todo |
