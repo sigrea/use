@@ -3398,6 +3398,62 @@ export interface UsePointerReturn {
 	stop(): void;
 }
 
+export type UsePointerSwipeDirection =
+	| "none"
+	| "left"
+	| "right"
+	| "up"
+	| "down";
+export type UsePointerSwipePointerType = UsePointerType;
+export type UsePointerSwipeElement = HTMLElement | SVGElement;
+
+export interface UsePointerSwipeOptions {
+	/**
+	 * Minimum absolute pointer distance before the gesture is treated as a swipe.
+	 *
+	 * @default 50
+	 */
+	threshold?: MaybeValue<number>;
+	pointerTypes?: MaybeValue<readonly UsePointerSwipePointerType[]>;
+	onSwipeStart?: (event: PointerEvent) => void;
+	onSwipe?: (event: PointerEvent) => void;
+	onSwipeEnd?: (
+		event: PointerEvent,
+		direction: UsePointerSwipeDirection,
+	) => void;
+	/**
+	 * Disable text selection while swipe listeners are active.
+	 *
+	 * @default false
+	 */
+	disableTextSelect?: MaybeValue<boolean>;
+	/**
+	 * CSS touch-action value applied while swipe listeners are active.
+	 *
+	 * @default "none"
+	 */
+	touchAction?: MaybeValue<string>;
+	preventDefault?: MaybeValue<boolean>;
+	stopPropagation?: MaybeValue<boolean>;
+	/**
+	 * Event listener capture option.
+	 *
+	 * @default false
+	 */
+	capture?: MaybeValue<boolean>;
+	disabled?: MaybeValue<boolean>;
+}
+
+export interface UsePointerSwipeReturn {
+	readonly isSwiping: ReadonlySignal<boolean>;
+	readonly direction: Computed<UsePointerSwipeDirection>;
+	readonly posStart: Computed<Position>;
+	readonly posEnd: Computed<Position>;
+	readonly distanceX: Computed<number>;
+	readonly distanceY: Computed<number>;
+	stop(): void;
+}
+
 export interface UsePointerLockElementLike extends EventTarget {
 	getRootNode?(): UsePointerLockRootLike | Node;
 	requestPointerLock?(options?: PointerLockOptions): Promise<void> | void;

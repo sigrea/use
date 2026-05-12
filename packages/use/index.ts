@@ -124,6 +124,7 @@ export { usePerformanceObserver } from "./usePerformanceObserver";
 export { usePermission } from "./usePermission";
 export { usePointer } from "./usePointer";
 export { usePointerLock } from "./usePointerLock";
+export { usePointerSwipe } from "./usePointerSwipe";
 export { usePreferredDark } from "./usePreferredDark";
 export { usePrevious } from "./usePrevious";
 export { useRefHistory } from "./useRefHistory";
@@ -664,6 +665,11 @@ export type {
 	UsePointerLockReturn,
 	UsePointerLockRootLike,
 	UsePointerReturn,
+	UsePointerSwipeDirection,
+	UsePointerSwipeElement,
+	UsePointerSwipeOptions,
+	UsePointerSwipePointerType,
+	UsePointerSwipeReturn,
 	UsePointerState,
 	UsePointerType,
 	UseRefHistoryOptions,
