@@ -51,6 +51,8 @@ import type {
 	DateLike,
 	DeviceMotionEventConstructorLike,
 	DeviceMotionPermissionState,
+	DeviceOrientationEventConstructorLike,
+	DeviceOrientationPermissionState,
 	DocumentVisibilityDocumentLike,
 	EventHook,
 	EventHookArgs,
@@ -220,6 +222,9 @@ import type {
 	UseDeviceMotionOptions,
 	UseDeviceMotionReturn,
 	UseDeviceMotionWindowLike,
+	UseDeviceOrientationOptions,
+	UseDeviceOrientationReturn,
+	UseDeviceOrientationWindowLike,
 	UseDocumentVisibilityOptions,
 	UseElementSizeOptions,
 	UseFocusOptions,
@@ -307,6 +312,7 @@ import {
 	useDebounceFn,
 	useDebouncedRefHistory,
 	useDeviceMotion,
+	useDeviceOrientation,
 	useDocumentVisibility,
 	useElementSize,
 	useEventListener,
@@ -3671,6 +3677,76 @@ describe("public types", () => {
 			motion.interval.value = 1;
 			// @ts-expect-error requestPermissions must be boolean
 			useDeviceMotion({ requestPermissions: "true" });
+		});
+
+		class TypedDeviceOrientationEvent
+			extends Event
+			implements DeviceOrientationEvent
+		{
+			absolute = false;
+			alpha: number | null = null;
+			beta: number | null = null;
+			gamma: number | null = null;
+		}
+		const deviceOrientationPermission: DeviceOrientationPermissionState =
+			"granted";
+		const DeviceOrientationEventConstructor: DeviceOrientationEventConstructorLike = class extends TypedDeviceOrientationEvent {
+			static requestPermission = (absolute?: boolean) =>
+				Promise.resolve(deviceOrientationPermission);
+		};
+		const orientationWindow =
+			new EventTarget() as UseDeviceOrientationWindowLike;
+		Object.defineProperty(orientationWindow, "DeviceOrientationEvent", {
+			value: DeviceOrientationEventConstructor,
+		});
+		const orientationOptions: UseDeviceOrientationOptions = {
+			absolute: signal(true),
+			requestPermissions: signal(false),
+			window: signal(orientationWindow),
+		};
+		const orientation = useDeviceOrientation(orientationOptions);
+		const orientationFallback = useDeviceOrientation({ window: null });
+		const orientationReturn: UseDeviceOrientationReturn = orientation;
+
+		expectTypeOf(orientation).toEqualTypeOf<UseDeviceOrientationReturn>();
+		expectTypeOf(orientationReturn.isAbsolute).toEqualTypeOf<
+			ReadonlySignal<boolean>
+		>();
+		expectTypeOf(orientation.alpha).toEqualTypeOf<
+			ReadonlySignal<number | null>
+		>();
+		expectTypeOf(orientation.beta).toEqualTypeOf<
+			ReadonlySignal<number | null>
+		>();
+		expectTypeOf(orientation.gamma).toEqualTypeOf<
+			ReadonlySignal<number | null>
+		>();
+		expectTypeOf(orientation.isSupported).toEqualTypeOf<
+			ReadonlySignal<boolean>
+		>();
+		expectTypeOf(orientation.requirePermissions).toEqualTypeOf<
+			ReadonlySignal<boolean>
+		>();
+		expectTypeOf(orientation.permissionGranted).toEqualTypeOf<
+			ReadonlySignal<boolean>
+		>();
+		expectTypeOf(orientation.ensurePermissions()).toEqualTypeOf<
+			Promise<void>
+		>();
+		expectTypeOf(orientation.ensurePermissions(true)).toEqualTypeOf<
+			Promise<void>
+		>();
+		expectTypeOf(orientation.stop()).toEqualTypeOf<void>();
+		expectTypeOf(
+			orientationFallback,
+		).toEqualTypeOf<UseDeviceOrientationReturn>();
+		typeOnly(() => {
+			// @ts-expect-error returned values are readonly signals
+			orientation.alpha.value = 1;
+			// @ts-expect-error requestPermissions must be boolean
+			useDeviceOrientation({ requestPermissions: "true" });
+			// @ts-expect-error absolute must be boolean
+			useDeviceOrientation({ absolute: "true" });
 		});
 
 		const visibilityDocument =
