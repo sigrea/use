@@ -145,6 +145,7 @@ export { usePreferredDark } from "./usePreferredDark";
 export { usePreferredLanguages } from "./usePreferredLanguages";
 export { usePreferredReducedMotion } from "./usePreferredReducedMotion";
 export { usePreferredReducedTransparency } from "./usePreferredReducedTransparency";
+export { usePrecision } from "./usePrecision";
 export { usePrevious } from "./usePrevious";
 export { useRafFn } from "./useRafFn";
 export { useRefHistory } from "./useRefHistory";
@@ -832,6 +833,9 @@ export type {
 	UsePointerState,
 	UsePointerType,
 	UseProjection,
+	UsePrecisionMath,
+	UsePrecisionOptions,
+	UsePrecisionReturn,
 	UsePreferredColorScheme,
 	UsePreferredColorSchemeReturn,
 	UsePreferredContrast,

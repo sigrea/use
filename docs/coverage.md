@@ -246,7 +246,7 @@ Status values:
 | `math/useMath` | `useMath` | Done |
 | `math/useMax` | `useMax` | Done |
 | `math/useMin` | `useMin` | Done |
-| `math/usePrecision` | `-` | Todo |
+| `math/usePrecision` | `usePrecision` | Done |
 | `math/useProjection` | `-` | Todo |
 | `math/useRound` | `-` | Todo |
 | `math/useSum` | `-` | Todo |

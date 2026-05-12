@@ -90,6 +90,11 @@ export type UseMathReturn<K extends UseMathKeys> = ReadonlySignal<
 >;
 export type UseMaxReturn = ReadonlySignal<number>;
 export type UseMinReturn = ReadonlySignal<number>;
+export type UsePrecisionMath = "floor" | "ceil" | "round";
+export interface UsePrecisionOptions {
+	math?: UsePrecisionMath;
+}
+export type UsePrecisionReturn = ReadonlySignal<number>;
 export type PromisifyFn<T> = T extends (
 	this: infer TThis,
 	...args: infer TArgs
