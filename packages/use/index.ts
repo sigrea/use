@@ -89,6 +89,7 @@ export { useFileSystemAccess } from "./useFileSystemAccess";
 export { useFocus } from "./useFocus";
 export { useFocusWithin } from "./useFocusWithin";
 export { useFps } from "./useFps";
+export { useFullscreen } from "./useFullscreen";
 export { useInterval } from "./useInterval";
 export { useIntervalFn } from "./useIntervalFn";
 export { useLocalStorage } from "./useLocalStorage";
@@ -490,6 +491,12 @@ export type {
 	UseFpsPerformanceLike,
 	UseFpsReturn,
 	UseFpsWindowLike,
+	UseFullscreenDocumentLike,
+	UseFullscreenElementLike,
+	UseFullscreenEnterOptions,
+	UseFullscreenOptions,
+	UseFullscreenReturn,
+	UseFullscreenRootLike,
 	UseIntervalControlsReturn,
 	UseIntervalFnOptions,
 	UseIntervalFnReturn,

@@ -105,6 +105,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.useFocus).toBe("function");
 		expect(typeof mod.useFocusWithin).toBe("function");
 		expect(typeof mod.useFps).toBe("function");
+		expect(typeof mod.useFullscreen).toBe("function");
 		expect(typeof mod.useInterval).toBe("function");
 		expect(typeof mod.useIntervalFn).toBe("function");
 		expect(typeof mod.useLocalStorage).toBe("function");
@@ -153,6 +154,7 @@ describe("SSR safety", () => {
 			useMediaQuery,
 			useFocusWithin,
 			useFps,
+			useFullscreen,
 			useMouse,
 			useOnline,
 			usePreferredDark,
@@ -245,6 +247,7 @@ describe("SSR safety", () => {
 		const fileDialog = useFileDialog({ document: null });
 		const fileSystemAccess = useFileSystemAccess({ window: null });
 		const fps = useFps({ window: null });
+		const fullscreen = useFullscreen(undefined, { document: null });
 		const fetchValue = useFetch("https://example.com", {
 			fetch: async () => new Response("ok"),
 			immediate: false,
@@ -324,6 +327,8 @@ describe("SSR safety", () => {
 		expect(fileSystemAccess.fileLastModified.value).toBe(0);
 		expect(fileSystemAccess.error.value).toBeNull();
 		expect(fps.value).toBe(0);
+		expect(fullscreen.isSupported.value).toBe(false);
+		expect(fullscreen.isFullscreen.value).toBe(false);
 		expect(fetchValue.data.value).toBeNull();
 		expect(sessionStorageValue.value).toBe("fallback");
 		expect(ssrMediaQuery.matches.value).toBe(true);
@@ -396,6 +401,10 @@ describe("SSR safety", () => {
 		await fileSystemAccess.saveAs();
 		await fileSystemAccess.updateData();
 		fileSystemAccess.stop();
+		await fullscreen.enter();
+		await fullscreen.exit();
+		await fullscreen.toggle();
+		fullscreen.stop();
 		expect(await fetchValue.execute()).toBeInstanceOf(Response);
 		expect(fetchValue.data.value).toBe("ok");
 		expect(fetchValue.statusCode.value).toBe(200);
@@ -710,6 +719,23 @@ describe("SSR safety", () => {
 		expect(result.stream.value).toBeUndefined();
 		expect(result.error.value).toBeNull();
 		expect(await result.start()).toBeUndefined();
+		result.stop();
+	});
+
+	it("creates useFullscreen without a window", async () => {
+		const { useFullscreen } = await import("../../../index");
+		const result = useFullscreen();
+
+		expect(globalThis.window).toBeUndefined();
+		expect(result.isSupported.value).toBe(false);
+		expect(result.isFullscreen.value).toBe(false);
+
+		await result.enter();
+		await result.exit();
+		await result.toggle();
+
+		expect(result.isSupported.value).toBe(false);
+		expect(result.isFullscreen.value).toBe(false);
 		result.stop();
 	});
 
