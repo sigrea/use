@@ -208,6 +208,8 @@ import type {
 	UseCssVarWindowLike,
 	UseCycleListOptions,
 	UseCycleListReturn,
+	UseDarkOptions,
+	UseDarkReturn,
 	UseDocumentVisibilityOptions,
 	UseElementSizeOptions,
 	UseFocusOptions,
@@ -288,6 +290,7 @@ import {
 	useCssSupports,
 	useCssVar,
 	useCycleList,
+	useDark,
 	useDebounceFn,
 	useDocumentVisibility,
 	useElementSize,
@@ -3568,6 +3571,41 @@ describe("public types", () => {
 			colorMode.system.value = "dark";
 			// @ts-expect-error resolvedMode is readonly
 			colorMode.resolvedMode.value = "dark";
+		});
+		const darkOptions: UseDarkOptions = {
+			attribute: "data-theme",
+			document: signal(document as UseColorModeDocumentLike),
+			initialValue: "auto",
+			onChanged: (isDark, defaultHandler, mode) => {
+				expectTypeOf(isDark).toEqualTypeOf<boolean>();
+				expectTypeOf(
+					defaultHandler,
+				).toEqualTypeOf<UseColorModeDefaultHandler>();
+				expectTypeOf(mode).toEqualTypeOf<BasicColorMode>();
+				defaultHandler(mode);
+			},
+			selector: "html",
+			storage: colorStorage,
+			storageKey: "theme",
+			storageSignal: signal<ColorModeSelection | null>("auto"),
+			target: signal<Element | null>(document.documentElement),
+			valueDark: signal("theme-dark"),
+			valueLight: "theme-light",
+			window: signal(colorWindow),
+		};
+		const darkMode = useDark(darkOptions);
+
+		expectTypeOf(darkMode).toEqualTypeOf<UseDarkReturn>();
+		expectTypeOf(darkMode.value).toEqualTypeOf<boolean>();
+		expectTypeOf(darkMode.stop).toEqualTypeOf<() => void>();
+		darkMode.value = true;
+		typeOnly(() => {
+			// @ts-expect-error useDark only accepts boolean values
+			darkMode.value = "dark";
+			// @ts-expect-error custom modes are managed by valueDark and valueLight
+			useDark({ modes: { dark: "theme-dark" } });
+			// @ts-expect-error valueDark must resolve to a string
+			useDark({ valueDark: 1 });
 		});
 
 		const visibilityDocument =

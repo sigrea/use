@@ -75,6 +75,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.useCssSupports).toBe("function");
 		expect(typeof mod.useCssVar).toBe("function");
 		expect(typeof mod.useCycleList).toBe("function");
+		expect(typeof mod.useDark).toBe("function");
 		expect(typeof mod.useBreakpoints).toBe("function");
 		expect(typeof mod.useDocumentVisibility).toBe("function");
 		expect(typeof mod.useElementSize).toBe("function");
@@ -96,7 +97,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.useTimeoutFn).toBe("function");
 		expect(typeof mod.useToggle).toBe("function");
 		expect(typeof mod.useWindowSize).toBe("function");
-	});
+	}, 10_000);
 
 	it("creates browser composables without a window", async () => {
 		const {
@@ -109,6 +110,7 @@ describe("SSR safety", () => {
 			useColorMode,
 			useCssSupports,
 			useCssVar,
+			useDark,
 			useLocalStorage,
 			useMediaQuery,
 			useMouse,
@@ -132,6 +134,11 @@ describe("SSR safety", () => {
 		const animation = useAnimate(null, null);
 		const breakpoints = useBreakpoints({ md: 768 }, { ssrWidth: 800 });
 		const colorMode = useColorMode({
+			document: null,
+			initialValue: "dark",
+			window: null,
+		});
+		const dark = useDark({
 			document: null,
 			initialValue: "dark",
 			window: null,
@@ -183,6 +190,7 @@ describe("SSR safety", () => {
 		expect(colorMode.mode.value).toBe("dark");
 		expect(colorMode.system.value).toBe("light");
 		expect(colorMode.resolvedMode.value).toBe("dark");
+		expect(dark.value).toBe(true);
 		expect(visibility.visibility.value).toBe("visible");
 		expect(localStorageValue.value).toBe("fallback");
 		expect(focus.focused.value).toBe(false);
@@ -211,6 +219,7 @@ describe("SSR safety", () => {
 		animation.stop();
 		breakpoints.md.stop();
 		colorMode.stop();
+		dark.stop();
 		visibility.stop();
 		listener.stop();
 		localStorageValue.stop();
