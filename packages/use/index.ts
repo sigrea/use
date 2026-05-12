@@ -19,6 +19,7 @@ export { reactiveOmit } from "./reactiveOmit";
 export { reactivePick } from "./reactivePick";
 export { resolveValue } from "./resolveValue";
 export { signalAutoReset } from "./signalAutoReset";
+export { signalDefault } from "./signalDefault";
 export { signalDebounced } from "./signalDebounced";
 export { useBreakpoints } from "./useBreakpoints";
 export { useCounter } from "./useCounter";
@@ -136,6 +137,7 @@ export type {
 	ResizeObserverWindowLike,
 	ResolveValueFn,
 	SignalAutoResetReturn,
+	SignalDefaultReturn,
 	SignalDebouncedOptions,
 	SignalDebouncedReturn,
 	StorageEventLike,
