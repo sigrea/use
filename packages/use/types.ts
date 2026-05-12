@@ -4450,6 +4450,44 @@ export interface WatchWithFilterOptions<Immediate extends boolean = false>
 
 export type WatchWithFilterReturn = WatchStopHandle;
 
+export type WheneverSource<T = unknown> = WatchSource<T>;
+
+export type WheneverSourceValue<TSource> = TSource extends Signal<infer Value>
+	? Value
+	: TSource extends ReadonlySignal<infer Value>
+		? Value
+		: TSource extends Computed<infer Value>
+			? Value
+			: TSource extends () => infer Value
+				? Value
+				: TSource extends DeepSignal<infer Value>
+					? Value
+					: TSource extends ReadonlyDeepSignal<infer Value>
+						? Value
+						: TSource;
+
+export type WheneverTruthy<T> = Exclude<T, Falsy>;
+
+export type WheneverOnCleanup = (cleanupFn: Cleanup) => void;
+
+export type WheneverCallback<Value = unknown, OldValue = Value> = (
+	value: WheneverTruthy<Value>,
+	oldValue: OldValue,
+	onCleanup: WheneverOnCleanup,
+) => void | Cleanup | Promise<void | Cleanup>;
+
+export interface WheneverOptions<Immediate extends boolean = false>
+	extends WatchOptions<Immediate> {
+	/**
+	 * Stop after the first truthy callback run.
+	 *
+	 * @default false
+	 */
+	once?: boolean;
+}
+
+export type WheneverReturn = WatchStopHandle;
+
 type WatchImmediateDeepSource<T> = T extends object
 	? DeepSignal<T> | ReadonlyDeepSignal<T>
 	: never;

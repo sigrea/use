@@ -198,6 +198,7 @@ export { watchPausable } from "./watchPausable";
 export { watchThrottled } from "./watchThrottled";
 export { watchTriggerable } from "./watchTriggerable";
 export { watchWithFilter } from "./watchWithFilter";
+export { whenever } from "./whenever";
 export type {
 	AsyncComputedCancelCallback,
 	AsyncComputedEvaluationCallback,
@@ -1061,6 +1062,13 @@ export type {
 	WatchWithFilterSource,
 	WatchWithFilterSourceValue,
 	WatchWithFilterSourceValues,
+	WheneverCallback,
+	WheneverOnCleanup,
+	WheneverOptions,
+	WheneverReturn,
+	WheneverSource,
+	WheneverSourceValue,
+	WheneverTruthy,
 	WindowSizeLike,
 	WritableComputedWithControlOptions,
 	WritableComputedWithControlReturn,
