@@ -472,6 +472,8 @@ import type {
 	UsePointerSwipePointerType,
 	UsePointerSwipeReturn,
 	UsePointerType,
+	UsePreferredColorScheme,
+	UsePreferredColorSchemeReturn,
 	UseRefHistoryRecord,
 	UseStorageOptions,
 	UseToggleOptions,
@@ -614,6 +616,7 @@ import {
 	usePointer,
 	usePointerLock,
 	usePointerSwipe,
+	usePreferredColorScheme,
 	usePreferredDark,
 	usePrevious,
 	useRefHistory,
@@ -4923,6 +4926,7 @@ describe("public types", () => {
 			sm: 640,
 		} satisfies Breakpoints<"sm" | "md">;
 		const breakpoints = useBreakpoints(points, mediaOptions);
+		const preferredColorScheme = usePreferredColorScheme(mediaOptions);
 		const preferredDark = usePreferredDark(mediaOptions);
 		const colorStorage = {
 			getItem: (_key: string) => null,
@@ -4967,6 +4971,16 @@ describe("public types", () => {
 		expectTypeOf(breakpoints.md.matches.value).toEqualTypeOf<boolean>();
 		expectTypeOf(breakpoints.active().value).toEqualTypeOf<"sm" | "md" | "">();
 		expectTypeOf(breakpoints.stop).toEqualTypeOf<() => void>();
+		expectTypeOf(
+			preferredColorScheme,
+		).toEqualTypeOf<UsePreferredColorSchemeReturn>();
+		expectTypeOf(
+			preferredColorScheme.value,
+		).toEqualTypeOf<UsePreferredColorScheme>();
+		expectTypeOf<UsePreferredColorScheme>().toEqualTypeOf<
+			"light" | "dark" | "no-preference"
+		>();
+		expectTypeOf(preferredColorScheme.stop).toEqualTypeOf<() => void>();
 		expectTypeOf(preferredDark.matches.value).toEqualTypeOf<boolean>();
 		expectTypeOf(colorMode).toEqualTypeOf<UseColorModeReturn<"sepia">>();
 		expectTypeOf(colorMode.mode).toEqualTypeOf<

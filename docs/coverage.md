@@ -163,7 +163,7 @@ Status values:
 | `usePointer` | `usePointer` | Done |
 | `usePointerLock` | `usePointerLock` | Done |
 | `usePointerSwipe` | `usePointerSwipe` | Done |
-| `usePreferredColorScheme` | `-` | Todo |
+| `usePreferredColorScheme` | `usePreferredColorScheme` | Done |
 | `usePreferredContrast` | `-` | Todo |
 | `usePreferredDark` | `usePreferredDark` | Done |
 | `usePreferredLanguages` | `-` | Todo |
