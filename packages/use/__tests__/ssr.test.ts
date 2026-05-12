@@ -59,6 +59,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.useArraySome).toBe("function");
 		expect(typeof mod.useArrayUnique).toBe("function");
 		expect(typeof mod.useAsyncQueue).toBe("function");
+		expect(typeof mod.useAsyncState).toBe("function");
 		expect(typeof mod.useBreakpoints).toBe("function");
 		expect(typeof mod.useDocumentVisibility).toBe("function");
 		expect(typeof mod.useElementSize).toBe("function");
@@ -327,6 +328,19 @@ describe("SSR safety", () => {
 		});
 		expect(globalThis.window).toBeUndefined();
 		expect(result.result.value[1].data).toBe(2);
+	});
+
+	it("creates useAsyncState without a window", async () => {
+		const { useAsyncState } = await import("../../../index");
+		const result = useAsyncState(async () => "ready", "initial", {
+			immediate: false,
+		});
+
+		expect(globalThis.window).toBeUndefined();
+		expect(result.state.value).toBe("initial");
+
+		await result.execute();
+		expect(result.state.value).toBe("ready");
 	});
 
 	it("creates event hooks without a window", async () => {

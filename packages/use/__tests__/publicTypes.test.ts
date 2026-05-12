@@ -126,6 +126,10 @@ import type {
 	UseAsyncQueueResultState,
 	UseAsyncQueueReturn,
 	UseAsyncQueueTask,
+	UseAsyncStateOptions,
+	UseAsyncStateReturn,
+	UseAsyncStateReturnBase,
+	UseAsyncStateSource,
 	UseBreakpointsOptions,
 	UseDocumentVisibilityOptions,
 	UseElementSizeOptions,
@@ -189,6 +193,7 @@ import {
 	useArraySome,
 	useArrayUnique,
 	useAsyncQueue,
+	useAsyncState,
 	useBreakpoints,
 	useDebounceFn,
 	useDocumentVisibility,
@@ -349,6 +354,67 @@ describe("public types", () => {
 			useAsyncQueue([], { interrupt: "no" });
 			// @ts-expect-error tasks must be functions
 			useAsyncQueue([1]);
+		});
+	});
+
+	it("types async state values and options", () => {
+		typeOnly(() => {
+			interface Item {
+				id: string;
+				count: number;
+			}
+			const initial = signal<Item>({ id: "initial", count: 0 });
+			const action = async (id: string, count: number) => ({ id, count });
+			const source: UseAsyncStateSource<Item, [string, number]> = action;
+			const options: UseAsyncStateOptions<Item> = {
+				delay: 10,
+				immediate: false,
+				onError(_error) {},
+				onSuccess(value) {
+					expectTypeOf(value).toEqualTypeOf<Item>();
+				},
+				resetOnExecute: false,
+				shallow: false,
+				throwError: true,
+			};
+			const asyncState = useAsyncState(action, initial, options);
+			const promiseState = useAsyncState(Promise.resolve("ready"), "initial");
+			const base: UseAsyncStateReturnBase<Item, [string, number]> = asyncState;
+
+			expectTypeOf(source).toMatchTypeOf<
+				UseAsyncStateSource<Item, [string, number]>
+			>();
+			expectTypeOf(asyncState).toEqualTypeOf<
+				UseAsyncStateReturn<Item, [string, number]>
+			>();
+			expectTypeOf(base.state).toEqualTypeOf<ReadonlySignal<Item>>();
+			expectTypeOf(asyncState.state).toEqualTypeOf<ReadonlySignal<Item>>();
+			expectTypeOf(asyncState.isReady).toEqualTypeOf<ReadonlySignal<boolean>>();
+			expectTypeOf(asyncState.isLoading).toEqualTypeOf<
+				ReadonlySignal<boolean>
+			>();
+			expectTypeOf(asyncState.error).toEqualTypeOf<
+				ReadonlySignal<unknown | undefined>
+			>();
+			expectTypeOf(asyncState.execute(0, "ready", 1)).toEqualTypeOf<
+				Promise<Item | undefined>
+			>();
+			expectTypeOf(asyncState.executeImmediate("ready", 1)).toEqualTypeOf<
+				Promise<Item | undefined>
+			>();
+			expectTypeOf(promiseState).toEqualTypeOf<
+				UseAsyncStateReturn<string, []>
+			>();
+			// @ts-expect-error state is readonly
+			asyncState.state.value = { id: "next", count: 1 };
+			// @ts-expect-error isReady is readonly
+			asyncState.isReady.value = true;
+			// @ts-expect-error Promise source does not accept execute params
+			promiseState.execute(0, "unused");
+			// @ts-expect-error action params must match
+			asyncState.execute(0, 1, "ready");
+			// @ts-expect-error delay must be a number
+			useAsyncState(action, initial, { delay: "slow" });
 		});
 	});
 

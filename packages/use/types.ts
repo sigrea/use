@@ -510,6 +510,60 @@ export interface UseAsyncQueueOptions {
 	signal?: AbortSignal;
 }
 
+export type UseAsyncStateSource<Data, Params extends unknown[]> =
+	| Promise<Data>
+	| ((...args: Params) => Promise<Data>);
+
+export interface UseAsyncStateOptions<Data = unknown> {
+	/**
+	 * Delay for the first execution when `immediate` is true.
+	 *
+	 * @default 0
+	 */
+	delay?: number;
+	/**
+	 * Execute immediately after creation.
+	 *
+	 * @default true
+	 */
+	immediate?: boolean;
+	onError?: (error: unknown) => void;
+	onSuccess?: (data: Data) => void;
+	/**
+	 * Reset state to the initial value before each execution.
+	 *
+	 * @default true
+	 */
+	resetOnExecute?: boolean;
+	/**
+	 * Keep the state value shallow.
+	 *
+	 * @default true
+	 */
+	shallow?: boolean;
+	/**
+	 * Re-throw errors from execute.
+	 *
+	 * @default false
+	 */
+	throwError?: boolean;
+}
+
+export interface UseAsyncStateReturnBase<Data, Params extends unknown[] = []> {
+	state: ReadonlySignal<Data>;
+	isReady: ReadonlySignal<boolean>;
+	isLoading: ReadonlySignal<boolean>;
+	error: ReadonlySignal<unknown | undefined>;
+	execute(delay?: number, ...args: Params): Promise<Data | undefined>;
+	executeImmediate(...args: Params): Promise<Data | undefined>;
+}
+
+export type UseAsyncStateReturn<
+	Data,
+	Params extends unknown[] = [],
+> = UseAsyncStateReturnBase<Data, Params> &
+	PromiseLike<UseAsyncStateReturnBase<Data, Params>>;
+
 export interface ComputedEagerOptions {
 	flush?: WatchOptions["flush"];
 	onTrack?: WatchOptions["onTrack"];
