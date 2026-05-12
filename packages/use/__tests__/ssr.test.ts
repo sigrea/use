@@ -195,6 +195,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.useWebNotification).toBe("function");
 		expect(typeof mod.useWebSocket).toBe("function");
 		expect(typeof mod.useWebWorker).toBe("function");
+		expect(typeof mod.useWebWorkerFn).toBe("function");
 		expect(typeof mod.useWindowSize).toBe("function");
 	}, 60_000);
 
@@ -304,6 +305,7 @@ describe("SSR safety", () => {
 			useWebNotification,
 			useWebSocket,
 			useWebWorker,
+			useWebWorkerFn,
 			useWindowSize,
 			useActiveElement,
 			useAnimate,
@@ -420,6 +422,9 @@ describe("SSR safety", () => {
 		const webNotification = useWebNotification({ window: null });
 		const webSocket = useWebSocket("ws://example.test", { window: null });
 		const webWorker = useWebWorker("worker.js", { window: null });
+		const webWorkerFn = useWebWorkerFn((value: number) => value, {
+			window: null,
+		});
 		const draggable = useDraggable(null, { initialValue: { x: 10, y: 20 } });
 		const dropZone = useDropZone(null);
 		const bounding = useElementBounding(null, {
@@ -693,6 +698,13 @@ describe("SSR safety", () => {
 		expect(webWorker.post("message")).toBe(false);
 		webWorker.terminate();
 		webWorker.stop();
+		expect(webWorkerFn.isSupported.value).toBe(false);
+		expect(webWorkerFn.workerStatus.value).toBe("PENDING");
+		expect(webWorkerFn.error.value).toBeNull();
+		await expect(webWorkerFn.workerFn(1)).rejects.toThrow(
+			"Worker, Blob, or object URL support is missing",
+		);
+		webWorkerFn.stop();
 		expect(draggable.position.value).toEqual({ x: 10, y: 20 });
 		expect(draggable.isDragging.value).toBe(false);
 		expect(dropZone.files.value).toBeNull();

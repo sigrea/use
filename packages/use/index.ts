@@ -183,6 +183,7 @@ export { useWakeLock } from "./useWakeLock";
 export { useWebNotification } from "./useWebNotification";
 export { useWebSocket } from "./useWebSocket";
 export { useWebWorker } from "./useWebWorker";
+export { useWebWorkerFn } from "./useWebWorkerFn";
 export { useWindowSize } from "./useWindowSize";
 export type {
 	AsyncComputedCancelCallback,
@@ -528,6 +529,16 @@ export type {
 	UseWebWorkerReturn,
 	UseWebWorkerSource,
 	UseWebWorkerWindowLike,
+	UseWebWorkerFnBlobConstructorLike,
+	UseWebWorkerFnCallable,
+	UseWebWorkerFnLocalDependency,
+	UseWebWorkerFnOptions,
+	UseWebWorkerFnResult,
+	UseWebWorkerFnReturn,
+	UseWebWorkerFnStatus,
+	UseWebWorkerFnTerminateStatus,
+	UseWebWorkerFnUrlLike,
+	UseWebWorkerFnWindowLike,
 	WebSocketConstructorLike,
 	WebSocketLike,
 	WorkerConstructorLike,

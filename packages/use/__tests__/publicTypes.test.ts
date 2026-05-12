@@ -677,6 +677,16 @@ import type {
 	UseWebSocketStatus,
 	UseWebSocketWindowLike,
 	UseWebWorkerConstructorSource,
+	UseWebWorkerFnBlobConstructorLike,
+	UseWebWorkerFnCallable,
+	UseWebWorkerFnLocalDependency,
+	UseWebWorkerFnOptions,
+	UseWebWorkerFnResult,
+	UseWebWorkerFnReturn,
+	UseWebWorkerFnStatus,
+	UseWebWorkerFnTerminateStatus,
+	UseWebWorkerFnUrlLike,
+	UseWebWorkerFnWindowLike,
 	UseWebWorkerOptions,
 	UseWebWorkerReturn,
 	UseWebWorkerSource,
@@ -880,6 +890,7 @@ import {
 	useWebNotification,
 	useWebSocket,
 	useWebWorker,
+	useWebWorkerFn,
 	useWindowSize,
 } from "../../../index";
 
@@ -6797,6 +6808,115 @@ describe("public types", () => {
 				// @ts-expect-error source must be a worker source
 				useWebWorker({});
 				useWebWorker("worker.js", {
+					// @ts-expect-error constructor must create Worker-like objects
+					worker: class {},
+				});
+			});
+		});
+
+		typeOnly(() => {
+			class TypeFnWorker extends EventTarget implements WorkerLike {
+				postMessage(_message: unknown, _transfer: Transferable[]): void;
+				postMessage(
+					_message: unknown,
+					_options?: StructuredSerializeOptions,
+				): void;
+				postMessage(
+					_message?: unknown,
+					_transferOrOptions?: Transferable[] | StructuredSerializeOptions,
+				) {}
+				terminate() {}
+			}
+			const workerConstructor = class extends TypeFnWorker {
+				constructor(readonly scriptURL: string | URL) {
+					super();
+				}
+			} satisfies WorkerConstructorLike<TypeFnWorker>;
+			const urlApi: UseWebWorkerFnUrlLike = {
+				createObjectURL(_object) {
+					return "blob:sigrea";
+				},
+				revokeObjectURL(_url) {},
+			};
+			const blobConstructor: UseWebWorkerFnBlobConstructorLike = Blob;
+			const workerWindow: UseWebWorkerFnWindowLike<TypeFnWorker> =
+				Object.assign(new EventTarget(), {
+					Blob: blobConstructor,
+					URL: urlApi,
+					Worker: workerConstructor,
+				});
+			const localDependency: UseWebWorkerFnLocalDependency = (value) => value;
+			const asyncWorkerFn = async (value: number) => `${value}`;
+			const workerOptions: UseWebWorkerFnOptions<
+				TypeFnWorker,
+				UseWebWorkerFnWindowLike<TypeFnWorker>
+			> = {
+				dependencies: signal(["/dependency.js"] as const),
+				localDependencies: signal([localDependency] as const),
+				timeout: signal(1000),
+				worker: signal(workerConstructor),
+				window: signal(workerWindow),
+			};
+			const callable: UseWebWorkerFnCallable = (left: number, right: number) =>
+				left + right;
+			const asyncResult: UseWebWorkerFnResult<typeof asyncWorkerFn> = "1";
+			const status: UseWebWorkerFnStatus = "RUNNING";
+			const terminateStatus: UseWebWorkerFnTerminateStatus = "PENDING";
+			const webWorkerFn = useWebWorkerFn(asyncWorkerFn, workerOptions);
+			const fallbackWebWorkerFn = useWebWorkerFn<(value: number) => number>(
+				(value: number) => value * 2,
+				{
+					window: null,
+				},
+			);
+			const workerFnReturn: UseWebWorkerFnReturn<typeof asyncWorkerFn> =
+				webWorkerFn;
+
+			expectTypeOf(status).toMatchTypeOf<UseWebWorkerFnStatus>();
+			expectTypeOf(
+				terminateStatus,
+			).toMatchTypeOf<UseWebWorkerFnTerminateStatus>();
+			expectTypeOf(callable).toMatchTypeOf<UseWebWorkerFnCallable>();
+			expectTypeOf(asyncResult).toEqualTypeOf<string>();
+			expectTypeOf(webWorkerFn).toEqualTypeOf<
+				UseWebWorkerFnReturn<typeof asyncWorkerFn>
+			>();
+			expectTypeOf(workerFnReturn.workerFn(1)).toEqualTypeOf<Promise<string>>();
+			expectTypeOf(webWorkerFn.workerStatus).toEqualTypeOf<
+				ReadonlySignal<UseWebWorkerFnStatus>
+			>();
+			expectTypeOf(webWorkerFn.isSupported).toEqualTypeOf<
+				ReadonlySignal<boolean>
+			>();
+			expectTypeOf(webWorkerFn.error).toEqualTypeOf<
+				ReadonlySignal<unknown | null>
+			>();
+			expectTypeOf(webWorkerFn.workerTerminate()).toEqualTypeOf<void>();
+			expectTypeOf(webWorkerFn.workerTerminate("ERROR")).toEqualTypeOf<void>();
+			expectTypeOf(webWorkerFn.stop()).toEqualTypeOf<void>();
+			expectTypeOf(fallbackWebWorkerFn).toEqualTypeOf<
+				UseWebWorkerFnReturn<(value: number) => number>
+			>();
+			typeOnly(() => {
+				// @ts-expect-error workerStatus is readonly
+				webWorkerFn.workerStatus.value = "PENDING";
+				// @ts-expect-error workerFn parameters must match the source function
+				webWorkerFn.workerFn("1");
+				// @ts-expect-error status values are fixed
+				webWorkerFn.workerTerminate("DONE");
+				// @ts-expect-error termination status cannot be success
+				webWorkerFn.workerTerminate("SUCCESS");
+				// @ts-expect-error termination status cannot stay running
+				webWorkerFn.workerTerminate("RUNNING");
+				useWebWorkerFn(asyncWorkerFn, {
+					// @ts-expect-error dependencies must be script URLs
+					dependencies: [1],
+				});
+				useWebWorkerFn(asyncWorkerFn, {
+					// @ts-expect-error localDependencies must be functions
+					localDependencies: ["pow"],
+				});
+				useWebWorkerFn(asyncWorkerFn, {
 					// @ts-expect-error constructor must create Worker-like objects
 					worker: class {},
 				});
