@@ -213,6 +213,8 @@ import type {
 	UseDarkReturn,
 	UseDateFormatOptions,
 	UseDateFormatReturn,
+	UseDebouncedRefHistoryOptions,
+	UseDebouncedRefHistoryReturn,
 	UseDocumentVisibilityOptions,
 	UseElementSizeOptions,
 	UseFocusOptions,
@@ -298,6 +300,7 @@ import {
 	useDark,
 	useDateFormat,
 	useDebounceFn,
+	useDebouncedRefHistory,
 	useDocumentVisibility,
 	useElementSize,
 	useEventListener,
@@ -3958,6 +3961,40 @@ describe("public types", () => {
 
 		expectTypeOf(history.isTracking.value).toEqualTypeOf<boolean>();
 		history.dispose();
+	});
+
+	it("infers debounced ref history options", () => {
+		const source = signal(0);
+		const delay = signal(100);
+		const options: UseDebouncedRefHistoryOptions<number> = {
+			debounce: delay,
+			shouldCommit: (oldValue, newValue) => {
+				expectTypeOf(oldValue).toEqualTypeOf<number | undefined>();
+				expectTypeOf(newValue).toEqualTypeOf<number>();
+				return true;
+			},
+		};
+		const history = useDebouncedRefHistory(source, options);
+		const serialized = useDebouncedRefHistory(signal({ count: 0 }), {
+			debounce: () => delay.value,
+			dump: JSON.stringify,
+			parse: (value: string) => JSON.parse(value) as { count: number },
+		});
+
+		expectTypeOf(history).toEqualTypeOf<UseDebouncedRefHistoryReturn<number>>();
+		expectTypeOf(history.history.value).toEqualTypeOf<
+			UseRefHistoryRecord<number>[]
+		>();
+		expectTypeOf(history.isTracking.value).toEqualTypeOf<boolean>();
+		expectTypeOf(serialized).toEqualTypeOf<
+			UseDebouncedRefHistoryReturn<{ count: number }, string>
+		>();
+		expectTypeOf(serialized.history.value[0].snapshot).toEqualTypeOf<string>();
+		history.dispose();
+		serialized.dispose();
+
+		// @ts-expect-error debounce must be a number-like MaybeValue.
+		useDebouncedRefHistory(source, { debounce: "100" });
 	});
 
 	it("types previous values with and without an initial value", () => {

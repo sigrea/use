@@ -25,6 +25,11 @@ interface IgnoredWatchValue<Raw> {
 
 type Mapper<From, To> = (value: From) => To;
 
+interface UseRefHistoryInternalOptions<Raw, Serialized>
+	extends UseRefHistoryOptions<Raw, Serialized> {
+	scheduleCommit?: (commit: () => void) => void;
+}
+
 function bypass<From, To>(value: From): To {
 	return value as unknown as To;
 }
@@ -82,12 +87,17 @@ export function useRefHistory<Raw, Serialized = Raw>(
 	source: Signal<Raw>,
 	options: UseRefHistoryOptions<Raw, Serialized> = {},
 ): UseRefHistoryReturn<Raw, Serialized> {
+	const internalOptions = options as UseRefHistoryInternalOptions<
+		Raw,
+		Serialized
+	>;
 	const {
 		deep = false,
 		flush = "pre",
+		scheduleCommit,
 		shouldCommit = () => true,
 		...manualOptions
-	} = options;
+	} = internalOptions;
 	const isTrackingSource = signal(true);
 	const ignoredWatchValues: IgnoredWatchValue<Raw>[] = [];
 	let disposed = false;
@@ -183,12 +193,32 @@ export function useRefHistory<Raw, Serialized = Raw>(
 		const nextValue = ensureDeepSourceValue(source.value);
 		queuePendingIgnoredWatchValue(nextValue);
 
-		if (!shouldCommit(lastRawValue, nextValue)) {
+		commitSourceValue(nextValue);
+	}
+
+	function commitSourceValue(nextValue: Raw): void {
+		if (disposed) {
 			return;
 		}
 
-		lastRawValue = nextValue;
+		const sourceValue = ensureDeepSourceValue(nextValue);
+
+		if (!shouldCommit(lastRawValue, sourceValue)) {
+			return;
+		}
+
+		lastRawValue = sourceValue;
 		commitManually();
+	}
+
+	function commitSourceChange(nextValue: Raw): void {
+		const sourceValue = ensureDeepSourceValue(nextValue);
+
+		if (!deep && Object.is(lastRawValue, sourceValue)) {
+			return;
+		}
+
+		commitSourceValue(sourceValue);
 	}
 
 	const watchHandle = watch(
@@ -214,16 +244,14 @@ export function useRefHistory<Raw, Serialized = Raw>(
 				return;
 			}
 
-			if (!deep && Object.is(lastRawValue, sourceValue)) {
+			if (scheduleCommit !== undefined) {
+				scheduleCommit(() => {
+					commitSourceChange(source.value);
+				});
 				return;
 			}
 
-			if (!shouldCommit(lastRawValue, sourceValue)) {
-				return;
-			}
-
-			lastRawValue = sourceValue;
-			commitManually();
+			commitSourceChange(sourceValue);
 		},
 		{
 			deep,

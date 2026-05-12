@@ -2213,3 +2213,13 @@ export interface UseRefHistoryReturn<Raw, Serialized = Raw>
 	batch(fn: (cancel: () => void) => void): void;
 	dispose(): void;
 }
+
+export interface UseDebouncedRefHistoryOptions<Raw, Serialized = Raw>
+	extends UseRefHistoryOptions<Raw, Serialized> {
+	debounce?: MaybeValue<number>;
+}
+
+export type UseDebouncedRefHistoryReturn<
+	Raw,
+	Serialized = Raw,
+> = UseRefHistoryReturn<Raw, Serialized>;
