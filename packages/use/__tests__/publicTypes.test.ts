@@ -102,6 +102,8 @@ import type {
 	UseArrayEveryReturn,
 	UseArrayFilterPredicate,
 	UseArrayFilterReturn,
+	UseArrayFindIndexPredicate,
+	UseArrayFindIndexReturn,
 	UseArrayFindPredicate,
 	UseArrayFindReturn,
 	UseBreakpointsOptions,
@@ -158,6 +160,7 @@ import {
 	useArrayEvery,
 	useArrayFilter,
 	useArrayFind,
+	useArrayFindIndex,
 	useBreakpoints,
 	useDebounceFn,
 	useDocumentVisibility,
@@ -458,6 +461,55 @@ describe("public types", () => {
 				signal((value: number) => value > 0),
 			);
 			useArrayFind(
+				signal([1]),
+				// @ts-expect-error predicate is a raw function, not a computed value
+				computed(() => (value: number) => value > 0),
+			);
+		});
+	});
+
+	it("types array find index values", () => {
+		typeOnly(() => {
+			const first = signal<number | null>(1);
+			const second = computed<number | null>(() => null);
+			const third = signal<number | null>(3);
+			const list = signal([first, second, () => third.value]);
+			const rawList = [1, 2, 3];
+			const predicate: UseArrayFindIndexPredicate<number | null> = (
+				element,
+				index,
+				array,
+			) => {
+				expectTypeOf(element).toEqualTypeOf<number | null>();
+				expectTypeOf(index).toEqualTypeOf<number>();
+				expectTypeOf(array).toEqualTypeOf<
+					readonly MaybeValue<number | null>[]
+				>();
+				return element != null;
+			};
+			const result = useArrayFindIndex(list, predicate);
+			const rawResult = useArrayFindIndex(rawList, (value) => value > 1);
+			const getterResult = useArrayFindIndex(
+				() => [1, 2, 3],
+				(value) => value > 1,
+			);
+			const readonlyResult = useArrayFindIndex(readonly(list), predicate);
+
+			expectTypeOf(result).toEqualTypeOf<UseArrayFindIndexReturn>();
+			expectTypeOf(result).toEqualTypeOf<ReadonlySignal<number>>();
+			expectTypeOf(rawResult).toEqualTypeOf<UseArrayFindIndexReturn>();
+			expectTypeOf(getterResult).toEqualTypeOf<UseArrayFindIndexReturn>();
+			expectTypeOf(readonlyResult).toEqualTypeOf<UseArrayFindIndexReturn>();
+			// @ts-expect-error returned value is readonly
+			result.value = 1;
+			// @ts-expect-error predicate element type must match the array item type
+			useArrayFindIndex(signal([1]), (value: string) => value.length > 0);
+			useArrayFindIndex(
+				signal([1]),
+				// @ts-expect-error predicate is a raw function, not a signal
+				signal((value: number) => value > 0),
+			);
+			useArrayFindIndex(
 				signal([1]),
 				// @ts-expect-error predicate is a raw function, not a computed value
 				computed(() => (value: number) => value > 0),
