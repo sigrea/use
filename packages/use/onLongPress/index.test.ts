@@ -195,6 +195,29 @@ describe("onLongPress", () => {
 		stop();
 	});
 
+	it("keeps movement cancellation active after a small move with once modifier", async () => {
+		const handler = vi.fn();
+		const stop = onLongPress(element, handler, {
+			delay: 1000,
+			distanceThreshold: 15,
+			modifiers: { once: true },
+		});
+
+		element.dispatchEvent(
+			pointerEvent("pointerdown", { clientX: 20, clientY: 20 }),
+		);
+		element.dispatchEvent(
+			pointerEvent("pointermove", { clientX: 17, clientY: 25 }),
+		);
+		element.dispatchEvent(
+			pointerEvent("pointermove", { clientX: 4, clientY: 30 }),
+		);
+		await tick(1000);
+
+		expect(handler).not.toHaveBeenCalled();
+		stop();
+	});
+
 	it("disables movement cancellation when distanceThreshold is false", async () => {
 		const handler = vi.fn();
 		const stop = onLongPress(element, handler, {
