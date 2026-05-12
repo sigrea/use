@@ -4274,6 +4274,58 @@ export type WatchDeepOptions<Immediate extends boolean = false> = Omit<
 
 export type WatchDeepReturn = WatchStopHandle;
 
+type WatchIgnorableDeepSource<T> = T extends object
+	? DeepSignal<T> | ReadonlyDeepSignal<T>
+	: never;
+
+export type WatchIgnorableSource<T = unknown> =
+	| WatchSource<T>
+	| WatchIgnorableDeepSource<T>;
+
+export type WatchIgnorableSourceValue<TSource> = TSource extends Signal<
+	infer Value
+>
+	? Value
+	: TSource extends ReadonlySignal<infer Value>
+		? Value
+		: TSource extends Computed<infer Value>
+			? Value
+			: TSource extends () => infer Value
+				? Value
+				: TSource extends DeepSignal<infer Value>
+					? Value
+					: TSource extends ReadonlyDeepSignal<infer Value>
+						? Value
+						: TSource;
+
+export type WatchIgnorableSourceValues<TSources extends readonly unknown[]> = {
+	[K in keyof TSources]: WatchIgnorableSourceValue<TSources[K]>;
+};
+
+export type WatchIgnorableOnCleanup = (cleanupFn: Cleanup) => void;
+
+export type WatchIgnorableCallback<
+	Value = unknown,
+	Immediate extends boolean = false,
+> = (
+	value: Value,
+	oldValue: Immediate extends true ? Value | undefined : Value,
+	onCleanup: WatchIgnorableOnCleanup,
+) => void | Cleanup | Promise<void | Cleanup>;
+
+export type WatchIgnorableOptions<Immediate extends boolean = false> =
+	WatchOptions<Immediate>;
+
+export type WatchIgnorableIgnoreUpdates = (updater: () => void) => void;
+
+export type WatchIgnorableIgnorePrevAsyncUpdates = () => void;
+
+export interface WatchIgnorableReturn {
+	ignoreUpdates: WatchIgnorableIgnoreUpdates;
+	ignorePrevAsyncUpdates: WatchIgnorableIgnorePrevAsyncUpdates;
+	stop(): void;
+}
+
 export interface OnClickOutsideDocumentLike extends DocumentLike {
 	readonly activeElement?: Element | null;
 	querySelectorAll?(selector: string): Iterable<Element> | ArrayLike<Element>;

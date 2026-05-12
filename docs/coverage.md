@@ -225,7 +225,7 @@ Status values:
 | `watchAtMost` | `watchAtMost` | Done |
 | `watchDebounced` | `watchDebounced` | Done |
 | `watchDeep` | `watchDeep` | Done |
-| `watchIgnorable` | `-` | Todo |
+| `watchIgnorable` | `watchIgnorable` | Done |
 | `watchImmediate` | `-` | Todo |
 | `watchOnce` | `-` | Todo |
 | `watchPausable` | `-` | Todo |
