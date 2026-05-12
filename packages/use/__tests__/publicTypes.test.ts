@@ -353,6 +353,11 @@ import type {
 	UseGeolocationOptions,
 	UseGeolocationPositionLike,
 	UseGeolocationReturn,
+	UseIdleDocumentLike,
+	UseIdleEventName,
+	UseIdleOptions,
+	UseIdleReturn,
+	UseIdleWindowLike,
 	UseMediaQueryOptions,
 	UseMouseOptions,
 	UseOnlineOptions,
@@ -463,6 +468,7 @@ import {
 	useFullscreen,
 	useGamepad,
 	useGeolocation,
+	useIdle,
 	useInterval,
 	useIntervalFn,
 	useLocalStorage,
@@ -541,6 +547,15 @@ interface FpsPerformance extends UseFpsPerformanceLike {
 }
 
 interface FpsWindow extends UseFpsWindowLike {
+	readonly label: string;
+}
+
+interface IdleDocument extends UseIdleDocumentLike {
+	readonly label: string;
+}
+
+interface IdleWindow extends UseIdleWindowLike {
+	readonly document: IdleDocument;
 	readonly label: string;
 }
 
@@ -5375,6 +5390,49 @@ describe("public types", () => {
 					navigator: { geolocation: {} },
 				});
 				useGeolocation({
+					// @ts-expect-error immediate must be boolean
+					immediate: "yes",
+				});
+			});
+		});
+	});
+
+	it("types idle tracking controls", () => {
+		typeOnly(() => {
+			const idleDocument = Object.assign(new EventTarget(), {
+				hidden: false,
+				label: "document",
+			}) as IdleDocument;
+			const idleWindow = Object.assign(new EventTarget(), {
+				document: idleDocument,
+				label: "window",
+			}) as IdleWindow;
+			const eventName: UseIdleEventName = "mousemove";
+			const options: UseIdleOptions<IdleWindow> = {
+				events: [eventName, "keydown"],
+				immediate: false,
+				initialState: true,
+				listenForVisibilityChange: true,
+				window: signal(idleWindow),
+			};
+			const idle = useIdle(1000, options);
+			const idleReturn: UseIdleReturn = idle;
+
+			expectTypeOf(idle).toEqualTypeOf<UseIdleReturn>();
+			expectTypeOf(idleReturn.idle).toEqualTypeOf<ReadonlySignal<boolean>>();
+			expectTypeOf(idle.lastActive).toEqualTypeOf<ReadonlySignal<number>>();
+			expectTypeOf(idle.isPending).toEqualTypeOf<ReadonlySignal<boolean>>();
+			expectTypeOf(idle.reset()).toEqualTypeOf<void>();
+			expectTypeOf(idle.start()).toEqualTypeOf<void>();
+			expectTypeOf(idle.stop()).toEqualTypeOf<void>();
+			typeOnly(() => {
+				// @ts-expect-error idle is readonly
+				idle.idle.value = false;
+				useIdle(1000, {
+					// @ts-expect-error events must be window event names
+					events: ["unknown-event"],
+				});
+				useIdle(1000, {
 					// @ts-expect-error immediate must be boolean
 					immediate: "yes",
 				});

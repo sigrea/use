@@ -3096,6 +3096,35 @@ export interface UseGeolocationReturn {
 	stop(): void;
 }
 
+export type UseIdleEventName = Extract<keyof WindowEventMap, string>;
+
+export interface UseIdleDocumentLike extends DocumentLike {
+	readonly hidden?: boolean;
+}
+
+export interface UseIdleWindowLike extends WindowLike {
+	readonly document?: UseIdleDocumentLike;
+}
+
+export interface UseIdleOptions<
+	TWindow extends UseIdleWindowLike = UseIdleWindowLike,
+> {
+	events?: readonly UseIdleEventName[];
+	immediate?: boolean;
+	initialState?: boolean;
+	listenForVisibilityChange?: boolean;
+	window?: MaybeTarget<TWindow | null | undefined>;
+}
+
+export interface UseIdleReturn {
+	readonly idle: ReadonlySignal<boolean>;
+	readonly lastActive: ReadonlySignal<number>;
+	readonly isPending: ReadonlySignal<boolean>;
+	reset(): void;
+	start(): void;
+	stop(): void;
+}
+
 export interface ElementSize {
 	width: number;
 	height: number;
