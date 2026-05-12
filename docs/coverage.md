@@ -102,7 +102,7 @@ Status values:
 | `useDateFormat` | `useDateFormat` | Done |
 | `useDebounceFn` | `useDebounceFn` | Done |
 | `useDebouncedRefHistory` | `useDebouncedRefHistory` | Done |
-| `useDeviceMotion` | `-` | Todo |
+| `useDeviceMotion` | `useDeviceMotion` | Done |
 | `useDeviceOrientation` | `-` | Todo |
 | `useDevicePixelRatio` | `-` | Todo |
 | `useDevicesList` | `-` | Todo |

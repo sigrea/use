@@ -49,6 +49,8 @@ import type {
 	CreateSignalReturn,
 	CssSupportsLike,
 	DateLike,
+	DeviceMotionEventConstructorLike,
+	DeviceMotionPermissionState,
 	DocumentVisibilityDocumentLike,
 	EventHook,
 	EventHookArgs,
@@ -215,6 +217,9 @@ import type {
 	UseDateFormatReturn,
 	UseDebouncedRefHistoryOptions,
 	UseDebouncedRefHistoryReturn,
+	UseDeviceMotionOptions,
+	UseDeviceMotionReturn,
+	UseDeviceMotionWindowLike,
 	UseDocumentVisibilityOptions,
 	UseElementSizeOptions,
 	UseFocusOptions,
@@ -301,6 +306,7 @@ import {
 	useDateFormat,
 	useDebounceFn,
 	useDebouncedRefHistory,
+	useDeviceMotion,
 	useDocumentVisibility,
 	useElementSize,
 	useEventListener,
@@ -3617,6 +3623,56 @@ describe("public types", () => {
 			useDark({ valueDark: 1 });
 		});
 
+		class TypedDeviceMotionEvent extends Event implements DeviceMotionEvent {
+			acceleration: DeviceMotionEventAcceleration | null = null;
+			accelerationIncludingGravity: DeviceMotionEventAcceleration | null = null;
+			interval = 0;
+			rotationRate: DeviceMotionEventRotationRate | null = null;
+		}
+		const deviceMotionPermission: DeviceMotionPermissionState = "granted";
+		const DeviceMotionEventConstructor: DeviceMotionEventConstructorLike = class extends TypedDeviceMotionEvent {
+			static requestPermission = () => Promise.resolve(deviceMotionPermission);
+		};
+		const motionWindow = new EventTarget() as UseDeviceMotionWindowLike;
+		Object.defineProperty(motionWindow, "DeviceMotionEvent", {
+			value: DeviceMotionEventConstructor,
+		});
+		const motionOptions: UseDeviceMotionOptions = {
+			requestPermissions: signal(false),
+			window: signal(motionWindow),
+		};
+		const motion = useDeviceMotion(motionOptions);
+		const motionFallback = useDeviceMotion({ window: null });
+		const motionReturn: UseDeviceMotionReturn = motion;
+
+		expectTypeOf(motion).toEqualTypeOf<UseDeviceMotionReturn>();
+		expectTypeOf(motionReturn.acceleration).toEqualTypeOf<
+			ReadonlySignal<DeviceMotionEventAcceleration | null>
+		>();
+		expectTypeOf(motion.accelerationIncludingGravity).toEqualTypeOf<
+			ReadonlySignal<DeviceMotionEventAcceleration | null>
+		>();
+		expectTypeOf(motion.rotationRate).toEqualTypeOf<
+			ReadonlySignal<DeviceMotionEventRotationRate | null>
+		>();
+		expectTypeOf(motion.interval).toEqualTypeOf<ReadonlySignal<number>>();
+		expectTypeOf(motion.isSupported).toEqualTypeOf<ReadonlySignal<boolean>>();
+		expectTypeOf(motion.requirePermissions).toEqualTypeOf<
+			ReadonlySignal<boolean>
+		>();
+		expectTypeOf(motion.permissionGranted).toEqualTypeOf<
+			ReadonlySignal<boolean>
+		>();
+		expectTypeOf(motion.ensurePermissions()).toEqualTypeOf<Promise<void>>();
+		expectTypeOf(motion.stop()).toEqualTypeOf<void>();
+		expectTypeOf(motionFallback).toEqualTypeOf<UseDeviceMotionReturn>();
+		typeOnly(() => {
+			// @ts-expect-error returned values are readonly signals
+			motion.interval.value = 1;
+			// @ts-expect-error requestPermissions must be boolean
+			useDeviceMotion({ requestPermissions: "true" });
+		});
+
 		const visibilityDocument =
 			new EventTarget() as DocumentVisibilityDocumentLike;
 		Object.defineProperty(visibilityDocument, "visibilityState", {
@@ -3653,6 +3709,8 @@ describe("public types", () => {
 		defaultActive.stop();
 		animated.stop();
 		colorMode.stop();
+		motion.stop();
+		motionFallback.stop();
 		visibility.stop();
 		online.stop();
 	});
