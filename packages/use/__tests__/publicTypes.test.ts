@@ -111,6 +111,7 @@ import type {
 	UseArrayIncludesComparatorFn,
 	UseArrayIncludesOptions,
 	UseArrayIncludesReturn,
+	UseArrayJoinReturn,
 	UseBreakpointsOptions,
 	UseDocumentVisibilityOptions,
 	UseElementSizeOptions,
@@ -168,6 +169,7 @@ import {
 	useArrayFindIndex,
 	useArrayFindLast,
 	useArrayIncludes,
+	useArrayJoin,
 	useBreakpoints,
 	useDebounceFn,
 	useDocumentVisibility,
@@ -670,6 +672,35 @@ describe("public types", () => {
 					() => (element: number, value: number) => element === value,
 				),
 			});
+		});
+	});
+
+	it("types array join values", () => {
+		typeOnly(() => {
+			const first = signal<string | null>("foo");
+			const second = computed<number | undefined>(() => 1);
+			const third = signal("bar");
+			const list = signal([first, second, () => third.value]);
+			const separator = signal<string | undefined>("-");
+			const result = useArrayJoin(list, separator);
+			const rawResult = useArrayJoin(["foo", 1, null]);
+			const getterResult = useArrayJoin(
+				() => ["foo", "bar"],
+				() => separator.value,
+			);
+			const readonlyResult = useArrayJoin(readonly(list), separator);
+
+			expectTypeOf(result).toEqualTypeOf<UseArrayJoinReturn>();
+			expectTypeOf(result).toEqualTypeOf<ReadonlySignal<string>>();
+			expectTypeOf(rawResult).toEqualTypeOf<UseArrayJoinReturn>();
+			expectTypeOf(getterResult).toEqualTypeOf<UseArrayJoinReturn>();
+			expectTypeOf(readonlyResult).toEqualTypeOf<UseArrayJoinReturn>();
+			// @ts-expect-error returned value is readonly
+			result.value = "next";
+			// @ts-expect-error separator must resolve to string or undefined
+			useArrayJoin(signal([1]), signal(1));
+			// @ts-expect-error separator must resolve to string or undefined
+			useArrayJoin(signal([1]), () => 1);
 		});
 	});
 

@@ -527,6 +527,8 @@ export interface UseArrayIncludesOptions<T, V = T> {
 
 export type UseArrayIncludesReturn = ReadonlySignal<boolean>;
 
+export type UseArrayJoinReturn = ReadonlySignal<string>;
+
 export type ComputedWithControlSource<T = unknown> =
 	| WatchSource<T>
 	| DeepSignal<object>
