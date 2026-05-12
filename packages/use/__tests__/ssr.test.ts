@@ -83,6 +83,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.useDeviceMotion).toBe("function");
 		expect(typeof mod.useDeviceOrientation).toBe("function");
 		expect(typeof mod.useDevicePixelRatio).toBe("function");
+		expect(typeof mod.useDevicesList).toBe("function");
 		expect(typeof mod.useBreakpoints).toBe("function");
 		expect(typeof mod.useDocumentVisibility).toBe("function");
 		expect(typeof mod.useElementSize).toBe("function");
@@ -118,6 +119,7 @@ describe("SSR safety", () => {
 			useCssSupports,
 			useCssVar,
 			useDark,
+			useDevicesList,
 			useLocalStorage,
 			useMediaQuery,
 			useMouse,
@@ -178,6 +180,7 @@ describe("SSR safety", () => {
 			observe: true,
 			window: null,
 		});
+		const devicesList = useDevicesList({ navigator: null });
 		const sessionStorageValue = useSessionStorage("session", "fallback", {
 			window: undefined,
 		});
@@ -209,6 +212,8 @@ describe("SSR safety", () => {
 		expect(cssSupports.value).toBe(false);
 		expect(initialCssSupports.value).toBe(true);
 		expect(cssVar.value).toBe("red");
+		expect(devicesList.isSupported.value).toBe(false);
+		expect(devicesList.devices.value).toEqual([]);
 		expect(sessionStorageValue.value).toBe("fallback");
 		expect(ssrMediaQuery.matches.value).toBe(true);
 		expect(storageValue.value).toBe("fallback");
@@ -246,6 +251,8 @@ describe("SSR safety", () => {
 		cssVar.value = "blue";
 		expect(cssVar.value).toBe("blue");
 		cssVar.stop();
+		expect(await devicesList.ensurePermissions()).toBe(false);
+		devicesList.stop();
 		sessionStorageValue.stop();
 		ssrMediaQuery.stop();
 		storageValue.stop();
@@ -526,6 +533,21 @@ describe("SSR safety", () => {
 
 		expect(globalThis.window).toBeUndefined();
 		expect(result.pixelRatio.value).toBe(1);
+		result.stop();
+	});
+
+	it("creates useDevicesList without a window", async () => {
+		const { useDevicesList } = await import("../../../index");
+		const result = useDevicesList();
+
+		expect(globalThis.window).toBeUndefined();
+		expect(result.isSupported.value).toBe(false);
+		expect(result.permissionGranted.value).toBe(false);
+		expect(result.devices.value).toEqual([]);
+		expect(result.videoInputs.value).toEqual([]);
+		expect(result.audioInputs.value).toEqual([]);
+		expect(result.audioOutputs.value).toEqual([]);
+		expect(await result.ensurePermissions()).toBe(false);
 		result.stop();
 	});
 

@@ -228,6 +228,15 @@ import type {
 	UseDevicePixelRatioOptions,
 	UseDevicePixelRatioReturn,
 	UseDevicePixelRatioWindowLike,
+	UseDevicesListMediaDevicesLike,
+	UseDevicesListMediaStreamLike,
+	UseDevicesListMediaStreamTrackLike,
+	UseDevicesListNavigatorLike,
+	UseDevicesListOptions,
+	UseDevicesListPermissionName,
+	UseDevicesListPermissionStatusLike,
+	UseDevicesListPermissionsLike,
+	UseDevicesListReturn,
 	UseDocumentVisibilityOptions,
 	UseElementSizeOptions,
 	UseFocusOptions,
@@ -317,6 +326,7 @@ import {
 	useDeviceMotion,
 	useDeviceOrientation,
 	useDevicePixelRatio,
+	useDevicesList,
 	useDocumentVisibility,
 	useElementSize,
 	useEventListener,
@@ -3794,6 +3804,82 @@ describe("public types", () => {
 			pixelRatio.pixelRatio.value = 1;
 			// @ts-expect-error initialValue must be a number
 			useDevicePixelRatio({ initialValue: "1" });
+		});
+
+		typeOnly(() => {
+			const permissionName: UseDevicesListPermissionName = "camera";
+			const track: UseDevicesListMediaStreamTrackLike = {
+				stop: () => {},
+			};
+			const stream: UseDevicesListMediaStreamLike = {
+				getTracks: () => [track],
+			};
+			const mediaDevices = Object.assign(new EventTarget(), {
+				enumerateDevices: () => Promise.resolve([] as MediaDeviceInfo[]),
+				getUserMedia: (_constraints?: MediaStreamConstraints) =>
+					Promise.resolve(stream),
+			}) satisfies UseDevicesListMediaDevicesLike;
+			const permissionStatus = Object.assign(new EventTarget(), {
+				state: "granted" as PermissionState,
+			}) satisfies UseDevicesListPermissionStatusLike;
+			const permissions: UseDevicesListPermissionsLike = {
+				query: ({ name }) => {
+					expectTypeOf(name).toEqualTypeOf<UseDevicesListPermissionName>();
+					return Promise.resolve(permissionStatus);
+				},
+			};
+			const devicesNavigator: UseDevicesListNavigatorLike = {
+				mediaDevices,
+				permissions,
+			};
+			const devicesListOptions: UseDevicesListOptions<UseDevicesListNavigatorLike> =
+				{
+					constraints: signal({ audio: true, video: false }),
+					navigator: signal(devicesNavigator),
+					onUpdated: (devices) => {
+						expectTypeOf(devices).toEqualTypeOf<readonly MediaDeviceInfo[]>();
+					},
+					requestPermissions: signal(false),
+				};
+			const devicesList = useDevicesList(devicesListOptions);
+			const devicesListFallback = useDevicesList({ navigator: null });
+			const devicesListReturn: UseDevicesListReturn = devicesList;
+
+			expectTypeOf(
+				permissionName,
+			).toMatchTypeOf<UseDevicesListPermissionName>();
+			expectTypeOf(devicesList).toEqualTypeOf<UseDevicesListReturn>();
+			expectTypeOf(devicesListReturn.devices).toEqualTypeOf<
+				ReadonlySignal<readonly MediaDeviceInfo[]>
+			>();
+			expectTypeOf(devicesList.videoInputs).toEqualTypeOf<
+				ReadonlySignal<readonly MediaDeviceInfo[]>
+			>();
+			expectTypeOf(devicesList.audioInputs).toEqualTypeOf<
+				ReadonlySignal<readonly MediaDeviceInfo[]>
+			>();
+			expectTypeOf(devicesList.audioOutputs).toEqualTypeOf<
+				ReadonlySignal<readonly MediaDeviceInfo[]>
+			>();
+			expectTypeOf(devicesList.isSupported).toEqualTypeOf<
+				ReadonlySignal<boolean>
+			>();
+			expectTypeOf(devicesList.permissionGranted).toEqualTypeOf<
+				ReadonlySignal<boolean>
+			>();
+			expectTypeOf(devicesList.ensurePermissions()).toEqualTypeOf<
+				Promise<boolean>
+			>();
+			expectTypeOf(devicesList.stop()).toEqualTypeOf<void>();
+			expectTypeOf(devicesListFallback).toEqualTypeOf<UseDevicesListReturn>();
+			typeOnly(() => {
+				// @ts-expect-error returned values are readonly signals
+				devicesList.devices.value = [];
+				// @ts-expect-error requestPermissions must be boolean
+				useDevicesList({ requestPermissions: "true" });
+				// @ts-expect-error audio constraints must be boolean or MediaTrackConstraints
+				useDevicesList({ constraints: { audio: "true" } });
+			});
 		});
 
 		const visibilityDocument =

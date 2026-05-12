@@ -105,7 +105,7 @@ Status values:
 | `useDeviceMotion` | `useDeviceMotion` | Done |
 | `useDeviceOrientation` | `useDeviceOrientation` | Done |
 | `useDevicePixelRatio` | `useDevicePixelRatio` | Done |
-| `useDevicesList` | `-` | Todo |
+| `useDevicesList` | `useDevicesList` | Done |
 | `useDisplayMedia` | `-` | Todo |
 | `useDocumentVisibility` | `useDocumentVisibility` | Done |
 | `useDraggable` | `-` | Todo |

@@ -68,6 +68,7 @@ export { useDebouncedRefHistory } from "./useDebouncedRefHistory";
 export { useDeviceMotion } from "./useDeviceMotion";
 export { useDeviceOrientation } from "./useDeviceOrientation";
 export { useDevicePixelRatio } from "./useDevicePixelRatio";
+export { useDevicesList } from "./useDevicesList";
 export { useDocumentVisibility } from "./useDocumentVisibility";
 export { useElementSize } from "./useElementSize";
 export { useEventListener } from "./useEventListener";
@@ -357,6 +358,15 @@ export type {
 	UseDevicePixelRatioOptions,
 	UseDevicePixelRatioReturn,
 	UseDevicePixelRatioWindowLike,
+	UseDevicesListMediaDevicesLike,
+	UseDevicesListMediaStreamLike,
+	UseDevicesListMediaStreamTrackLike,
+	UseDevicesListNavigatorLike,
+	UseDevicesListOptions,
+	UseDevicesListPermissionName,
+	UseDevicesListPermissionStatusLike,
+	UseDevicesListPermissionsLike,
+	UseDevicesListReturn,
 	UseDocumentVisibilityOptions,
 	UseDocumentVisibilityReturn,
 	UseElementSizeOptions,
