@@ -358,6 +358,10 @@ import type {
 	UseIdleOptions,
 	UseIdleReturn,
 	UseIdleWindowLike,
+	UseImageAsyncStateOptions,
+	UseImageOptions,
+	UseImageReturn,
+	UseImageWindowLike,
 	UseMediaQueryOptions,
 	UseMouseOptions,
 	UseOnlineOptions,
@@ -469,6 +473,7 @@ import {
 	useGamepad,
 	useGeolocation,
 	useIdle,
+	useImage,
 	useInterval,
 	useIntervalFn,
 	useLocalStorage,
@@ -556,6 +561,10 @@ interface IdleDocument extends UseIdleDocumentLike {
 
 interface IdleWindow extends UseIdleWindowLike {
 	readonly document: IdleDocument;
+	readonly label: string;
+}
+
+interface ImageWindow extends UseImageWindowLike {
 	readonly label: string;
 }
 
@@ -5435,6 +5444,64 @@ describe("public types", () => {
 				useIdle(1000, {
 					// @ts-expect-error immediate must be boolean
 					immediate: "yes",
+				});
+			});
+		});
+	});
+
+	it("types image loading controls", () => {
+		typeOnly(() => {
+			const imageWindow = Object.assign(new EventTarget(), {
+				Image: class {},
+				label: "window",
+			}) as ImageWindow;
+			const options: UseImageOptions = {
+				alt: "Avatar",
+				class: "avatar",
+				crossorigin: "anonymous",
+				decoding: "async",
+				fetchPriority: "high",
+				height: 64,
+				ismap: true,
+				loading: "lazy",
+				referrerPolicy: "no-referrer",
+				sizes: "64px",
+				src: "/avatar.png",
+				srcset: "/avatar@2x.png 2x",
+				usemap: "#avatar-map",
+				width: 64,
+			};
+			const asyncOptions: UseImageAsyncStateOptions<ImageWindow> = {
+				immediate: false,
+				resetOnExecute: true,
+				window: signal(imageWindow),
+			};
+			const image = useImage(options, asyncOptions);
+			const imageReturn: UseImageReturn = image;
+
+			expectTypeOf(image).toEqualTypeOf<UseImageReturn>();
+			expectTypeOf(imageReturn.state).toEqualTypeOf<
+				ReadonlySignal<HTMLImageElement | undefined>
+			>();
+			expectTypeOf(image.isReady).toEqualTypeOf<ReadonlySignal<boolean>>();
+			expectTypeOf(image.isLoading).toEqualTypeOf<ReadonlySignal<boolean>>();
+			expectTypeOf(image.error).toEqualTypeOf<
+				ReadonlySignal<unknown | undefined>
+			>();
+			expectTypeOf(image.execute()).toEqualTypeOf<
+				Promise<HTMLImageElement | undefined>
+			>();
+			expectTypeOf(image.executeImmediate()).toEqualTypeOf<
+				Promise<HTMLImageElement | undefined>
+			>();
+			typeOnly(() => {
+				// @ts-expect-error state is readonly
+				image.state.value = undefined;
+				// @ts-expect-error src is required
+				useImage({ alt: "missing source" });
+				useImage(options, {
+					// @ts-expect-error window must expose Image constructor
+					window: new EventTarget(),
 				});
 			});
 		});

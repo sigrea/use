@@ -3125,6 +3125,38 @@ export interface UseIdleReturn {
 	stop(): void;
 }
 
+export interface UseImageWindowLike extends WindowLike {
+	readonly Image: { new (width?: number, height?: number): HTMLImageElement };
+}
+
+export interface UseImageOptions {
+	src: string;
+	srcset?: string;
+	sizes?: string;
+	alt?: string;
+	class?: string;
+	loading?: HTMLImageElement["loading"];
+	crossorigin?: HTMLImageElement["crossOrigin"];
+	referrerPolicy?: HTMLImageElement["referrerPolicy"];
+	width?: HTMLImageElement["width"];
+	height?: HTMLImageElement["height"];
+	decoding?: HTMLImageElement["decoding"];
+	fetchPriority?: HTMLImageElement["fetchPriority"];
+	ismap?: HTMLImageElement["isMap"];
+	usemap?: HTMLImageElement["useMap"];
+}
+
+export interface UseImageAsyncStateOptions<
+	TWindow extends UseImageWindowLike = UseImageWindowLike,
+> extends UseAsyncStateOptions<HTMLImageElement | undefined> {
+	window?: MaybeTarget<TWindow | null | undefined>;
+}
+
+export type UseImageReturn = UseAsyncStateReturn<
+	HTMLImageElement | undefined,
+	[]
+>;
+
 export interface ElementSize {
 	width: number;
 	height: number;

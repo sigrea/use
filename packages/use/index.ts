@@ -93,6 +93,7 @@ export { useFullscreen } from "./useFullscreen";
 export { useGamepad } from "./useGamepad";
 export { useGeolocation } from "./useGeolocation";
 export { useIdle } from "./useIdle";
+export { useImage } from "./useImage";
 export { useInterval } from "./useInterval";
 export { useIntervalFn } from "./useIntervalFn";
 export { useLocalStorage } from "./useLocalStorage";
@@ -519,6 +520,10 @@ export type {
 	UseIdleOptions,
 	UseIdleReturn,
 	UseIdleWindowLike,
+	UseImageAsyncStateOptions,
+	UseImageOptions,
+	UseImageReturn,
+	UseImageWindowLike,
 	UseIntervalControlsReturn,
 	UseIntervalFnOptions,
 	UseIntervalFnReturn,
