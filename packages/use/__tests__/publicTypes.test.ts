@@ -569,6 +569,7 @@ import type {
 	UseStyleTagDocumentLike,
 	UseStyleTagOptions,
 	UseStyleTagReturn,
+	UseSupportedReturn,
 	UseToggleOptions,
 	UseWindowSizeOptions,
 	WindowLike,
@@ -733,6 +734,7 @@ import {
 	useStorage,
 	useStorageAsync,
 	useStyleTag,
+	useSupported,
 	useThrottleFn,
 	useTimeout,
 	useTimeoutFn,
@@ -5121,6 +5123,32 @@ describe("public types", () => {
 			typeOnly(() => {
 				// @ts-expect-error mounted state is readonly
 				mounted.value = true;
+			});
+		});
+	});
+
+	it("types supported state", () => {
+		typeOnly(() => {
+			const supported = useSupported(() => true);
+			const supportedByString = useSupported(() => "supported");
+			const supportedByNumber = useSupported(() => 1);
+			const supportedReturn: UseSupportedReturn = supported;
+
+			expectTypeOf(supported).toEqualTypeOf<UseSupportedReturn>();
+			expectTypeOf(supportedByString).toEqualTypeOf<UseSupportedReturn>();
+			expectTypeOf(supportedByNumber).toEqualTypeOf<UseSupportedReturn>();
+			expectTypeOf(supportedReturn).toEqualTypeOf<ReadonlySignal<boolean>>();
+			expectTypeOf(supported.value).toEqualTypeOf<boolean>();
+
+			typeOnly(() => {
+				// @ts-expect-error supported state is readonly
+				supported.value = false;
+				// @ts-expect-error callback is required
+				useSupported();
+				// @ts-expect-error callback must be a function
+				useSupported(true);
+				// @ts-expect-error callback must not require arguments
+				useSupported((value: string) => value);
 			});
 		});
 	});
