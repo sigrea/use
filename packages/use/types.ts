@@ -2605,6 +2605,15 @@ export interface UseIntervalFnReturn {
 	resume(): void;
 }
 
+export type UseTimeoutPollCallback = () => Awaitable<void>;
+
+export interface UseTimeoutPollOptions {
+	immediate?: boolean;
+	immediateCallback?: boolean;
+}
+
+export type UseTimeoutPollReturn = UseIntervalFnReturn;
+
 export interface UseIntervalOptions<Controls extends boolean = false> {
 	controls?: Controls;
 	immediate?: boolean;
