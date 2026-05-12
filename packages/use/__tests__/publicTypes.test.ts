@@ -616,6 +616,7 @@ import type {
 	UseTitleReturn,
 	UseTitleTemplate,
 	UseToNumberOptions,
+	UseToStringReturn,
 	UseToggleOptions,
 	UseWindowSizeOptions,
 	WindowLike,
@@ -798,6 +799,7 @@ import {
 	useTimestamp,
 	useTitle,
 	useToNumber,
+	useToString,
 	useToggle,
 	useWindowSize,
 } from "../../../index";
@@ -8914,6 +8916,24 @@ describe("public types", () => {
 				// @ts-expect-error nanToZero must be a boolean
 				nanToZero: "true",
 			});
+		});
+	});
+
+	it("types to string values", () => {
+		typeOnly(() => {
+			const source = signal<unknown>(123.4);
+			const result = useToString(source);
+			const rawResult = useToString({ value: 1 });
+			const getterResult = useToString(() => source.value);
+			const computedResult = useToString(computed(() => source.value));
+
+			expectTypeOf(result).toEqualTypeOf<UseToStringReturn>();
+			expectTypeOf(result).toEqualTypeOf<ReadonlySignal<string>>();
+			expectTypeOf(rawResult).toEqualTypeOf<UseToStringReturn>();
+			expectTypeOf(getterResult).toEqualTypeOf<UseToStringReturn>();
+			expectTypeOf(computedResult).toEqualTypeOf<UseToStringReturn>();
+			// @ts-expect-error returned value is readonly
+			result.value = "next";
 		});
 	});
 

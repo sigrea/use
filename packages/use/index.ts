@@ -172,6 +172,7 @@ export { useTimeoutPoll } from "./useTimeoutPoll";
 export { useTimestamp } from "./useTimestamp";
 export { useTitle } from "./useTitle";
 export { useToNumber } from "./useToNumber";
+export { useToString } from "./useToString";
 export { useToggle } from "./useToggle";
 export { useWindowSize } from "./useWindowSize";
 export type {
@@ -865,6 +866,7 @@ export type {
 	UseTitleReturn,
 	UseTitleTemplate,
 	UseToNumberOptions,
+	UseToStringReturn,
 	UseToggleOptions,
 	UseToggleReturn,
 	ValueGetter,
