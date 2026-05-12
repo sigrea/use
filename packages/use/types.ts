@@ -529,6 +529,14 @@ export type UseArrayIncludesReturn = ReadonlySignal<boolean>;
 
 export type UseArrayJoinReturn = ReadonlySignal<string>;
 
+export type UseArrayMapCallback<T, U = T> = (
+	element: T,
+	index: number,
+	array: T[],
+) => U;
+
+export type UseArrayMapReturn<T = unknown> = ReadonlySignal<T[]>;
+
 export type ComputedWithControlSource<T = unknown> =
 	| WatchSource<T>
 	| DeepSignal<object>

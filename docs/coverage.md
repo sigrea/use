@@ -74,7 +74,7 @@ Status values:
 | `useArrayFindLast` | `useArrayFindLast` | Done |
 | `useArrayIncludes` | `useArrayIncludes` | Done |
 | `useArrayJoin` | `useArrayJoin` | Done |
-| `useArrayMap` | `-` | Todo |
+| `useArrayMap` | `useArrayMap` | Done |
 | `useArrayReduce` | `-` | Todo |
 | `useArraySome` | `-` | Todo |
 | `useArrayUnique` | `-` | Todo |
