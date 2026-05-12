@@ -72,6 +72,7 @@ import type {
 	SignalDebouncedReturn,
 	SignalDefaultReturn,
 	SignalManualResetReturn,
+	SignalThrottledReturn,
 	StorageSerializer,
 	StorageWindowLike,
 	UseBreakpointsOptions,
@@ -116,6 +117,7 @@ import {
 	signalDebounced,
 	signalDefault,
 	signalManualReset,
+	signalThrottled,
 	useBreakpoints,
 	useDebounceFn,
 	useDocumentVisibility,
@@ -1056,6 +1058,36 @@ describe("public types", () => {
 			signalDebounced(source, 100, { maxWait: "100" });
 			// @ts-expect-error rejectOnCancel is not exposed because no promise is returned
 			signalDebounced(source, 100, { rejectOnCancel: true });
+		});
+	});
+
+	it("types throttled signals", () => {
+		typeOnly(() => {
+			const source = signal(0);
+			const readonlySource = readonly(source);
+			const computedSource = computed(() => source.value * 2);
+			const delay: MaybeValue<number> = computed(() => 100);
+			const fromRaw = signalThrottled(0, delay);
+			const fromWritable = signalThrottled(source, delay, true, true);
+			const fromReadonly = signalThrottled(readonlySource, signal(100));
+			const fromComputed = signalThrottled(computedSource, () => 50);
+			const fromGetter = signalThrottled(() => source.value, 100);
+
+			expectTypeOf(fromRaw).toEqualTypeOf<SignalThrottledReturn<number>>();
+			expectTypeOf(fromWritable).toEqualTypeOf<SignalThrottledReturn<number>>();
+			expectTypeOf(fromWritable).toEqualTypeOf<ReadonlySignal<number>>();
+			expectTypeOf(fromReadonly).toEqualTypeOf<ReadonlySignal<number>>();
+			expectTypeOf(fromComputed.value).toEqualTypeOf<number>();
+			expectTypeOf(fromGetter.value).toEqualTypeOf<number>();
+
+			// @ts-expect-error returned value is readonly
+			fromWritable.value = 1;
+			// @ts-expect-error ms must resolve to a number
+			signalThrottled(source, "100");
+			// @ts-expect-error trailing must be boolean
+			signalThrottled(source, 100, "true");
+			// @ts-expect-error leading must be boolean
+			signalThrottled(source, 100, true, "true");
 		});
 	});
 
