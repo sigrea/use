@@ -2702,6 +2702,48 @@ export interface OnKeyStrokeOptions<TTarget extends EventTarget = EventTarget> {
 export type OnKeyStrokeHandler = (event: KeyboardEvent) => void;
 export type OnKeyStrokeReturn = () => void;
 
+export type UseKeyModifier =
+	| "Alt"
+	| "AltGraph"
+	| "CapsLock"
+	| "Control"
+	| "Fn"
+	| "FnLock"
+	| "Meta"
+	| "NumLock"
+	| "ScrollLock"
+	| "Shift"
+	| "Symbol"
+	| "SymbolLock";
+
+export type UseKeyModifierEventName = Extract<keyof DocumentEventMap, string>;
+
+export interface UseKeyModifierDocumentLike extends DocumentLike {}
+
+export interface UseKeyModifierOptions<
+	Initial extends boolean | null = null,
+	TDocument extends UseKeyModifierDocumentLike = UseKeyModifierDocumentLike,
+> {
+	/**
+	 * Event names that update the modifier state.
+	 *
+	 * @default ["mousedown", "mouseup", "keydown", "keyup"]
+	 */
+	events?: MaybeValue<readonly UseKeyModifierEventName[]>;
+	/**
+	 * Initial value before the first modifier-aware event.
+	 *
+	 * @default null
+	 */
+	initial?: Initial;
+	document?: MaybeTarget<TDocument | null | undefined>;
+}
+
+export type UseKeyModifierReturn<Initial extends boolean | null = null> =
+	ReadonlySignal<Initial extends boolean ? boolean : boolean | null> & {
+		stop(): void;
+	};
+
 export interface OnLongPressModifiers {
 	stop?: boolean;
 	once?: boolean;

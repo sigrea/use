@@ -135,7 +135,7 @@ Status values:
 | `useIntersectionObserver` | `useIntersectionObserver` | Done |
 | `useInterval` | `useInterval` | Done |
 | `useIntervalFn` | `useIntervalFn` | Done |
-| `useKeyModifier` | `-` | Todo |
+| `useKeyModifier` | `useKeyModifier` | Done |
 | `useLastChanged` | `-` | Todo |
 | `useLocalStorage` | `useLocalStorage` | Done |
 | `useMagicKeys` | `-` | Todo |
