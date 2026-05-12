@@ -132,6 +132,7 @@ export { usePreferredLanguages } from "./usePreferredLanguages";
 export { usePreferredReducedMotion } from "./usePreferredReducedMotion";
 export { usePreferredReducedTransparency } from "./usePreferredReducedTransparency";
 export { usePrevious } from "./usePrevious";
+export { useRafFn } from "./useRafFn";
 export { useRefHistory } from "./useRefHistory";
 export { useSessionStorage } from "./useSessionStorage";
 export {
@@ -688,6 +689,11 @@ export type {
 	UsePreferredReducedMotionReturn,
 	UsePreferredReducedTransparency,
 	UsePreferredReducedTransparencyReturn,
+	UseRafFnCallback,
+	UseRafFnCallbackArguments,
+	UseRafFnOptions,
+	UseRafFnReturn,
+	UseRafFnWindowLike,
 	UseRefHistoryOptions,
 	UseRefHistoryRecord,
 	UseRefHistoryReturn,
