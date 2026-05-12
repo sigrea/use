@@ -498,6 +498,12 @@ import type {
 	UseScreenOrientationReturn,
 	UseScreenOrientationScreenOrientationLike,
 	UseScreenOrientationWindowLike,
+	UseScreenSafeAreaDocumentLike,
+	UseScreenSafeAreaElementLike,
+	UseScreenSafeAreaOptions,
+	UseScreenSafeAreaReturn,
+	UseScreenSafeAreaVisualViewportLike,
+	UseScreenSafeAreaWindowLike,
 	UseStorageOptions,
 	UseToggleOptions,
 	UseWindowSizeOptions,
@@ -650,6 +656,7 @@ import {
 	useRefHistory,
 	useResizeObserver,
 	useScreenOrientation,
+	useScreenSafeArea,
 	useSessionStorage,
 	useStorage,
 	useThrottleFn,
@@ -5567,6 +5574,22 @@ describe("public types", () => {
 		const screenOrientationFallback = useScreenOrientation({ window: null });
 		const screenOrientationReturn: UseScreenOrientationReturn =
 			screenOrientationResult;
+		const safeAreaVisualViewport =
+			new EventTarget() as UseScreenSafeAreaVisualViewportLike;
+		const safeAreaWindow = Object.assign(new EventTarget(), {
+			document,
+			getComputedStyle: (_element: Element) =>
+				({
+					getPropertyValue: (_property: string) => "",
+				}) as CSSStyleDeclaration,
+			visualViewport: safeAreaVisualViewport,
+		}) satisfies UseScreenSafeAreaWindowLike;
+		const safeAreaOptions: UseScreenSafeAreaOptions<typeof safeAreaWindow> = {
+			window: signal(safeAreaWindow),
+		};
+		const safeArea = useScreenSafeArea(safeAreaOptions);
+		const safeAreaFallback = useScreenSafeArea({ window: null });
+		const safeAreaReturn: UseScreenSafeAreaReturn = safeArea;
 		const parallaxWindow = onlineWindow as Window & UseParallaxWindowLike;
 		const parallaxAdjust: UseParallaxAdjust = (value) => value;
 		const screenOrientation =
@@ -5725,6 +5748,18 @@ describe("public types", () => {
 		expectTypeOf(
 			screenOrientationFallback,
 		).toEqualTypeOf<UseScreenOrientationReturn>();
+		expectTypeOf(document).toMatchTypeOf<UseScreenSafeAreaDocumentLike>();
+		expectTypeOf(
+			document.documentElement,
+		).toMatchTypeOf<UseScreenSafeAreaElementLike>();
+		expectTypeOf(safeArea).toEqualTypeOf<UseScreenSafeAreaReturn>();
+		expectTypeOf(safeAreaReturn.top).toEqualTypeOf<ReadonlySignal<string>>();
+		expectTypeOf(safeArea.right.value).toEqualTypeOf<string>();
+		expectTypeOf(safeArea.bottom.value).toEqualTypeOf<string>();
+		expectTypeOf(safeArea.left.value).toEqualTypeOf<string>();
+		expectTypeOf(safeArea.update()).toEqualTypeOf<void>();
+		expectTypeOf(safeArea.stop()).toEqualTypeOf<void>();
+		expectTypeOf(safeAreaFallback).toEqualTypeOf<UseScreenSafeAreaReturn>();
 		expectTypeOf(screenOrientation.type).toEqualTypeOf<
 			OrientationType | undefined
 		>();

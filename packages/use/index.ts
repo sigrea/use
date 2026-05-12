@@ -136,6 +136,7 @@ export { useRafFn } from "./useRafFn";
 export { useRefHistory } from "./useRefHistory";
 export { useResizeObserver } from "./useResizeObserver";
 export { useScreenOrientation } from "./useScreenOrientation";
+export { useScreenSafeArea } from "./useScreenSafeArea";
 export { useSessionStorage } from "./useSessionStorage";
 export {
 	customStorageEventName,
@@ -708,6 +709,12 @@ export type {
 	UseScreenOrientationReturn,
 	UseScreenOrientationScreenOrientationLike,
 	UseScreenOrientationWindowLike,
+	UseScreenSafeAreaDocumentLike,
+	UseScreenSafeAreaElementLike,
+	UseScreenSafeAreaOptions,
+	UseScreenSafeAreaReturn,
+	UseScreenSafeAreaVisualViewportLike,
+	UseScreenSafeAreaWindowLike,
 	UseStorageOptions,
 	UseThrottleFnReturn,
 	UseTimeoutControlsReturn,
