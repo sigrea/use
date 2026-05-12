@@ -3591,6 +3591,25 @@ export interface UseNavigatorLanguageReturn {
 	stop(): void;
 }
 
+export interface UsePreferredLanguagesNavigatorLike extends NavigatorLike {
+	readonly languages?: readonly string[];
+}
+
+export interface UsePreferredLanguagesOptions<
+	TWindow extends WindowLike = WindowLike,
+	TNavigator extends
+		UsePreferredLanguagesNavigatorLike = UsePreferredLanguagesNavigatorLike,
+> {
+	window?: MaybeTarget<TWindow | null | undefined>;
+	navigator?: MaybeValue<TNavigator | null | undefined>;
+}
+
+export interface UsePreferredLanguagesReturn {
+	readonly isSupported: ReadonlySignal<boolean>;
+	readonly languages: ReadonlySignal<readonly string[]>;
+	stop(): void;
+}
+
 export type UseDraggableAxis = "x" | "y" | "both";
 export type UseDraggablePointerType = "mouse" | "pen" | "touch" | (string & {});
 export type UseDraggableElement = HTMLElement | SVGElement;

@@ -128,6 +128,7 @@ export { usePointerSwipe } from "./usePointerSwipe";
 export { usePreferredColorScheme } from "./usePreferredColorScheme";
 export { usePreferredContrast } from "./usePreferredContrast";
 export { usePreferredDark } from "./usePreferredDark";
+export { usePreferredLanguages } from "./usePreferredLanguages";
 export { usePrevious } from "./usePrevious";
 export { useRefHistory } from "./useRefHistory";
 export { useSessionStorage } from "./useSessionStorage";
@@ -678,6 +679,9 @@ export type {
 	UsePreferredColorSchemeReturn,
 	UsePreferredContrast,
 	UsePreferredContrastReturn,
+	UsePreferredLanguagesNavigatorLike,
+	UsePreferredLanguagesOptions,
+	UsePreferredLanguagesReturn,
 	UseRefHistoryOptions,
 	UseRefHistoryRecord,
 	UseRefHistoryReturn,
