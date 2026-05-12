@@ -85,6 +85,17 @@ function isDocumentTarget(value: EventTarget): value is UseScrollDocumentLike {
 	return candidate.documentElement !== undefined;
 }
 
+function resolveDocumentScrollElement(
+	documentTarget: UseScrollDocumentLike,
+): ScrollableElement | undefined {
+	const element =
+		documentTarget.scrollingElement ??
+		documentTarget.documentElement ??
+		documentTarget.body;
+
+	return element == null ? undefined : (element as ScrollableElement);
+}
+
 function resolveScrollTarget<TElement extends UseScrollElement>(
 	target: MaybeTarget<TElement>,
 ): ResolvedScrollTarget<TElement> | undefined {
@@ -95,22 +106,27 @@ function resolveScrollTarget<TElement extends UseScrollElement>(
 	}
 
 	if (isWindowTarget(source)) {
-		const element = source.document?.documentElement;
+		const documentTarget = source.document;
+		const element =
+			documentTarget === undefined
+				? undefined
+				: resolveDocumentScrollElement(documentTarget);
 
 		return element === undefined || element === null
 			? undefined
 			: {
-					element: element as ScrollableElement,
+					element,
 					source,
 				};
 	}
 
 	if (isDocumentTarget(source)) {
-		return source.documentElement === undefined ||
-			source.documentElement === null
+		const element = resolveDocumentScrollElement(source);
+
+		return element === undefined || element === null
 			? undefined
 			: {
-					element: source.documentElement as ScrollableElement,
+					element,
 					source,
 				};
 	}
@@ -148,6 +164,19 @@ function readScrollTop(
 	element: ScrollableElement,
 	source: EventTarget,
 ): number {
+	if (isWindowTarget(source)) {
+		const windowScrollTop = source.pageYOffset ?? source.scrollY;
+		if (windowScrollTop !== undefined) {
+			return windowScrollTop;
+		}
+
+		const scrollTop = element.scrollTop;
+
+		return scrollTop !== 0
+			? scrollTop
+			: (source.document?.body?.scrollTop ?? 0);
+	}
+
 	const scrollTop = element.scrollTop;
 
 	if (scrollTop !== 0 || !isDocumentTarget(source)) {
@@ -155,6 +184,32 @@ function readScrollTop(
 	}
 
 	return source.body?.scrollTop ?? scrollTop;
+}
+
+function readScrollLeft(
+	element: ScrollableElement,
+	source: EventTarget,
+): number {
+	if (isWindowTarget(source)) {
+		const windowScrollLeft = source.pageXOffset ?? source.scrollX;
+		if (windowScrollLeft !== undefined) {
+			return windowScrollLeft;
+		}
+
+		const scrollLeft = element.scrollLeft;
+
+		return scrollLeft !== 0
+			? scrollLeft
+			: (source.document?.body?.scrollLeft ?? 0);
+	}
+
+	const scrollLeft = element.scrollLeft;
+
+	if (scrollLeft !== 0 || !isDocumentTarget(source)) {
+		return scrollLeft;
+	}
+
+	return source.body?.scrollLeft ?? scrollLeft;
 }
 
 /**
@@ -261,7 +316,7 @@ export function useScroll<
 			flexDirection,
 		} = getStyle(element, source, currentWindow(), allowWindowFallback);
 		const directionMultiplier = styleDirection === "rtl" ? -1 : 1;
-		const scrollLeft = element.scrollLeft;
+		const scrollLeft = readScrollLeft(element, source);
 		const scrollTop = readScrollTop(element, source);
 		const nextDirections: UseScrollDirections = {
 			bottom: scrollTop > internalY.value,

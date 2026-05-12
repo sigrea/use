@@ -5464,10 +5464,15 @@ export interface UseScrollDirections {
 export interface UseScrollDocumentLike extends DocumentLike {
 	readonly documentElement?: HTMLElement | null;
 	readonly body?: HTMLElement | null;
+	readonly scrollingElement?: Element | null;
 }
 
 export interface UseScrollWindowLike extends UseMutationObserverWindowLike {
 	readonly document?: UseScrollDocumentLike;
+	readonly pageXOffset?: number;
+	readonly pageYOffset?: number;
+	readonly scrollX?: number;
+	readonly scrollY?: number;
 	getComputedStyle?(
 		element: Element,
 		pseudoElt?: string | null,
@@ -5531,6 +5536,17 @@ export interface UseScrollReturn {
 	scrollTo(options?: ScrollToOptions): void;
 	stop(): void;
 }
+
+export interface UseWindowScrollOptions<
+	TWindow extends UseScrollWindowLike = UseScrollWindowLike,
+> extends Omit<
+		UseScrollOptions<TWindow | null | undefined, TWindow>,
+		"window"
+	> {
+	window?: MaybeTarget<TWindow | null | undefined>;
+}
+
+export type UseWindowScrollReturn = UseScrollReturn;
 
 export interface UseScrollLockElementLike extends Element {
 	readonly style: CSSStyleDeclaration;

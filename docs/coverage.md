@@ -219,7 +219,7 @@ Status values:
 | `useWebWorker` | `useWebWorker` | Done |
 | `useWebWorkerFn` | `useWebWorkerFn` | Done |
 | `useWindowFocus` | `useWindowFocus` | Done |
-| `useWindowScroll` | `-` | Todo |
+| `useWindowScroll` | `useWindowScroll` | Done |
 | `useWindowSize` | `useWindowSize` | Done |
 | `watchArray` | `-` | Todo |
 | `watchAtMost` | `-` | Todo |
