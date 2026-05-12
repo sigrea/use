@@ -176,6 +176,7 @@ export {
 } from "./useStorage";
 export { useStorageAsync } from "./useStorageAsync";
 export { useSum } from "./useSum";
+export { useTrunc } from "./useTrunc";
 export { useThrottleFn } from "./useThrottleFn";
 export { formatTimeAgo, useTimeAgo } from "./useTimeAgo";
 export {
@@ -937,6 +938,7 @@ export type {
 	UseStyleTagOptions,
 	UseStyleTagReturn,
 	UseSumReturn,
+	UseTruncReturn,
 	UseSupportedReturn,
 	UseSwipeDirection,
 	UseSwipeOptions,

@@ -656,6 +656,7 @@ import type {
 	UseTransitionReturn,
 	UseTransitionVector,
 	UseTransitionWindowLike,
+	UseTruncReturn,
 	UseUrlSearchParamsHistoryLike,
 	UseUrlSearchParamsLocationLike,
 	UseUrlSearchParamsMode,
@@ -996,6 +997,7 @@ import {
 	useToString,
 	useToggle,
 	useTransition,
+	useTrunc,
 	useUrlSearchParams,
 	useUserMedia,
 	useVibrate,
@@ -6033,6 +6035,22 @@ describe("public types", () => {
 			result.value = 1;
 			// @ts-expect-error value must resolve to a number
 			useRound("1");
+		});
+	});
+
+	it("types trunc values", () => {
+		typeOnly(() => {
+			const result = useTrunc(signal(1.95));
+			const getter = useTrunc(() => -2.34);
+			const truncReturn: UseTruncReturn = result;
+
+			expectTypeOf(result).toEqualTypeOf<UseTruncReturn>();
+			expectTypeOf(getter.value).toEqualTypeOf<number>();
+			expectTypeOf(truncReturn.value).toEqualTypeOf<number>();
+			// @ts-expect-error trunc result is readonly
+			result.value = 1;
+			// @ts-expect-error value must resolve to a number
+			useTrunc("1");
 		});
 	});
 

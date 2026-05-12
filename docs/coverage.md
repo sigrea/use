@@ -250,4 +250,4 @@ Status values:
 | `math/useProjection` | `useProjection` | Done |
 | `math/useRound` | `useRound` | Done |
 | `math/useSum` | `useSum` | Done |
-| `math/useTrunc` | `-` | Todo |
+| `math/useTrunc` | `useTrunc` | Done |
