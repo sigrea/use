@@ -159,7 +159,7 @@ Status values:
 | `useParallax` | `useParallax` | Done |
 | `useParentElement` | `-` | Needs design |
 | `usePerformanceObserver` | `usePerformanceObserver` | Done |
-| `usePermission` | `-` | Todo |
+| `usePermission` | `usePermission` | Done |
 | `usePointer` | `-` | Todo |
 | `usePointerLock` | `-` | Todo |
 | `usePointerSwipe` | `-` | Todo |

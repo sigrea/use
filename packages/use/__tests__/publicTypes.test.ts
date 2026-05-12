@@ -450,6 +450,14 @@ import type {
 	UsePerformanceObserverOptions,
 	UsePerformanceObserverReturn,
 	UsePerformanceObserverWindowLike,
+	UsePermissionDescriptor,
+	UsePermissionName,
+	UsePermissionNavigatorLike,
+	UsePermissionOptions,
+	UsePermissionPermissionsLike,
+	UsePermissionReturn,
+	UsePermissionSource,
+	UsePermissionStatusLike,
 	UseRefHistoryRecord,
 	UseStorageOptions,
 	UseToggleOptions,
@@ -588,6 +596,7 @@ import {
 	usePageLeave,
 	useParallax,
 	usePerformanceObserver,
+	usePermission,
 	usePreferredDark,
 	usePrevious,
 	useRefHistory,
@@ -5482,6 +5491,29 @@ describe("public types", () => {
 			},
 		);
 		const performanceReturn: UsePerformanceObserverReturn = performance;
+		const permissionName: UsePermissionName = "display-capture";
+		const permissionDescriptor: UsePermissionDescriptor = {
+			name: "midi",
+			sysex: true,
+		};
+		const permissionSource = signal<UsePermissionSource>(permissionName);
+		const permissionStatus = new EventTarget() as PermissionStatus;
+		const permissionStatusLike: UsePermissionStatusLike = permissionStatus;
+		const permissionPermissions: UsePermissionPermissionsLike = {
+			query: async (descriptor) => {
+				expectTypeOf(descriptor).toEqualTypeOf<PermissionDescriptor>();
+				return permissionStatus;
+			},
+		};
+		const permissionNavigator: UsePermissionNavigatorLike = {
+			permissions: permissionPermissions,
+		};
+		const permissionOptions: UsePermissionOptions<typeof permissionNavigator> =
+			{
+				navigator: signal(permissionNavigator),
+			};
+		const permission = usePermission(permissionDescriptor, permissionOptions);
+		const permissionReturn: UsePermissionReturn = permission;
 
 		expectTypeOf(online.isOnline.value).toEqualTypeOf<boolean>();
 		expectTypeOf(pageLeave).toEqualTypeOf<UsePageLeaveReturn>();
@@ -5511,6 +5543,17 @@ describe("public types", () => {
 			() => {},
 		);
 		usePerformanceObserver(thresholdPerformanceOptions, () => {});
+		expectTypeOf(permission).toEqualTypeOf<UsePermissionReturn>();
+		expectTypeOf(permissionStatusLike.state).toEqualTypeOf<PermissionState>();
+		expectTypeOf(permissionReturn.isSupported.value).toEqualTypeOf<boolean>();
+		expectTypeOf(permission.state.value).toEqualTypeOf<
+			PermissionState | undefined
+		>();
+		expectTypeOf(permission.query()).toEqualTypeOf<
+			Promise<PermissionStatus | undefined>
+		>();
+		expectTypeOf(permission.stop()).toEqualTypeOf<void>();
+		usePermission(permissionSource, permissionOptions);
 		typeOnly(() => {
 			usePerformanceObserver(
 				// @ts-expect-error entryTypes cannot be used with type
@@ -5536,6 +5579,15 @@ describe("public types", () => {
 				},
 				() => {},
 			);
+			usePermission(
+				// @ts-expect-error permission name must be a string
+				{ name: 1 },
+				permissionOptions,
+			);
+			usePermission("geolocation", {
+				// @ts-expect-error navigator must be navigator-like or nullish
+				navigator: "navigator",
+			});
 		});
 
 		breakpoints.stop();
@@ -5553,6 +5605,7 @@ describe("public types", () => {
 		pageLeave.stop();
 		parallax.stop();
 		performance.stop();
+		permission.stop();
 	});
 
 	it("forwards timeout start arguments", () => {

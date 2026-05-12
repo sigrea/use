@@ -137,6 +137,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.usePageLeave).toBe("function");
 		expect(typeof mod.useParallax).toBe("function");
 		expect(typeof mod.usePerformanceObserver).toBe("function");
+		expect(typeof mod.usePermission).toBe("function");
 		expect(typeof mod.usePreferredDark).toBe("function");
 		expect(typeof mod.usePrevious).toBe("function");
 		expect(typeof mod.useRefHistory).toBe("function");
@@ -201,6 +202,7 @@ describe("SSR safety", () => {
 			usePageLeave,
 			useParallax,
 			usePerformanceObserver,
+			usePermission,
 			usePreferredDark,
 			onElementRemoval,
 			onKeyDown,
@@ -266,6 +268,7 @@ describe("SSR safety", () => {
 			{ entryTypes: ["mark"], window: null },
 			() => {},
 		);
+		const permission = usePermission("geolocation", { navigator: null });
 		const preferredDark = usePreferredDark();
 		const cssSupports = useCssSupports("display", "grid", { window: null });
 		const initialCssSupports = useCssSupports("display: grid", {
@@ -383,6 +386,8 @@ describe("SSR safety", () => {
 		expect(parallax.roll.value).toBe(0);
 		expect(parallax.tilt.value).toBe(0);
 		expect(performanceObserver.isSupported.value).toBe(false);
+		expect(permission.isSupported.value).toBe(false);
+		expect(permission.state.value).toBeUndefined();
 		expect(preferredDark.matches.value).toBe(false);
 		expect(cssSupports.value).toBe(false);
 		expect(initialCssSupports.value).toBe(true);
@@ -505,6 +510,8 @@ describe("SSR safety", () => {
 		parallax.stop();
 		performanceObserver.start();
 		performanceObserver.stop();
+		expect(await permission.query()).toBeUndefined();
+		permission.stop();
 		preferredDark.stop();
 		cssVar.value = "blue";
 		expect(cssVar.value).toBe("blue");

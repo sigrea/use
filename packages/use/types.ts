@@ -3303,6 +3303,63 @@ export interface UsePerformanceObserverReturn {
 	stop(): void;
 }
 
+export type UsePermissionName =
+	| PermissionName
+	| "accelerometer"
+	| "accessibility-events"
+	| "ambient-light-sensor"
+	| "background-sync"
+	| "bluetooth"
+	| "clipboard-read"
+	| "clipboard-write"
+	| "gyroscope"
+	| "local-fonts"
+	| "magnetometer"
+	| "payment-handler"
+	| "speaker"
+	| "top-level-storage-access"
+	| "window-management"
+	| (string & {});
+
+export interface UsePermissionDescriptor {
+	readonly name: UsePermissionName;
+	readonly [key: string]: unknown;
+}
+
+export type UsePermissionSource = UsePermissionDescriptor | UsePermissionName;
+
+export interface UsePermissionStatusLike extends EventTarget {
+	readonly state: PermissionState;
+}
+
+export interface UsePermissionPermissionsLike<
+	TStatus extends UsePermissionStatusLike = PermissionStatus,
+> {
+	query(permissionDescriptor: PermissionDescriptor): Promise<TStatus>;
+}
+
+export interface UsePermissionNavigatorLike<
+	TStatus extends UsePermissionStatusLike = PermissionStatus,
+> extends NavigatorLike {
+	readonly permissions?: UsePermissionPermissionsLike<TStatus> | null;
+}
+
+export interface UsePermissionOptions<
+	TNavigator extends
+		UsePermissionNavigatorLike<UsePermissionStatusLike> = UsePermissionNavigatorLike,
+> {
+	navigator?: MaybeValue<TNavigator | null | undefined>;
+}
+
+export interface UsePermissionReturn<
+	TStatus extends UsePermissionStatusLike = PermissionStatus,
+> {
+	readonly isSupported: ReadonlySignal<boolean>;
+	readonly state: ReadonlySignal<PermissionState | undefined>;
+	query(): Promise<TStatus | undefined>;
+	stop(): void;
+}
+
 export type UseMousePressedSourceEvent = MouseEvent | TouchEvent | DragEvent;
 
 export interface UseMousePressedWindowLike extends WindowLike {}
