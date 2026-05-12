@@ -193,6 +193,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.useVirtualList).toBe("function");
 		expect(typeof mod.useWakeLock).toBe("function");
 		expect(typeof mod.useWebNotification).toBe("function");
+		expect(typeof mod.useWebSocket).toBe("function");
 		expect(typeof mod.useWindowSize).toBe("function");
 	}, 30_000);
 
@@ -300,6 +301,7 @@ describe("SSR safety", () => {
 			useVirtualList,
 			useWakeLock,
 			useWebNotification,
+			useWebSocket,
 			useWindowSize,
 			useActiveElement,
 			useAnimate,
@@ -414,6 +416,7 @@ describe("SSR safety", () => {
 			navigator: null,
 		});
 		const webNotification = useWebNotification({ window: null });
+		const webSocket = useWebSocket("ws://example.test", { window: null });
 		const draggable = useDraggable(null, { initialValue: { x: 10, y: 20 } });
 		const dropZone = useDropZone(null);
 		const bounding = useElementBounding(null, {
@@ -675,6 +678,11 @@ describe("SSR safety", () => {
 		expect(webNotification.isSupported.value).toBe(false);
 		expect(webNotification.permissionGranted.value).toBe(false);
 		expect(webNotification.error.value).toBeNull();
+		expect(webSocket.isSupported.value).toBe(false);
+		expect(webSocket.status.value).toBe("CLOSED");
+		expect(webSocket.ws.value).toBeUndefined();
+		expect(webSocket.data.value).toBeNull();
+		expect(webSocket.error.value).toBeNull();
 		expect(draggable.position.value).toEqual({ x: 10, y: 20 });
 		expect(draggable.isDragging.value).toBe(false);
 		expect(dropZone.files.value).toBeNull();
@@ -851,6 +859,10 @@ describe("SSR safety", () => {
 		expect(await webNotification.show()).toBeUndefined();
 		webNotification.close();
 		webNotification.stop();
+		webSocket.open();
+		expect(webSocket.send("message", false)).toBe(false);
+		webSocket.close();
+		webSocket.stop();
 		speechRecognition.start();
 		speechRecognition.stop();
 		speechRecognition.abort();
