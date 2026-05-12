@@ -1781,6 +1781,82 @@ export interface UseToNumberOptions {
 
 export type UseToStringReturn = ReadonlySignal<string>;
 
+export type CubicBezierPoints = readonly [number, number, number, number];
+
+export type EasingFunction = (value: number) => number;
+
+export type TransitionEasing = EasingFunction | CubicBezierPoints;
+
+export type MaybeTransitionEasing =
+	| TransitionEasing
+	| Signal<TransitionEasing>
+	| ReadonlySignal<TransitionEasing>
+	| Computed<TransitionEasing>;
+
+export type InterpolationFunction<T> = (from: T, to: T, alpha: number) => T;
+
+export interface UseTransitionWindowLike extends WindowLike {
+	requestAnimationFrame?(callback: FrameRequestCallback): number;
+}
+
+export interface TransitionOptions<
+	T,
+	TWindow extends UseTransitionWindowLike = UseTransitionWindowLike,
+> {
+	/**
+	 * Manually abort a transition.
+	 */
+	abort?: () => unknown;
+
+	/**
+	 * Transition duration in milliseconds.
+	 */
+	duration?: MaybeValue<number>;
+
+	/**
+	 * Easing function or cubic bezier points to calculate transition progress.
+	 */
+	easing?: MaybeTransitionEasing;
+
+	/**
+	 * Custom interpolation function.
+	 */
+	interpolation?: InterpolationFunction<T>;
+
+	window?: MaybeTarget<TWindow>;
+}
+
+export interface UseTransitionOptions<
+	T,
+	TWindow extends UseTransitionWindowLike = UseTransitionWindowLike,
+> extends TransitionOptions<T, TWindow> {
+	/**
+	 * Milliseconds to wait before starting transition.
+	 */
+	delay?: MaybeValue<number>;
+
+	/**
+	 * Disables the transition.
+	 */
+	disabled?: MaybeValue<boolean>;
+
+	/**
+	 * Callback to execute after transition finishes.
+	 */
+	onFinished?: () => void;
+
+	/**
+	 * Callback to execute after transition starts.
+	 */
+	onStarted?: () => void;
+}
+
+export type UseTransitionVector<T extends readonly unknown[]> = {
+	[K in keyof T]: number;
+};
+
+export type UseTransitionReturn<T = unknown> = ReadonlySignal<T>;
+
 export type UseFetchDataType =
 	| "text"
 	| "json"

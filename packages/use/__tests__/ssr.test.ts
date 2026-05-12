@@ -10,6 +10,7 @@ describe("SSR safety", () => {
 	it("imports the root entry in a node environment", async () => {
 		const mod = await import("../../../index");
 
+		expect(typeof mod.TransitionPresets).toBe("object");
 		expect(typeof mod.computedAsync).toBe("function");
 		expect(typeof mod.computedEager).toBe("function");
 		expect(typeof mod.computedWithControl).toBe("function");
@@ -183,6 +184,8 @@ describe("SSR safety", () => {
 		expect(typeof mod.useTitle).toBe("function");
 		expect(typeof mod.useToNumber).toBe("function");
 		expect(typeof mod.useToString).toBe("function");
+		expect(typeof mod.transition).toBe("function");
+		expect(typeof mod.useTransition).toBe("function");
 		expect(typeof mod.useToggle).toBe("function");
 		expect(typeof mod.useWindowSize).toBe("function");
 	}, 30_000);
@@ -283,6 +286,8 @@ describe("SSR safety", () => {
 			useTitle,
 			useToNumber,
 			useToString,
+			transition,
+			useTransition,
 			useWindowSize,
 			useActiveElement,
 			useAnimate,
@@ -462,6 +467,14 @@ describe("SSR safety", () => {
 		const title = useTitle("SSR title", { document: null });
 		const toNumber = useToNumber("123.4");
 		const stringValue = useToString(123.4);
+		const transitionSource = {
+			value: 0,
+			peek() {
+				return this.value;
+			},
+		};
+		await transition(transitionSource, 0, 1, { window: null });
+		const transitionValue = useTransition(1, { window: null });
 		const elementSize = useElementSize(null, { width: 10, height: 20 });
 		const size = useWindowSize();
 
@@ -690,6 +703,8 @@ describe("SSR safety", () => {
 		expect(title.value).toBe("SSR title");
 		expect(toNumber.value).toBe(123.4);
 		expect(stringValue.value).toBe("123.4");
+		expect(transitionSource.value).toBe(1);
+		expect(transitionValue.value).toBe(1);
 		expect(elementSize.width.value).toBe(10);
 		expect(elementSize.height.value).toBe(20);
 		expect(size.width.value).toBe(0);
