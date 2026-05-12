@@ -615,6 +615,7 @@ import type {
 	UseTitleRestore,
 	UseTitleReturn,
 	UseTitleTemplate,
+	UseToNumberOptions,
 	UseToggleOptions,
 	UseWindowSizeOptions,
 	WindowLike,
@@ -796,6 +797,7 @@ import {
 	useTimeoutPoll,
 	useTimestamp,
 	useTitle,
+	useToNumber,
 	useToggle,
 	useWindowSize,
 } from "../../../index";
@@ -8869,6 +8871,48 @@ describe("public types", () => {
 				});
 				// @ts-expect-error target must be an Element
 				useElementVisibility(new EventTarget());
+			});
+		});
+	});
+
+	it("types to number values and options", () => {
+		typeOnly(() => {
+			const source = signal<string | number>("123.4");
+			const options: UseToNumberOptions = {
+				method: (value) => {
+					expectTypeOf(value).toEqualTypeOf<string | number>();
+					return Number(value);
+				},
+				nanToZero: true,
+				radix: 10,
+			};
+			const result = useToNumber(source, options);
+			const rawResult = useToNumber(123.4);
+			const getterResult = useToNumber(() => source.value, {
+				method: "parseInt",
+				radix: 10,
+			});
+			const computedResult = useToNumber(computed(() => source.value));
+
+			expectTypeOf(result).toEqualTypeOf<ReadonlySignal<number>>();
+			expectTypeOf(rawResult).toEqualTypeOf<ReadonlySignal<number>>();
+			expectTypeOf(getterResult).toEqualTypeOf<ReadonlySignal<number>>();
+			expectTypeOf(computedResult).toEqualTypeOf<ReadonlySignal<number>>();
+			// @ts-expect-error returned value is readonly
+			result.value = 1;
+			// @ts-expect-error source must resolve to a string or number
+			useToNumber(true);
+			useToNumber("1", {
+				// @ts-expect-error method must be parseFloat, parseInt, or a callback
+				method: "Number",
+			});
+			useToNumber("1", {
+				// @ts-expect-error radix must be a number
+				radix: "10",
+			});
+			useToNumber("1", {
+				// @ts-expect-error nanToZero must be a boolean
+				nanToZero: "true",
 			});
 		});
 	});
