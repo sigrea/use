@@ -406,6 +406,7 @@ import type {
 	UseIntersectionObserverReturn,
 	UseIntersectionObserverTarget,
 	UseIntersectionObserverWindowLike,
+	UseIntervalFnReturn,
 	UseKeyModifier,
 	UseKeyModifierDocumentLike,
 	UseKeyModifierEventName,
@@ -641,6 +642,11 @@ import type {
 	UseUserMediaNavigatorLike,
 	UseUserMediaOptions,
 	UseUserMediaReturn,
+	UseVibrateNavigatorLike,
+	UseVibrateOptions,
+	UseVibratePattern,
+	UseVibrateReturn,
+	UseVibrateScheduler,
 	UseWindowSizeOptions,
 	WindowLike,
 	WritableComputedWithControlReturn,
@@ -829,6 +835,7 @@ import {
 	useTransition,
 	useUrlSearchParams,
 	useUserMedia,
+	useVibrate,
 	useWindowSize,
 } from "../../../index";
 
@@ -6220,6 +6227,57 @@ describe("public types", () => {
 				useUserMedia({ autoSwitch: "true" });
 				// @ts-expect-error user media options must use valid constraint types
 				useUserMedia({ constraints: { audio: "true" } });
+			});
+		});
+
+		typeOnly(() => {
+			const vibrateNavigator: UseVibrateNavigatorLike = {
+				vibrate: (_pattern: number | number[]) => true,
+			};
+			const vibratePattern: UseVibratePattern = [10, 20] as const;
+			const vibrateScheduler: UseVibrateScheduler = (callback) =>
+				useIntervalFn(callback, 100, {
+					immediate: false,
+					immediateCallback: false,
+				});
+			const vibrateOptions: UseVibrateOptions = {
+				interval: signal(100),
+				navigator: signal(vibrateNavigator),
+				pattern: signal(vibratePattern),
+				scheduler: vibrateScheduler,
+			};
+			const vibration = useVibrate(vibrateOptions);
+			const fallbackVibration = useVibrate({ navigator: null });
+			const vibrationReturn: UseVibrateReturn = vibration;
+
+			expectTypeOf(vibration).toEqualTypeOf<UseVibrateReturn>();
+			expectTypeOf(vibrationReturn.isSupported).toEqualTypeOf<
+				ReadonlySignal<boolean>
+			>();
+			expectTypeOf(vibration.pattern).toEqualTypeOf<
+				Signal<UseVibratePattern>
+			>();
+			expectTypeOf(vibration.intervalControls).toEqualTypeOf<
+				UseIntervalFnReturn | undefined
+			>();
+			expectTypeOf(vibration.vibrate()).toEqualTypeOf<void>();
+			expectTypeOf(vibration.vibrate(10)).toEqualTypeOf<void>();
+			expectTypeOf(vibration.vibrate([10, 20] as const)).toEqualTypeOf<void>();
+			expectTypeOf(vibration.stop()).toEqualTypeOf<void>();
+			expectTypeOf(fallbackVibration).toEqualTypeOf<UseVibrateReturn>();
+			vibration.pattern.value = 20;
+			vibration.pattern.value = [20, 30] as const;
+			typeOnly(() => {
+				// @ts-expect-error isSupported is readonly
+				vibration.isSupported.value = true;
+				// @ts-expect-error pattern must be a number or number array
+				useVibrate({ pattern: "100" });
+				// @ts-expect-error interval must be numeric
+				useVibrate({ interval: "100" });
+				// @ts-expect-error navigator must expose a valid vibrate function
+				useVibrate({ navigator: { vibrate: (_pattern: string) => true } });
+				// @ts-expect-error scheduler must return interval controls
+				useVibrate({ scheduler: () => ({}) });
 			});
 		});
 

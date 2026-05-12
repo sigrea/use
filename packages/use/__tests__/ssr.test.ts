@@ -189,6 +189,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.useToggle).toBe("function");
 		expect(typeof mod.useUrlSearchParams).toBe("function");
 		expect(typeof mod.useUserMedia).toBe("function");
+		expect(typeof mod.useVibrate).toBe("function");
 		expect(typeof mod.useWindowSize).toBe("function");
 	}, 30_000);
 
@@ -292,6 +293,7 @@ describe("SSR safety", () => {
 			useTransition,
 			useUrlSearchParams,
 			useUserMedia,
+			useVibrate,
 			useWindowSize,
 			useActiveElement,
 			useAnimate,
@@ -396,6 +398,7 @@ describe("SSR safety", () => {
 		const devicesList = useDevicesList({ navigator: null });
 		const displayMedia = useDisplayMedia({ navigator: null });
 		const userMedia = useUserMedia({ navigator: null });
+		const vibration = useVibrate({ navigator: null });
 		const draggable = useDraggable(null, { initialValue: { x: 10, y: 20 } });
 		const dropZone = useDropZone(null);
 		const bounding = useElementBounding(null, {
@@ -641,6 +644,9 @@ describe("SSR safety", () => {
 		expect(userMedia.error.value).toBeNull();
 		expect(userMedia.enabled.value).toBe(false);
 		expect(userMedia.autoSwitch.value).toBe(true);
+		expect(vibration.isSupported.value).toBe(false);
+		expect(vibration.pattern.value).toEqual([]);
+		expect(vibration.intervalControls).toBeUndefined();
 		expect(draggable.position.value).toEqual({ x: 10, y: 20 });
 		expect(draggable.isDragging.value).toBe(false);
 		expect(dropZone.files.value).toBeNull();
@@ -803,6 +809,8 @@ describe("SSR safety", () => {
 		userMedia.autoSwitch.value = false;
 		userMedia.constraints.value = { audio: true };
 		userMedia.stop();
+		expect(vibration.vibrate()).toBeUndefined();
+		expect(vibration.stop()).toBeUndefined();
 		speechRecognition.start();
 		speechRecognition.stop();
 		speechRecognition.abort();
@@ -1226,6 +1234,18 @@ describe("SSR safety", () => {
 		expect(await result.start()).toBeUndefined();
 		expect(await result.restart()).toBeUndefined();
 		result.stop();
+	});
+
+	it("creates useVibrate without a window", async () => {
+		const { useVibrate } = await import("../../../index");
+		const result = useVibrate();
+
+		expect(globalThis.window).toBeUndefined();
+		expect(result.isSupported.value).toBe(false);
+		expect(result.pattern.value).toEqual([]);
+		expect(result.intervalControls).toBeUndefined();
+		expect(result.vibrate()).toBeUndefined();
+		expect(result.stop()).toBeUndefined();
 	});
 
 	it("creates useFullscreen without a window", async () => {
