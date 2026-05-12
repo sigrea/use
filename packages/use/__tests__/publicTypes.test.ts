@@ -258,6 +258,9 @@ describe("public types", () => {
 		typeOnly(() => {
 			const single = createEventHook<number>();
 			const tuple = createEventHook<[number, string]>();
+			const array = createEventHook<string[]>();
+			const readonlyTuple = createEventHook<readonly [number, string]>();
+			const readonlyArray = createEventHook<readonly string[]>();
 			const empty = createEventHook<void>();
 			const loose = createEventHook();
 			const callback: EventHookCallback<number> = (value) => {
@@ -277,6 +280,16 @@ describe("public types", () => {
 				expectTypeOf(count).toEqualTypeOf<number>();
 				expectTypeOf(label).toEqualTypeOf<string>();
 			});
+			array.on((value) => {
+				expectTypeOf(value).toEqualTypeOf<string[]>();
+			});
+			readonlyTuple.on((count, label) => {
+				expectTypeOf(count).toEqualTypeOf<number>();
+				expectTypeOf(label).toEqualTypeOf<string>();
+			});
+			readonlyArray.on((value) => {
+				expectTypeOf(value).toEqualTypeOf<readonly string[]>();
+			});
 			empty.on((...args) => {
 				expectTypeOf(args).toEqualTypeOf<unknown[]>();
 			});
@@ -289,6 +302,9 @@ describe("public types", () => {
 			expectTypeOf<[number, ...unknown[]]>().toEqualTypeOf<
 				EventHookArgs<number>
 			>();
+			expectTypeOf<[string[], ...unknown[]]>().toEqualTypeOf<
+				EventHookArgs<string[]>
+			>();
 			expectTypeOf(single.on(callback)).toEqualTypeOf<{ off: () => void }>();
 			expectTypeOf(single.trigger(1)).toEqualTypeOf<Promise<unknown[]>>();
 			expectTypeOf(single.trigger(1, "extra")).toEqualTypeOf<
@@ -297,11 +313,24 @@ describe("public types", () => {
 			expectTypeOf(tuple.trigger(1, "ready")).toEqualTypeOf<
 				Promise<unknown[]>
 			>();
+			expectTypeOf(array.trigger(["ready"])).toEqualTypeOf<
+				Promise<unknown[]>
+			>();
+			expectTypeOf(readonlyTuple.trigger(1, "ready")).toEqualTypeOf<
+				Promise<unknown[]>
+			>();
+			expectTypeOf(readonlyArray.trigger(["ready"])).toEqualTypeOf<
+				Promise<unknown[]>
+			>();
 			expectTypeOf(empty.trigger()).toEqualTypeOf<Promise<unknown[]>>();
 			// @ts-expect-error single payload hooks require the first argument
 			single.trigger();
 			// @ts-expect-error tuple payload hooks require all tuple arguments
 			tuple.trigger(1);
+			// @ts-expect-error array payload hooks receive the array as one payload
+			array.trigger("ready", "done");
+			// @ts-expect-error readonly array payload hooks receive the array as one payload
+			readonlyArray.trigger("ready", "done");
 			// @ts-expect-error payload type must match
 			single.trigger("ready");
 		});
@@ -1162,14 +1191,14 @@ describe("public types", () => {
 		});
 	});
 
-	it("types start typing document options", () => {
+	it("types start typing handlers and options", () => {
 		typeOnly(() => {
-			const documentTarget = signal<OnStartTypingDocumentLike | null>(document);
+			const documentTarget = signal<Document | null>(document);
+			const options: OnStartTypingOptions<Document> = {
+				document: documentTarget,
+			};
 			const handler: OnStartTypingHandler = (event) => {
 				expectTypeOf(event).toEqualTypeOf<KeyboardEvent>();
-			};
-			const options: OnStartTypingOptions<OnStartTypingDocumentLike> = {
-				document: documentTarget,
 			};
 			const stop = onStartTyping(handler, options);
 

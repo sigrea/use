@@ -46,17 +46,17 @@ Status values:
 | `reactivePick` | `reactivePick` | Done |
 | `refAutoReset` | `signalAutoReset` | Done |
 | `refDebounced` | `signalDebounced` | Done |
-| `refDefault` | `signalDefault` | Todo |
-| `refManualReset` | `signalManualReset` | Todo |
-| `refThrottled` | `signalThrottled` | Todo |
-| `refWithControl` | `signalWithControl` | Needs design |
-| `set` | `setValue` | Needs design |
-| `syncRef` | `syncSignal` | Todo |
-| `syncRefs` | `syncSignals` | Todo |
+| `refDefault` | `-` | Todo |
+| `refManualReset` | `-` | Todo |
+| `refThrottled` | `-` | Todo |
+| `refWithControl` | `-` | Todo |
+| `set` | `-` | Todo |
+| `syncRef` | `-` | Todo |
+| `syncRefs` | `-` | Todo |
 | `templateRef` | `-` | Out of scope |
 | `toReactive` | `-` | Todo |
-| `toRef` | `toSignal` | Needs design |
-| `toRefs` | `toSignals` | Needs design |
+| `toRef` | `-` | Todo |
+| `toRefs` | `-` | Todo |
 | `tryOnBeforeMount` | `-` | Needs design |
 | `tryOnBeforeUnmount` | `-` | Needs design |
 | `tryOnMounted` | `-` | Needs design |
