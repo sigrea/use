@@ -107,6 +107,13 @@ describe("computedAsync", () => {
 		const first = createDeferred<number>();
 		const second = createDeferred<number>();
 		const evaluating = signal(false);
+		const observedEvaluating: boolean[] = [];
+		watchEffect(
+			() => {
+				observedEvaluating.push(evaluating.value);
+			},
+			{ flush: "sync" },
+		);
 		const value = computedAsync(
 			() => (source.value === 1 ? first.promise : second.promise),
 			0,
@@ -114,9 +121,11 @@ describe("computedAsync", () => {
 		);
 
 		expect(evaluating.value).toBe(true);
+		expect(observedEvaluating).toEqual([false, true]);
 
 		source.value = 2;
 		expect(evaluating.value).toBe(true);
+		expect(observedEvaluating).toEqual([false, true]);
 
 		first.resolve(1);
 		await flushPromises();
@@ -127,6 +136,7 @@ describe("computedAsync", () => {
 		await flushPromises();
 		expect(value.value).toBe(2);
 		expect(evaluating.value).toBe(false);
+		expect(observedEvaluating).toEqual([false, true, false]);
 	});
 
 	it("tracks evaluating from options", async () => {
@@ -174,6 +184,39 @@ describe("computedAsync", () => {
 		expect(value.value).toBe("initial");
 	});
 
+	it("falls back to console.error when reportError is unavailable", async () => {
+		const originalReportError = Object.getOwnPropertyDescriptor(
+			globalThis,
+			"reportError",
+		);
+		Object.defineProperty(globalThis, "reportError", {
+			configurable: true,
+			value: undefined,
+		});
+		const consoleError = vi
+			.spyOn(console, "error")
+			.mockImplementation(() => {});
+		const error = new Error("failed");
+
+		try {
+			const value = computedAsync(async () => {
+				throw error;
+			}, "initial");
+
+			await flushPromises();
+
+			expect(consoleError).toHaveBeenCalledWith(error);
+			expect(value.value).toBe("initial");
+		} finally {
+			consoleError.mockRestore();
+			if (originalReportError === undefined) {
+				Reflect.deleteProperty(globalThis, "reportError");
+			} else {
+				Object.defineProperty(globalThis, "reportError", originalReportError);
+			}
+		}
+	});
+
 	it("tracks nested result changes when shallow is false", async () => {
 		const deferred = createDeferred<{ nested: { count: number } }>();
 		const value = computedAsync(
@@ -200,18 +243,28 @@ describe("computedAsync", () => {
 	it("runs cancel callbacks when the owning scope is disposed", () => {
 		const scope = createScope();
 		const deferred = createDeferred<string>();
+		const evaluating = signal(false);
 		const cancel = vi.fn();
 
 		runWithScope(scope, () => {
-			computedAsync((onCancel) => {
-				onCancel(cancel);
-				return deferred.promise;
-			}, "initial");
+			computedAsync(
+				(onCancel) => {
+					onCancel(cancel);
+					return deferred.promise;
+				},
+				"initial",
+				evaluating,
+			);
 		});
+
+		expect(evaluating.value).toBe(true);
 
 		disposeScope(scope);
 
 		expect(cancel).toHaveBeenCalledTimes(1);
+		return flushPromises().then(() => {
+			expect(evaluating.value).toBe(false);
+		});
 	});
 
 	it("can be imported and created without browser globals", async () => {
