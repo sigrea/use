@@ -4191,6 +4191,24 @@ export interface ResizeObserverWindowLike extends WindowLike {
 	readonly ResizeObserver?: typeof ResizeObserver;
 }
 
+export type UseResizeObserverTarget<TElement extends Element = Element> =
+	| MaybeTarget<TElement | null | undefined>
+	| readonly MaybeTarget<TElement | null | undefined>[]
+	| null
+	| undefined;
+
+export interface UseResizeObserverOptions<
+	TWindow extends ResizeObserverWindowLike = ResizeObserverWindowLike,
+> {
+	box?: MaybeValue<ResizeObserverOptions["box"]>;
+	window?: MaybeTarget<TWindow | null | undefined>;
+}
+
+export interface UseResizeObserverReturn {
+	readonly isSupported: ReadonlySignal<boolean>;
+	stop(): void;
+}
+
 export type UseElementBoundingUpdateTiming = "sync" | "next-frame";
 
 export interface UseElementBoundingWindowLike extends ResizeObserverWindowLike {

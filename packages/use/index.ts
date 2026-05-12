@@ -134,6 +134,7 @@ export { usePreferredReducedTransparency } from "./usePreferredReducedTransparen
 export { usePrevious } from "./usePrevious";
 export { useRafFn } from "./useRafFn";
 export { useRefHistory } from "./useRefHistory";
+export { useResizeObserver } from "./useResizeObserver";
 export { useSessionStorage } from "./useSessionStorage";
 export {
 	customStorageEventName,
@@ -697,6 +698,9 @@ export type {
 	UseRefHistoryOptions,
 	UseRefHistoryRecord,
 	UseRefHistoryReturn,
+	UseResizeObserverOptions,
+	UseResizeObserverReturn,
+	UseResizeObserverTarget,
 	UseStorageOptions,
 	UseThrottleFnReturn,
 	UseTimeoutControlsReturn,

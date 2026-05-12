@@ -172,7 +172,7 @@ Status values:
 | `usePrevious` | `usePrevious` | Done |
 | `useRafFn` | `useRafFn` | Done |
 | `useRefHistory` | `useRefHistory` | Done |
-| `useResizeObserver` | `-` | Todo |
+| `useResizeObserver` | `useResizeObserver` | Done |
 | `useSSRWidth` | `-` | Out of scope |
 | `useScreenOrientation` | `-` | Todo |
 | `useScreenSafeArea` | `-` | Todo |
