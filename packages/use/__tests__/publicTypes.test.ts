@@ -258,6 +258,10 @@ import type {
 	UseDropZoneOptions,
 	UseDropZoneReturn,
 	UseDropZoneTarget,
+	UseElementBoundingOptions,
+	UseElementBoundingReturn,
+	UseElementBoundingUpdateTiming,
+	UseElementBoundingWindowLike,
 	UseElementSizeOptions,
 	UseFocusOptions,
 	UseMediaQueryOptions,
@@ -351,6 +355,7 @@ import {
 	useDocumentVisibility,
 	useDraggable,
 	useDropZone,
+	useElementBounding,
 	useElementSize,
 	useEventListener,
 	useFocus,
@@ -401,6 +406,10 @@ interface MouseWindow extends EventTarget {
 
 interface ResizeWindow extends EventTarget {
 	readonly ResizeObserver?: typeof ResizeObserver;
+}
+
+interface BoundingWindow extends UseElementBoundingWindowLike {
+	readonly label: string;
 }
 
 interface MutationWindow extends OnElementRemovalWindowLike {
@@ -4374,6 +4383,50 @@ describe("public types", () => {
 
 		expectTypeOf(size.width.value).toEqualTypeOf<number>();
 		size.stop();
+	});
+
+	it("types element bounding values and options", () => {
+		typeOnly(() => {
+			const boundingWindow = new EventTarget() as BoundingWindow;
+			const timing: UseElementBoundingUpdateTiming = "next-frame";
+			const options: UseElementBoundingOptions<BoundingWindow> = {
+				immediate: true,
+				reset: true,
+				updateTiming: timing,
+				window: signal(boundingWindow),
+				windowResize: true,
+				windowScroll: true,
+			};
+			const bounds = useElementBounding(
+				signal(document.createElement("div")),
+				options,
+			);
+			const boundsReturn: UseElementBoundingReturn = bounds;
+
+			expectTypeOf(bounds).toEqualTypeOf<UseElementBoundingReturn>();
+			expectTypeOf(boundsReturn.width).toEqualTypeOf<ReadonlySignal<number>>();
+			expectTypeOf(bounds.height).toEqualTypeOf<ReadonlySignal<number>>();
+			expectTypeOf(bounds.top).toEqualTypeOf<ReadonlySignal<number>>();
+			expectTypeOf(bounds.right).toEqualTypeOf<ReadonlySignal<number>>();
+			expectTypeOf(bounds.bottom).toEqualTypeOf<ReadonlySignal<number>>();
+			expectTypeOf(bounds.left).toEqualTypeOf<ReadonlySignal<number>>();
+			expectTypeOf(bounds.x).toEqualTypeOf<ReadonlySignal<number>>();
+			expectTypeOf(bounds.y).toEqualTypeOf<ReadonlySignal<number>>();
+			expectTypeOf(bounds.update()).toEqualTypeOf<void>();
+			expectTypeOf(bounds.stop()).toEqualTypeOf<void>();
+			typeOnly(() => {
+				// @ts-expect-error returned values are readonly signals
+				bounds.width.value = 1;
+				useElementBounding(document.createElement("div"), {
+					// @ts-expect-error updateTiming must be a known value
+					updateTiming: "later",
+				});
+				useElementBounding(document.createElement("div"), {
+					// @ts-expect-error windowResize must be boolean
+					windowResize: "true",
+				});
+			});
+		});
 	});
 
 	it("infers custom toggle values", () => {

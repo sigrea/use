@@ -110,7 +110,7 @@ Status values:
 | `useDocumentVisibility` | `useDocumentVisibility` | Done |
 | `useDraggable` | `useDraggable` | Done |
 | `useDropZone` | `useDropZone` | Done |
-| `useElementBounding` | `-` | Todo |
+| `useElementBounding` | `useElementBounding` | Done |
 | `useElementByPoint` | `-` | Todo |
 | `useElementHover` | `-` | Todo |
 | `useElementSize` | `useElementSize` | Done |

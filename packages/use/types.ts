@@ -2442,6 +2442,63 @@ export interface ResizeObserverWindowLike extends WindowLike {
 	readonly ResizeObserver?: typeof ResizeObserver;
 }
 
+export type UseElementBoundingUpdateTiming = "sync" | "next-frame";
+
+export interface UseElementBoundingWindowLike extends ResizeObserverWindowLike {
+	readonly MutationObserver?: typeof MutationObserver;
+	requestAnimationFrame?(callback: FrameRequestCallback): number;
+	cancelAnimationFrame?(handle: number): void;
+}
+
+export interface UseElementBoundingOptions<
+	TWindow extends UseElementBoundingWindowLike = UseElementBoundingWindowLike,
+> {
+	/**
+	 * Reset values to 0 when the target cannot be resolved.
+	 *
+	 * @default true
+	 */
+	reset?: boolean;
+	/**
+	 * Listen to window resize.
+	 *
+	 * @default true
+	 */
+	windowResize?: boolean;
+	/**
+	 * Listen to window scroll.
+	 *
+	 * @default true
+	 */
+	windowScroll?: boolean;
+	/**
+	 * Read the current bounding box immediately.
+	 *
+	 * @default true
+	 */
+	immediate?: boolean;
+	/**
+	 * Delay recalculation to the next animation frame.
+	 *
+	 * @default "sync"
+	 */
+	updateTiming?: UseElementBoundingUpdateTiming;
+	window?: MaybeTarget<TWindow>;
+}
+
+export interface UseElementBoundingReturn {
+	readonly height: ReadonlySignal<number>;
+	readonly bottom: ReadonlySignal<number>;
+	readonly left: ReadonlySignal<number>;
+	readonly right: ReadonlySignal<number>;
+	readonly top: ReadonlySignal<number>;
+	readonly width: ReadonlySignal<number>;
+	readonly x: ReadonlySignal<number>;
+	readonly y: ReadonlySignal<number>;
+	update(): void;
+	stop(): void;
+}
+
 export interface UseElementSizeOptions<
 	TWindow extends ResizeObserverWindowLike = ResizeObserverWindowLike,
 > extends ResizeObserverOptions {
