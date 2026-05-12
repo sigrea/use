@@ -628,6 +628,32 @@ export interface UseBase64Return {
 	execute(): Promise<string>;
 }
 
+export interface BatteryManagerLike extends EventTarget {
+	readonly charging: boolean;
+	readonly chargingTime: number;
+	readonly dischargingTime: number;
+	readonly level: number;
+}
+
+export interface BatteryNavigatorLike extends NavigatorLike {
+	getBattery(): Promise<BatteryManagerLike>;
+}
+
+export interface UseBatteryOptions<
+	TNavigator extends NavigatorLike = BatteryNavigatorLike,
+> {
+	navigator?: MaybeValue<TNavigator | null | undefined>;
+}
+
+export interface UseBatteryReturn {
+	readonly isSupported: ReadonlySignal<boolean>;
+	readonly charging: ReadonlySignal<boolean>;
+	readonly chargingTime: ReadonlySignal<number>;
+	readonly dischargingTime: ReadonlySignal<number>;
+	readonly level: ReadonlySignal<number>;
+	stop(): void;
+}
+
 export interface ComputedEagerOptions {
 	flush?: WatchOptions["flush"];
 	onTrack?: WatchOptions["onTrack"];

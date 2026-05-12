@@ -61,6 +61,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.useAsyncQueue).toBe("function");
 		expect(typeof mod.useAsyncState).toBe("function");
 		expect(typeof mod.useBase64).toBe("function");
+		expect(typeof mod.useBattery).toBe("function");
 		expect(typeof mod.useBreakpoints).toBe("function");
 		expect(typeof mod.useDocumentVisibility).toBe("function");
 		expect(typeof mod.useElementSize).toBe("function");
@@ -354,6 +355,19 @@ describe("SSR safety", () => {
 
 		await result.execute();
 		expect(result.base64.value).toBe("data:text/plain;base64,aGVsbG8=");
+	});
+
+	it("creates useBattery without a window", async () => {
+		const { useBattery } = await import("../../../index");
+		const result = useBattery();
+
+		expect(globalThis.window).toBeUndefined();
+		expect(result.isSupported.value).toBe(false);
+		expect(result.charging.value).toBe(false);
+		expect(result.chargingTime.value).toBe(0);
+		expect(result.dischargingTime.value).toBe(0);
+		expect(result.level.value).toBe(1);
+		result.stop();
 	});
 
 	it("creates event hooks without a window", async () => {
