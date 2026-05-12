@@ -160,6 +160,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.useSorted).toBe("function");
 		expect(typeof mod.useSpeechRecognition).toBe("function");
 		expect(typeof mod.useSpeechSynthesis).toBe("function");
+		expect(typeof mod.useStepper).toBe("function");
 		expect(typeof mod.useSessionStorage).toBe("function");
 		expect(typeof mod.useStorage).toBe("function");
 		expect(typeof mod.useTimeout).toBe("function");
@@ -242,6 +243,7 @@ describe("SSR safety", () => {
 			useSorted,
 			useSpeechRecognition,
 			useSpeechSynthesis,
+			useStepper,
 			onElementRemoval,
 			onKeyDown,
 			onKeyPressed,
@@ -330,6 +332,7 @@ describe("SSR safety", () => {
 		const sorted = useSorted([3, 1, 2]);
 		const speechRecognition = useSpeechRecognition({ window: null });
 		const speechSynthesis = useSpeechSynthesis("hello", { window: null });
+		const stepper = useStepper(["first", "second"], "second");
 		const cssSupports = useCssSupports("display", "grid", { window: null });
 		const initialCssSupports = useCssSupports("display: grid", {
 			initialValue: true,
@@ -512,6 +515,8 @@ describe("SSR safety", () => {
 		expect(speechSynthesis.utterance.value).toBeUndefined();
 		expect(speechSynthesis.error.value).toBeNull();
 		expect(speechSynthesis.voices.value).toEqual([]);
+		expect(stepper.current.value).toBe("second");
+		expect(stepper.index.value).toBe(1);
 		speechSynthesis.speak();
 		speechSynthesis.cancel();
 		speechSynthesis.pause();

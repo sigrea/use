@@ -184,7 +184,7 @@ Status values:
 | `useSorted` | `useSorted` | Done |
 | `useSpeechRecognition` | `useSpeechRecognition` | Done |
 | `useSpeechSynthesis` | `useSpeechSynthesis` | Done |
-| `useStepper` | `-` | Todo |
+| `useStepper` | `useStepper` | Done |
 | `useStorage` | `useStorage` | Done |
 | `useStorageAsync` | `-` | Todo |
 | `useStyleTag` | `-` | Todo |

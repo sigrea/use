@@ -2349,6 +2349,65 @@ export interface UseCycleListReturn<T> {
 	go(index: number): T | undefined;
 }
 
+export type UseStepperArrayStep = string | number;
+
+export type UseStepperObjectSteps = Record<string, MaybeValue<unknown>>;
+
+export type UseStepperResolvedStep<T> = T extends Signal<infer Value>
+	? Value
+	: T extends ReadonlySignal<infer Value>
+		? Value
+		: T extends Computed<infer Value>
+			? Value
+			: T extends () => infer Value
+				? Value
+				: T;
+
+export type UseStepperObjectStepName<T extends UseStepperObjectSteps> =
+	| Extract<keyof T, string>
+	| `${Extract<keyof T, number>}`;
+
+export type UseStepperObjectStepValue<
+	T extends UseStepperObjectSteps,
+	TStepName extends UseStepperObjectStepName<T>,
+> = TStepName extends keyof T
+	? UseStepperResolvedStep<T[TStepName]>
+	: TStepName extends `${infer TNumberKey extends number}`
+		? TNumberKey extends keyof T
+			? UseStepperResolvedStep<T[TNumberKey]>
+			: never
+		: never;
+
+export type UseStepperResolvedObject<T extends UseStepperObjectSteps> = {
+	[TKey in UseStepperObjectStepName<T>]: UseStepperObjectStepValue<T, TKey>;
+};
+
+export interface UseStepperReturn<
+	StepName extends UseStepperArrayStep,
+	Steps,
+	Step,
+> {
+	readonly steps: ReadonlySignal<Steps>;
+	readonly stepNames: ReadonlySignal<StepName[]>;
+	readonly index: Computed<number>;
+	readonly current: ReadonlySignal<Step | undefined>;
+	readonly next: ReadonlySignal<StepName | undefined>;
+	readonly previous: ReadonlySignal<StepName | undefined>;
+	readonly isFirst: ReadonlySignal<boolean>;
+	readonly isLast: ReadonlySignal<boolean>;
+	at(index: number): Step | undefined;
+	get(step: StepName): Step | undefined;
+	goTo(step: StepName): void;
+	goToNext(): void;
+	goToPrevious(): void;
+	goBackTo(step: StepName): void;
+	isNext(step: StepName): boolean;
+	isPrevious(step: StepName): boolean;
+	isCurrent(step: StepName): boolean;
+	isBefore(step: StepName): boolean;
+	isAfter(step: StepName): boolean;
+}
+
 export interface UseToggleOptions<Truthy = true, Falsy = false> {
 	truthyValue?: MaybeValue<Truthy>;
 	falsyValue?: MaybeValue<Falsy>;
