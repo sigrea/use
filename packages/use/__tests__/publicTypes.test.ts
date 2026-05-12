@@ -570,6 +570,10 @@ import type {
 	UseStyleTagOptions,
 	UseStyleTagReturn,
 	UseSupportedReturn,
+	UseSwipeDirection,
+	UseSwipeOptions,
+	UseSwipeReturn,
+	UseSwipeWindowLike,
 	UseToggleOptions,
 	UseWindowSizeOptions,
 	WindowLike,
@@ -735,6 +739,7 @@ import {
 	useStorageAsync,
 	useStyleTag,
 	useSupported,
+	useSwipe,
 	useThrottleFn,
 	useTimeout,
 	useTimeoutFn,
@@ -6130,6 +6135,25 @@ describe("public types", () => {
 			pointerSwipeOptions,
 		);
 		const pointerSwipeReturn: UsePointerSwipeReturn = pointerSwipe;
+		const swipeDirection: UseSwipeDirection = "right";
+		const swipeWindow = new EventTarget() as UseSwipeWindowLike;
+		const swipeOptions: UseSwipeOptions<typeof swipeWindow> = {
+			onSwipe: (event) => {
+				expectTypeOf(event).toEqualTypeOf<TouchEvent>();
+			},
+			onSwipeEnd: (event, direction) => {
+				expectTypeOf(event).toEqualTypeOf<TouchEvent>();
+				expectTypeOf(direction).toEqualTypeOf<UseSwipeDirection>();
+			},
+			onSwipeStart: (event) => {
+				expectTypeOf(event).toEqualTypeOf<TouchEvent>();
+			},
+			passive: false,
+			threshold: signal(12),
+			window: signal(swipeWindow),
+		};
+		const swipe = useSwipe(signal(new EventTarget()), swipeOptions);
+		const swipeReturn: UseSwipeReturn = swipe;
 		const pointerLockElement = Object.assign(new EventTarget(), {
 			requestPointerLock: (_options?: PointerLockOptions) => Promise.resolve(),
 		}) as UsePointerLockElementLike;
@@ -6261,6 +6285,17 @@ describe("public types", () => {
 		expectTypeOf(pointerSwipe.distanceX).toEqualTypeOf<Computed<number>>();
 		expectTypeOf(pointerSwipe.distanceY).toEqualTypeOf<Computed<number>>();
 		expectTypeOf(pointerSwipe.stop()).toEqualTypeOf<void>();
+		expectTypeOf(swipeDirection).toMatchTypeOf<UseSwipeDirection>();
+		expectTypeOf(swipe).toEqualTypeOf<UseSwipeReturn>();
+		expectTypeOf(swipeReturn.isSwiping).toEqualTypeOf<
+			ReadonlySignal<boolean>
+		>();
+		expectTypeOf(swipe.direction).toEqualTypeOf<Computed<UseSwipeDirection>>();
+		expectTypeOf(swipe.coordsStart).toEqualTypeOf<Computed<Position>>();
+		expectTypeOf(swipe.coordsEnd).toEqualTypeOf<Computed<Position>>();
+		expectTypeOf(swipe.lengthX).toEqualTypeOf<Computed<number>>();
+		expectTypeOf(swipe.lengthY).toEqualTypeOf<Computed<number>>();
+		expectTypeOf(swipe.stop()).toEqualTypeOf<void>();
 		expectTypeOf(pointerLockRoot.pointerLockElement).toEqualTypeOf<
 			UsePointerLockElementLike | null | undefined
 		>();
@@ -6327,6 +6362,19 @@ describe("public types", () => {
 			usePointerSwipe(pointerSwipeElement, { pointerTypes: "touch" });
 			// @ts-expect-error target must be an element
 			usePointerSwipe(new EventTarget());
+			// @ts-expect-error returned values are readonly signals
+			swipe.isSwiping.value = true;
+			// @ts-expect-error direction must be a known swipe direction
+			const invalidSwipeDirection: UseSwipeDirection = "start";
+			invalidSwipeDirection;
+			useSwipe(new EventTarget(), {
+				// @ts-expect-error passive must be boolean
+				passive: "false",
+			});
+			useSwipe(new EventTarget(), {
+				// @ts-expect-error window must be window-like or nullish
+				window: 1,
+			});
 			// @ts-expect-error target must be EventTarget-like
 			usePointerLock(1, pointerLockOptions);
 			usePointerLock(pointerLockElement, {

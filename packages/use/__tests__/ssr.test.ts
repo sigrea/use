@@ -163,6 +163,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.useStepper).toBe("function");
 		expect(typeof mod.useStyleTag).toBe("function");
 		expect(typeof mod.useSupported).toBe("function");
+		expect(typeof mod.useSwipe).toBe("function");
 		expect(typeof mod.useSessionStorage).toBe("function");
 		expect(typeof mod.useStorage).toBe("function");
 		expect(typeof mod.useStorageAsync).toBe("function");
@@ -249,6 +250,7 @@ describe("SSR safety", () => {
 			useStepper,
 			useStyleTag,
 			useSupported,
+			useSwipe,
 			onElementRemoval,
 			onKeyDown,
 			onKeyPressed,
@@ -343,6 +345,7 @@ describe("SSR safety", () => {
 		const supported = useSupported(
 			() => typeof window !== "undefined" && "document" in window,
 		);
+		const swipe = useSwipe(null, { window: null });
 		const cssSupports = useCssSupports("display", "grid", { window: null });
 		const initialCssSupports = useCssSupports("display: grid", {
 			initialValue: true,
@@ -539,8 +542,15 @@ describe("SSR safety", () => {
 		expect(styleTag.css.value).toBe(".ssr { color: red; }");
 		expect(styleTag.isLoaded.value).toBe(false);
 		expect(supported.value).toBe(false);
+		expect(swipe.isSwiping.value).toBe(false);
+		expect(swipe.direction.value).toBe("none");
+		expect(swipe.coordsStart.value).toEqual({ x: 0, y: 0 });
+		expect(swipe.coordsEnd.value).toEqual({ x: 0, y: 0 });
+		expect(swipe.lengthX.value).toBe(0);
+		expect(swipe.lengthY.value).toBe(0);
 		styleTag.load();
 		styleTag.unload();
+		swipe.stop();
 		speechSynthesis.speak();
 		speechSynthesis.cancel();
 		speechSynthesis.pause();

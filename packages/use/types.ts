@@ -3752,6 +3752,41 @@ export interface UsePointerSwipeReturn {
 	stop(): void;
 }
 
+export type UseSwipeDirection = "none" | "left" | "right" | "up" | "down";
+
+export interface UseSwipeWindowLike extends WindowLike {}
+
+export interface UseSwipeOptions<
+	TWindow extends UseSwipeWindowLike = UseSwipeWindowLike,
+> {
+	/**
+	 * Register events as passive.
+	 *
+	 * @default true
+	 */
+	passive?: boolean;
+	/**
+	 * Minimum absolute touch distance before the gesture is treated as a swipe.
+	 *
+	 * @default 50
+	 */
+	threshold?: MaybeValue<number>;
+	window?: MaybeTarget<TWindow | null | undefined>;
+	onSwipeStart?: (event: TouchEvent) => void;
+	onSwipe?: (event: TouchEvent) => void;
+	onSwipeEnd?: (event: TouchEvent, direction: UseSwipeDirection) => void;
+}
+
+export interface UseSwipeReturn {
+	readonly isSwiping: ReadonlySignal<boolean>;
+	readonly direction: Computed<UseSwipeDirection>;
+	readonly coordsStart: Computed<Position>;
+	readonly coordsEnd: Computed<Position>;
+	readonly lengthX: Computed<number>;
+	readonly lengthY: Computed<number>;
+	stop(): void;
+}
+
 export interface UsePointerLockElementLike extends EventTarget {
 	getRootNode?(): UsePointerLockRootLike | Node;
 	requestPointerLock?(options?: PointerLockOptions): Promise<void> | void;
