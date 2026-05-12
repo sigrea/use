@@ -104,6 +104,8 @@ import type {
 	UseArrayFilterReturn,
 	UseArrayFindIndexPredicate,
 	UseArrayFindIndexReturn,
+	UseArrayFindLastPredicate,
+	UseArrayFindLastReturn,
 	UseArrayFindPredicate,
 	UseArrayFindReturn,
 	UseBreakpointsOptions,
@@ -161,6 +163,7 @@ import {
 	useArrayFilter,
 	useArrayFind,
 	useArrayFindIndex,
+	useArrayFindLast,
 	useBreakpoints,
 	useDebounceFn,
 	useDocumentVisibility,
@@ -510,6 +513,69 @@ describe("public types", () => {
 				signal((value: number) => value > 0),
 			);
 			useArrayFindIndex(
+				signal([1]),
+				// @ts-expect-error predicate is a raw function, not a computed value
+				computed(() => (value: number) => value > 0),
+			);
+		});
+	});
+
+	it("types array find last values", () => {
+		typeOnly(() => {
+			const first = signal<number | null>(1);
+			const second = computed<number | null>(() => null);
+			const third = signal<number | null>(3);
+			const list = signal([first, second, () => third.value]);
+			const rawList = [1, 2, 3];
+			const predicate: UseArrayFindLastPredicate<number | null> = (
+				element,
+				index,
+				array,
+			) => {
+				expectTypeOf(element).toEqualTypeOf<number | null>();
+				expectTypeOf(index).toEqualTypeOf<number>();
+				expectTypeOf(array).toEqualTypeOf<
+					readonly MaybeValue<number | null>[]
+				>();
+				return element != null;
+			};
+			const result = useArrayFindLast(list, predicate);
+			const narrowed = useArrayFindLast(
+				list,
+				(element): element is number => element != null,
+			);
+			const rawResult = useArrayFindLast(rawList, (value) => value > 1);
+			const getterResult = useArrayFindLast(
+				() => [1, 2, 3],
+				(value) => value > 1,
+			);
+			const readonlyResult = useArrayFindLast(readonly(list), predicate);
+
+			expectTypeOf(result).toEqualTypeOf<
+				UseArrayFindLastReturn<number | null>
+			>();
+			expectTypeOf(result).toEqualTypeOf<
+				ReadonlySignal<number | null | undefined>
+			>();
+			expectTypeOf(narrowed).toEqualTypeOf<UseArrayFindLastReturn<number>>();
+			expectTypeOf(narrowed.value).toEqualTypeOf<number | undefined>();
+			expectTypeOf(rawResult).toEqualTypeOf<UseArrayFindLastReturn<number>>();
+			expectTypeOf(getterResult).toEqualTypeOf<
+				UseArrayFindLastReturn<number>
+			>();
+			expectTypeOf(readonlyResult).toEqualTypeOf<
+				UseArrayFindLastReturn<number | null>
+			>();
+			// @ts-expect-error returned value is readonly
+			result.value = 1;
+			// @ts-expect-error predicate element type must match the array item type
+			useArrayFindLast(signal([1]), (value: string) => value.length > 0);
+			useArrayFindLast(
+				signal([1]),
+				// @ts-expect-error predicate is a raw function, not a signal
+				signal((value: number) => value > 0),
+			);
+			useArrayFindLast(
 				signal([1]),
 				// @ts-expect-error predicate is a raw function, not a computed value
 				computed(() => (value: number) => value > 0),

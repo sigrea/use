@@ -35,6 +35,7 @@ export { useArrayEvery } from "./useArrayEvery";
 export { useArrayFilter } from "./useArrayFilter";
 export { useArrayFind } from "./useArrayFind";
 export { useArrayFindIndex } from "./useArrayFindIndex";
+export { useArrayFindLast } from "./useArrayFindLast";
 export { useBreakpoints } from "./useBreakpoints";
 export { useCounter } from "./useCounter";
 export { useDebounceFn } from "./useDebounceFn";
@@ -192,6 +193,8 @@ export type {
 	UseArrayFilterReturn,
 	UseArrayFindIndexPredicate,
 	UseArrayFindIndexReturn,
+	UseArrayFindLastPredicate,
+	UseArrayFindLastReturn,
 	UseArrayFindPredicate,
 	UseArrayFindReturn,
 	UseBreakpointsOptions,

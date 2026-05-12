@@ -71,7 +71,7 @@ Status values:
 | `useArrayFilter` | `useArrayFilter` | Done |
 | `useArrayFind` | `useArrayFind` | Done |
 | `useArrayFindIndex` | `useArrayFindIndex` | Done |
-| `useArrayFindLast` | `-` | Todo |
+| `useArrayFindLast` | `useArrayFindLast` | Done |
 | `useArrayIncludes` | `-` | Todo |
 | `useArrayJoin` | `-` | Todo |
 | `useArrayMap` | `-` | Todo |

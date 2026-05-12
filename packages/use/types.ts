@@ -505,6 +505,14 @@ export type UseArrayFindIndexPredicate<T> = (
 
 export type UseArrayFindIndexReturn = ReadonlySignal<number>;
 
+export type UseArrayFindLastPredicate<T> = (
+	element: T,
+	index: number,
+	array: readonly MaybeValue<T>[],
+) => unknown;
+
+export type UseArrayFindLastReturn<T = unknown> = ReadonlySignal<T | undefined>;
+
 export type ComputedWithControlSource<T = unknown> =
 	| WatchSource<T>
 	| DeepSignal<object>
