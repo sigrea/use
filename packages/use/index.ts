@@ -135,6 +135,7 @@ export { usePrevious } from "./usePrevious";
 export { useRafFn } from "./useRafFn";
 export { useRefHistory } from "./useRefHistory";
 export { useResizeObserver } from "./useResizeObserver";
+export { useScreenOrientation } from "./useScreenOrientation";
 export { useSessionStorage } from "./useSessionStorage";
 export {
 	customStorageEventName,
@@ -302,6 +303,8 @@ export type {
 	MouseWindowLike,
 	NavigatorLike,
 	OnlineNavigatorLike,
+	OrientationLockType,
+	OrientationType,
 	OnClickOutsideControlsReturn,
 	OnClickOutsideDocumentLike,
 	OnClickOutsideHandler,
@@ -701,6 +704,10 @@ export type {
 	UseResizeObserverOptions,
 	UseResizeObserverReturn,
 	UseResizeObserverTarget,
+	UseScreenOrientationOptions,
+	UseScreenOrientationReturn,
+	UseScreenOrientationScreenOrientationLike,
+	UseScreenOrientationWindowLike,
 	UseStorageOptions,
 	UseThrottleFnReturn,
 	UseTimeoutControlsReturn,
