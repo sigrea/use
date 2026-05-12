@@ -3822,6 +3822,27 @@ export type UseTextDirectionReturn = Computed<UseTextDirectionValue> & {
 	stop(): void;
 };
 
+export interface UseTextSelectionDocumentLike extends DocumentLike {}
+
+export interface UseTextSelectionWindowLike extends WindowLike {
+	readonly document?: UseTextSelectionDocumentLike;
+	getSelection?(): Selection | null;
+}
+
+export interface UseTextSelectionOptions<
+	TWindow extends UseTextSelectionWindowLike = UseTextSelectionWindowLike,
+> {
+	window?: MaybeTarget<TWindow | null | undefined>;
+}
+
+export interface UseTextSelectionReturn {
+	readonly text: Computed<string>;
+	readonly rects: Computed<DOMRect[]>;
+	readonly ranges: Computed<Range[]>;
+	readonly selection: ReadonlySignal<Selection | null>;
+	stop(): void;
+}
+
 export interface UsePointerLockElementLike extends EventTarget {
 	getRootNode?(): UsePointerLockRootLike | Node;
 	requestPointerLock?(options?: PointerLockOptions): Promise<void> | void;
