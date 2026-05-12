@@ -142,6 +142,7 @@ export { useScroll } from "./useScroll";
 export { useScrollLock } from "./useScrollLock";
 export { useSessionStorage } from "./useSessionStorage";
 export { useShare } from "./useShare";
+export { useSorted } from "./useSorted";
 export {
 	customStorageEventName,
 	StorageSerializers,
@@ -737,6 +738,10 @@ export type {
 	UseShareNavigatorLike,
 	UseShareOptions,
 	UseShareReturn,
+	UseSortedCompareFn,
+	UseSortedOptions,
+	UseSortedReturn,
+	UseSortedSortFn,
 	UseScriptTagDocumentLike,
 	UseScriptTagOptions,
 	UseScriptTagReturn,

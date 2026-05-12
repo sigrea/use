@@ -1381,6 +1381,23 @@ export type UseArrayReduceReducer<PV, CV, R> = (
 
 export type UseArrayReduceReturn<T = unknown> = ReadonlySignal<T>;
 
+export type UseSortedCompareFn<T = unknown> = (
+	value: T,
+	otherValue: T,
+) => number;
+
+export type UseSortedSortFn<T = unknown> = (
+	list: T[],
+	compareFn: UseSortedCompareFn<T>,
+) => T[];
+
+export interface UseSortedOptions<T = unknown> {
+	compareFn?: UseSortedCompareFn<T>;
+	sortFn?: UseSortedSortFn<T>;
+}
+
+export type UseSortedReturn<T = unknown> = ReadonlySignal<T[]>;
+
 export type ComputedWithControlSource<T = unknown> =
 	| WatchSource<T>
 	| DeepSignal<object>
