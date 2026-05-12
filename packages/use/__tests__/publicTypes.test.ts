@@ -203,6 +203,9 @@ import type {
 	UseCssSupportsOptions,
 	UseCssSupportsReturn,
 	UseCssSupportsWindowLike,
+	UseCssVarOptions,
+	UseCssVarReturn,
+	UseCssVarWindowLike,
 	UseDocumentVisibilityOptions,
 	UseElementSizeOptions,
 	UseFocusOptions,
@@ -281,6 +284,7 @@ import {
 	useConfirmDialog,
 	useCountdown,
 	useCssSupports,
+	useCssVar,
 	useDebounceFn,
 	useDocumentVisibility,
 	useElementSize,
@@ -310,6 +314,10 @@ interface MatchMediaOnlyWindow extends MatchMediaWindow {
 }
 
 interface CssSupportsOnlyWindow extends UseCssSupportsWindowLike {
+	readonly label: string;
+}
+
+interface CssVarOnlyWindow extends UseCssVarWindowLike {
 	readonly label: string;
 }
 
@@ -3308,6 +3316,46 @@ describe("public types", () => {
 			const invalidOptions: UseCssSupportsOptions<CssSupportsOnlyWindow> = {
 				// @ts-expect-error initialValue must be boolean
 				initialValue: "true",
+				window: customWindow,
+			};
+			invalidOptions;
+		});
+	});
+
+	it("accepts lightweight CSS variable windows", () => {
+		typeOnly(() => {
+			const element = document.createElement("div");
+			const customWindow = Object.assign(new EventTarget(), {
+				document,
+				getComputedStyle: (_element: Element) =>
+					({
+						getPropertyValue: (_property: string) => "",
+					}) as CSSStyleDeclaration,
+				label: "test",
+				MutationObserver,
+			}) satisfies CssVarOnlyWindow;
+			const options: UseCssVarOptions<CssVarOnlyWindow> = {
+				initialValue: "red",
+				observe: true,
+				window: signal(customWindow),
+			};
+			const variable = useCssVar(signal("--color"), signal(element), options);
+			const nullable = useCssVar(() => null as string | null, null, options);
+
+			expectTypeOf(variable).toEqualTypeOf<UseCssVarReturn>();
+			expectTypeOf(variable.value).toEqualTypeOf<string | null | undefined>();
+			variable.value = "blue";
+			variable.value = null;
+			variable.value = undefined;
+			variable.stop();
+			nullable.stop();
+			// @ts-expect-error CSS variable names must be strings or nullish
+			useCssVar(1, element, options);
+			// @ts-expect-error targets must be elements or nullish
+			useCssVar("--color", new EventTarget(), options);
+			const invalidOptions: UseCssVarOptions<CssVarOnlyWindow> = {
+				// @ts-expect-error initialValue must be string
+				initialValue: 1,
 				window: customWindow,
 			};
 			invalidOptions;

@@ -95,7 +95,7 @@ Status values:
 | `useCountdown` | `useCountdown` | Done |
 | `useCounter` | `useCounter` | Done |
 | `useCssSupports` | `useCssSupports` | Done |
-| `useCssVar` | `-` | Todo |
+| `useCssVar` | `useCssVar` | Done |
 | `useCurrentElement` | `-` | Out of scope |
 | `useCycleList` | `-` | Todo |
 | `useDark` | `-` | Todo |

@@ -59,6 +59,7 @@ export { useCountdown } from "./useCountdown";
 export { useBreakpoints } from "./useBreakpoints";
 export { useCounter } from "./useCounter";
 export { useCssSupports } from "./useCssSupports";
+export { useCssVar } from "./useCssVar";
 export { useDebounceFn } from "./useDebounceFn";
 export { useDocumentVisibility } from "./useDocumentVisibility";
 export { useElementSize } from "./useElementSize";
@@ -157,6 +158,11 @@ export type {
 	UseCssSupportsOptions,
 	UseCssSupportsReturn,
 	UseCssSupportsWindowLike,
+	UseCssVarDocumentLike,
+	UseCssVarElementLike,
+	UseCssVarOptions,
+	UseCssVarReturn,
+	UseCssVarWindowLike,
 	UseBluetoothOptions,
 	UseBluetoothRequestDeviceOptions,
 	UseBluetoothReturn,
