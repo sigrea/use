@@ -121,6 +121,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.useLocalStorage).toBe("function");
 		expect(typeof mod.useManualRefHistory).toBe("function");
 		expect(typeof mod.useMediaQuery).toBe("function");
+		expect(typeof mod.useMemoize).toBe("function");
 		expect(typeof mod.useMouse).toBe("function");
 		expect(typeof mod.useOnline).toBe("function");
 		expect(typeof mod.usePreferredDark).toBe("function");
@@ -866,6 +867,27 @@ describe("SSR safety", () => {
 		source.value = 2;
 
 		expect(cached.value).toBe(2);
+	});
+
+	it("creates useMemoize without a window", async () => {
+		const { computed } = await import("@sigrea/core");
+		const { useMemoize } = await import("../../../index");
+		const resolver = vi.fn((value: number) => `result-${value}`);
+		const memo = useMemoize(resolver);
+		const cached = computed(() => memo(1));
+
+		expect(globalThis.window).toBeUndefined();
+		expect(cached.value).toBe("result-1");
+		expect(memo(1)).toBe("result-1");
+		expect(resolver).toHaveBeenCalledOnce();
+
+		memo.load(1);
+
+		expect(resolver).toHaveBeenCalledTimes(2);
+		expect(cached.value).toBe("result-1");
+
+		memo.delete(1);
+		memo.clear();
 	});
 
 	it("creates useLastChanged without a window", async () => {

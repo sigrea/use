@@ -2885,6 +2885,41 @@ export interface UseMediaControlsReturn {
 	stop(): void;
 }
 
+export type UseMemoizeCacheKey = string | number;
+
+export interface UseMemoizeCache<Key extends UseMemoizeCacheKey, Value> {
+	get(key: Key): Value | undefined;
+	set(key: Key, value: Value): void;
+	has(key: Key): boolean;
+	delete(key: Key): void;
+	clear(): void;
+}
+
+export interface UseMemoizeReturn<
+	Result,
+	Args extends unknown[],
+	Key extends UseMemoizeCacheKey = string,
+> {
+	(...args: Args): Result;
+	load(...args: Args): Result;
+	delete(...args: Args): void;
+	clear(): void;
+	generateKey(...args: Args): Key;
+	cache: UseMemoizeCache<Key, Result>;
+}
+
+export type UseMemoizeOptions<
+	Result,
+	Args extends unknown[],
+	Key extends UseMemoizeCacheKey = string,
+> = {
+	cache?: UseMemoizeCache<Key, Result>;
+} & ([Key] extends [string]
+	? string extends Key
+		? { getKey?: (...args: Args) => Key }
+		: { getKey: (...args: Args) => Key }
+	: { getKey: (...args: Args) => Key });
+
 export interface OnLongPressModifiers {
 	stop?: boolean;
 	once?: boolean;

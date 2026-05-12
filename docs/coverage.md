@@ -142,7 +142,7 @@ Status values:
 | `useManualRefHistory` | `useManualRefHistory` | Done |
 | `useMediaControls` | `useMediaControls` | Done |
 | `useMediaQuery` | `useMediaQuery` | Done |
-| `useMemoize` | `-` | Todo |
+| `useMemoize` | `useMemoize` | Done |
 | `useMemory` | `-` | Todo |
 | `useMounted` | `-` | Needs design |
 | `useMouse` | `useMouse` | Done |

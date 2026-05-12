@@ -392,6 +392,10 @@ import type {
 	UseMediaControlsTextTrack,
 	UseMediaControlsTextTrackSource,
 	UseMediaQueryOptions,
+	UseMemoizeCache,
+	UseMemoizeCacheKey,
+	UseMemoizeOptions,
+	UseMemoizeReturn,
 	UseMouseOptions,
 	UseOnlineOptions,
 	UseRefHistoryRecord,
@@ -515,6 +519,7 @@ import {
 	useManualRefHistory,
 	useMediaControls,
 	useMediaQuery,
+	useMemoize,
 	useMouse,
 	useOnline,
 	usePreferredDark,
@@ -4411,6 +4416,68 @@ describe("public types", () => {
 				expectTypeOf(
 					invalidTrack,
 				).toEqualTypeOf<UseMediaControlsTextTrackSource>();
+			});
+		});
+	});
+
+	it("types memoized functions", () => {
+		typeOnly(() => {
+			const cacheKey: UseMemoizeCacheKey = "1";
+			const stringMemo = useMemoize((id: number) => `user-${id}`);
+			const emptyOptionsMemo = useMemoize((id: number) => `user-${id}`, {});
+			const stringReturn: UseMemoizeReturn<string, [number], string> =
+				stringMemo;
+			const numberCache: UseMemoizeCache<number, string> = new Map<
+				number,
+				string
+			>();
+			const options: UseMemoizeOptions<string, [number, string], number> = {
+				cache: numberCache,
+				getKey: (id) => id,
+			};
+			const numberMemo = useMemoize(
+				(id: number, scope: string) => `${scope}-${id}`,
+				options,
+			);
+			const promiseMemo = useMemoize(async (id: number) => ({ id }));
+
+			expectTypeOf<UseMemoizeCacheKey>().toEqualTypeOf<string | number>();
+			expectTypeOf(cacheKey).toEqualTypeOf<string>();
+			expectTypeOf(stringReturn).toEqualTypeOf<
+				UseMemoizeReturn<string, [number], string>
+			>();
+			expectTypeOf(stringMemo(1)).toEqualTypeOf<string>();
+			expectTypeOf(stringMemo.load(1)).toEqualTypeOf<string>();
+			expectTypeOf(stringMemo.generateKey(1)).toEqualTypeOf<string>();
+			expectTypeOf(stringMemo.cache).toEqualTypeOf<
+				UseMemoizeCache<string, string>
+			>();
+			expectTypeOf(emptyOptionsMemo).toEqualTypeOf<
+				UseMemoizeReturn<string, [number], string>
+			>();
+			expectTypeOf(numberMemo).toEqualTypeOf<
+				UseMemoizeReturn<string, [number, string], number>
+			>();
+			expectTypeOf(numberMemo.generateKey(1, "admin")).toEqualTypeOf<number>();
+			expectTypeOf(numberMemo.cache).toEqualTypeOf<
+				UseMemoizeCache<number, string>
+			>();
+			expectTypeOf(promiseMemo(1)).toEqualTypeOf<Promise<{ id: number }>>();
+
+			typeOnly(() => {
+				// @ts-expect-error memoized arguments must match the resolver
+				stringMemo("1");
+				// @ts-expect-error default cache key is a string
+				stringMemo.cache.set(1, "value");
+				const invalidOptions: UseMemoizeOptions<string, [number], number> = {
+					// @ts-expect-error getKey must return the configured key type
+					getKey: () => "1",
+				};
+				expectTypeOf(invalidOptions).toEqualTypeOf<
+					UseMemoizeOptions<string, [number], number>
+				>();
+				// @ts-expect-error non-string cache keys require getKey
+				useMemoize((id: number) => `user-${id}`, { cache: numberCache });
 			});
 		});
 	});
