@@ -489,6 +489,14 @@ export type UseArraySomePredicate<T> = (
 
 export type UseArraySomeReturn = ReadonlySignal<boolean>;
 
+export type UseArrayUniqueCompareFn<T> = (
+	value: T,
+	otherValue: T,
+	array: T[],
+) => boolean;
+
+export type UseArrayUniqueReturn<T = unknown> = ReadonlySignal<T[]>;
+
 export type UseArrayFilterPredicate<T> = (
 	element: T,
 	index: number,
