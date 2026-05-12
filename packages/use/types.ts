@@ -357,6 +357,8 @@ export type ToDeepSignalReturn<T extends object> = DeepSignal<
 	ToDeepSignalObject<T>
 >;
 
+export type TryOnScopeDisposeReturn = boolean;
+
 export type AsyncComputedCancelCallback = () => void;
 
 export type AsyncComputedOnCancel = (

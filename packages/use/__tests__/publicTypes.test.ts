@@ -82,6 +82,7 @@ import type {
 	SyncSignalsOptions,
 	SyncSignalsReturn,
 	ToDeepSignalReturn,
+	TryOnScopeDisposeReturn,
 	UseBreakpointsOptions,
 	UseDocumentVisibilityOptions,
 	UseElementSizeOptions,
@@ -128,6 +129,7 @@ import {
 	syncSignal,
 	syncSignals,
 	toDeepSignal,
+	tryOnScopeDispose,
 	useBreakpoints,
 	useDebounceFn,
 	useDocumentVisibility,
@@ -964,6 +966,17 @@ describe("public types", () => {
 			toDeepSignal(new Set<number>() as ReadonlySet<number>);
 			// @ts-expect-error toDeepSignal source replacement only supports plain objects
 			toDeepSignal(new ArrayBuffer(8));
+		});
+	});
+
+	it("types scoped cleanup registration", () => {
+		typeOnly(() => {
+			const result = tryOnScopeDispose(() => {});
+
+			expectTypeOf(result).toEqualTypeOf<TryOnScopeDisposeReturn>();
+			expectTypeOf(result).toEqualTypeOf<boolean>();
+			// @ts-expect-error cleanup must be callable
+			tryOnScopeDispose("cleanup");
 		});
 	});
 

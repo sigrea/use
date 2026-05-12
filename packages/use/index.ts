@@ -26,6 +26,7 @@ export { signalThrottled } from "./signalThrottled";
 export { syncSignal } from "./syncSignal";
 export { syncSignals } from "./syncSignals";
 export { toDeepSignal } from "./toDeepSignal";
+export { tryOnScopeDispose } from "./tryOnScopeDispose";
 export { useBreakpoints } from "./useBreakpoints";
 export { useCounter } from "./useCounter";
 export { useDebounceFn } from "./useDebounceFn";
@@ -154,6 +155,7 @@ export type {
 	SyncSignalsOptions,
 	SyncSignalsReturn,
 	ToDeepSignalReturn,
+	TryOnScopeDisposeReturn,
 	StorageEventLike,
 	StorageLike,
 	StorageSerializer,
