@@ -3022,6 +3022,51 @@ export interface UseMouseReturn {
 	stop(): void;
 }
 
+export interface UseMouseInElementDocumentLike extends DocumentLike {
+	readonly body?: HTMLElement | null;
+}
+
+export interface UseMouseInElementWindowLike extends MouseWindowLike {
+	readonly document?: UseMouseInElementDocumentLike;
+	readonly ResizeObserver?: typeof ResizeObserver;
+	readonly MutationObserver?: typeof MutationObserver;
+}
+
+export interface UseMouseInElementOptions<
+	TWindow extends UseMouseInElementWindowLike = UseMouseInElementWindowLike,
+	TMouseTarget extends EventTarget = EventTarget,
+> extends Omit<UseMouseOptions<TWindow, TMouseTarget>, "type"> {
+	type?: Exclude<UseMouseCoordType, "movement"> | UseMouseEventExtractor;
+	/**
+	 * Keep updating relative coordinates while the pointer is outside the element.
+	 *
+	 * @default true
+	 */
+	handleOutside?: boolean;
+	/**
+	 * Recalculate element bounds when the window scrolls.
+	 *
+	 * @default true
+	 */
+	windowScroll?: boolean;
+	/**
+	 * Recalculate element bounds when the window resizes.
+	 *
+	 * @default true
+	 */
+	windowResize?: boolean;
+}
+
+export interface UseMouseInElementReturn extends UseMouseReturn {
+	readonly elementX: ReadonlySignal<number>;
+	readonly elementY: ReadonlySignal<number>;
+	readonly elementPositionX: ReadonlySignal<number>;
+	readonly elementPositionY: ReadonlySignal<number>;
+	readonly elementHeight: ReadonlySignal<number>;
+	readonly elementWidth: ReadonlySignal<number>;
+	readonly isOutside: ReadonlySignal<boolean>;
+}
+
 export type UseDraggableAxis = "x" | "y" | "both";
 export type UseDraggablePointerType = "mouse" | "pen" | "touch" | (string & {});
 export type UseDraggableElement = HTMLElement | SVGElement;
