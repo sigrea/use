@@ -230,7 +230,7 @@ Status values:
 | `watchOnce` | `watchOnce` | Done |
 | `watchPausable` | `watchPausable` | Done |
 | `watchThrottled` | `watchThrottled` | Done |
-| `watchTriggerable` | `-` | Todo |
+| `watchTriggerable` | `watchTriggerable` | Done |
 | `watchWithFilter` | `-` | Todo |
 | `whenever` | `-` | Todo |
 | `math/createGenericProjection` | `-` | Todo |
