@@ -605,6 +605,82 @@ export type SignalDebouncedReturn<T = unknown> = ReadonlySignal<T>;
 
 export type SignalThrottledReturn<T = unknown> = ReadonlySignal<T>;
 
+export type SyncSignalDirection = "ltr" | "rtl" | "both";
+
+export interface SyncSignalTransform<L, R> {
+	ltr: (left: L) => R;
+	rtl: (right: R) => L;
+}
+
+type SyncSignalTransformKey = keyof SyncSignalTransform<unknown, unknown>;
+
+type SyncSignalRelevantTransformKey<D extends SyncSignalDirection> =
+	D extends "both"
+		? SyncSignalTransformKey
+		: Extract<D, SyncSignalTransformKey>;
+
+type IsAssignable<From, To> = [From] extends [To] ? true : false;
+
+type SyncSignalRequiredTransformKey<
+	L,
+	R,
+	D extends SyncSignalDirection,
+> = D extends "both"
+	?
+			| (IsAssignable<L, R> extends true ? never : "ltr")
+			| (IsAssignable<R, L> extends true ? never : "rtl")
+	: D extends "ltr"
+		? IsAssignable<L, R> extends true
+			? never
+			: "ltr"
+		: D extends "rtl"
+			? IsAssignable<R, L> extends true
+				? never
+				: "rtl"
+			: never;
+
+type SyncSignalOptionalTransformKey<
+	L,
+	R,
+	D extends SyncSignalDirection,
+> = Exclude<
+	SyncSignalRelevantTransformKey<D>,
+	SyncSignalRequiredTransformKey<L, R, D>
+>;
+
+type SyncSignalTransformOptions<L, R, D extends SyncSignalDirection> = [
+	SyncSignalRequiredTransformKey<L, R, D>,
+] extends [never]
+	? {
+			transform?: Partial<
+				Pick<SyncSignalTransform<L, R>, SyncSignalRelevantTransformKey<D>>
+			>;
+		}
+	: {
+			transform: Pick<
+				SyncSignalTransform<L, R>,
+				SyncSignalRequiredTransformKey<L, R, D>
+			> &
+				Partial<
+					Pick<
+						SyncSignalTransform<L, R>,
+						SyncSignalOptionalTransformKey<L, R, D>
+					>
+				>;
+		};
+
+type SyncSignalDirectionOptions<D extends SyncSignalDirection> =
+	D extends "both" ? { direction?: D } : { direction: D };
+
+export type SyncSignalOptions<L, R, D extends SyncSignalDirection = "both"> = {
+	deep?: WatchOptions["deep"];
+	flush?: WatchOptions["flush"];
+	immediate?: boolean;
+} & SyncSignalDirectionOptions<D> &
+	SyncSignalTransformOptions<L, R, D>;
+
+export type SyncSignalReturn = () => void;
+
 export interface UseTimeoutFnOptions {
 	immediate?: boolean;
 	immediateCallback?: boolean;

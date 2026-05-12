@@ -75,6 +75,10 @@ import type {
 	SignalThrottledReturn,
 	StorageSerializer,
 	StorageWindowLike,
+	SyncSignalDirection,
+	SyncSignalOptions,
+	SyncSignalReturn,
+	SyncSignalTransform,
 	UseBreakpointsOptions,
 	UseDocumentVisibilityOptions,
 	UseElementSizeOptions,
@@ -118,6 +122,7 @@ import {
 	signalDefault,
 	signalManualReset,
 	signalThrottled,
+	syncSignal,
 	useBreakpoints,
 	useDebounceFn,
 	useDocumentVisibility,
@@ -982,6 +987,94 @@ describe("public types", () => {
 				computed(() => source.value),
 				"default",
 			);
+		});
+	});
+
+	it("types synced signals", () => {
+		typeOnly(() => {
+			const left = signal(1);
+			const right = signal(2);
+			const countOrText = signal<number | string>(0);
+			const text = signal("1");
+			const source = signal("source");
+			const readonlySource = readonly(source);
+			const computedSource = computed(() => source.value);
+			const options: SyncSignalOptions<number, string> = {
+				deep: true,
+				direction: "both",
+				flush: "sync",
+				immediate: true,
+				transform: {
+					ltr: (value) => value.toString(),
+					rtl: (value) => Number(value),
+				},
+			};
+			const leftToRightOptions: SyncSignalOptions<
+				number,
+				number | string,
+				"ltr"
+			> = {
+				direction: "ltr",
+			};
+			// @ts-expect-error one-way option types must include their runtime direction
+			const missingDirectionOptions: SyncSignalOptions<number, string, "ltr"> =
+				{
+					transform: {
+						ltr: (value) => value.toString(),
+					},
+				};
+			const transform: SyncSignalTransform<number, string> = {
+				ltr: (value) => value.toString(),
+				rtl: (value) => Number(value),
+			};
+
+			expectTypeOf(syncSignal(left, right)).toEqualTypeOf<SyncSignalReturn>();
+			expectTypeOf(
+				syncSignal(left, text, options),
+			).toEqualTypeOf<SyncSignalReturn>();
+			expectTypeOf(
+				syncSignal(left, countOrText, leftToRightOptions),
+			).toEqualTypeOf<SyncSignalReturn>();
+			expectTypeOf(missingDirectionOptions).toEqualTypeOf<
+				SyncSignalOptions<number, string, "ltr">
+			>();
+			expectTypeOf(transform.ltr(1)).toEqualTypeOf<string>();
+			expectTypeOf(transform.rtl("1")).toEqualTypeOf<number>();
+			expectTypeOf<SyncSignalDirection>().toEqualTypeOf<
+				"ltr" | "rtl" | "both"
+			>();
+
+			syncSignal(left, countOrText, {
+				direction: "both",
+				transform: {
+					rtl: (value) => Number(value),
+				},
+			});
+			syncSignal(left, text, {
+				direction: "ltr",
+				transform: {
+					ltr: (value) => value.toString(),
+				},
+			});
+			// @ts-expect-error different signal value types need a safe transform
+			syncSignal(left, text);
+			// @ts-expect-error both directions need a right-to-left transform here
+			syncSignal(left, countOrText, { direction: "both" });
+			// @ts-expect-error right-to-left cannot assign number|string to number
+			syncSignal(left, countOrText, { direction: "rtl" });
+			syncSignal(left, text, {
+				direction: "ltr",
+				transform: {
+					// @ts-expect-error direction-specific transform keys are enforced
+					rtl: (value: string) => Number(value),
+				},
+			});
+			// @ts-expect-error source must be a writable signal
+			syncSignal("source", right);
+			// @ts-expect-error readonly signals do not expose a writable target
+			syncSignal(readonlySource, right);
+			// @ts-expect-error computed sources do not expose a safe writable target
+			syncSignal(computedSource, right);
 		});
 	});
 

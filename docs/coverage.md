@@ -51,7 +51,7 @@ Status values:
 | `refThrottled` | `signalThrottled` | Done |
 | `refWithControl` | `signalWithControl` | Needs design |
 | `set` | `setValue` | Needs design |
-| `syncRef` | `syncSignal` | Todo |
+| `syncRef` | `syncSignal` | Done |
 | `syncRefs` | `syncSignals` | Todo |
 | `templateRef` | `-` | Out of scope |
 | `toReactive` | `-` | Todo |
