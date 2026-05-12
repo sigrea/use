@@ -742,6 +742,11 @@ import type {
 	WatchPausableReturn,
 	WatchPausableSource,
 	WatchPausableSourceValues,
+	WatchThrottledCallback,
+	WatchThrottledOptions,
+	WatchThrottledReturn,
+	WatchThrottledSource,
+	WatchThrottledSourceValues,
 	WebSocketConstructorLike,
 	WebSocketLike,
 	WindowLike,
@@ -951,6 +956,7 @@ import {
 	watchImmediate,
 	watchOnce,
 	watchPausable,
+	watchThrottled,
 } from "../../../index";
 
 interface MatchMediaOnlyWindow extends MatchMediaWindow {
@@ -4906,6 +4912,62 @@ describe("public types", () => {
 			watchPausable(1, callback);
 			// @ts-expect-error callback value type must match the source value
 			watchPausable(signal("1"), callback);
+		});
+	});
+
+	it("types throttled watchers", () => {
+		typeOnly(() => {
+			const count = signal(0);
+			const label = computed(() => `${count.value}`);
+			const delay = signal(100);
+			const source: WatchThrottledSource<number> = count;
+			const options: WatchThrottledOptions<true> = {
+				deep: true,
+				flush: "sync",
+				immediate: true,
+				leading: true,
+				throttle: delay,
+				trailing: false,
+			};
+			const callback: WatchThrottledCallback<number, number | undefined> = (
+				value,
+				oldValue,
+				onCleanup,
+			) => {
+				expectTypeOf(value).toEqualTypeOf<number>();
+				expectTypeOf(oldValue).toEqualTypeOf<number | undefined>();
+				onCleanup(() => {});
+			};
+			const stop = watchThrottled(source, callback, options);
+			const sourceValues: WatchThrottledSourceValues<
+				[typeof count, typeof label]
+			> = [1, "1"];
+			const tupleStop = watchThrottled(
+				[count, label] as const,
+				(value, oldValue) => {
+					expectTypeOf(value).toEqualTypeOf<[number, string]>();
+					expectTypeOf(oldValue).toEqualTypeOf<[number, string] | []>();
+				},
+				{ flush: "sync", immediate: true, throttle: 1 },
+			);
+			const watchReturn: WatchThrottledReturn = stop;
+
+			expectTypeOf(sourceValues).toEqualTypeOf<[number, string]>();
+			expectTypeOf(stop).toEqualTypeOf<WatchThrottledReturn>();
+			expectTypeOf(tupleStop).toEqualTypeOf<WatchThrottledReturn>();
+			expectTypeOf(watchReturn()).toEqualTypeOf<void>();
+			watchThrottled(count, callback, {
+				// @ts-expect-error eventFilter is not supported without watchWithFilter
+				eventFilter(invoke: () => void) {
+					invoke();
+				},
+			});
+			// @ts-expect-error throttle must resolve to a number
+			watchThrottled(count, callback, { throttle: "100" });
+			// @ts-expect-error source must be watchable
+			watchThrottled(1, callback);
+			// @ts-expect-error callback value type must match the source value
+			watchThrottled(signal("1"), callback);
 		});
 	});
 

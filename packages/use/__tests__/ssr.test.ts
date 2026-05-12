@@ -207,6 +207,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.watchImmediate).toBe("function");
 		expect(typeof mod.watchOnce).toBe("function");
 		expect(typeof mod.watchPausable).toBe("function");
+		expect(typeof mod.watchThrottled).toBe("function");
 	}, 60_000);
 
 	it("creates browser composables without a window", async () => {
@@ -1652,6 +1653,7 @@ describe("SSR safety", () => {
 			watchImmediate,
 			watchOnce,
 			watchPausable,
+			watchThrottled,
 		} = await import("../../../index");
 		const value = createSignal("ready");
 		const autoResetValue = signalAutoReset("default", 100);
@@ -1770,6 +1772,16 @@ describe("SSR safety", () => {
 		pausableSource.value = 2;
 		pausableWatch.resume();
 		pausableSource.value = 3;
+		const throttledWatchSource = signal(0);
+		const throttledWatchValues: number[] = [];
+		const stopThrottledWatch = watchThrottled(
+			throttledWatchSource,
+			(value) => {
+				throttledWatchValues.push(value);
+			},
+			{ flush: "sync", throttle: 0 },
+		);
+		throttledWatchSource.value = 1;
 
 		expect(globalThis.window).toBeUndefined();
 		expect(value.value).toBe("ready");
@@ -1804,6 +1816,7 @@ describe("SSR safety", () => {
 		expect(onceValues).toEqual([1]);
 		expect(pausableValues).toEqual([1, 3]);
 		expect(pausableWatch.isActive.value).toBe(true);
+		expect(throttledWatchValues).toEqual([1]);
 
 		stopSync();
 		stopSyncSignals();
@@ -1815,6 +1828,7 @@ describe("SSR safety", () => {
 		stopImmediateWatch();
 		stopOnceWatch();
 		pausableWatch.stop();
+		stopThrottledWatch();
 		debouncedHistory.dispose();
 		throttledHistory.dispose();
 	});
