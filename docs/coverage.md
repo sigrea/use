@@ -128,7 +128,7 @@ Status values:
 | `useFps` | `useFps` | Done |
 | `useFullscreen` | `useFullscreen` | Done |
 | `useGamepad` | `useGamepad` | Done |
-| `useGeolocation` | `-` | Todo |
+| `useGeolocation` | `useGeolocation` | Done |
 | `useIdle` | `-` | Todo |
 | `useImage` | `-` | Todo |
 | `useInfiniteScroll` | `-` | Todo |

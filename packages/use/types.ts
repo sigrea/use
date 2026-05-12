@@ -3050,6 +3050,52 @@ export interface UseGamepadReturn {
 	stop(): void;
 }
 
+export interface UseGeolocationCoordinates {
+	readonly accuracy: number;
+	readonly altitude: number | null;
+	readonly altitudeAccuracy: number | null;
+	readonly heading: number | null;
+	readonly latitude: number;
+	readonly longitude: number;
+	readonly speed: number | null;
+}
+
+export interface UseGeolocationPositionLike {
+	readonly coords: UseGeolocationCoordinates;
+	readonly timestamp: number;
+}
+
+export interface UseGeolocationGeolocationLike {
+	watchPosition(
+		successCallback: PositionCallback,
+		errorCallback?: PositionErrorCallback | null,
+		options?: PositionOptions,
+	): number;
+	clearWatch(watchId: number): void;
+}
+
+export interface UseGeolocationNavigatorLike extends NavigatorLike {
+	readonly geolocation?: UseGeolocationGeolocationLike | null;
+}
+
+export interface UseGeolocationOptions<
+	TNavigator extends UseGeolocationNavigatorLike = UseGeolocationNavigatorLike,
+> extends PositionOptions {
+	immediate?: boolean;
+	navigator?: MaybeValue<TNavigator | null | undefined>;
+}
+
+export interface UseGeolocationReturn {
+	readonly isSupported: ReadonlySignal<boolean>;
+	readonly isActive: ReadonlySignal<boolean>;
+	readonly coords: ReadonlySignal<UseGeolocationCoordinates | null>;
+	readonly locatedAt: ReadonlySignal<number | null>;
+	readonly error: ReadonlySignal<GeolocationPositionError | null>;
+	resume(): void;
+	pause(): void;
+	stop(): void;
+}
+
 export interface ElementSize {
 	width: number;
 	height: number;

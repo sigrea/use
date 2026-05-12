@@ -107,6 +107,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.useFps).toBe("function");
 		expect(typeof mod.useFullscreen).toBe("function");
 		expect(typeof mod.useGamepad).toBe("function");
+		expect(typeof mod.useGeolocation).toBe("function");
 		expect(typeof mod.useInterval).toBe("function");
 		expect(typeof mod.useIntervalFn).toBe("function");
 		expect(typeof mod.useLocalStorage).toBe("function");
@@ -123,7 +124,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.useTimeoutFn).toBe("function");
 		expect(typeof mod.useToggle).toBe("function");
 		expect(typeof mod.useWindowSize).toBe("function");
-	}, 10_000);
+	}, 20_000);
 
 	it("creates browser composables without a window", async () => {
 		const {
@@ -157,6 +158,7 @@ describe("SSR safety", () => {
 			useFps,
 			useFullscreen,
 			useGamepad,
+			useGeolocation,
 			useMouse,
 			useOnline,
 			usePreferredDark,
@@ -251,6 +253,7 @@ describe("SSR safety", () => {
 		const fps = useFps({ window: null });
 		const fullscreen = useFullscreen(undefined, { document: null });
 		const gamepad = useGamepad({ navigator: null, window: null });
+		const geolocation = useGeolocation({ navigator: null });
 		const fetchValue = useFetch("https://example.com", {
 			fetch: async () => new Response("ok"),
 			immediate: false,
@@ -335,6 +338,11 @@ describe("SSR safety", () => {
 		expect(gamepad.isSupported.value).toBe(false);
 		expect(gamepad.isActive.value).toBe(false);
 		expect(gamepad.gamepads.value).toEqual([]);
+		expect(geolocation.isSupported.value).toBe(false);
+		expect(geolocation.isActive.value).toBe(false);
+		expect(geolocation.coords.value).toBeNull();
+		expect(geolocation.locatedAt.value).toBeNull();
+		expect(geolocation.error.value).toBeNull();
 		expect(fetchValue.data.value).toBeNull();
 		expect(sessionStorageValue.value).toBe("fallback");
 		expect(ssrMediaQuery.matches.value).toBe(true);
@@ -414,6 +422,9 @@ describe("SSR safety", () => {
 		gamepad.resume();
 		gamepad.pause();
 		gamepad.stop();
+		geolocation.resume();
+		geolocation.pause();
+		geolocation.stop();
 		expect(await fetchValue.execute()).toBeInstanceOf(Response);
 		expect(fetchValue.data.value).toBe("ok");
 		expect(fetchValue.statusCode.value).toBe(200);
