@@ -84,6 +84,7 @@ export { useEventSource } from "./useEventSource";
 export { useEyeDropper } from "./useEyeDropper";
 export { useFavicon } from "./useFavicon";
 export { useFetch } from "./useFetch";
+export { useFileDialog } from "./useFileDialog";
 export { useFocus } from "./useFocus";
 export { useInterval } from "./useInterval";
 export { useIntervalFn } from "./useIntervalFn";
@@ -456,6 +457,11 @@ export type {
 	UseFetchReturnBase,
 	UseFetchUrl,
 	UseFetchWindowLike,
+	UseFileDialogDocumentLike,
+	UseFileDialogInputLike,
+	UseFileDialogOpenOptions,
+	UseFileDialogOptions,
+	UseFileDialogReturn,
 	UseFocusOptions,
 	UseFocusReturn,
 	UseIntervalControlsReturn,
