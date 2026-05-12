@@ -83,6 +83,7 @@ export { useEventListener } from "./useEventListener";
 export { useEventSource } from "./useEventSource";
 export { useEyeDropper } from "./useEyeDropper";
 export { useFavicon } from "./useFavicon";
+export { useFetch } from "./useFetch";
 export { useFocus } from "./useFocus";
 export { useInterval } from "./useInterval";
 export { useIntervalFn } from "./useIntervalFn";
@@ -444,6 +445,17 @@ export type {
 	UseFaviconDocumentLike,
 	UseFaviconOptions,
 	UseFaviconReturn,
+	AfterFetchContext,
+	BeforeFetchContext,
+	OnFetchErrorContext,
+	UseFetchDataType,
+	UseFetchFetch,
+	UseFetchMethod,
+	UseFetchOptions,
+	UseFetchReturn,
+	UseFetchReturnBase,
+	UseFetchUrl,
+	UseFetchWindowLike,
 	UseFocusOptions,
 	UseFocusReturn,
 	UseIntervalControlsReturn,

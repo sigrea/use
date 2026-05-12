@@ -11,11 +11,13 @@ import {
 import { describe, expectTypeOf, it } from "vitest";
 
 import type {
+	AfterFetchContext,
 	Arrayable,
 	AsyncComputedOptions,
 	BasicColorMode,
 	BatteryManagerLike,
 	BatteryNavigatorLike,
+	BeforeFetchContext,
 	BluetoothDeviceLike,
 	BluetoothLEScanFilterLike,
 	BluetoothLike,
@@ -85,6 +87,7 @@ import type {
 	OnElementRemovalOptions,
 	OnElementRemovalReturn,
 	OnElementRemovalWindowLike,
+	OnFetchErrorContext,
 	OnKeyStrokeHandler,
 	OnKeyStrokeOptions,
 	OnKeyStrokeReturn,
@@ -298,6 +301,12 @@ import type {
 	UseFaviconDocumentLike,
 	UseFaviconOptions,
 	UseFaviconReturn,
+	UseFetchFetch,
+	UseFetchOptions,
+	UseFetchReturn,
+	UseFetchReturnBase,
+	UseFetchUrl,
+	UseFetchWindowLike,
 	UseFocusOptions,
 	UseMediaQueryOptions,
 	UseMouseOptions,
@@ -400,6 +409,7 @@ import {
 	useEventSource,
 	useEyeDropper,
 	useFavicon,
+	useFetch,
 	useFocus,
 	useInterval,
 	useIntervalFn,
@@ -2397,6 +2407,118 @@ describe("public types", () => {
 			});
 			// @ts-expect-error favicon value must be string, null, or undefined
 			favicon.value = 1;
+		});
+	});
+
+	it("types fetch requests", () => {
+		typeOnly(() => {
+			interface Item {
+				id: string;
+			}
+
+			const fetcher: UseFetchFetch = async (_input, _init) =>
+				Response.json({ id: "1" });
+			const window = {
+				fetch: fetcher,
+			} as UseFetchWindowLike;
+			const url = signal<UseFetchUrl>("https://example.com/items/1");
+			const options: UseFetchOptions<Item> = {
+				fetch: fetcher,
+				immediate: false,
+				initialData: { id: "initial" },
+				refetch: signal(true),
+				timeout: 100,
+				beforeFetch(context) {
+					expectTypeOf(context).toEqualTypeOf<BeforeFetchContext>();
+					expectTypeOf(context.url).toEqualTypeOf<UseFetchUrl>();
+					expectTypeOf(context.options).toEqualTypeOf<RequestInit>();
+					expectTypeOf(context.cancel()).toEqualTypeOf<void>();
+
+					return {
+						url: new URL("https://example.com/items/2"),
+					};
+				},
+				afterFetch(context) {
+					expectTypeOf(context).toEqualTypeOf<AfterFetchContext<Item>>();
+					expectTypeOf(context.data).toEqualTypeOf<Item | null>();
+					expectTypeOf(context.response).toEqualTypeOf<Response>();
+					expectTypeOf(context.execute()).toEqualTypeOf<
+						Promise<Response | null>
+					>();
+
+					return {
+						data: { id: "after" },
+					};
+				},
+				onFetchError(context) {
+					expectTypeOf(context).toEqualTypeOf<OnFetchErrorContext<Item>>();
+					expectTypeOf(context.error).toEqualTypeOf<unknown>();
+					expectTypeOf(context.response).toEqualTypeOf<Response | null>();
+
+					return {
+						error: "changed",
+					};
+				},
+			};
+			const request = useFetch<Item>(url, options).json<Item>();
+			const text = useFetch("https://example.com/text", {
+				fetch: fetcher,
+				window,
+			}).text();
+			const withRequestInit = useFetch(
+				() => new URL("https://example.com/post"),
+				{ headers: { Accept: "application/json" } },
+				{ fetch: fetcher },
+			).post(signal({ id: "1" }), "application/json");
+
+			expectTypeOf(request).toEqualTypeOf<UseFetchReturn<Item>>();
+			expectTypeOf(request).toEqualTypeOf<
+				UseFetchReturnBase<Item> & PromiseLike<UseFetchReturnBase<Item>>
+			>();
+			expectTypeOf(request.data).toEqualTypeOf<ReadonlySignal<Item | null>>();
+			expectTypeOf(request.error).toEqualTypeOf<
+				ReadonlySignal<unknown | null>
+			>();
+			expectTypeOf(request.statusCode).toEqualTypeOf<
+				ReadonlySignal<number | null>
+			>();
+			expectTypeOf(request.response).toEqualTypeOf<
+				ReadonlySignal<Response | null>
+			>();
+			expectTypeOf(request.isFetching).toEqualTypeOf<ReadonlySignal<boolean>>();
+			expectTypeOf(request.isFinished).toEqualTypeOf<ReadonlySignal<boolean>>();
+			expectTypeOf(request.canAbort).toEqualTypeOf<ReadonlySignal<boolean>>();
+			expectTypeOf(request.aborted).toEqualTypeOf<ReadonlySignal<boolean>>();
+			expectTypeOf(request.execute()).toEqualTypeOf<Promise<Response | null>>();
+			expectTypeOf(request.abort()).toEqualTypeOf<void>();
+			expectTypeOf(request.stop()).toEqualTypeOf<void>();
+			expectTypeOf(text.data.value).toEqualTypeOf<string | null>();
+			expectTypeOf(withRequestInit).toEqualTypeOf<UseFetchReturn<unknown>>();
+			request.onFetchResponse((response) => {
+				expectTypeOf(response).toEqualTypeOf<Response>();
+			});
+			request.onFetchError((error) => {
+				expectTypeOf(error).toEqualTypeOf<unknown>();
+			});
+			request.onFetchFinally(() => {});
+			// @ts-expect-error URL must be a string or URL value
+			useFetch(1);
+			useFetch("https://example.com", {
+				// @ts-expect-error immediate must be boolean
+				immediate: "yes",
+			});
+			useFetch("https://example.com", {
+				// @ts-expect-error timeout must be number
+				timeout: "slow",
+			});
+			useFetch("https://example.com", {
+				// @ts-expect-error fetch must return a Response promise
+				fetch: async () => "bad",
+			});
+			// @ts-expect-error payload type must be a string
+			request.post({ id: "1" }, 1);
+			// @ts-expect-error returned data is readonly
+			request.data.value = { id: "2" };
 		});
 	});
 
