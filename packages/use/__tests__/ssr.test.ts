@@ -72,6 +72,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.useColorMode).toBe("function");
 		expect(typeof mod.useConfirmDialog).toBe("function");
 		expect(typeof mod.useCountdown).toBe("function");
+		expect(typeof mod.useCssSupports).toBe("function");
 		expect(typeof mod.useBreakpoints).toBe("function");
 		expect(typeof mod.useDocumentVisibility).toBe("function");
 		expect(typeof mod.useElementSize).toBe("function");
@@ -104,6 +105,7 @@ describe("SSR safety", () => {
 			useEventListener,
 			useFocus,
 			useColorMode,
+			useCssSupports,
 			useLocalStorage,
 			useMediaQuery,
 			useMouse,
@@ -149,6 +151,11 @@ describe("SSR safety", () => {
 		const mediaQuery = useMediaQuery("(min-width: 640px)");
 		const online = useOnline();
 		const preferredDark = usePreferredDark();
+		const cssSupports = useCssSupports("display", "grid", { window: null });
+		const initialCssSupports = useCssSupports("display: grid", {
+			initialValue: true,
+			window: null,
+		});
 		const sessionStorageValue = useSessionStorage("session", "fallback", {
 			window: undefined,
 		});
@@ -176,6 +183,8 @@ describe("SSR safety", () => {
 		expect(mediaQuery.matches.value).toBe(false);
 		expect(online.isOnline.value).toBe(true);
 		expect(preferredDark.matches.value).toBe(false);
+		expect(cssSupports.value).toBe(false);
+		expect(initialCssSupports.value).toBe(true);
 		expect(sessionStorageValue.value).toBe("fallback");
 		expect(ssrMediaQuery.matches.value).toBe(true);
 		expect(storageValue.value).toBe("fallback");

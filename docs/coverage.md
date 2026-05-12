@@ -94,7 +94,7 @@ Status values:
 | `useConfirmDialog` | `useConfirmDialog` | Done |
 | `useCountdown` | `useCountdown` | Done |
 | `useCounter` | `useCounter` | Done |
-| `useCssSupports` | `-` | Todo |
+| `useCssSupports` | `useCssSupports` | Done |
 | `useCssVar` | `-` | Todo |
 | `useCurrentElement` | `-` | Out of scope |
 | `useCycleList` | `-` | Todo |

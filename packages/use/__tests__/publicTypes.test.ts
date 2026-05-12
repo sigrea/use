@@ -47,6 +47,7 @@ import type {
 	ComputedWithControlOptions,
 	ComputedWithControlReturn,
 	CreateSignalReturn,
+	CssSupportsLike,
 	DocumentVisibilityDocumentLike,
 	EventHook,
 	EventHookArgs,
@@ -199,6 +200,9 @@ import type {
 	UseCountdownOptions,
 	UseCountdownReturn,
 	UseCountdownScheduler,
+	UseCssSupportsOptions,
+	UseCssSupportsReturn,
+	UseCssSupportsWindowLike,
 	UseDocumentVisibilityOptions,
 	UseElementSizeOptions,
 	UseFocusOptions,
@@ -276,6 +280,7 @@ import {
 	useColorMode,
 	useConfirmDialog,
 	useCountdown,
+	useCssSupports,
 	useDebounceFn,
 	useDocumentVisibility,
 	useElementSize,
@@ -301,6 +306,10 @@ import {
 } from "../../../index";
 
 interface MatchMediaOnlyWindow extends MatchMediaWindow {
+	readonly label: string;
+}
+
+interface CssSupportsOnlyWindow extends UseCssSupportsWindowLike {
 	readonly label: string;
 }
 
@@ -3260,6 +3269,49 @@ describe("public types", () => {
 		const mediaQuery = useMediaQuery("(min-width: 768px)", options);
 
 		mediaQuery.stop();
+	});
+
+	it("accepts lightweight CSS.supports windows", () => {
+		typeOnly(() => {
+			const css: CssSupportsLike = {
+				supports(_first: string, _second?: string) {
+					return true;
+				},
+			};
+			const customWindow: CssSupportsOnlyWindow = Object.assign(
+				new EventTarget(),
+				{
+					CSS: css,
+					label: "test",
+				},
+			);
+			const options: UseCssSupportsOptions<CssSupportsOnlyWindow> = {
+				initialValue: false,
+				window: signal<CssSupportsOnlyWindow>(customWindow),
+			};
+			const condition = useCssSupports(signal("display: flex"), options);
+			const propValue = useCssSupports(
+				() => "display",
+				readonly(signal("grid")),
+				options,
+			);
+
+			expectTypeOf(condition).toEqualTypeOf<UseCssSupportsReturn>();
+			expectTypeOf(condition).toEqualTypeOf<ReadonlySignal<boolean>>();
+			expectTypeOf(propValue).toEqualTypeOf<UseCssSupportsReturn>();
+			// @ts-expect-error CSS support signals are readonly
+			condition.value = false;
+			// @ts-expect-error condition text must be a string
+			useCssSupports(1, options);
+			// @ts-expect-error CSS property values must be strings
+			useCssSupports("display", 1, options);
+			const invalidOptions: UseCssSupportsOptions<CssSupportsOnlyWindow> = {
+				// @ts-expect-error initialValue must be boolean
+				initialValue: "true",
+				window: customWindow,
+			};
+			invalidOptions;
+		});
 	});
 
 	it("preserves browser composable public types", () => {
