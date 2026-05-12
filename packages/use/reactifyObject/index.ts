@@ -15,13 +15,80 @@ function collectKeys<T extends object>(
 
 	const options = optionsOrKeys as ReactifyObjectOptions;
 	const { includeOwnProperties = true } = options;
-	if (includeOwnProperties) {
-		return Reflect.ownKeys(obj) as Array<keyof T>;
+	const keys = new Set<PropertyKey>(
+		includeOwnProperties
+			? Reflect.ownKeys(obj)
+			: Reflect.ownKeys(obj).filter((key) =>
+					Object.prototype.propertyIsEnumerable.call(obj, key),
+				),
+	);
+
+	let prototype = Object.getPrototypeOf(obj);
+	while (prototype !== null && prototype !== Object.prototype) {
+		for (const key of Reflect.ownKeys(prototype)) {
+			if (key === "constructor" || keys.has(key)) {
+				continue;
+			}
+			const descriptor = Object.getOwnPropertyDescriptor(prototype, key);
+			if (typeof descriptor?.value === "function") {
+				keys.add(key);
+			}
+		}
+		prototype = Object.getPrototypeOf(prototype);
 	}
 
-	return Reflect.ownKeys(obj).filter((key) =>
-		Object.prototype.propertyIsEnumerable.call(obj, key),
-	) as Array<keyof T>;
+	return Array.from(keys) as Array<keyof T>;
+}
+
+function getPropertyDescriptor<T extends object>(
+	obj: T,
+	key: keyof T,
+): PropertyDescriptor | undefined {
+	let current: object | null = obj;
+	while (current !== null) {
+		const descriptor = Object.getOwnPropertyDescriptor(current, key);
+		if (descriptor !== undefined) {
+			return descriptor;
+		}
+		current = Object.getPrototypeOf(current);
+	}
+
+	return undefined;
+}
+
+function createReactifiedDescriptor<T extends object>(
+	obj: T,
+	descriptor: PropertyDescriptor,
+): PropertyDescriptor {
+	if ("value" in descriptor && typeof descriptor.value === "function") {
+		return {
+			...descriptor,
+			value: reactify(descriptor.value.bind(obj)),
+		};
+	}
+
+	return descriptor;
+}
+
+function createReactifiedObject<T extends object>(
+	obj: T,
+	keys: Array<keyof T>,
+): ReactifyNested<T> {
+	const result = {};
+
+	for (const key of keys) {
+		const descriptor = getPropertyDescriptor(obj, key);
+		if (descriptor === undefined) {
+			continue;
+		}
+		Object.defineProperty(
+			result,
+			key,
+			createReactifiedDescriptor(obj, descriptor),
+		);
+	}
+
+	return result as ReactifyNested<T>;
 }
 
 export function reactifyObject<T extends object, TKeys extends keyof T>(
@@ -38,14 +105,5 @@ export function reactifyObject<T extends object>(
 	obj: T,
 	optionsOrKeys: ReactifyObjectOptions | readonly (keyof T)[] = {},
 ): ReactifyObjectReturn<T, keyof T> {
-	const entries = collectKeys(obj, optionsOrKeys).map((key) => {
-		const value = obj[key];
-
-		return [
-			key,
-			typeof value === "function" ? reactify(value.bind(obj)) : value,
-		];
-	});
-
-	return Object.fromEntries(entries) as ReactifyNested<T>;
+	return createReactifiedObject(obj, collectKeys(obj, optionsOrKeys));
 }

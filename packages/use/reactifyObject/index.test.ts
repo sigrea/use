@@ -111,6 +111,43 @@ describe("reactifyObject", () => {
 		expect(result.format(value).value).toBe("next:done");
 	});
 
+	it("includes prototype methods by default", () => {
+		class Calculator {
+			factor = 2;
+
+			multiply(value: number) {
+				return value * this.factor;
+			}
+		}
+		const source = new Calculator();
+		const result = reactifyObject(source);
+		const value = signal(3);
+
+		expect("multiply" in result).toBe(true);
+		expect(Object.keys(result)).not.toContain("multiply");
+		expect(result.multiply(value).value).toBe(6);
+
+		source.factor = 4;
+		value.value = 5;
+
+		expect(result.multiply(value).value).toBe(20);
+	});
+
+	it("can select prototype methods explicitly", () => {
+		class Calculator {
+			factor = 2;
+
+			multiply(value: number) {
+				return value * this.factor;
+			}
+		}
+		const source = new Calculator();
+		const result = reactifyObject(source, ["multiply"] as const);
+
+		expect("factor" in result).toBe(false);
+		expect(result.multiply(4).value).toBe(8);
+	});
+
 	it("preserves non-function properties", () => {
 		const source = {
 			count: 1,
@@ -121,6 +158,73 @@ describe("reactifyObject", () => {
 		const result = reactifyObject(source);
 
 		expect(result.count).toBe(1);
+		expect(result.format("ready").value).toBe("READY");
+	});
+
+	it("preserves readonly data descriptors for non-function properties", () => {
+		const source = {
+			format(value: string) {
+				return value.toUpperCase();
+			},
+		} as {
+			count: number;
+			format(value: string): string;
+		};
+		Object.defineProperty(source, "count", {
+			configurable: false,
+			enumerable: false,
+			value: 1,
+			writable: false,
+		});
+
+		const result = reactifyObject(source);
+		const descriptor = Object.getOwnPropertyDescriptor(result, "count");
+
+		expect(descriptor).toMatchObject({
+			configurable: false,
+			enumerable: false,
+			value: 1,
+			writable: false,
+		});
+		expect(Object.keys(result)).not.toContain("count");
+		expect(result.format("ready").value).toBe("READY");
+	});
+
+	it("preserves accessor descriptors for non-function properties", () => {
+		let count = 1;
+		let readCount = 0;
+		const source = {
+			format(value: string) {
+				return value.toUpperCase();
+			},
+		} as {
+			count: number;
+			format(value: string): string;
+		};
+		Object.defineProperty(source, "count", {
+			configurable: true,
+			enumerable: false,
+			get() {
+				readCount += 1;
+				return count;
+			},
+			set(value: number) {
+				count = value;
+			},
+		});
+
+		const result = reactifyObject(source);
+		const descriptor = Object.getOwnPropertyDescriptor(result, "count");
+
+		expect(readCount).toBe(0);
+		expect(descriptor?.enumerable).toBe(false);
+		expect(typeof descriptor?.get).toBe("function");
+		expect(result.count).toBe(1);
+		expect(readCount).toBe(1);
+
+		result.count = 3;
+
+		expect(count).toBe(3);
 		expect(result.format("ready").value).toBe("READY");
 	});
 
