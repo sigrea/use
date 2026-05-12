@@ -26,6 +26,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.logicOr).toBe("function");
 		expect(typeof mod.makeDestructurable).toBe("function");
 		expect(typeof mod.resolveValue).toBe("function");
+		expect(typeof mod.useAbs).toBe("function");
 		expect(typeof mod.useCounter).toBe("function");
 		expect(typeof mod.onClickOutside).toBe("function");
 		expect(typeof mod.onElementRemoval).toBe("function");
@@ -1654,6 +1655,7 @@ describe("SSR safety", () => {
 			formatTimeAgo,
 			formatTimeAgoIntl,
 			formatTimeAgoIntlParts,
+			useAbs,
 			useDebouncedRefHistory,
 			useThrottledRefHistory,
 			useTimeAgo,
@@ -1689,6 +1691,7 @@ describe("SSR safety", () => {
 		const logicalAndValue = logicAnd(signal(true), () => true);
 		const logicalNotValue = logicNot(signal(false));
 		const logicalOrValue = logicOr(signal(false), () => true);
+		const absoluteValue = useAbs(signal(-4));
 		const autoResetValue = signalAutoReset("default", 100);
 		const defaultValue = signalDefault(signal<string | undefined>(), "default");
 		const debouncedValue = signalDebounced(signal("source"), 100);
@@ -1857,6 +1860,7 @@ describe("SSR safety", () => {
 		expect(logicalAndValue.value).toBe(true);
 		expect(logicalNotValue.value).toBe(true);
 		expect(logicalOrValue.value).toBe(true);
+		expect(absoluteValue.value).toBe(4);
 		expect(autoResetValue.value).toBe("default");
 		expect(defaultValue.value).toBe("default");
 		expect(debouncedValue.value).toBe("source");

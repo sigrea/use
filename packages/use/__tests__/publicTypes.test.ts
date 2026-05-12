@@ -187,6 +187,7 @@ import type {
 	UntilToMatchOptions,
 	UntilValueInstance,
 	UrlParams,
+	UseAbsReturn,
 	UseActiveElementDocumentLike,
 	UseActiveElementOptions,
 	UseActiveElementReturn,
@@ -828,6 +829,7 @@ import {
 	transition,
 	tryOnScopeDispose,
 	until,
+	useAbs,
 	useActiveElement,
 	useAnimate,
 	useArrayDifference,
@@ -5697,6 +5699,22 @@ describe("public types", () => {
 			expectTypeOf(logicReturn.value).toEqualTypeOf<boolean>();
 			// @ts-expect-error logical result is readonly
 			result.value = true;
+		});
+	});
+
+	it("types absolute values", () => {
+		typeOnly(() => {
+			const result = useAbs(signal(-1));
+			const getter = useAbs(() => -2);
+			const absReturn: UseAbsReturn = result;
+
+			expectTypeOf(result).toEqualTypeOf<UseAbsReturn>();
+			expectTypeOf(getter.value).toEqualTypeOf<number>();
+			expectTypeOf(absReturn.value).toEqualTypeOf<number>();
+			// @ts-expect-error absolute value result is readonly
+			result.value = 1;
+			// @ts-expect-error value must resolve to a number
+			useAbs("1");
 		});
 	});
 

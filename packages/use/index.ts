@@ -33,6 +33,7 @@ export { syncSignals } from "./syncSignals";
 export { toDeepSignal } from "./toDeepSignal";
 export { tryOnScopeDispose } from "./tryOnScopeDispose";
 export { until } from "./until";
+export { useAbs } from "./useAbs";
 export { useActiveElement } from "./useActiveElement";
 export { useAnimate } from "./useAnimate";
 export { useArrayDifference } from "./useArrayDifference";
@@ -436,6 +437,7 @@ export type {
 	StorageWatchFlushType,
 	StorageWindowLike,
 	TargetEventMap,
+	UseAbsReturn,
 	UseActiveElementDocumentLike,
 	UseActiveElementOptions,
 	UseActiveElementReturn,
