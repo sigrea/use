@@ -784,6 +784,55 @@ export interface UseBroadcastChannelReturn<Data = unknown, Payload = Data> {
 	stop(): void;
 }
 
+export type BrowserLocationWritableProperty =
+	| "hash"
+	| "host"
+	| "hostname"
+	| "href"
+	| "pathname"
+	| "port"
+	| "protocol"
+	| "search";
+
+export type BrowserLocationTrigger = "load" | "popstate" | "hashchange";
+
+export interface BrowserLocationLike
+	extends Record<BrowserLocationWritableProperty, string> {
+	readonly origin?: string;
+}
+
+export interface BrowserLocationHistoryLike {
+	readonly state?: unknown;
+	readonly length?: number;
+}
+
+export interface BrowserLocationWindowLike extends WindowLike {
+	readonly history?: BrowserLocationHistoryLike;
+	readonly location?: BrowserLocationLike;
+}
+
+export interface UseBrowserLocationOptions<
+	TWindow extends BrowserLocationWindowLike = BrowserLocationWindowLike,
+> {
+	window?: MaybeTarget<TWindow>;
+}
+
+export interface UseBrowserLocationReturn {
+	readonly trigger: ReadonlySignal<BrowserLocationTrigger>;
+	readonly state: ReadonlySignal<unknown | undefined>;
+	readonly length: ReadonlySignal<number | undefined>;
+	readonly origin: ReadonlySignal<string | undefined>;
+	readonly hash: Computed<string | undefined>;
+	readonly host: Computed<string | undefined>;
+	readonly hostname: Computed<string | undefined>;
+	readonly href: Computed<string | undefined>;
+	readonly pathname: Computed<string | undefined>;
+	readonly port: Computed<string | undefined>;
+	readonly protocol: Computed<string | undefined>;
+	readonly search: Computed<string | undefined>;
+	stop(): void;
+}
+
 export interface ComputedEagerOptions {
 	flush?: WatchOptions["flush"];
 	onTrack?: WatchOptions["onTrack"];

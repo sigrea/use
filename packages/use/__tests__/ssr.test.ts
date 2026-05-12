@@ -64,6 +64,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.useBattery).toBe("function");
 		expect(typeof mod.useBluetooth).toBe("function");
 		expect(typeof mod.useBroadcastChannel).toBe("function");
+		expect(typeof mod.useBrowserLocation).toBe("function");
 		expect(typeof mod.useBreakpoints).toBe("function");
 		expect(typeof mod.useDocumentVisibility).toBe("function");
 		expect(typeof mod.useElementSize).toBe("function");
@@ -402,6 +403,22 @@ describe("SSR safety", () => {
 
 		result.postMessage("hello");
 		result.close();
+		result.stop();
+	});
+
+	it("creates useBrowserLocation without a window", async () => {
+		const { useBrowserLocation } = await import("../../../index");
+		const result = useBrowserLocation();
+
+		expect(globalThis.window).toBeUndefined();
+		expect(result.trigger.value).toBe("load");
+		expect(result.state.value).toBeUndefined();
+		expect(result.length.value).toBeUndefined();
+		expect(result.origin.value).toBeUndefined();
+		expect(result.href.value).toBeUndefined();
+
+		result.hash.value = "#local";
+		expect(result.hash.value).toBe("#local");
 		result.stop();
 	});
 
