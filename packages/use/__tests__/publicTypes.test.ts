@@ -676,11 +676,18 @@ import type {
 	UseWebSocketSendData,
 	UseWebSocketStatus,
 	UseWebSocketWindowLike,
+	UseWebWorkerConstructorSource,
+	UseWebWorkerOptions,
+	UseWebWorkerReturn,
+	UseWebWorkerSource,
+	UseWebWorkerWindowLike,
 	UseWindowSizeOptions,
 	WakeLockType,
 	WebSocketConstructorLike,
 	WebSocketLike,
 	WindowLike,
+	WorkerConstructorLike,
+	WorkerLike,
 	WritableComputedWithControlReturn,
 } from "../../../index";
 import {
@@ -872,6 +879,7 @@ import {
 	useWakeLock,
 	useWebNotification,
 	useWebSocket,
+	useWebWorker,
 	useWindowSize,
 } from "../../../index";
 
@@ -6670,6 +6678,127 @@ describe("public types", () => {
 				useWebSocket("ws://example.test", {
 					// @ts-expect-error constructor must create WebSocket-like objects
 					webSocket: class {},
+				});
+			});
+		});
+
+		typeOnly(() => {
+			class TypeWorker extends EventTarget implements WorkerLike {
+				postMessage(_message: unknown, _transfer: Transferable[]): void;
+				postMessage(
+					_message: unknown,
+					_options?: StructuredSerializeOptions,
+				): void;
+				postMessage(
+					_message?: unknown,
+					_transferOrOptions?: Transferable[] | StructuredSerializeOptions,
+				) {}
+				terminate() {}
+			}
+			const workerConstructor = class extends TypeWorker {
+				constructor(
+					readonly scriptURL: string | URL,
+					readonly options?: WorkerOptions,
+				) {
+					super();
+				}
+			} satisfies WorkerConstructorLike<TypeWorker>;
+			const workerWindow: UseWebWorkerWindowLike<TypeWorker> = Object.assign(
+				new EventTarget(),
+				{
+					Worker: workerConstructor,
+				},
+			);
+			const workerConstructorSource: UseWebWorkerConstructorSource<TypeWorker> =
+				signal(workerConstructor);
+			const workerSource: UseWebWorkerSource<TypeWorker> = new TypeWorker();
+			const workerOptions: UseWebWorkerOptions<
+				TypeWorker,
+				UseWebWorkerWindowLike<TypeWorker>,
+				string
+			> = {
+				autoConnect: true,
+				autoTerminate: true,
+				immediate: true,
+				worker: workerConstructorSource,
+				workerOptions: signal({ type: "module" as const }),
+				window: signal(workerWindow),
+				onMessage(worker, event) {
+					expectTypeOf(worker).toEqualTypeOf<TypeWorker>();
+					expectTypeOf(event).toEqualTypeOf<MessageEvent<string>>();
+				},
+				onError(worker, event) {
+					expectTypeOf(worker).toEqualTypeOf<TypeWorker>();
+					expectTypeOf(event).toEqualTypeOf<Event>();
+				},
+				onMessageError(worker, event) {
+					expectTypeOf(worker).toEqualTypeOf<TypeWorker>();
+					expectTypeOf(event).toEqualTypeOf<MessageEvent>();
+				},
+			};
+			const webWorker = useWebWorker<string, { type: "start" }, TypeWorker>(
+				signal("worker.js"),
+				workerOptions,
+			);
+			const existingWebWorker = useWebWorker<string, unknown, TypeWorker>(
+				workerSource,
+				{
+					window: null,
+				},
+			);
+			const fallbackWebWorker = useWebWorker<unknown, unknown, WorkerLike>(
+				"worker.js",
+				{
+					window: null,
+				},
+			);
+			const webWorkerReturn: UseWebWorkerReturn<
+				string,
+				{ type: "start" },
+				TypeWorker
+			> = webWorker;
+
+			expectTypeOf(webWorker).toEqualTypeOf<
+				UseWebWorkerReturn<string, { type: "start" }, TypeWorker>
+			>();
+			expectTypeOf(webWorkerReturn.data).toEqualTypeOf<
+				ReadonlySignal<string | null>
+			>();
+			expectTypeOf(webWorker.worker).toEqualTypeOf<
+				ReadonlySignal<TypeWorker | undefined>
+			>();
+			expectTypeOf(webWorker.isSupported).toEqualTypeOf<
+				ReadonlySignal<boolean>
+			>();
+			expectTypeOf(webWorker.error).toEqualTypeOf<
+				ReadonlySignal<unknown | null>
+			>();
+			expectTypeOf(webWorker.open()).toEqualTypeOf<void>();
+			expectTypeOf(webWorker.post({ type: "start" })).toEqualTypeOf<boolean>();
+			expectTypeOf(
+				webWorker.post({ type: "start" }, []),
+			).toEqualTypeOf<boolean>();
+			expectTypeOf(
+				webWorker.post({ type: "start" }, { transfer: [] }),
+			).toEqualTypeOf<boolean>();
+			expectTypeOf(webWorker.terminate()).toEqualTypeOf<void>();
+			expectTypeOf(webWorker.stop()).toEqualTypeOf<void>();
+			expectTypeOf(existingWebWorker).toEqualTypeOf<
+				UseWebWorkerReturn<string, unknown, TypeWorker>
+			>();
+			expectTypeOf(fallbackWebWorker).toEqualTypeOf<UseWebWorkerReturn>();
+			typeOnly(() => {
+				// @ts-expect-error data is readonly
+				webWorker.data.value = "next";
+				// @ts-expect-error worker is readonly
+				webWorker.worker.value = new TypeWorker();
+				// @ts-expect-error post payload must match Payload
+				webWorker.post({ type: "stop" });
+				// @ts-expect-error source must be a worker source
+				useWebWorker({});
+				useWebWorker("worker.js", {
+					// @ts-expect-error constructor must create Worker-like objects
+					worker: class {},
 				});
 			});
 		});

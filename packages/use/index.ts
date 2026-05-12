@@ -182,6 +182,7 @@ export { useVirtualList } from "./useVirtualList";
 export { useWakeLock } from "./useWakeLock";
 export { useWebNotification } from "./useWebNotification";
 export { useWebSocket } from "./useWebSocket";
+export { useWebWorker } from "./useWebWorker";
 export { useWindowSize } from "./useWindowSize";
 export type {
 	AsyncComputedCancelCallback,
@@ -522,8 +523,15 @@ export type {
 	UseWebSocketSendData,
 	UseWebSocketStatus,
 	UseWebSocketWindowLike,
+	UseWebWorkerConstructorSource,
+	UseWebWorkerOptions,
+	UseWebWorkerReturn,
+	UseWebWorkerSource,
+	UseWebWorkerWindowLike,
 	WebSocketConstructorLike,
 	WebSocketLike,
+	WorkerConstructorLike,
+	WorkerLike,
 	WakeLockType,
 	UseDocumentVisibilityOptions,
 	UseDocumentVisibilityReturn,
