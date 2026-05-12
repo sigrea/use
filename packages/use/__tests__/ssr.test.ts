@@ -68,6 +68,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.useCached).toBe("function");
 		expect(typeof mod.useClipboard).toBe("function");
 		expect(typeof mod.useClipboardItems).toBe("function");
+		expect(typeof mod.useCloned).toBe("function");
 		expect(typeof mod.useBreakpoints).toBe("function");
 		expect(typeof mod.useDocumentVisibility).toBe("function");
 		expect(typeof mod.useElementSize).toBe("function");
@@ -477,6 +478,31 @@ describe("SSR safety", () => {
 
 		expect(result.items.value).toEqual([]);
 		expect(result.copied.value).toBe(false);
+		result.stop();
+	});
+
+	it("creates useCloned without a window", async () => {
+		const { signal } = await import("@sigrea/core");
+		const { useCloned } = await import("../../../index");
+		const source = signal({ count: 1 });
+		const result = useCloned(source);
+
+		expect(globalThis.window).toBeUndefined();
+		expect(result.cloned.value).toEqual({ count: 1 });
+		expect(result.isModified.value).toBe(false);
+
+		source.value = { count: 2 };
+
+		expect(result.cloned.value).toEqual({ count: 2 });
+
+		result.cloned.value.count = 3;
+
+		expect(result.isModified.value).toBe(true);
+
+		result.sync();
+
+		expect(result.cloned.value).toEqual({ count: 2 });
+		expect(result.isModified.value).toBe(false);
 		result.stop();
 	});
 
