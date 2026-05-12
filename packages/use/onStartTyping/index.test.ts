@@ -79,9 +79,17 @@ describe("onStartTyping", () => {
 		const stop = onStartTyping(callback);
 
 		dispatchKeyDown("A", { shiftKey: true });
+
+		expect(callback).toHaveBeenCalledTimes(1);
+		stop();
+	});
+
+	it("ignores shifted symbol keys even when keyCode is numeric", () => {
+		const stop = onStartTyping(callback);
+
 		dispatchKeyDown("!", { keyCode: 49, shiftKey: true });
 
-		expect(callback).toHaveBeenCalledTimes(2);
+		expect(callback).not.toHaveBeenCalled();
 		stop();
 	});
 
@@ -195,6 +203,20 @@ describe("onStartTyping", () => {
 		dispatchKeyDown("a");
 
 		expect(callback).toHaveBeenCalledTimes(1);
+		stop();
+	});
+
+	it("ignores typing in designMode documents", () => {
+		const editableDocument = document.implementation.createHTMLDocument();
+		editableDocument.designMode = "on";
+		const stop = onStartTyping(callback, {
+			document: editableDocument,
+		});
+
+		dispatchKeyDown("a", {}, editableDocument);
+
+		expect(callback).not.toHaveBeenCalled();
+		editableDocument.designMode = "off";
 		stop();
 	});
 

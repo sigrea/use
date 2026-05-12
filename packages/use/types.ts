@@ -139,16 +139,6 @@ type ReactiveOmitValue<TValue> = TValue extends Signal<infer Value>
 
 type ReactiveOmitEntry<TValue> = DeepSignal<ReactiveOmitValue<TValue>>;
 
-type ReactivePickValue<TValue> = TValue extends Signal<infer Value>
-	? Value
-	: TValue extends ReadonlySignal<infer Value>
-		? Value
-		: TValue extends Computed<infer Value>
-			? Value
-			: TValue;
-
-type ReactivePickEntry<TValue> = DeepSignal<ReactivePickValue<TValue>>;
-
 type ReactiveOmitReadonlyKeys<T extends object> = {
 	[TKey in keyof T]-?: IsReadonlyKey<T, TKey> extends true
 		? TKey
@@ -218,6 +208,16 @@ export type ReactiveOmitPredicate<T extends object> = (
 	value: ReactiveOmitValue<T[keyof T]>,
 	key: keyof T,
 ) => boolean;
+
+type ReactivePickValue<TValue> = TValue extends Signal<infer Value>
+	? Value
+	: TValue extends ReadonlySignal<infer Value>
+		? Value
+		: TValue extends Computed<infer Value>
+			? Value
+			: TValue;
+
+type ReactivePickEntry<TValue> = DeepSignal<ReactivePickValue<TValue>>;
 
 type ReactivePickReadonlyKeys<T extends object> = {
 	[TKey in keyof T]-?: IsReadonlyKey<T, TKey> extends true
@@ -429,6 +429,11 @@ type IsUnknown<T> = IsAny<T> extends true
 			? true
 			: false
 		: false;
+type IsTuple<T> = T extends readonly unknown[]
+	? number extends T["length"]
+		? false
+		: true
+	: false;
 
 export type EventHookArgs<T = unknown> = IsAny<T> extends true
 	? unknown[]
@@ -437,7 +442,9 @@ export type EventHookArgs<T = unknown> = IsAny<T> extends true
 		: [T] extends [void]
 			? unknown[]
 			: [T] extends [readonly unknown[]]
-				? [...T]
+				? IsTuple<T> extends true
+					? [...T]
+					: [T, ...unknown[]]
 				: [T, ...unknown[]];
 
 export type EventHookCallback<T = unknown> = (
