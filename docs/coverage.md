@@ -191,7 +191,7 @@ Status values:
 | `useSupported` | `useSupported` | Done |
 | `useSwipe` | `useSwipe` | Done |
 | `useTemplateRefsList` | `-` | Out of scope |
-| `useTextDirection` | `-` | Todo |
+| `useTextDirection` | `useTextDirection` | Done |
 | `useTextSelection` | `-` | Todo |
 | `useTextareaAutosize` | `-` | Todo |
 | `useThrottleFn` | `useThrottleFn` | Done |

@@ -149,6 +149,7 @@ export { useStepper } from "./useStepper";
 export { useStyleTag } from "./useStyleTag";
 export { useSupported } from "./useSupported";
 export { useSwipe } from "./useSwipe";
+export { useTextDirection } from "./useTextDirection";
 export {
 	customStorageEventName,
 	StorageSerializers,
@@ -798,6 +799,10 @@ export type {
 	UseSwipeOptions,
 	UseSwipeReturn,
 	UseSwipeWindowLike,
+	UseTextDirectionDocumentLike,
+	UseTextDirectionOptions,
+	UseTextDirectionReturn,
+	UseTextDirectionValue,
 	UseStorageAsyncOptions,
 	UseStorageAsyncReturn,
 	UseStorageOptions,

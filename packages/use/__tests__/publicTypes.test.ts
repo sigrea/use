@@ -574,6 +574,10 @@ import type {
 	UseSwipeOptions,
 	UseSwipeReturn,
 	UseSwipeWindowLike,
+	UseTextDirectionDocumentLike,
+	UseTextDirectionOptions,
+	UseTextDirectionReturn,
+	UseTextDirectionValue,
 	UseToggleOptions,
 	UseWindowSizeOptions,
 	WindowLike,
@@ -740,6 +744,7 @@ import {
 	useStyleTag,
 	useSupported,
 	useSwipe,
+	useTextDirection,
 	useThrottleFn,
 	useTimeout,
 	useTimeoutFn,
@@ -5154,6 +5159,57 @@ describe("public types", () => {
 				useSupported(true);
 				// @ts-expect-error callback must not require arguments
 				useSupported((value: string) => value);
+			});
+		});
+	});
+
+	it("types text direction controls", () => {
+		typeOnly(() => {
+			const textDirectionDocument = Object.assign(new EventTarget(), {
+				defaultView: null,
+				querySelector: (_selectors: string) => document.documentElement,
+			}) as UseTextDirectionDocumentLike;
+			const textDirectionValue: UseTextDirectionValue = "auto";
+			const textDirectionOptions: UseTextDirectionOptions<
+				typeof textDirectionDocument
+			> = {
+				document: signal(textDirectionDocument),
+				initialValue: computed(() => "rtl" as const),
+				observe: signal(true),
+				selector: () => "body",
+			};
+			const textDirection = useTextDirection(textDirectionOptions);
+			const textDirectionReturn: UseTextDirectionReturn = textDirection;
+
+			expectTypeOf(textDirectionValue).toMatchTypeOf<UseTextDirectionValue>();
+			expectTypeOf(textDirection).toEqualTypeOf<UseTextDirectionReturn>();
+			expectTypeOf(
+				textDirectionReturn.value,
+			).toEqualTypeOf<UseTextDirectionValue>();
+			expectTypeOf(textDirection.stop()).toEqualTypeOf<void>();
+			textDirection.value = textDirectionValue;
+			useTextDirection({ document: null, initialValue: "ltr" });
+
+			typeOnly(() => {
+				// @ts-expect-error direction must be a known text direction
+				const invalidTextDirection: UseTextDirectionValue = "vertical";
+				invalidTextDirection;
+				useTextDirection({
+					// @ts-expect-error initialValue must be a known text direction
+					initialValue: "vertical",
+				});
+				useTextDirection({
+					// @ts-expect-error selector must be a string
+					selector: 1,
+				});
+				useTextDirection({
+					// @ts-expect-error observe must be boolean
+					observe: "true",
+				});
+				useTextDirection({
+					// @ts-expect-error document must be document-like or nullish
+					document: 1,
+				});
 			});
 		});
 	});
