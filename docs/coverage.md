@@ -214,7 +214,7 @@ Status values:
 | `useVibrate` | `useVibrate` | Done |
 | `useVirtualList` | `useVirtualList` | Done |
 | `useWakeLock` | `useWakeLock` | Done |
-| `useWebNotification` | `-` | Todo |
+| `useWebNotification` | `useWebNotification` | Done |
 | `useWebSocket` | `-` | Todo |
 | `useWebWorker` | `-` | Todo |
 | `useWebWorkerFn` | `-` | Todo |

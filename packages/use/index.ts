@@ -180,6 +180,7 @@ export { useUserMedia } from "./useUserMedia";
 export { useVibrate } from "./useVibrate";
 export { useVirtualList } from "./useVirtualList";
 export { useWakeLock } from "./useWakeLock";
+export { useWebNotification } from "./useWebNotification";
 export { useWindowSize } from "./useWindowSize";
 export type {
 	AsyncComputedCancelCallback,
@@ -504,6 +505,13 @@ export type {
 	UseWakeLockReturn,
 	UseWakeLockSentinelLike,
 	UseWakeLockWakeLockLike,
+	UseWebNotificationConstructorLike,
+	UseWebNotificationConstructorOptions,
+	UseWebNotificationNotificationLike,
+	UseWebNotificationOptions,
+	UseWebNotificationOptionsBase,
+	UseWebNotificationReturn,
+	UseWebNotificationWindowLike,
 	WakeLockType,
 	UseDocumentVisibilityOptions,
 	UseDocumentVisibilityReturn,
