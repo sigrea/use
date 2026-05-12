@@ -160,7 +160,7 @@ Status values:
 | `useParentElement` | `-` | Needs design |
 | `usePerformanceObserver` | `usePerformanceObserver` | Done |
 | `usePermission` | `usePermission` | Done |
-| `usePointer` | `-` | Todo |
+| `usePointer` | `usePointer` | Done |
 | `usePointerLock` | `-` | Todo |
 | `usePointerSwipe` | `-` | Todo |
 | `usePreferredColorScheme` | `-` | Todo |
