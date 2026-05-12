@@ -602,6 +602,7 @@ import type {
 	UseStyleTagDocumentLike,
 	UseStyleTagOptions,
 	UseStyleTagReturn,
+	UseSumReturn,
 	UseSupportedReturn,
 	UseSwipeDirection,
 	UseSwipeOptions,
@@ -976,6 +977,7 @@ import {
 	useStorage,
 	useStorageAsync,
 	useStyleTag,
+	useSum,
 	useSupported,
 	useSwipe,
 	useTextDirection,
@@ -5797,6 +5799,28 @@ describe("public types", () => {
 			useAverage([1, "2"] as const);
 			// @ts-expect-error array form does not mix with rest arguments
 			useAverage([1, 2] as const, 3);
+		});
+	});
+
+	it("types sum values", () => {
+		typeOnly(() => {
+			const rest = useSum(signal(1), 2, () => 3);
+			const array = useSum([signal(1), 2, () => 3] as const);
+			const signalArray = useSum(signal([1, 2, 3] as const));
+			const sumReturn: UseSumReturn = rest;
+
+			expectTypeOf(rest).toEqualTypeOf<UseSumReturn>();
+			expectTypeOf(array).toEqualTypeOf<UseSumReturn>();
+			expectTypeOf(signalArray.value).toEqualTypeOf<number>();
+			expectTypeOf(sumReturn.value).toEqualTypeOf<number>();
+			// @ts-expect-error sum result is readonly
+			rest.value = 1;
+			// @ts-expect-error value must resolve to a number
+			useSum("1");
+			// @ts-expect-error array entries must resolve to numbers
+			useSum([1, "2"] as const);
+			// @ts-expect-error array form does not mix with rest arguments
+			useSum([1, 2] as const, 3);
 		});
 	});
 
