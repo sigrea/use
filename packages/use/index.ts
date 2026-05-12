@@ -129,6 +129,7 @@ export { usePreferredColorScheme } from "./usePreferredColorScheme";
 export { usePreferredContrast } from "./usePreferredContrast";
 export { usePreferredDark } from "./usePreferredDark";
 export { usePreferredLanguages } from "./usePreferredLanguages";
+export { usePreferredReducedMotion } from "./usePreferredReducedMotion";
 export { usePrevious } from "./usePrevious";
 export { useRefHistory } from "./useRefHistory";
 export { useSessionStorage } from "./useSessionStorage";
@@ -682,6 +683,8 @@ export type {
 	UsePreferredLanguagesNavigatorLike,
 	UsePreferredLanguagesOptions,
 	UsePreferredLanguagesReturn,
+	UsePreferredReducedMotion,
+	UsePreferredReducedMotionReturn,
 	UseRefHistoryOptions,
 	UseRefHistoryRecord,
 	UseRefHistoryReturn,
