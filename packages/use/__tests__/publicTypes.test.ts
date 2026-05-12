@@ -91,6 +91,10 @@ import type {
 	UseActiveElementOptions,
 	UseActiveElementReturn,
 	UseActiveElementWindowLike,
+	UseAnimateKeyframes,
+	UseAnimateOptions,
+	UseAnimateReturn,
+	UseAnimateWindowLike,
 	UseBreakpointsOptions,
 	UseDocumentVisibilityOptions,
 	UseElementSizeOptions,
@@ -140,6 +144,7 @@ import {
 	tryOnScopeDispose,
 	until,
 	useActiveElement,
+	useAnimate,
 	useBreakpoints,
 	useDebounceFn,
 	useDocumentVisibility,
@@ -1670,6 +1675,46 @@ describe("public types", () => {
 			// @ts-expect-error activeElement is readonly
 			active.activeElement.value = document.createElement("input");
 		});
+		expectTypeOf(window).toMatchTypeOf<UseAnimateWindowLike>();
+		const animateKeyframes: UseAnimateKeyframes = signal({
+			opacity: [0, 1],
+		});
+		const animateOptions: UseAnimateOptions<UseAnimateWindowLike> = {
+			commitStyles: true,
+			duration: 100,
+			immediate: false,
+			persist: true,
+			playbackRate: 2,
+			window: signal(window),
+		};
+		const animated = useAnimate(
+			document.body,
+			animateKeyframes,
+			animateOptions,
+		);
+
+		expectTypeOf(animated).toEqualTypeOf<UseAnimateReturn>();
+		expectTypeOf(animated.isSupported.value).toEqualTypeOf<boolean>();
+		expectTypeOf(animated.animate.value).toEqualTypeOf<Animation | undefined>();
+		expectTypeOf(animated.pending.value).toEqualTypeOf<boolean>();
+		expectTypeOf(animated.playState.value).toEqualTypeOf<AnimationPlayState>();
+		expectTypeOf(
+			animated.replaceState.value,
+		).toEqualTypeOf<AnimationReplaceState>();
+		expectTypeOf(animated.startTime).toEqualTypeOf<
+			Computed<CSSNumberish | null>
+		>();
+		expectTypeOf(animated.currentTime).toEqualTypeOf<
+			Computed<CSSNumberish | null>
+		>();
+		expectTypeOf(animated.timeline).toEqualTypeOf<
+			Computed<AnimationTimeline | null>
+		>();
+		expectTypeOf(animated.playbackRate).toEqualTypeOf<Computed<number>>();
+		typeOnly(() => {
+			// @ts-expect-error playState is readonly
+			animated.playState.value = "running";
+		});
 
 		const queryList = new EventTarget() as MediaQueryList;
 		Object.defineProperties(queryList, {
@@ -1732,6 +1777,7 @@ describe("public types", () => {
 		preferredDark.stop();
 		active.stop();
 		defaultActive.stop();
+		animated.stop();
 		visibility.stop();
 		online.stop();
 	});

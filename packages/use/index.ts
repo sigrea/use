@@ -29,6 +29,7 @@ export { toDeepSignal } from "./toDeepSignal";
 export { tryOnScopeDispose } from "./tryOnScopeDispose";
 export { until } from "./until";
 export { useActiveElement } from "./useActiveElement";
+export { useAnimate } from "./useAnimate";
 export { useBreakpoints } from "./useBreakpoints";
 export { useCounter } from "./useCounter";
 export { useDebounceFn } from "./useDebounceFn";
@@ -173,6 +174,10 @@ export type {
 	UseActiveElementOptions,
 	UseActiveElementReturn,
 	UseActiveElementWindowLike,
+	UseAnimateKeyframes,
+	UseAnimateOptions,
+	UseAnimateReturn,
+	UseAnimateWindowLike,
 	UseBreakpointsOptions,
 	UseBreakpointsReturn,
 	UseCounterOptions,

@@ -65,7 +65,7 @@ Status values:
 | `unrefElement` | `-` | Out of scope |
 | `until` | `until` | Done |
 | `useActiveElement` | `useActiveElement` | Done |
-| `useAnimate` | `-` | Todo |
+| `useAnimate` | `useAnimate` | Done |
 | `useArrayDifference` | `-` | Todo |
 | `useArrayEvery` | `-` | Todo |
 | `useArrayFilter` | `-` | Todo |
