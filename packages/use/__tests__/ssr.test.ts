@@ -31,6 +31,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.onStartTyping).toBe("function");
 		expect(typeof mod.reactify).toBe("function");
 		expect(typeof mod.reactifyObject).toBe("function");
+		expect(typeof mod.reactiveComputed).toBe("function");
 		expect(typeof mod.useBreakpoints).toBe("function");
 		expect(typeof mod.useDocumentVisibility).toBe("function");
 		expect(typeof mod.useElementSize).toBe("function");
@@ -239,6 +240,14 @@ describe("SSR safety", () => {
 
 		expect(globalThis.window).toBeUndefined();
 		expect(result.double(2).value).toBe(4);
+	});
+
+	it("creates reactive computed objects without a window", async () => {
+		const { reactiveComputed } = await import("../../../index");
+		const state = reactiveComputed(() => ({ ready: true }));
+
+		expect(globalThis.window).toBeUndefined();
+		expect(state.ready).toBe(true);
 	});
 
 	it("resolves values without a window", async () => {

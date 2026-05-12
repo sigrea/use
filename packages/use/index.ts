@@ -14,6 +14,7 @@ export { onLongPress } from "./onLongPress";
 export { onStartTyping } from "./onStartTyping";
 export { reactify } from "./reactify";
 export { reactifyObject } from "./reactifyObject";
+export { reactiveComputed } from "./reactiveComputed";
 export { resolveValue } from "./resolveValue";
 export { useBreakpoints } from "./useBreakpoints";
 export { useCounter } from "./useCounter";
@@ -121,6 +122,8 @@ export type {
 	ReactifyNested,
 	ReactifyObjectOptions,
 	ReactifyObjectReturn,
+	ReactiveComputedGetter,
+	ReactiveComputedReturn,
 	RemovableSignal,
 	ResizeObserverWindowLike,
 	ResolveValueFn,
