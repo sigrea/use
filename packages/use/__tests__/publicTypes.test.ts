@@ -589,6 +589,13 @@ import type {
 	UseTextareaAutosizeWindowLike,
 	UseThrottledRefHistoryOptions,
 	UseThrottledRefHistoryReturn,
+	UseTimeAgoControlsReturn,
+	UseTimeAgoFormatOptions,
+	UseTimeAgoMessages,
+	UseTimeAgoOptions,
+	UseTimeAgoReturn,
+	UseTimeAgoUnit,
+	UseTimeAgoUnitNamesDefault,
 	UseToggleOptions,
 	UseWindowSizeOptions,
 	WindowLike,
@@ -606,6 +613,7 @@ import {
 	createSignal,
 	extendSignal,
 	formatDate,
+	formatTimeAgo,
 	isDefined,
 	makeDestructurable,
 	normalizeDate,
@@ -760,6 +768,7 @@ import {
 	useTextareaAutosize,
 	useThrottleFn,
 	useThrottledRefHistory,
+	useTimeAgo,
 	useTimeout,
 	useTimeoutFn,
 	useToggle,
@@ -6709,6 +6718,91 @@ describe("public types", () => {
 				customMeridiem: () => 1,
 			};
 			invalidMeridiemOptions;
+		});
+	});
+
+	it("types time ago formatting and controls", () => {
+		typeOnly(() => {
+			type CustomUnit = UseTimeAgoUnitNamesDefault | "quarter";
+			const source = signal<Date | number | string>(new Date());
+			const interval = signal(1000);
+			const units: UseTimeAgoUnit<CustomUnit>[] = [
+				{ max: 60_000, name: "second", value: 1000 },
+				{ max: 3 * 2_592_000_000, name: "month", value: 2_592_000_000 },
+				{
+					max: Number.POSITIVE_INFINITY,
+					name: "quarter",
+					value: 7_776_000_000,
+				},
+			];
+			const messages: UseTimeAgoMessages<CustomUnit> = {
+				justNow: "now",
+				past: "{0} ago",
+				future: (value) => `in ${value}`,
+				invalid: "",
+				second: (value, isPast) => {
+					expectTypeOf(value).toEqualTypeOf<number>();
+					expectTypeOf(isPast).toEqualTypeOf<boolean>();
+					return `${value}s`;
+				},
+				minute: "{0}m",
+				hour: "{0}h",
+				day: "{0}d",
+				week: "{0}w",
+				month: "{0}mo",
+				year: "{0}y",
+				quarter: "{0}q",
+			};
+			const options: UseTimeAgoOptions<false, CustomUnit> = {
+				fullDateFormatter: (date) => date.toISOString(),
+				max: "quarter",
+				messages,
+				rounding: "ceil",
+				showSecond: true,
+				units,
+				updateInterval: interval,
+			};
+			const result = useTimeAgo(source, options);
+			const controls = useTimeAgo(source, {
+				...options,
+				controls: true,
+				scheduler: (callback) => useIntervalFn(callback, interval),
+			});
+			const formatOptions: UseTimeAgoFormatOptions<CustomUnit> = options;
+			const controlsReturn: UseTimeAgoControlsReturn = controls;
+			const returnValue: UseTimeAgoReturn = result;
+
+			expectTypeOf(result).toEqualTypeOf<UseTimeAgoReturn<false>>();
+			expectTypeOf(result).toEqualTypeOf<ReadonlySignal<string>>();
+			expectTypeOf(returnValue).toEqualTypeOf<ReadonlySignal<string>>();
+			expectTypeOf(controls).toEqualTypeOf<UseTimeAgoReturn<true>>();
+			expectTypeOf(controlsReturn.timeAgo).toEqualTypeOf<
+				ReadonlySignal<string>
+			>();
+			expectTypeOf(formatOptions.units?.[0]?.name).toEqualTypeOf<
+				CustomUnit | undefined
+			>();
+			expectTypeOf(formatTimeAgo(new Date(), options)).toEqualTypeOf<string>();
+			expectTypeOf(controls.pause()).toEqualTypeOf<void>();
+			expectTypeOf(controls.resume()).toEqualTypeOf<void>();
+
+			// @ts-expect-error returned value is readonly
+			result.value = "next";
+			// @ts-expect-error time must resolve to Date, number, or string
+			useTimeAgo({});
+			const invalidMaxOptions: UseTimeAgoOptions = {
+				// @ts-expect-error max must be a default unit or number
+				max: "decade",
+			};
+			invalidMaxOptions;
+			useTimeAgo(source, {
+				// @ts-expect-error updateInterval must be a number-like MaybeValue
+				updateInterval: "1000",
+			});
+			useTimeAgo(source, {
+				// @ts-expect-error rounding must be a supported method or decimal count
+				rounding: "nearest",
+			});
 		});
 	});
 

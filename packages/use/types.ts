@@ -2620,6 +2620,105 @@ export type UseIntervalReturn =
 	| ReadonlySignal<number>
 	| UseIntervalControlsReturn;
 
+export type UseTimeAgoFormatter<T = number> = (
+	value: T,
+	isPast: boolean,
+) => string;
+
+export type UseTimeAgoUnitNamesDefault =
+	| "second"
+	| "minute"
+	| "hour"
+	| "day"
+	| "week"
+	| "month"
+	| "year";
+
+export interface UseTimeAgoMessagesBuiltIn {
+	justNow: string;
+	past: string | UseTimeAgoFormatter<string>;
+	future: string | UseTimeAgoFormatter<string>;
+	invalid: string;
+}
+
+export type UseTimeAgoMessages<
+	UnitNames extends string = UseTimeAgoUnitNamesDefault,
+> = UseTimeAgoMessagesBuiltIn &
+	Record<
+		Exclude<UnitNames, keyof UseTimeAgoMessagesBuiltIn>,
+		string | UseTimeAgoFormatter<number>
+	>;
+
+export interface UseTimeAgoUnit<
+	UnitName extends string = UseTimeAgoUnitNamesDefault,
+> {
+	max: number;
+	value: number;
+	name: UnitName;
+}
+
+export interface UseTimeAgoFormatOptions<
+	UnitNames extends string = UseTimeAgoUnitNamesDefault,
+> {
+	/**
+	 * Maximum unit or milliseconds before formatting as a full date.
+	 */
+	max?: UnitNames | number;
+	/**
+	 * Formatter used when the date is beyond max.
+	 */
+	fullDateFormatter?: (date: Date) => string;
+	/**
+	 * Messages used for relative time text.
+	 */
+	messages?: UseTimeAgoMessages<UnitNames>;
+	/**
+	 * Show seconds for differences under one minute.
+	 *
+	 * @default false
+	 */
+	showSecond?: boolean;
+	/**
+	 * Rounding method or decimal precision.
+	 *
+	 * @default "round"
+	 */
+	rounding?: "round" | "ceil" | "floor" | number;
+	/**
+	 * Units used to choose the display granularity.
+	 */
+	units?: UseTimeAgoUnit<UnitNames>[];
+}
+
+export interface UseTimeAgoOptions<
+	Controls extends boolean = false,
+	UnitNames extends string = UseTimeAgoUnitNamesDefault,
+> extends UseTimeAgoFormatOptions<UnitNames> {
+	/**
+	 * Expose pause and resume controls.
+	 *
+	 * @default false
+	 */
+	controls?: Controls;
+	/**
+	 * Intervals to update in milliseconds. Set 0 to disable auto update.
+	 *
+	 * @default 30000
+	 */
+	updateInterval?: MaybeValue<number>;
+	/**
+	 * Custom scheduler. When provided, it owns the update timing.
+	 */
+	scheduler?: UseNowScheduler;
+}
+
+export interface UseTimeAgoControlsReturn extends UseIntervalFnReturn {
+	readonly timeAgo: ReadonlySignal<string>;
+}
+
+export type UseTimeAgoReturn<Controls extends boolean = false> =
+	Controls extends true ? UseTimeAgoControlsReturn : ReadonlySignal<string>;
+
 export interface UseNowWindowLike extends WindowLike {
 	requestAnimationFrame?(callback: FrameRequestCallback): number;
 	cancelAnimationFrame?(handle: number): void;

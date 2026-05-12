@@ -78,6 +78,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.useDark).toBe("function");
 		expect(typeof mod.useDateFormat).toBe("function");
 		expect(typeof mod.formatDate).toBe("function");
+		expect(typeof mod.formatTimeAgo).toBe("function");
 		expect(typeof mod.normalizeDate).toBe("function");
 		expect(typeof mod.useDebouncedRefHistory).toBe("function");
 		expect(typeof mod.useThrottledRefHistory).toBe("function");
@@ -168,6 +169,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.useTextDirection).toBe("function");
 		expect(typeof mod.useTextSelection).toBe("function");
 		expect(typeof mod.useTextareaAutosize).toBe("function");
+		expect(typeof mod.useTimeAgo).toBe("function");
 		expect(typeof mod.useSessionStorage).toBe("function");
 		expect(typeof mod.useStorage).toBe("function");
 		expect(typeof mod.useStorageAsync).toBe("function");
@@ -1398,8 +1400,10 @@ describe("SSR safety", () => {
 			signalThrottled,
 			syncSignal,
 			syncSignals,
+			formatTimeAgo,
 			useDebouncedRefHistory,
 			useThrottledRefHistory,
+			useTimeAgo,
 		} = await import("../../../index");
 		const value = createSignal("ready");
 		const autoResetValue = signalAutoReset("default", 100);
@@ -1410,6 +1414,9 @@ describe("SSR safety", () => {
 		});
 		const throttledHistory = useThrottledRefHistory(signal("source"), {
 			throttle: 100,
+		});
+		const timeAgo = useTimeAgo("2026-05-07T00:00:00.000Z", {
+			updateInterval: 0,
 		});
 		const manualResetValue = signalManualReset("manual");
 		const throttledValue = signalThrottled(signal("source"), 100);
@@ -1427,6 +1434,8 @@ describe("SSR safety", () => {
 		expect(debouncedValue.value).toBe("source");
 		expect(debouncedHistory.history.value[0].snapshot).toBe("source");
 		expect(throttledHistory.history.value[0].snapshot).toBe("source");
+		expect(formatTimeAgo(new Date(), {}, new Date())).toBe("just now");
+		expect(timeAgo.value).toBeTruthy();
 		expect(manualResetValue.value).toBe("manual");
 		expect(throttledValue.value).toBe("source");
 		expect(right.value).toBe("left");
