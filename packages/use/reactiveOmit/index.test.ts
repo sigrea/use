@@ -214,6 +214,35 @@ describe("reactiveOmit", () => {
 		expect(state.raw).toBe(raw);
 	});
 
+	it("preserves nested object prototypes", () => {
+		class Model {
+			count = 1;
+
+			get doubled(): number {
+				return this.count * 2;
+			}
+
+			increment(): void {
+				this.count += 1;
+			}
+		}
+
+		const source = {
+			nested: new Model(),
+			hidden: true,
+		};
+		const state = reactiveOmit(source, "hidden");
+
+		expect(state.nested).toBeInstanceOf(Model);
+		expect(Object.getPrototypeOf(state.nested)).toBe(Model.prototype);
+		expect(state.nested.doubled).toBe(2);
+
+		state.nested.increment();
+
+		expect(source.nested.count).toBe(2);
+		expect(state.nested.count).toBe(2);
+	});
+
 	it("omits numeric keys at runtime", () => {
 		const source = deepSignal({
 			1: "one",

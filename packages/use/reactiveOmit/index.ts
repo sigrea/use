@@ -58,7 +58,7 @@ function createForwardingTarget(source: SourceObject): SourceObject {
 	if (source instanceof WeakSet) {
 		return markRaw(new WeakSet()) as SourceObject;
 	}
-	return markRaw(Object.create(null)) as SourceObject;
+	return markRaw(Object.create(Object.getPrototypeOf(source))) as SourceObject;
 }
 
 function syncArrayLength(target: SourceObject, source: SourceObject): void {

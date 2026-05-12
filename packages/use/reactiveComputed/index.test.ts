@@ -1,11 +1,13 @@
 // @vitest-environment node
 
 import {
+	computed,
 	disposeMolecule,
 	isDeepSignal,
 	molecule,
 	mountMolecule,
 	nextTick,
+	readonly,
 	signal,
 	watch,
 	watchEffect,
@@ -113,6 +115,24 @@ describe("reactiveComputed", () => {
 
 		expect(count.value).toBe(2);
 		expect(state.count).toBe(2);
+	});
+
+	it("replaces readonly signal properties without writing through them", () => {
+		const count = signal(1);
+		const readonlyCount = readonly(count);
+		const doubled = computed(() => count.value * 2);
+		const state = reactiveComputed(() => ({
+			doubled,
+			readonlyCount,
+		}));
+
+		state.readonlyCount = 3;
+		state.doubled = 4;
+
+		expect(count.value).toBe(1);
+		expect(doubled.value).toBe(2);
+		expect(state.readonlyCount).toBe(3);
+		expect(state.doubled).toBe(4);
 	});
 
 	it("wraps object values returned from nested signals", () => {

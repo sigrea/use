@@ -13,6 +13,14 @@ function isEditableElement(element: Element | null | undefined): boolean {
 		return false;
 	}
 
+	if (element.ownerDocument?.designMode?.toLowerCase() === "on") {
+		return true;
+	}
+
+	if ("isContentEditable" in element && element.isContentEditable) {
+		return true;
+	}
+
 	const tagName = element.tagName;
 	if (tagName === "INPUT" || tagName === "TEXTAREA" || tagName === "SELECT") {
 		return true;
@@ -57,11 +65,11 @@ function isTypedCharValid(event: KeyboardEvent): boolean {
 		return false;
 	}
 
-	if (isLegacyAlphaNumericKey(event)) {
-		return true;
+	if (event.key !== "") {
+		return /^[a-z0-9]$/i.test(event.key);
 	}
 
-	return /^[a-z0-9]$/i.test(event.key);
+	return isLegacyAlphaNumericKey(event);
 }
 
 function getActiveElement(
