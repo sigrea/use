@@ -115,6 +115,7 @@ describe("SSR safety", () => {
 		expect(typeof mod.useKeyModifier).toBe("function");
 		expect(typeof mod.useLastChanged).toBe("function");
 		expect(typeof mod.useMagicKeys).toBe("function");
+		expect(typeof mod.useMediaControls).toBe("function");
 		expect(typeof mod.useInterval).toBe("function");
 		expect(typeof mod.useIntervalFn).toBe("function");
 		expect(typeof mod.useLocalStorage).toBe("function");
@@ -172,6 +173,7 @@ describe("SSR safety", () => {
 			useIntersectionObserver,
 			useKeyModifier,
 			useMagicKeys,
+			useMediaControls,
 			useMouse,
 			useOnline,
 			usePreferredDark,
@@ -280,6 +282,7 @@ describe("SSR safety", () => {
 		});
 		const keyModifier = useKeyModifier("CapsLock", { document: null });
 		const magicKeys = useMagicKeys({ window: null });
+		const mediaControls = useMediaControls(null, { document: null });
 		const fetchValue = useFetch("https://example.com", {
 			fetch: async () => new Response("ok"),
 			immediate: false,
@@ -382,6 +385,11 @@ describe("SSR safety", () => {
 		expect(keyModifier.value).toBeNull();
 		expect(magicKeys.a.value).toBe(false);
 		expect(magicKeys.current.value).toEqual(new Set());
+		expect(mediaControls.currentTime.value).toBe(0);
+		expect(mediaControls.duration.value).toBe(0);
+		expect(mediaControls.playing.value).toBe(false);
+		expect(mediaControls.supportsPictureInPicture.value).toBe(false);
+		expect(mediaControls.tracks.value).toEqual([]);
 		expect(fetchValue.data.value).toBeNull();
 		expect(sessionStorageValue.value).toBe("fallback");
 		expect(ssrMediaQuery.matches.value).toBe(true);
@@ -474,6 +482,15 @@ describe("SSR safety", () => {
 		intersectionObserver.stop();
 		keyModifier.stop();
 		magicKeys.stop();
+		mediaControls.currentTime.value = 1;
+		mediaControls.volume.value = 0.5;
+		mediaControls.muted.value = true;
+		mediaControls.rate.value = 1.25;
+		mediaControls.playing.value = true;
+		mediaControls.disableTrack();
+		mediaControls.enableTrack(0);
+		expect(await mediaControls.togglePictureInPicture()).toBeUndefined();
+		mediaControls.stop();
 		expect(await fetchValue.execute()).toBeInstanceOf(Response);
 		expect(fetchValue.data.value).toBe("ok");
 		expect(fetchValue.statusCode.value).toBe(200);
@@ -871,6 +888,26 @@ describe("SSR safety", () => {
 		expect(keys.a.value).toBe(false);
 		expect(keys.current.value).toEqual(new Set());
 		keys.stop();
+	});
+
+	it("creates useMediaControls without a window", async () => {
+		const { useMediaControls } = await import("../../../index");
+		const controls = useMediaControls(null, { document: null });
+
+		expect(globalThis.window).toBeUndefined();
+		expect(controls.duration.value).toBe(0);
+		expect(controls.playing.value).toBe(false);
+		expect(controls.supportsPictureInPicture.value).toBe(false);
+		expect(controls.tracks.value).toEqual([]);
+		controls.currentTime.value = 5;
+		controls.volume.value = 0.25;
+		controls.muted.value = true;
+		controls.rate.value = 1.5;
+		controls.playing.value = true;
+		controls.disableTrack();
+		controls.enableTrack(0);
+		expect(await controls.togglePictureInPicture()).toBeUndefined();
+		controls.stop();
 	});
 
 	it("creates useClipboard without a window", async () => {
