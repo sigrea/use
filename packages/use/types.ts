@@ -231,6 +231,11 @@ type IsUnknown<T> = IsAny<T> extends true
 			? true
 			: false
 		: false;
+type IsTuple<T> = T extends readonly unknown[]
+	? number extends T["length"]
+		? false
+		: true
+	: false;
 
 export type EventHookArgs<T = unknown> = IsAny<T> extends true
 	? unknown[]
@@ -239,7 +244,9 @@ export type EventHookArgs<T = unknown> = IsAny<T> extends true
 		: [T] extends [void]
 			? unknown[]
 			: [T] extends [readonly unknown[]]
-				? [...T]
+				? IsTuple<T> extends true
+					? [...T]
+					: [T, ...unknown[]]
 				: [T, ...unknown[]];
 
 export type EventHookCallback<T = unknown> = (
