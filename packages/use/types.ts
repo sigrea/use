@@ -129,6 +129,86 @@ export type ReactiveComputedReturn<T extends object> = DeepSignal<
 	ReactiveComputedObject<T>
 >;
 
+type ReactiveOmitValue<TValue> = TValue extends Signal<infer Value>
+	? Value
+	: TValue extends ReadonlySignal<infer Value>
+		? Value
+		: TValue extends Computed<infer Value>
+			? Value
+			: TValue;
+
+type ReactiveOmitEntry<TValue> = DeepSignal<ReactiveOmitValue<TValue>>;
+
+type ReactiveOmitReadonlyKeys<T extends object> = {
+	[TKey in keyof T]-?: IsReadonlyKey<T, TKey> extends true
+		? TKey
+		: IsReadonlySignalValue<T[TKey]> extends true
+			? TKey
+			: never;
+}[keyof T];
+
+type ReactiveOmitWritableKeys<T extends object> = Exclude<
+	keyof T,
+	ReactiveOmitReadonlyKeys<T>
+>;
+
+type ReactiveOmitOptionalKeys<T extends object> = {
+	[TKey in keyof T]-?: object extends Pick<T, TKey> ? TKey : never;
+}[keyof T];
+
+type ReactiveOmitRequiredKeys<T extends object> = Exclude<
+	keyof T,
+	ReactiveOmitOptionalKeys<T>
+>;
+
+type ReactiveOmitReadonlyRequiredKeys<T extends object> = Extract<
+	ReactiveOmitReadonlyKeys<T>,
+	ReactiveOmitRequiredKeys<T>
+>;
+
+type ReactiveOmitReadonlyOptionalKeys<T extends object> = Extract<
+	ReactiveOmitReadonlyKeys<T>,
+	ReactiveOmitOptionalKeys<T>
+>;
+
+type ReactiveOmitWritableRequiredKeys<T extends object> = Extract<
+	ReactiveOmitWritableKeys<T>,
+	ReactiveOmitRequiredKeys<T>
+>;
+
+type ReactiveOmitWritableOptionalKeys<T extends object> = Extract<
+	ReactiveOmitWritableKeys<T>,
+	ReactiveOmitOptionalKeys<T>
+>;
+
+type ReactiveOmitObject<T extends object> = {
+	[TKey in ReactiveOmitWritableRequiredKeys<T>]: ReactiveOmitEntry<T[TKey]>;
+} & {
+	[TKey in ReactiveOmitWritableOptionalKeys<T>]?: ReactiveOmitEntry<T[TKey]>;
+} & {
+	readonly [TKey in ReactiveOmitReadonlyRequiredKeys<T>]: ReactiveOmitEntry<
+		T[TKey]
+	>;
+} & {
+	readonly [TKey in ReactiveOmitReadonlyOptionalKeys<T>]?: ReactiveOmitEntry<
+		T[TKey]
+	>;
+};
+
+export type ReactiveOmitReturn<
+	T extends object,
+	K extends keyof T | undefined = undefined,
+> = [K] extends [never]
+	? ReactiveOmitObject<T>
+	: [K] extends [undefined]
+		? Partial<ReactiveOmitObject<T>>
+		: ReactiveOmitObject<Omit<T, Extract<K, keyof T>>>;
+
+export type ReactiveOmitPredicate<T extends object> = (
+	value: ReactiveOmitValue<T[keyof T]>,
+	key: keyof T,
+) => boolean;
+
 export type AsyncComputedCancelCallback = () => void;
 
 export type AsyncComputedOnCancel = (
