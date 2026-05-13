@@ -1,46 +1,94 @@
 # @sigrea/use
 
-Composable utilities for
-[@sigrea/core](https://github.com/sigrea/core).
+`@sigrea/use` provides framework-agnostic utility hooks built with [@sigrea/core](https://www.npmjs.com/package/@sigrea/core) signals and molecule lifecycles. It is intended for shared browser, state, timing, and watcher logic that should not depend on Vue, React, or a template runtime.
 
-`@sigrea/use` provides small, framework-agnostic helpers built with Sigrea
-signals and molecule lifecycles.
+- **Framework-agnostic utilities.** Use signal-powered helpers without binding to a UI framework.
+- **Scope-aware cleanup.** Browser listeners, timers, workers, and observers can be cleaned up through Sigrea scopes.
+- **SSR-safe imports.** Browser-dependent helpers avoid touching browser globals during module import.
+- **Tree-shakable builds.** ESM and CJS entrypoints are generated from the same TypeScript source.
 
-## Features
+## Table of Contents
 
-- Works without Vue, React, or a template runtime
-- Uses `@sigrea/core` signals for returned state
-- Cleans up browser listeners and timers with Sigrea scopes and molecules
-- Safe to import in SSR environments
-- Tree-shakable ESM and CJS builds
+- [Install](#install)
+- [Quick Start](#quick-start)
+- [API Overview](#api-overview)
+- [Testing](#testing)
+- [Handling Scope Cleanup Errors](#handling-scope-cleanup-errors)
+- [Development](#development)
+- [License](#license)
 
 ## Install
 
 ```bash
-npm install @sigrea/core @sigrea/use
+npm install @sigrea/use @sigrea/core
 ```
 
 `@sigrea/core` is a peer dependency.
 
 Requires Node.js 24 or later.
 
-## Usage
+## Quick Start
 
 ```ts
 import { useCounter, useEventListener, useMediaQuery } from "@sigrea/use";
 
 const counter = useCounter(0, { min: 0 });
-counter.inc();
-
 const isWide = useMediaQuery("(min-width: 768px)");
 
 const resize = useEventListener("resize", () => {
-	console.log(counter.count.value, isWide.matches.value);
+  if (isWide.matches.value) {
+    counter.inc();
+  }
 });
 
+// Later, when this listener is no longer needed:
 resize.stop();
 ```
 
+See the exported utility groups below and the [function docs](https://github.com/sigrea/use/tree/main/packages/use) for function-specific behavior.
+
+## API Overview
+
+`@sigrea/use` exports utilities for common browser and reactivity work:
+
+- **State and signals:** counters, toggles, async state, memoization, and signal transforms.
+- **Watchers and timing:** debounced, throttled, pausable, ignorable, one-shot, and triggerable watchers.
+- **Browser APIs:** media queries, storage, events, clipboard, network, sensors, observers, workers, and page state.
+- **Collections and math:** array helpers, projections, clamping, precision, averages, sums, and numeric transforms.
+
+All utilities are exported from the root package entrypoint.
+
+## Testing
+
+Most utilities can be tested as plain TypeScript functions with Vitest. For browser APIs, use JSDOM-compatible fakes and stop returned handles in the test that created them.
+
+## Handling Scope Cleanup Errors
+
+For global error handling configuration, see [@sigrea/core - Handling Scope Cleanup Errors](https://github.com/sigrea/core#handling-scope-cleanup-errors).
+
+When a utility registers cleanup through a Sigrea scope, cleanup errors are reported through the core handler. Configure the handler once in the application entry point or test setup before creating scoped utilities.
+
+## Development
+
+This repo targets Node.js 24 or later.
+
+If you use mise:
+
+- `mise trust -y` — trust `mise.toml` (first run only).
+- `mise run ci` — run CI-equivalent checks locally.
+- `mise run notes` — preview release notes (optional).
+
+You can also run pnpm scripts directly:
+
+- `pnpm install` — install dependencies.
+- `pnpm test` — run the Vitest suite once (no watch).
+- `pnpm typecheck` — run TypeScript type checking.
+- `pnpm test:coverage` — collect coverage.
+- `pnpm build` — compile via unbuild to produce dual CJS/ESM bundles.
+- `pnpm cicheck` — run CI checks locally.
+
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for workflow details.
+
 ## License
 
-MIT
+MIT — see [LICENSE](./LICENSE).
