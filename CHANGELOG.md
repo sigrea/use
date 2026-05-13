@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v0.1.1
+
+[compare changes](https://github.com/sigrea/use/compare/v0.1.0...v0.1.1)
+
+### 🏡 Chore
+
+- Align use package surface ([#197](https://github.com/sigrea/use/pull/197))
+
+### ❤️ Contributors
+
+- Aose ([@aose-yuu](https://github.com/aose-yuu))
+
 ## v0.1.0
 
 
