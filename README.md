@@ -22,7 +22,7 @@ npm install @sigrea/core @sigrea/use
 
 `@sigrea/core` is a peer dependency.
 
-Requires Node.js 20 or later.
+Requires Node.js 24 or later.
 
 ## Usage
 
