@@ -1671,6 +1671,12 @@ type IsTuple<T> = T extends readonly unknown[]
 		? false
 		: true
 	: false;
+type IsNever<T> = [T] extends [never] ? true : false;
+type IsUnion<T, TBase = T> = T extends unknown
+	? [TBase] extends [T]
+		? false
+		: true
+	: false;
 
 export type EventHookArgs<T = unknown> = IsAny<T> extends true
 	? unknown[]
@@ -1706,6 +1712,78 @@ export interface EventHook<T = unknown> {
 }
 
 export type EventHookReturn<T = unknown> = EventHook<T>;
+
+type EventTuple<TArgs> = IsNever<TArgs> extends true
+	? never
+	: IsUnion<TArgs> extends true
+		? never
+		: undefined extends TArgs
+			? never
+			: [TArgs] extends [readonly unknown[]]
+				? number extends TArgs["length"]
+					? never
+					: IsUnion<TArgs["length"]> extends true
+						? never
+						: TArgs
+				: never;
+
+type EventsInvalidKeys<TEvents extends object> = {
+	[TKey in keyof TEvents]-?: [EventTuple<TEvents[TKey]>] extends [never]
+		? TKey
+		: never;
+}[keyof TEvents];
+
+export type EventsRecord<TEvents extends object> = IsNever<TEvents> extends true
+	? never
+	: IsUnion<TEvents> extends true
+		? never
+		: EventsInvalidKeys<TEvents> extends never
+			? {
+					[TKey in keyof TEvents]-?: EventTuple<TEvents[TKey]>;
+				}
+			: never;
+
+export type EventsCallback<TArgs extends readonly unknown[]> = (
+	...args: [...TArgs]
+) => unknown;
+
+export type EventsStopHandle = () => void;
+
+type EventsArgs<
+	TEvents extends object,
+	TKey extends keyof EventsRecord<TEvents>,
+> = EventsRecord<TEvents>[TKey] extends readonly unknown[]
+	? [...EventsRecord<TEvents>[TKey]]
+	: never;
+
+export type EventsSend<TEvents extends object> = [
+	EventsRecord<TEvents>,
+] extends [never]
+	? never
+	: <TKey extends keyof EventsRecord<TEvents>>(
+			...args: IsUnion<TKey> extends true
+				? never
+				: [type: TKey, ...args: EventsArgs<TEvents, TKey>]
+		) => Promise<void>;
+
+export type EventsOn<TEvents extends object> = [EventsRecord<TEvents>] extends [
+	never,
+]
+	? never
+	: <TKey extends keyof EventsRecord<TEvents>>(
+			...args: IsUnion<TKey> extends true
+				? never
+				: [type: TKey, listener: EventsCallback<EventsRecord<TEvents>[TKey]>]
+		) => EventsStopHandle;
+
+export type CreateEventsReturn<TEvents extends object> = [
+	EventsRecord<TEvents>,
+] extends [never]
+	? never
+	: {
+			send: EventsSend<TEvents>;
+			on: EventsOn<TEvents>;
+		};
 
 export type EventBusListener<T = unknown> = EventHookCallback<T>;
 

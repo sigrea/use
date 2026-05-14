@@ -51,6 +51,7 @@ import type {
 	ComputedWithControlOptions,
 	ComputedWithControlReturn,
 	ConfigurableEventFilter,
+	CreateEventsReturn,
 	CreateSignalReturn,
 	CssSupportsLike,
 	CubicBezierPoints,
@@ -73,6 +74,11 @@ import type {
 	EventSourceLike,
 	EventSourceStatus,
 	EventSourceWindowLike,
+	EventsCallback,
+	EventsOn,
+	EventsRecord,
+	EventsSend,
+	EventsStopHandle,
 	ExtendSignalOptions,
 	ExtendSignalReturn,
 	ExtendSignalSource,
@@ -807,6 +813,7 @@ import {
 	computedEager,
 	computedWithControl,
 	createEventHook,
+	createEvents,
 	createGenericProjection,
 	createProjection,
 	createResolveValueFn,
@@ -3102,6 +3109,247 @@ describe("public types", () => {
 			readonlyArray.trigger("ready", "done");
 			// @ts-expect-error payload type must match
 			single.trigger("ready");
+		});
+	});
+
+	it("types basic event channels", () => {
+		typeOnly(() => {
+			type PickerEvents = {
+				cleared: [];
+				moved: [x: number, y: number];
+				selected: [file: { readonly name: string }];
+			};
+			type ReadonlyEvents = {
+				selected: readonly [file: { readonly name: string }];
+			};
+
+			const events = createEvents<PickerEvents>();
+			const selectedCallback: EventsCallback<PickerEvents["selected"]> = (
+				file,
+			) => {
+				expectTypeOf(file).toEqualTypeOf<{ readonly name: string }>();
+				// @ts-expect-error payload remains readonly
+				file.name = "next";
+			};
+			const send: EventsSend<PickerEvents> = events.send;
+			const on: EventsOn<PickerEvents> = events.on;
+			const record: EventsRecord<PickerEvents> = {
+				cleared: [],
+				moved: [1, 2],
+				selected: [{ name: "avatar.png" }],
+			};
+			const invalidRecord: EventsRecord<PickerEvents> = {
+				cleared: [],
+				// @ts-expect-error tuple payload arity is preserved
+				moved: [],
+				selected: [{ name: "avatar.png" }],
+			};
+
+			events.on("selected", selectedCallback);
+			events.on("cleared", (...args) => {
+				expectTypeOf(args).toEqualTypeOf<[]>();
+			});
+			events.on("moved", (x, y) => {
+				expectTypeOf(x).toEqualTypeOf<number>();
+				expectTypeOf(y).toEqualTypeOf<number>();
+			});
+
+			expectTypeOf(events).toEqualTypeOf<CreateEventsReturn<PickerEvents>>();
+			expectTypeOf<EventsRecord<PickerEvents>>().toEqualTypeOf<PickerEvents>();
+			expectTypeOf<
+				EventsRecord<ReadonlyEvents>
+			>().toEqualTypeOf<ReadonlyEvents>();
+			expectTypeOf(record).toEqualTypeOf<EventsRecord<PickerEvents>>();
+			expectTypeOf(invalidRecord).toEqualTypeOf<EventsRecord<PickerEvents>>();
+			expectTypeOf(
+				on("selected", selectedCallback),
+			).toEqualTypeOf<EventsStopHandle>();
+			expectTypeOf(send("selected", { name: "avatar.png" })).toEqualTypeOf<
+				Promise<void>
+			>();
+			expectTypeOf(events.send("cleared")).toEqualTypeOf<Promise<void>>();
+			expectTypeOf(events.send("moved", 1, 2)).toEqualTypeOf<Promise<void>>();
+			// @ts-expect-error event payload is required
+			events.send("selected");
+			// @ts-expect-error event payload type must match
+			events.send("selected", { name: 1 });
+			// @ts-expect-error empty events do not accept arguments
+			events.send("cleared", "extra");
+			// @ts-expect-error tuple events require all arguments
+			events.send("moved", 1);
+			// @ts-expect-error tuple argument type must match by position
+			events.send("moved", 1, "y");
+			// @ts-expect-error unknown event names are rejected
+			events.send("missing");
+			// @ts-expect-error unknown event names are rejected
+			events.on("missing", () => {});
+			// @ts-expect-error listener payload type must match
+			events.on("selected", (file: { readonly name: number }) => {
+				expectTypeOf(file).toEqualTypeOf<{ readonly name: number }>();
+			});
+			// @ts-expect-error listener tuple arguments must match
+			events.on("moved", (x: string, y: number) => {
+				expectTypeOf(x).toEqualTypeOf<string>();
+				expectTypeOf(y).toEqualTypeOf<number>();
+			});
+			// @ts-expect-error createEvents does not expose off
+			events.off("selected", selectedCallback);
+		});
+	});
+
+	it("requires narrowed event channel names", () => {
+		typeOnly(() => {
+			type PickerEvents = {
+				cleared: [];
+				selected: [file: { readonly name: string }];
+			};
+			const events = createEvents<PickerEvents>();
+			const selectedCallback: EventsCallback<PickerEvents["selected"]> = (
+				file,
+			) => {
+				expectTypeOf(file).toEqualTypeOf<{ readonly name: string }>();
+			};
+			const eventName = undefined as unknown as "selected" | "cleared";
+
+			// @ts-expect-error union event names must be narrowed before sending
+			events.send(eventName);
+			// @ts-expect-error union event names must be narrowed before sending payload
+			events.send(eventName, { name: "avatar.png" });
+			// @ts-expect-error union event names must be narrowed before subscribing
+			events.on(eventName, selectedCallback);
+
+			if (eventName === "selected") {
+				expectTypeOf(
+					events.send(eventName, { name: "avatar.png" }),
+				).toEqualTypeOf<Promise<void>>();
+				expectTypeOf(
+					events.on(eventName, selectedCallback),
+				).toEqualTypeOf<EventsStopHandle>();
+			}
+			if (eventName === "cleared") {
+				expectTypeOf(events.send(eventName)).toEqualTypeOf<Promise<void>>();
+				expectTypeOf(
+					events.on(eventName, () => {}),
+				).toEqualTypeOf<EventsStopHandle>();
+			}
+
+			const samePayloadEvents = createEvents<{
+				primary: [value: number];
+				secondary: [value: number];
+			}>();
+			const samePayloadEventName = undefined as unknown as
+				| "primary"
+				| "secondary";
+			const samePayloadCallback = (value: number) => {
+				expectTypeOf(value).toEqualTypeOf<number>();
+			};
+
+			// @ts-expect-error union event names must be narrowed before sending
+			samePayloadEvents.send(samePayloadEventName, 1);
+			// @ts-expect-error union event names must be narrowed before subscribing
+			samePayloadEvents.on(samePayloadEventName, samePayloadCallback);
+
+			if (samePayloadEventName === "primary") {
+				expectTypeOf(
+					samePayloadEvents.send(samePayloadEventName, 1),
+				).toEqualTypeOf<Promise<void>>();
+				expectTypeOf(
+					samePayloadEvents.on(samePayloadEventName, samePayloadCallback),
+				).toEqualTypeOf<EventsStopHandle>();
+			}
+		});
+	});
+
+	it("rejects invalid event channel specs", () => {
+		typeOnly(() => {
+			type RecordUnionEvents =
+				| {
+						changed: [value: string];
+						removed: [];
+				  }
+				| {
+						changed: [value: string];
+						saved: [];
+				  };
+
+			// @ts-expect-error event spec type argument is required
+			createEvents();
+			// @ts-expect-error payload specs must be tuples
+			createEvents<{ selected: string }>();
+			// @ts-expect-error payload specs must be tuples
+			createEvents<{ selected: string[] }>();
+			// @ts-expect-error payload specs must be tuples
+			createEvents<{ selected: readonly string[] }>();
+			// @ts-expect-error event specs must not be optional
+			createEvents<{ selected?: [file: { readonly name: string }] }>();
+			// @ts-expect-error event specs must use fixed-length tuples
+			createEvents<{ changed: [head: string, ...tail: number[]] }>();
+			// @ts-expect-error event specs must use fixed-length tuples
+			createEvents<{ changed: [value?: string] }>();
+			// @ts-expect-error event specs must use fixed-length tuples
+			createEvents<{ changed: [] | [value: string] }>();
+			// @ts-expect-error event specs must not be tuple unions
+			createEvents<{ changed: [value: string] | [value: number] }>();
+			// @ts-expect-error event specs must not be tuple unions
+			createEvents<{
+				changed: readonly [value: string] | readonly [value: number];
+			}>();
+			// @ts-expect-error event specs must not be unions
+			createEvents<RecordUnionEvents>();
+			// @ts-expect-error event specs must not be never
+			createEvents<never>();
+			// @ts-expect-error event specs must not be invalid EventsRecord results
+			createEvents<EventsRecord<{ selected: string }>>();
+			expectTypeOf<EventsRecord<RecordUnionEvents>>().toEqualTypeOf<never>();
+			expectTypeOf<EventsRecord<{ selected: string }>>().toEqualTypeOf<never>();
+			expectTypeOf<
+				EventsRecord<{ selected: string[] }>
+			>().toEqualTypeOf<never>();
+			expectTypeOf<
+				EventsRecord<{ selected: readonly string[] }>
+			>().toEqualTypeOf<never>();
+			expectTypeOf<
+				EventsRecord<{ selected?: [file: { readonly name: string }] }>
+			>().toEqualTypeOf<never>();
+			expectTypeOf<
+				EventsRecord<{ changed: [head: string, ...tail: number[]] }>
+			>().toEqualTypeOf<never>();
+			expectTypeOf<
+				EventsRecord<{ changed: [value?: string] }>
+			>().toEqualTypeOf<never>();
+			expectTypeOf<
+				EventsRecord<{ changed: [] | [value: string] }>
+			>().toEqualTypeOf<never>();
+			expectTypeOf<
+				EventsRecord<{ changed: [value: string] | [value: number] }>
+			>().toEqualTypeOf<never>();
+			expectTypeOf<EventsRecord<{ changed: never }>>().toEqualTypeOf<never>();
+			// @ts-expect-error event specs must not be never
+			createEvents<{ changed: never }>();
+			expectTypeOf<EventsSend<RecordUnionEvents>>().toEqualTypeOf<never>();
+			expectTypeOf<EventsOn<RecordUnionEvents>>().toEqualTypeOf<never>();
+			expectTypeOf<
+				CreateEventsReturn<RecordUnionEvents>
+			>().toEqualTypeOf<never>();
+			expectTypeOf<EventsSend<{ selected: string }>>().toEqualTypeOf<never>();
+			expectTypeOf<EventsOn<{ selected: string }>>().toEqualTypeOf<never>();
+			expectTypeOf<
+				CreateEventsReturn<{ selected: string }>
+			>().toEqualTypeOf<never>();
+			expectTypeOf<EventsSend<{ changed: never }>>().toEqualTypeOf<never>();
+			expectTypeOf<EventsOn<{ changed: never }>>().toEqualTypeOf<never>();
+			expectTypeOf<
+				CreateEventsReturn<{ changed: never }>
+			>().toEqualTypeOf<never>();
+			expectTypeOf<
+				EventsSend<EventsRecord<{ selected: string }>>
+			>().toEqualTypeOf<never>();
+			expectTypeOf<
+				EventsOn<EventsRecord<{ selected: string }>>
+			>().toEqualTypeOf<never>();
+			expectTypeOf<
+				CreateEventsReturn<EventsRecord<{ selected: string }>>
+			>().toEqualTypeOf<never>();
 		});
 	});
 
