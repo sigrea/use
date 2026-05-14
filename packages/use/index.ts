@@ -2,6 +2,7 @@ export { computedAsync } from "./computedAsync";
 export { computedEager } from "./computedEager";
 export { computedWithControl } from "./computedWithControl";
 export { createEventHook } from "./createEventHook";
+export { createEvents } from "./createEvents";
 export { createGenericProjection } from "./createGenericProjection";
 export { createProjection } from "./createProjection";
 export { createSignal } from "./createSignal";
@@ -331,6 +332,7 @@ export type {
 	ComputedWithControlSetter,
 	ComputedWithControlSource,
 	ComputedWithControlSourceList,
+	CreateEventsReturn,
 	CreateSignalReturn,
 	EventBusEvents,
 	EventBusIdentifier,
@@ -343,6 +345,11 @@ export type {
 	EventHookOn,
 	EventHookReturn,
 	EventHookTrigger,
+	EventsCallback,
+	EventsOn,
+	EventsRecord,
+	EventsSend,
+	EventsStopHandle,
 	EventSourceConstructorLike,
 	EventSourceLike,
 	EventSourceStatus,
