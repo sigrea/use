@@ -3118,7 +3118,7 @@ describe("public types", () => {
 				cleared: [];
 				moved: [x: number, y: number];
 				selected: [file: { readonly name: string }];
-				"update:open": [open: boolean];
+				"update:open": [next: boolean];
 			};
 			type ReadonlyEvents = {
 				selected: readonly [file: { readonly name: string }];

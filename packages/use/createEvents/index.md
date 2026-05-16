@@ -75,41 +75,41 @@ interface DialogProps {
 }
 
 type DialogEvents = {
-  "update:open": [open: boolean];
+  "update:open": [next: boolean];
 };
 
 export const DialogMolecule = molecule<DialogProps>((props) => {
   const { send, on } = createEvents<DialogEvents>();
-  const open = toSignal(props, "open");
+  const isOpen = toSignal(props, "open");
   const disabled = computed(() => props.disabled ?? false);
 
-  const requestOpenChange = async (nextOpen: boolean) => {
+  const requestOpenChange = async (next: boolean) => {
     if (disabled.value) {
       return;
     }
-    await send("update:open", nextOpen);
+    await send("update:open", next);
   };
 
   return {
     disabled,
+    isOpen,
     on,
-    open,
     requestOpenChange,
   };
 });
 
 export const DialogControllerMolecule = molecule(() => {
-  const open = signal(false);
+  const isOpen = signal(false);
   const dialog = get(DialogMolecule, () => ({
-    open: open.value,
+    open: isOpen.value,
   }));
 
-  dialog.on("update:open", (nextOpen) => {
-    open.value = nextOpen;
+  dialog.on("update:open", (next) => {
+    isOpen.value = next;
   });
 
   return {
-    open: readonly(open),
+    isOpen: readonly(isOpen),
     requestOpenChange: dialog.requestOpenChange,
   };
 });
@@ -117,7 +117,9 @@ export const DialogControllerMolecule = molecule(() => {
 
 Use `update:value`, `update:open`, `update:selectedValue`, and similar names for
 controlled value requests. Use names like `close`, `select`, and `submit` for
-user actions that do not directly replace a controlled value.
+user actions that do not directly replace a controlled value. When a boolean
+state value could be confused with an action such as `open()` or `close()`, name
+the local signal `isOpen` and name the update payload `next`.
 
 Expose `on` only when a parent or controller molecule needs to listen. Keep
 `send` private to the molecule; callers should use the action functions the

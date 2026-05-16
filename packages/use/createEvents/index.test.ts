@@ -170,12 +170,12 @@ describe("createEvents", () => {
 	});
 
 	it("removes molecule-scoped listeners when the molecule is disposed", async () => {
-		const events = createEvents<{ "update:open": [open: boolean] }>();
+		const events = createEvents<{ "update:open": [next: boolean] }>();
 		const calls: boolean[] = [];
 
 		const ControllerMolecule = molecule(() => {
-			events.on("update:open", (open) => {
-				calls.push(open);
+			events.on("update:open", (next) => {
+				calls.push(next);
 			});
 			return {};
 		});

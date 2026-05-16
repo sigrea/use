@@ -52,7 +52,9 @@ See the exported utility groups below and the [function docs](https://github.com
 
 Use `createEvents` when a molecule needs to send typed events to a parent or
 controller molecule. For controlled values, use `update:*` event names such as
-`update:open`, `update:value`, or `update:selectedValue`.
+`update:open`, `update:value`, or `update:selectedValue`; the event segment
+matches the controlled prop, while local boolean state can use names such as
+`isOpen`.
 
 `send()` resolves after registered listeners finish. Listeners registered in a
 Sigrea scope are removed when that scope is disposed, including listeners
