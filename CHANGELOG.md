@@ -1,6 +1,22 @@
 # Changelog
 
 
+## v0.2.0
+
+[compare changes](https://github.com/sigrea/use/compare/v0.1.1...v0.2.0)
+
+### 🚀 Enhancements
+
+- Add typed createEvents channels ([#198](https://github.com/sigrea/use/pull/198))
+
+### 🏡 Chore
+
+- Support core 0.7 peer range ([#199](https://github.com/sigrea/use/pull/199))
+
+### ❤️ Contributors
+
+- Aose ([@aose-yuu](https://github.com/aose-yuu))
+
 ## v0.1.1
 
 [compare changes](https://github.com/sigrea/use/compare/v0.1.0...v0.1.1)
