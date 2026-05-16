@@ -39,7 +39,8 @@ export function useFilePicker() {
 }
 ```
 
-Consumers subscribe through `on()`.
+The owning code subscribes through `on()`. In molecule graphs, the parent or
+controller molecule calls `on()` during its own setup.
 
 ```ts
 const picker = useFilePicker();
@@ -50,6 +51,81 @@ const stop = picker.on("selected", (file) => {
 
 stop();
 ```
+
+## Controlled Molecule Events
+
+For design-system molecules, use `update:*` event names for parent-owned values.
+The molecule should read the current value from props and send an update request
+instead of mutating local state as the source of truth.
+
+```ts
+import {
+  computed,
+  get,
+  molecule,
+  readonly,
+  signal,
+  toSignal,
+} from "@sigrea/core";
+import { createEvents } from "@sigrea/use";
+
+interface DialogProps {
+  open: boolean;
+  disabled?: boolean;
+}
+
+type DialogEvents = {
+  "update:open": [open: boolean];
+};
+
+export const DialogMolecule = molecule<DialogProps>((props) => {
+  const { send, on } = createEvents<DialogEvents>();
+  const open = toSignal(props, "open");
+  const disabled = computed(() => props.disabled ?? false);
+
+  const requestOpenChange = async (nextOpen: boolean) => {
+    if (disabled.value) {
+      return;
+    }
+    await send("update:open", nextOpen);
+  };
+
+  return {
+    disabled,
+    on,
+    open,
+    requestOpenChange,
+  };
+});
+
+export const DialogControllerMolecule = molecule(() => {
+  const open = signal(false);
+  const dialog = get(DialogMolecule, () => ({
+    open: open.value,
+  }));
+
+  dialog.on("update:open", (nextOpen) => {
+    open.value = nextOpen;
+  });
+
+  return {
+    open: readonly(open),
+    requestOpenChange: dialog.requestOpenChange,
+  };
+});
+```
+
+Use `update:value`, `update:open`, `update:selectedValue`, and similar names for
+controlled value requests. Use names like `close`, `select`, and `submit` for
+user actions that do not directly replace a controlled value.
+
+Expose `on` only when a parent or controller molecule needs to listen. Keep
+`send` private to the molecule; callers should use the action functions the
+molecule exposes, not `send` directly.
+
+Register listeners during molecule setup, and call `send()` from actions,
+lifecycles, browser events, or async work. Do not call `send()` during molecule
+setup; the owning molecule may not have registered its listener yet.
 
 Pass the event spec as a type argument. Calling `createEvents()` without an
 event spec is not supported.
@@ -75,15 +151,17 @@ even when those events share the same payload shape.
 Define event specs as a single record whose keys are event names. Do not model
 event specs as unions of records.
 
-`send()` resolves after registered listeners finish, but listener return values
-are not exposed. If a listener throws or rejects, `send()` rejects.
+`send()` resolves after registered listeners finish. Listener return values are
+discarded. If a listener throws or rejects, `send()` rejects.
 
-The same listener is called once for the same event. If the same listener is
-registered multiple times, each returned stop handle releases one registration.
+A listener function is invoked once per `send()` call, even if the same function
+was registered more than once for the same event. Each returned stop handle
+releases one registration count.
 
 When a listener is registered inside a Sigrea scope, it is removed when that
 scope is disposed.
 
-`createEvents` is an instance event channel for Sigrea utilities. It is not a
-replacement for Vue component `defineEmits`, and it does not implement template
-listeners, parent-only delivery, `$attrs` behavior, or runtime validators.
+`createEvents` provides event coordination between molecules and composables
+within a single Sigrea instance. It is not a replacement for Vue's
+`defineEmits` or any framework event system; it has no template integration,
+parent-only delivery, or runtime validators.

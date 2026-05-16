@@ -3118,6 +3118,7 @@ describe("public types", () => {
 				cleared: [];
 				moved: [x: number, y: number];
 				selected: [file: { readonly name: string }];
+				"update:open": [open: boolean];
 			};
 			type ReadonlyEvents = {
 				selected: readonly [file: { readonly name: string }];
@@ -3137,12 +3138,14 @@ describe("public types", () => {
 				cleared: [],
 				moved: [1, 2],
 				selected: [{ name: "avatar.png" }],
+				"update:open": [true],
 			};
 			const invalidRecord: EventsRecord<PickerEvents> = {
 				cleared: [],
 				// @ts-expect-error tuple payload arity is preserved
 				moved: [],
 				selected: [{ name: "avatar.png" }],
+				"update:open": [true],
 			};
 
 			events.on("selected", selectedCallback);
@@ -3169,6 +3172,9 @@ describe("public types", () => {
 			>();
 			expectTypeOf(events.send("cleared")).toEqualTypeOf<Promise<void>>();
 			expectTypeOf(events.send("moved", 1, 2)).toEqualTypeOf<Promise<void>>();
+			expectTypeOf(events.send("update:open", true)).toEqualTypeOf<
+				Promise<void>
+			>();
 			// @ts-expect-error event payload is required
 			events.send("selected");
 			// @ts-expect-error event payload type must match
@@ -3179,6 +3185,8 @@ describe("public types", () => {
 			events.send("moved", 1);
 			// @ts-expect-error tuple argument type must match by position
 			events.send("moved", 1, "y");
+			// @ts-expect-error controlled update payload type must match
+			events.send("update:open", "true");
 			// @ts-expect-error unknown event names are rejected
 			events.send("missing");
 			// @ts-expect-error unknown event names are rejected
