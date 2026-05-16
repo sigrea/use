@@ -11,6 +11,7 @@
 
 - [Install](#install)
 - [Quick Start](#quick-start)
+- [Event-Driven Molecules](#event-driven-molecules)
 - [API Overview](#api-overview)
 - [Testing](#testing)
 - [Handling Scope Cleanup Errors](#handling-scope-cleanup-errors)
@@ -46,6 +47,14 @@ resize.stop();
 ```
 
 See the exported utility groups below and the [function docs](https://github.com/sigrea/use/tree/main/packages/use) for function-specific behavior.
+
+## Event-Driven Molecules
+
+Use `createEvents` when a molecule needs to send typed events to a parent or
+controller molecule. For controlled values, use `update:*` event names such as
+`update:open`, `update:value`, or `update:selectedValue`.
+
+See [createEvents](./packages/use/createEvents/index.md) for the full pattern.
 
 ## API Overview
 
