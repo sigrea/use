@@ -54,6 +54,10 @@ Use `createEvents` when a molecule needs to send typed events to a parent or
 controller molecule. For controlled values, use `update:*` event names such as
 `update:open`, `update:value`, or `update:selectedValue`.
 
+`send()` resolves after registered listeners finish. Listeners registered in a
+Sigrea scope are removed when that scope is disposed, including listeners
+registered during molecule setup.
+
 See [createEvents](./packages/use/createEvents/index.md) for the full pattern.
 
 ## API Overview
@@ -84,7 +88,7 @@ This repo targets Node.js 24 or later.
 If you use mise:
 
 - `mise trust -y` — trust `mise.toml` (first run only).
-- `mise run ci` — run CI-equivalent checks locally.
+- `pnpm -s cicheck` — run CI-equivalent checks locally.
 - `mise run notes` — preview release notes (optional).
 
 You can also run pnpm scripts directly:
@@ -94,7 +98,7 @@ You can also run pnpm scripts directly:
 - `pnpm typecheck` — run TypeScript type checking.
 - `pnpm test:coverage` — collect coverage.
 - `pnpm build` — compile via unbuild to produce dual CJS/ESM bundles.
-- `pnpm cicheck` — run CI checks locally.
+- `pnpm -s cicheck` — run CI checks locally.
 
 See [CONTRIBUTING.md](./CONTRIBUTING.md) for workflow details.
 
