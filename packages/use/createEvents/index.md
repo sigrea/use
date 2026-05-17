@@ -83,16 +83,30 @@ export const DialogMolecule = molecule<DialogProps>((props) => {
   const isOpen = toSignal(props, "open");
   const isDisabled = computed(() => props.disabled ?? false);
 
-  const requestOpenChange = async (next: boolean) => {
+  const emitOpenChange = async (next: boolean) => {
     if (isDisabled.value || isOpen.value === next) {
       return;
     }
     await send("update:open", next);
   };
 
+  const open = () => {
+    return emitOpenChange(true);
+  };
+
+  const close = () => {
+    return emitOpenChange(false);
+  };
+
+  const toggle = () => {
+    return emitOpenChange(!isOpen.value);
+  };
+
   return {
     on,
-    requestOpenChange,
+    open,
+    close,
+    toggle,
   };
 });
 
@@ -108,13 +122,15 @@ export const DialogControllerMolecule = molecule(() => {
 
   return {
     isOpen: readonly(isOpen),
-    requestOpenChange: dialog.requestOpenChange,
+    open: dialog.open,
+    close: dialog.close,
+    toggle: dialog.toggle,
   };
 });
 ```
 
 Use `update:value`, `update:open`, `update:selectedValue`, and similar names for
-controlled value requests. Use names like `close`, `select`, and `submit` for
+controlled value requests. Use names like `open`, `close`, `select`, and `submit` for
 user actions that do not directly replace a controlled value. When a boolean
 state value could be confused with an action such as `open()` or `close()`, name
 internal state `isOpen` and name the update payload `next`. Avoid returning prop
