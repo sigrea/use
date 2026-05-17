@@ -1,6 +1,12 @@
 // @vitest-environment node
 
-import { createScope, disposeScope, runWithScope } from "@sigrea/core";
+import {
+	createScope,
+	disposeMolecule,
+	disposeScope,
+	molecule,
+	runWithScope,
+} from "@sigrea/core";
 import { describe, expect, it } from "vitest";
 
 import { createEvents } from "./index";
@@ -88,6 +94,25 @@ describe("createEvents", () => {
 		expect(calls).toEqual(["ready"]);
 	});
 
+	it("resolves send after async listeners finish", async () => {
+		const events = createEvents<{ submitted: [] }>();
+		const calls: string[] = [];
+
+		events.on("submitted", async () => {
+			await Promise.resolve();
+			calls.push("listener");
+		});
+
+		const sent = events.send("submitted").then(() => {
+			calls.push("send");
+		});
+		calls.push("after-send");
+
+		await sent;
+
+		expect(calls).toEqual(["after-send", "listener", "send"]);
+	});
+
 	it("registers the same listener once for the same event", async () => {
 		const events = createEvents<{
 			primary: [value: number];
@@ -142,6 +167,26 @@ describe("createEvents", () => {
 		await events.send("selected", "b");
 
 		expect(calls).toEqual(["a"]);
+	});
+
+	it("removes molecule-scoped listeners when the molecule is disposed", async () => {
+		const events = createEvents<{ "update:open": [next: boolean] }>();
+		const calls: boolean[] = [];
+
+		const ControllerMolecule = molecule(() => {
+			events.on("update:open", (next) => {
+				calls.push(next);
+			});
+			return {};
+		});
+
+		const controller = ControllerMolecule();
+
+		await events.send("update:open", true);
+		disposeMolecule(controller);
+		await events.send("update:open", false);
+
+		expect(calls).toEqual([true]);
 	});
 
 	it("keeps outer duplicated listeners after scoped duplicates are disposed", async () => {
