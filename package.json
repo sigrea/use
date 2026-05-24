@@ -1,7 +1,7 @@
 {
 	"name": "@sigrea/use",
 	"version": "0.2.0",
-	"description": "Signal-powered, framework-agnostic utility hooks built on @sigrea/core.",
+	"description": "Framework-agnostic Sigrea utilities for signals, scopes, and browser APIs.",
 	"license": "MIT",
 	"type": "module",
 	"packageManager": "pnpm@10.0.0",
@@ -33,8 +33,9 @@
 	"keywords": [
 		"signals",
 		"reactivity",
-		"hooks",
-		"composables",
+		"utilities",
+		"scope",
+		"browser",
 		"typescript",
 		"dom"
 	],
