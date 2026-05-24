@@ -1,6 +1,24 @@
 # Changelog
 
 
+## v0.2.1
+
+[compare changes](https://github.com/sigrea/use/compare/v0.2.0...v0.2.1)
+
+### 📖 Documentation
+
+- Clarify event-driven action examples ([#202](https://github.com/sigrea/use/pull/202))
+- Improve use package docs ([#203](https://github.com/sigrea/use/pull/203))
+
+### 🏡 Chore
+
+- Harden createEvents contract and release checks ([#200](https://github.com/sigrea/use/pull/200))
+- Verify core 0.7.1 dependency ([#201](https://github.com/sigrea/use/pull/201))
+
+### ❤️ Contributors
+
+- Aose ([@aose-yuu](https://github.com/aose-yuu))
+
 ## v0.2.0
 
 [compare changes](https://github.com/sigrea/use/compare/v0.1.1...v0.2.0)

@@ -1,6 +1,6 @@
 {
 	"name": "@sigrea/use",
-	"version": "0.2.0",
+	"version": "0.2.1",
 	"description": "Framework-agnostic Sigrea utilities for signals, scopes, and browser APIs.",
 	"license": "MIT",
 	"type": "module",
