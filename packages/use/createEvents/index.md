@@ -78,7 +78,7 @@ type DialogEvents = {
   "update:open": [next: boolean];
 };
 
-export const DialogMolecule = molecule<DialogProps>((props) => {
+export const DialogMolecule = molecule((props: DialogProps) => {
   const { send, on } = createEvents<DialogEvents>();
   const isOpen = toSignal(props, "open");
   const isDisabled = computed(() => props.disabled ?? false);
@@ -179,7 +179,7 @@ releases one registration count.
 When a listener is registered inside a Sigrea scope, it is removed when that
 scope is disposed.
 
-`createEvents` provides event coordination between molecules and composables
+`createEvents` provides event coordination between molecules and utilities
 within a single Sigrea instance. It is not a replacement for Vue's
 `defineEmits` or any framework event system; it has no template integration,
 parent-only delivery, or runtime validators.

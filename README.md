@@ -1,11 +1,13 @@
 # @sigrea/use
 
-`@sigrea/use` provides framework-agnostic utility hooks built with [@sigrea/core](https://www.npmjs.com/package/@sigrea/core) signals and molecule lifecycles. It is intended for shared browser, state, timing, and watcher logic that should not depend on Vue, React, or a template runtime.
+`@sigrea/use` provides framework-agnostic Sigrea utilities for signals,
+scopes, and browser APIs. It is intended for shared state, timing, watcher, and
+browser logic that should not depend on Vue, React, or a template runtime.
 
 - **Framework-agnostic utilities.** Use signal-powered helpers without binding to a UI framework.
 - **Scope-aware cleanup.** Browser listeners, timers, workers, and observers can be cleaned up through Sigrea scopes.
 - **SSR-safe imports.** Browser-dependent helpers avoid touching browser globals during module import.
-- **Tree-shakable builds.** ESM and CJS entrypoints are generated from the same TypeScript source.
+- **Tree-shakable package.** ESM and CJS entrypoints are generated from the same TypeScript source.
 
 ## Table of Contents
 
@@ -46,7 +48,9 @@ const resize = useEventListener("resize", () => {
 resize.stop();
 ```
 
-See the exported utility groups below and the [function docs](https://github.com/sigrea/use/tree/main/packages/use) for function-specific behavior.
+See the exported utility groups below and the
+[function docs](https://github.com/sigrea/use/tree/main/packages/use) for
+function-specific behavior.
 
 ## Event-Driven Molecules
 
@@ -60,7 +64,9 @@ matches the controlled prop, while local boolean state can use names such as
 Sigrea scope are removed when that scope is disposed, including listeners
 registered during molecule setup.
 
-See [createEvents](./packages/use/createEvents/index.md) for the full pattern.
+See
+[createEvents](https://github.com/sigrea/use/blob/main/packages/use/createEvents/index.md)
+for the full pattern.
 
 ## API Overview
 
@@ -75,13 +81,17 @@ All utilities are exported from the root package entrypoint.
 
 ## Testing
 
-Most utilities can be tested as plain TypeScript functions with Vitest. For browser APIs, use JSDOM-compatible fakes and stop returned handles in the test that created them.
+Most utilities can be tested as plain TypeScript functions with Vitest. For
+browser APIs, use JSDOM-compatible fakes and stop returned handles in the test
+that created them.
 
 ## Handling Scope Cleanup Errors
 
 For global error handling configuration, see [@sigrea/core - Handling Scope Cleanup Errors](https://github.com/sigrea/core#handling-scope-cleanup-errors).
 
-When a utility registers cleanup through a Sigrea scope, cleanup errors are reported through the core handler. Configure the handler once in the application entry point or test setup before creating scoped utilities.
+When a utility registers cleanup through a Sigrea scope, cleanup errors are
+reported through the core handler. Configure the handler once in the application
+entry point or test setup before creating scoped utilities.
 
 ## Development
 
@@ -102,8 +112,10 @@ You can also run pnpm scripts directly:
 - `pnpm build` — compile via unbuild to produce dual CJS/ESM bundles.
 - `pnpm -s cicheck` — run CI checks locally.
 
-See [CONTRIBUTING.md](./CONTRIBUTING.md) for workflow details.
+See
+[CONTRIBUTING.md](https://github.com/sigrea/use/blob/main/CONTRIBUTING.md)
+for workflow details.
 
 ## License
 
-MIT — see [LICENSE](./LICENSE).
+MIT. See [LICENSE](./LICENSE).
