@@ -1,13 +1,18 @@
 # @sigrea/use
 
-`@sigrea/use` provides framework-agnostic Sigrea utilities for signals,
-scopes, and browser APIs. It is intended for shared state, timing, watcher, and
-browser logic that should not depend on Vue, React, or a template runtime.
+`@sigrea/use` provides framework-agnostic Sigrea utilities built on
+[`@sigrea/core`](https://www.npmjs.com/package/@sigrea/core) signals and
+scopes. It is intended for shared state, timing, watcher, and browser logic
+that should not depend on Vue, React, or a template runtime.
 
-- **Framework-agnostic utilities.** Use signal-powered helpers without binding to a UI framework.
-- **Scope-aware cleanup.** Browser listeners, timers, workers, and observers can be cleaned up through Sigrea scopes.
-- **SSR-safe imports.** Browser-dependent helpers avoid touching browser globals during module import.
-- **Tree-shakable package.** ESM and CJS entrypoints are generated from the same TypeScript source.
+- **Framework-agnostic utilities.** Use signal-powered helpers without binding
+  to a UI framework.
+- **Scope-aware cleanup.** Browser listeners, timers, workers, and observers
+  can be cleaned up through Sigrea scopes.
+- **SSR-safe imports.** Browser-dependent helpers avoid touching browser
+  globals during module import.
+- **Tree-shakable package.** ESM and CJS entrypoints are generated from the
+  same TypeScript source.
 
 ## Table of Contents
 
@@ -26,7 +31,8 @@ browser logic that should not depend on Vue, React, or a template runtime.
 npm install @sigrea/use @sigrea/core
 ```
 
-`@sigrea/core` is a peer dependency.
+[`@sigrea/core`](https://www.npmjs.com/package/@sigrea/core) is a peer
+dependency.
 
 Requires Node.js 24 or later.
 
@@ -64,18 +70,20 @@ matches the controlled prop, while local boolean state can use names such as
 Sigrea scope are removed when that scope is disposed, including listeners
 registered during molecule setup.
 
-See
-[createEvents](https://github.com/sigrea/use/blob/main/packages/use/createEvents/index.md)
-for the full pattern.
+See [createEvents][create-events] for the full pattern.
 
 ## API Overview
 
 `@sigrea/use` exports utilities for common browser and reactivity work:
 
-- **State and signals:** counters, toggles, async state, memoization, and signal transforms.
-- **Watchers and timing:** debounced, throttled, pausable, ignorable, one-shot, and triggerable watchers.
-- **Browser APIs:** media queries, storage, events, clipboard, network, sensors, observers, workers, and page state.
-- **Collections and math:** array helpers, projections, clamping, precision, averages, sums, and numeric transforms.
+- **State and signals:** counters, toggles, async state, memoization, and
+  signal transforms.
+- **Watchers and timing:** debounced, throttled, pausable, ignorable, one-shot,
+  and triggerable watchers.
+- **Browser APIs:** media queries, storage, events, clipboard, network, sensors,
+  observers, workers, and page state.
+- **Collections and math:** array helpers, projections, clamping, precision,
+  averages, sums, and numeric transforms.
 
 All utilities are exported from the root package entrypoint.
 
@@ -87,7 +95,8 @@ that created them.
 
 ## Handling Scope Cleanup Errors
 
-For global error handling configuration, see [@sigrea/core - Handling Scope Cleanup Errors](https://github.com/sigrea/core#handling-scope-cleanup-errors).
+For global error handling configuration, see
+[@sigrea/core - Handling Scope Cleanup Errors][core-cleanup-errors].
 
 When a utility registers cleanup through a Sigrea scope, cleanup errors are
 reported through the core handler. Configure the handler once in the application
@@ -119,3 +128,6 @@ for workflow details.
 ## License
 
 MIT. See [LICENSE](./LICENSE).
+
+[core-cleanup-errors]: https://github.com/sigrea/core#handling-scope-cleanup-errors
+[create-events]: https://github.com/sigrea/use/tree/main/packages/use/createEvents
