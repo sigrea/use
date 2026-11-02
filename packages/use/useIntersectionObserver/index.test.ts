@@ -1,5 +1,5 @@
 import { disposeTrackedMolecules, signal } from "@sigrea/core";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 
 import type { UseIntersectionObserverWindowLike } from "../types";
 import { useIntersectionObserver } from "./index";
@@ -9,6 +9,9 @@ class FakeIntersectionObserver implements IntersectionObserver {
 
 	readonly root: Element | Document | null;
 	readonly rootMargin: string;
+	readonly delay = 0;
+	readonly scrollMargin = "0px";
+	readonly trackVisibility = false;
 	readonly thresholds: readonly number[];
 	readonly observed = new Set<Element>();
 	readonly queuedEntries: IntersectionObserverEntry[] = [];

@@ -38,8 +38,8 @@ function resolveTargets<TElement extends Element>(
 
 export function useIntersectionObserver<
 	TElement extends Element = Element,
-	TWindow extends
-		UseIntersectionObserverWindowLike = UseIntersectionObserverWindowLike,
+	TWindow extends UseIntersectionObserverWindowLike =
+		UseIntersectionObserverWindowLike,
 >(
 	target: MaybeTarget<UseIntersectionObserverTarget<TElement>>,
 	callback: IntersectionObserverCallback,

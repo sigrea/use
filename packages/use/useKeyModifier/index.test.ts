@@ -1,5 +1,5 @@
 import { disposeTrackedMolecules, signal } from "@sigrea/core";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 
 import type { UseKeyModifierDocumentLike, WindowLike } from "../types";
 import { useKeyModifier } from "./index";

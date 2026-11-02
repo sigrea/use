@@ -1,5 +1,5 @@
 import { signal } from "@sigrea/core";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 
 import type { BrowserLocationLike, BrowserLocationWindowLike } from "../types";
 import { useBrowserLocation } from "./index";

@@ -1,5 +1,5 @@
 import { signal } from "@sigrea/core";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vite-plus/test";
 
 import type {
 	UseDevicesListMediaDevicesLike,
@@ -51,8 +51,12 @@ class FakeMediaDevices
 	implements UseDevicesListMediaDevicesLike
 {
 	readonly listeners = new Set<EventListenerOrEventListenerObject>();
-	enumerateDevices = vi.fn(async () => [...this.deviceList]);
-	getUserMedia = vi.fn(async () => this.stream);
+	enumerateDevices = vi.fn<UseDevicesListMediaDevicesLike["enumerateDevices"]>(
+		async () => [...this.deviceList],
+	);
+	getUserMedia = vi.fn<
+		NonNullable<UseDevicesListMediaDevicesLike["getUserMedia"]>
+	>(async () => this.stream);
 
 	constructor(
 		private deviceList: readonly MediaDeviceInfo[],
@@ -93,11 +97,7 @@ function createPermissions(
 ): UseDevicesListPermissionsLike {
 	return {
 		query: vi.fn(
-			async ({
-				name,
-			}: {
-				readonly name: UseDevicesListPermissionName;
-			}) => {
+			async ({ name }: { readonly name: UseDevicesListPermissionName }) => {
 				const state = states[name] ?? "prompt";
 				return new FakePermissionStatus(state);
 			},

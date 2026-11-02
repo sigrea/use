@@ -1,7 +1,7 @@
 // @vitest-environment node
 
 import { createScope, disposeScope, runWithScope } from "@sigrea/core";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 
 import { useEventBus } from "./index";
 import { events } from "./internal";

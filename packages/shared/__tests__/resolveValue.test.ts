@@ -1,5 +1,5 @@
 import { computed, signal } from "@sigrea/core";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 
 import { resolveValue } from "../resolveValue";
 

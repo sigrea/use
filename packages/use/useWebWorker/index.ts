@@ -62,8 +62,8 @@ export function useWebWorker<
 	Data = unknown,
 	Payload = unknown,
 	TWorker extends WorkerLike = Worker,
-	TWindow extends
-		UseWebWorkerWindowLike<TWorker> = UseWebWorkerWindowLike<TWorker>,
+	TWindow extends UseWebWorkerWindowLike<TWorker> =
+		UseWebWorkerWindowLike<TWorker>,
 >(
 	source: MaybeValue<UseWebWorkerSource<TWorker>>,
 	options: UseWebWorkerOptions<TWorker, TWindow, Data> = {},

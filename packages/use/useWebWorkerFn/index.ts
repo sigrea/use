@@ -124,8 +124,8 @@ function normalizeTerminateStatus(
 export function useWebWorkerFn<
 	T extends UseWebWorkerFnCallable,
 	TWorker extends WorkerLike = Worker,
-	TWindow extends
-		UseWebWorkerFnWindowLike<TWorker> = UseWebWorkerFnWindowLike<TWorker>,
+	TWindow extends UseWebWorkerFnWindowLike<TWorker> =
+		UseWebWorkerFnWindowLike<TWorker>,
 >(
 	fn: T,
 	options: UseWebWorkerFnOptions<TWorker, TWindow> = {},

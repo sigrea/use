@@ -1,5 +1,5 @@
 import { createScope, disposeScope, runWithScope, signal } from "@sigrea/core";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vite-plus/test";
 
 import type { ResizeObserverWindowLike } from "../types";
 import { useVirtualList } from "./index";

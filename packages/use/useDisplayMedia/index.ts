@@ -41,8 +41,8 @@ function stopStream(stream: UseDisplayMediaMediaStreamLike | undefined): void {
  */
 export function useDisplayMedia<
 	TStream extends UseDisplayMediaMediaStreamLike = MediaStream,
-	TNavigator extends
-		UseDisplayMediaNavigatorLike<TStream> = UseDisplayMediaNavigatorLike<TStream>,
+	TNavigator extends UseDisplayMediaNavigatorLike<TStream> =
+		UseDisplayMediaNavigatorLike<TStream>,
 >(
 	options: UseDisplayMediaOptions<TStream, TNavigator> = {},
 ): UseDisplayMediaReturn<TStream> {

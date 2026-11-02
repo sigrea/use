@@ -1,5 +1,5 @@
 import { disposeTrackedMolecules, nextTick, signal } from "@sigrea/core";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 
 import type { UseTextareaAutosizeWindowLike } from "../types";
 import { useTextareaAutosize } from "./index";

@@ -104,26 +104,18 @@ entry point or test setup before creating scoped utilities.
 
 ## Development
 
-This repo targets Node.js 24 or later.
+This package supports Node.js 24 or later.
 
-If you use mise:
+Install [Vite+](https://viteplus.dev/guide/), then run:
 
-- `mise trust -y` — trust `mise.toml` (first run only).
-- `pnpm -s cicheck` — run CI-equivalent checks locally.
-- `mise run notes` — preview release notes (optional).
+```sh
+vp env install
+vp install --frozen-lockfile
+vp run cicheck
+```
 
-You can also run pnpm scripts directly:
-
-- `pnpm install` — install dependencies.
-- `pnpm test` — run the Vitest suite once (no watch).
-- `pnpm typecheck` — run TypeScript type checking.
-- `pnpm test:coverage` — collect coverage.
-- `pnpm build` — compile via unbuild to produce dual CJS/ESM bundles.
-- `pnpm -s cicheck` — run CI checks locally.
-
-See
-[CONTRIBUTING.md](https://github.com/sigrea/use/blob/main/CONTRIBUTING.md)
-for workflow details.
+See [CONTRIBUTING.md](https://github.com/sigrea/use/blob/main/CONTRIBUTING.md)
+for individual commands and the release workflow.
 
 ## License
 

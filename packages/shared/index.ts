@@ -16,7 +16,4 @@ export type {
 	WatchMediaQueryOptions,
 } from "./watchMediaQuery";
 export { watchTarget } from "./watchTarget";
-export type {
-	WatchTargetCallback,
-	WatchTargetOptions,
-} from "./watchTarget";
+export type { WatchTargetCallback, WatchTargetOptions } from "./watchTarget";

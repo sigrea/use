@@ -35,8 +35,8 @@ function resolveDescriptor(
  */
 export function usePermission<
 	TStatus extends UsePermissionStatusLike = PermissionStatus,
-	TNavigator extends
-		UsePermissionNavigatorLike<TStatus> = UsePermissionNavigatorLike<TStatus>,
+	TNavigator extends UsePermissionNavigatorLike<TStatus> =
+		UsePermissionNavigatorLike<TStatus>,
 >(
 	permission: MaybeValue<UsePermissionSource>,
 	options: UsePermissionOptions<TNavigator> = {},

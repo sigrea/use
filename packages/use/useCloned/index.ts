@@ -18,13 +18,14 @@ import { resolveValue } from "../../shared";
 import { createSignal } from "../createSignal";
 import type { MaybeValue, UseClonedOptions, UseClonedReturn } from "../types";
 
-type StructuredCloneValue<T> = T extends Signal<infer SignalValue>
-	? StructuredCloneValue<SignalValue>
-	: T extends ReadonlySignal<infer ReadonlyValue>
-		? StructuredCloneValue<ReadonlyValue>
-		: T extends Computed<infer ComputedValue>
-			? StructuredCloneValue<ComputedValue>
-			: T;
+type StructuredCloneValue<T> =
+	T extends Signal<infer SignalValue>
+		? StructuredCloneValue<SignalValue>
+		: T extends ReadonlySignal<infer ReadonlyValue>
+			? StructuredCloneValue<ReadonlyValue>
+			: T extends Computed<infer ComputedValue>
+				? StructuredCloneValue<ComputedValue>
+				: T;
 
 function cloneJson<T>(value: T): T {
 	const serialized = JSON.stringify(value);

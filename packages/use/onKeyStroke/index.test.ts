@@ -1,16 +1,23 @@
 import { signal } from "@sigrea/core";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import {
+	type Mock,
+	beforeEach,
+	describe,
+	expect,
+	it,
+	vi,
+} from "vite-plus/test";
 
-import type { KeyStrokeEventName } from "../types";
+import type { KeyStrokeEventName, OnKeyStrokeHandler } from "../types";
 import { onKeyDown, onKeyPressed, onKeyStroke, onKeyUp } from "./index";
 
 describe("onKeyStroke", () => {
 	let element: HTMLElement;
-	let callback: ReturnType<typeof vi.fn>;
+	let callback: Mock<OnKeyStrokeHandler>;
 
 	beforeEach(() => {
 		element = document.createElement("div");
-		callback = vi.fn();
+		callback = vi.fn<OnKeyStrokeHandler>();
 	});
 
 	function dispatchKey(

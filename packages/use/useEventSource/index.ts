@@ -51,8 +51,8 @@ export function useEventSource<
 	Events extends readonly string[] = readonly string[],
 	Data = string,
 	TEventSource extends EventSourceLike = EventSourceLike,
-	TWindow extends
-		EventSourceWindowLike<TEventSource> = EventSourceWindowLike<TEventSource>,
+	TWindow extends EventSourceWindowLike<TEventSource> =
+		EventSourceWindowLike<TEventSource>,
 >(
 	url: MaybeValue<string | URL | null | undefined>,
 	events: Events = [] as unknown as Events,

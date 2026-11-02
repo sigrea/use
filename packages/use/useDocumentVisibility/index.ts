@@ -14,8 +14,8 @@ function readVisibility<TDocument extends DocumentVisibilityDocumentLike>(
 }
 
 export function useDocumentVisibility<
-	TDocument extends
-		DocumentVisibilityDocumentLike = DocumentVisibilityDocumentLike,
+	TDocument extends DocumentVisibilityDocumentLike =
+		DocumentVisibilityDocumentLike,
 >(
 	options: UseDocumentVisibilityOptions<TDocument> = {},
 ): UseDocumentVisibilityReturn {

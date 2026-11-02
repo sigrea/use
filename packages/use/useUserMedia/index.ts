@@ -40,8 +40,8 @@ function createDefaultConstraints(): MediaStreamConstraints {
  */
 export function useUserMedia<
 	TStream extends UseUserMediaMediaStreamLike = MediaStream,
-	TNavigator extends
-		UseUserMediaNavigatorLike<TStream> = UseUserMediaNavigatorLike<TStream>,
+	TNavigator extends UseUserMediaNavigatorLike<TStream> =
+		UseUserMediaNavigatorLike<TStream>,
 >(
 	options: UseUserMediaOptions<TStream, TNavigator> = {},
 ): UseUserMediaReturn<TStream> {

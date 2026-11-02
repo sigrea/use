@@ -7,7 +7,14 @@ import {
 	runWithScope,
 	signal,
 } from "@sigrea/core";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+	afterEach,
+	beforeEach,
+	describe,
+	expect,
+	it,
+	vi,
+} from "vite-plus/test";
 
 import { formatTimeAgo, useTimeAgo } from "./index";
 

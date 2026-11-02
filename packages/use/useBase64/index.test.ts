@@ -1,5 +1,5 @@
 import { signal } from "@sigrea/core";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 
 import type { UseBase64Return, UseBase64WindowLike } from "../types";
 import { useBase64 } from "./index";

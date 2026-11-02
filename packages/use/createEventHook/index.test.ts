@@ -1,7 +1,7 @@
 // @vitest-environment node
 
 import { createScope, disposeScope, runWithScope } from "@sigrea/core";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 
 import { createEventHook } from "./index";
 

@@ -2,15 +2,16 @@ import type { Computed, ReadonlySignal, Signal } from "@sigrea/core";
 import { resolveValue as resolveSharedValue } from "../../shared/resolveValue";
 import type { MaybeValue } from "../types";
 
-type ResolvedValue<T> = T extends Computed<infer Value>
-	? Value
-	: T extends Signal<infer Value>
+type ResolvedValue<T> =
+	T extends Computed<infer Value>
 		? Value
-		: T extends ReadonlySignal<infer Value>
+		: T extends Signal<infer Value>
 			? Value
-			: T extends () => infer Value
+			: T extends ReadonlySignal<infer Value>
 				? Value
-				: T;
+				: T extends () => infer Value
+					? Value
+					: T;
 
 type ResolveValueSource<T> = T extends (...args: infer Args) => unknown
 	? Args extends []

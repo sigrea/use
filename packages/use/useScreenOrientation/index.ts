@@ -30,8 +30,8 @@ function createNotSupportedError() {
 }
 
 export function useScreenOrientation<
-	TWindow extends
-		UseScreenOrientationWindowLike = UseScreenOrientationWindowLike,
+	TWindow extends UseScreenOrientationWindowLike =
+		UseScreenOrientationWindowLike,
 >(
 	options: UseScreenOrientationOptions<TWindow> = {},
 ): UseScreenOrientationReturn {

@@ -19,8 +19,8 @@ export interface MatchMediaWindow {
 
 export interface WatchMediaQueryOptions<
 	TWindow extends MatchMediaWindow = MatchMediaWindow,
-> extends WatchTargetOptions,
-		ConfigurableWindow<TWindow> {}
+>
+	extends WatchTargetOptions, ConfigurableWindow<TWindow> {}
 
 export type WatchMediaQueryCallback = (
 	matches: boolean,

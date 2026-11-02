@@ -8,7 +8,14 @@ import {
 	trackMolecule,
 	unmountMolecule,
 } from "@sigrea/core";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+	afterEach,
+	beforeEach,
+	describe,
+	expect,
+	it,
+	vi,
+} from "vite-plus/test";
 
 import type { UseIdleDocumentLike, UseIdleWindowLike } from "../types";
 import { useIdle } from "./index";

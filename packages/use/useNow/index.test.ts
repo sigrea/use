@@ -1,5 +1,12 @@
 import { disposeTrackedMolecules, readonly, signal } from "@sigrea/core";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+	afterEach,
+	beforeEach,
+	describe,
+	expect,
+	it,
+	vi,
+} from "vite-plus/test";
 
 import type { UseIntervalFnReturn, UseNowWindowLike } from "../types";
 import { useNow } from "./index";

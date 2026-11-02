@@ -24,17 +24,18 @@ import type {
 
 type UseSpeechSynthesisReturnForWindow<
 	TWindow extends UseSpeechSynthesisWindowLike,
-> = TWindow extends UseSpeechSynthesisWindowLike<
-	infer TVoice,
-	infer TUtterance,
-	infer _TSynthesis
->
-	? TVoice extends SpeechSynthesisVoiceLike
-		? TUtterance extends SpeechSynthesisUtteranceLike<TVoice>
-			? UseSpeechSynthesisReturn<TVoice, TUtterance>
+> =
+	TWindow extends UseSpeechSynthesisWindowLike<
+		infer TVoice,
+		infer TUtterance,
+		infer _TSynthesis
+	>
+		? TVoice extends SpeechSynthesisVoiceLike
+			? TUtterance extends SpeechSynthesisUtteranceLike<TVoice>
+				? UseSpeechSynthesisReturn<TVoice, TUtterance>
+				: UseSpeechSynthesisReturn
 			: UseSpeechSynthesisReturn
-		: UseSpeechSynthesisReturn
-	: UseSpeechSynthesisReturn;
+		: UseSpeechSynthesisReturn;
 
 function getSpeechSynthesis<
 	TVoice extends SpeechSynthesisVoiceLike,
@@ -84,24 +85,20 @@ export function useSpeechSynthesis<
 ): UseSpeechSynthesisReturnForWindow<TWindow>;
 export function useSpeechSynthesis<
 	TVoice extends SpeechSynthesisVoiceLike = SpeechSynthesisVoiceLike,
-	TUtterance extends
-		SpeechSynthesisUtteranceLike<TVoice> = SpeechSynthesisUtteranceLike<TVoice>,
-	TWindow extends UseSpeechSynthesisWindowLike<
-		TVoice,
-		TUtterance
-	> = UseSpeechSynthesisWindowLike<TVoice, TUtterance>,
+	TUtterance extends SpeechSynthesisUtteranceLike<TVoice> =
+		SpeechSynthesisUtteranceLike<TVoice>,
+	TWindow extends UseSpeechSynthesisWindowLike<TVoice, TUtterance> =
+		UseSpeechSynthesisWindowLike<TVoice, TUtterance>,
 >(
 	text?: MaybeValue<string>,
 	options?: UseSpeechSynthesisOptions<TVoice, TUtterance, TWindow>,
 ): UseSpeechSynthesisReturn<TVoice, TUtterance>;
 export function useSpeechSynthesis<
 	TVoice extends SpeechSynthesisVoiceLike = SpeechSynthesisVoiceLike,
-	TUtterance extends
-		SpeechSynthesisUtteranceLike<TVoice> = SpeechSynthesisUtteranceLike<TVoice>,
-	TWindow extends UseSpeechSynthesisWindowLike<
-		TVoice,
-		TUtterance
-	> = UseSpeechSynthesisWindowLike<TVoice, TUtterance>,
+	TUtterance extends SpeechSynthesisUtteranceLike<TVoice> =
+		SpeechSynthesisUtteranceLike<TVoice>,
+	TWindow extends UseSpeechSynthesisWindowLike<TVoice, TUtterance> =
+		UseSpeechSynthesisWindowLike<TVoice, TUtterance>,
 >(
 	text: MaybeValue<string> = "",
 	options: UseSpeechSynthesisOptions<TVoice, TUtterance, TWindow> = {},

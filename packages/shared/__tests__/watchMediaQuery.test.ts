@@ -1,5 +1,5 @@
 import { createScope, disposeScope, runWithScope, signal } from "@sigrea/core";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 
 import { watchMediaQuery } from "../watchMediaQuery";
 

@@ -31,8 +31,8 @@ function supportsLanguages(
 
 export function usePreferredLanguages<
 	TWindow extends WindowLike = WindowLike,
-	TNavigator extends
-		UsePreferredLanguagesNavigatorLike = UsePreferredLanguagesNavigatorLike,
+	TNavigator extends UsePreferredLanguagesNavigatorLike =
+		UsePreferredLanguagesNavigatorLike,
 >(
 	options: UsePreferredLanguagesOptions<TWindow, TNavigator> = {},
 ): UsePreferredLanguagesReturn {

@@ -131,8 +131,8 @@ function validateNotificationOptions(
  */
 export function useWebNotification<
 	TNotification extends UseWebNotificationNotificationLike = Notification,
-	TWindow extends
-		UseWebNotificationWindowLike<TNotification> = UseWebNotificationWindowLike<TNotification>,
+	TWindow extends UseWebNotificationWindowLike<TNotification> =
+		UseWebNotificationWindowLike<TNotification>,
 >(
 	options: UseWebNotificationOptions<TNotification, TWindow> = {},
 ): UseWebNotificationReturn<TNotification> {

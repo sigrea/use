@@ -16,8 +16,8 @@ function getPerformanceObserver(
 }
 
 export function usePerformanceObserver<
-	TWindow extends
-		UsePerformanceObserverWindowLike = UsePerformanceObserverWindowLike,
+	TWindow extends UsePerformanceObserverWindowLike =
+		UsePerformanceObserverWindowLike,
 >(
 	options: UsePerformanceObserverOptions<TWindow>,
 	callback: PerformanceObserverCallback,

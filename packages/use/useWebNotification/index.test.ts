@@ -1,5 +1,5 @@
 import { createScope, disposeScope, runWithScope, signal } from "@sigrea/core";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 
 import type {
 	UseWebNotificationConstructorLike,

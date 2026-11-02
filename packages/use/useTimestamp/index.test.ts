@@ -6,7 +6,14 @@ import {
 	runWithScope,
 	signal,
 } from "@sigrea/core";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+	afterEach,
+	beforeEach,
+	describe,
+	expect,
+	it,
+	vi,
+} from "vite-plus/test";
 
 import type { UseIntervalFnReturn, UseTimestampReturn } from "../types";
 import { useTimestamp } from "./index";

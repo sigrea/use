@@ -1,5 +1,5 @@
 import { disposeTrackedMolecules, signal } from "@sigrea/core";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vite-plus/test";
 
 import type { UseFaviconDocumentLike } from "../types";
 import { useFavicon } from "./index";

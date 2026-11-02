@@ -5,7 +5,7 @@ import {
 	signal,
 	trackMolecule,
 } from "@sigrea/core";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vite-plus/test";
 
 import { useMediaQuery } from "./index";
 

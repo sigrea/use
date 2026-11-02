@@ -76,13 +76,10 @@ export type UseMathKeys = {
 		? K
 		: never;
 }[keyof Math];
-export type UseMathMethod<K extends UseMathKeys> = Math[K] extends FunctionArgs<
-	infer TArgs,
-	infer TReturn,
-	infer TThis
->
-	? FunctionArgs<TArgs, TReturn, TThis>
-	: never;
+export type UseMathMethod<K extends UseMathKeys> =
+	Math[K] extends FunctionArgs<infer TArgs, infer TReturn, infer TThis>
+		? FunctionArgs<TArgs, TReturn, TThis>
+		: never;
 export type UseMathArgs<K extends UseMathKeys> = MaybeValueArgs<
 	Parameters<UseMathMethod<K>>
 >;
@@ -192,13 +189,14 @@ export interface ReactifyObjectOptions {
 
 export type ReactiveComputedGetter<T extends object> = (previousValue?: T) => T;
 
-type ReactiveComputedObjectValue<TValue> = TValue extends Signal<infer Value>
-	? Value
-	: TValue extends ReadonlySignal<infer Value>
+type ReactiveComputedObjectValue<TValue> =
+	TValue extends Signal<infer Value>
 		? Value
-		: TValue extends Computed<infer Value>
+		: TValue extends ReadonlySignal<infer Value>
 			? Value
-			: TValue;
+			: TValue extends Computed<infer Value>
+				? Value
+				: TValue;
 
 type ReactiveComputedObject<T extends object> = {
 	[TKey in keyof T]: ReactiveComputedObjectValue<T[TKey]>;
@@ -208,13 +206,14 @@ export type ReactiveComputedReturn<T extends object> = DeepSignal<
 	ReactiveComputedObject<T>
 >;
 
-type ReactiveOmitValue<TValue> = TValue extends Signal<infer Value>
-	? Value
-	: TValue extends ReadonlySignal<infer Value>
+type ReactiveOmitValue<TValue> =
+	TValue extends Signal<infer Value>
 		? Value
-		: TValue extends Computed<infer Value>
+		: TValue extends ReadonlySignal<infer Value>
 			? Value
-			: TValue;
+			: TValue extends Computed<infer Value>
+				? Value
+				: TValue;
 
 type ReactiveOmitEntry<TValue> = DeepSignal<ReactiveOmitValue<TValue>>;
 
@@ -288,13 +287,14 @@ export type ReactiveOmitPredicate<T extends object> = (
 	key: keyof T,
 ) => boolean;
 
-type ReactivePickValue<TValue> = TValue extends Signal<infer Value>
-	? Value
-	: TValue extends ReadonlySignal<infer Value>
+type ReactivePickValue<TValue> =
+	TValue extends Signal<infer Value>
 		? Value
-		: TValue extends Computed<infer Value>
+		: TValue extends ReadonlySignal<infer Value>
 			? Value
-			: TValue;
+			: TValue extends Computed<infer Value>
+				? Value
+				: TValue;
 
 type ReactivePickEntry<TValue> = DeepSignal<ReactivePickValue<TValue>>;
 
@@ -366,13 +366,14 @@ export type ReactivePickPredicate<T extends object> = (
 	key: keyof T,
 ) => boolean;
 
-type ToDeepSignalValue<TValue> = TValue extends Signal<infer Value>
-	? Value
-	: TValue extends ReadonlySignal<infer Value>
+type ToDeepSignalValue<TValue> =
+	TValue extends Signal<infer Value>
 		? Value
-		: TValue extends Computed<infer Value>
+		: TValue extends ReadonlySignal<infer Value>
 			? Value
-			: TValue;
+			: TValue extends Computed<infer Value>
+				? Value
+				: TValue;
 
 type ToDeepSignalEntry<TValue> = DeepSignal<ToDeepSignalValue<TValue>>;
 
@@ -474,8 +475,10 @@ export interface UntilBaseInstance<T, Not extends boolean = false> {
 
 type Falsy = false | void | null | undefined | 0 | 0n | "";
 
-export interface UntilValueInstance<T, Not extends boolean = false>
-	extends UntilBaseInstance<T, Not> {
+export interface UntilValueInstance<
+	T,
+	Not extends boolean = false,
+> extends UntilBaseInstance<T, Not> {
 	readonly not: UntilValueInstance<T, Not extends true ? false : true>;
 
 	toBe<P = T>(
@@ -496,8 +499,9 @@ export interface UntilValueInstance<T, Not extends boolean = false>
 
 type ArrayElement<T> = T extends readonly (infer Value)[] ? Value : unknown;
 
-export interface UntilArrayInstance<T extends readonly unknown[]>
-	extends UntilBaseInstance<T> {
+export interface UntilArrayInstance<
+	T extends readonly unknown[],
+> extends UntilBaseInstance<T> {
 	readonly not: UntilArrayInstance<T>;
 
 	toContains(
@@ -740,13 +744,11 @@ export interface BluetoothDataFilterLike {
 	mask?: BufferSource;
 }
 
-export interface BluetoothManufacturerDataFilterLike
-	extends BluetoothDataFilterLike {
+export interface BluetoothManufacturerDataFilterLike extends BluetoothDataFilterLike {
 	companyIdentifier: number;
 }
 
-export interface BluetoothServiceDataFilterLike
-	extends BluetoothDataFilterLike {
+export interface BluetoothServiceDataFilterLike extends BluetoothDataFilterLike {
 	service: BluetoothServiceUUIDLike;
 }
 
@@ -875,8 +877,10 @@ export type BrowserLocationWritableProperty =
 
 export type BrowserLocationTrigger = "load" | "popstate" | "hashchange";
 
-export interface BrowserLocationLike
-	extends Record<BrowserLocationWritableProperty, string> {
+export interface BrowserLocationLike extends Record<
+	BrowserLocationWritableProperty,
+	string
+> {
 	readonly origin?: string;
 }
 
@@ -1261,8 +1265,10 @@ export interface UseColorModeReturn<T extends string = BasicColorMode> {
 	stop(): void;
 }
 
-export interface UseDarkOptions
-	extends Omit<UseColorModeOptions, "modes" | "onChanged"> {
+export interface UseDarkOptions extends Omit<
+	UseColorModeOptions,
+	"modes" | "onChanged"
+> {
 	/**
 	 * Value applied when dark mode is active.
 	 *
@@ -1548,8 +1554,7 @@ export type UseSortedReturn<T = unknown> = ReadonlySignal<T[]>;
 
 export type ComputedWithControlSource<T = unknown> =
 	| WatchSource<T>
-	| DeepSignal<object>
-	| ReadonlyDeepSignal<object>;
+	| DeepSignal<object>;
 
 export type ComputedWithControlSourceList =
 	readonly ComputedWithControlSource[];
@@ -1588,11 +1593,10 @@ export type ExtendSignalOptions<Unwrap extends boolean = boolean> = {
 	enumerable?: boolean;
 } & ([Unwrap] extends [false] ? { unwrap: false } : { unwrap?: Unwrap });
 
-type IfEquals<X, Y, Then, Else> = (<T>() => T extends X ? 1 : 2) extends <
-	T,
->() => T extends Y ? 1 : 2
-	? Then
-	: Else;
+type IfEquals<X, Y, Then, Else> =
+	(<T>() => T extends X ? 1 : 2) extends <T>() => T extends Y ? 1 : 2
+		? Then
+		: Else;
 
 type IsReadonlyKey<T, K extends keyof T> = IfEquals<
 	{ [P in K]: T[P] },
@@ -1607,13 +1611,14 @@ type IsReadonlySignalValue<T> = T extends { readonly value: unknown }
 
 type ExtendSignalProtectedKey = "value" | "peek";
 
-type ExtendSignalValue<T> = T extends Computed<infer Value>
-	? Value
-	: T extends Signal<infer Value>
+type ExtendSignalValue<T> =
+	T extends Computed<infer Value>
 		? Value
-		: T extends ReadonlySignal<infer Value>
+		: T extends Signal<infer Value>
 			? Value
-			: T;
+			: T extends ReadonlySignal<infer Value>
+				? Value
+				: T;
 
 type ExtendSignalReadonlyKeys<Extend extends object> = {
 	[K in keyof Extend]-?: K extends ExtendSignalProtectedKey
@@ -1659,13 +1664,14 @@ export type EventBusKey<T = unknown> = symbol & {
 export type EventBusIdentifier<T = unknown> = EventBusKey<T> | string | number;
 
 type IsAny<T> = 0 extends 1 & T ? true : false;
-type IsUnknown<T> = IsAny<T> extends true
-	? false
-	: unknown extends T
-		? [T] extends [unknown]
-			? true
-			: false
-		: false;
+type IsUnknown<T> =
+	IsAny<T> extends true
+		? false
+		: unknown extends T
+			? [T] extends [unknown]
+				? true
+				: false
+			: false;
 type IsTuple<T> = T extends readonly unknown[]
 	? number extends T["length"]
 		? false
@@ -1678,17 +1684,18 @@ type IsUnion<T, TBase = T> = T extends unknown
 		: true
 	: false;
 
-export type EventHookArgs<T = unknown> = IsAny<T> extends true
-	? unknown[]
-	: IsUnknown<T> extends true
+export type EventHookArgs<T = unknown> =
+	IsAny<T> extends true
 		? unknown[]
-		: [T] extends [void]
+		: IsUnknown<T> extends true
 			? unknown[]
-			: [T] extends [readonly unknown[]]
-				? IsTuple<T> extends true
-					? [...T]
-					: [T, ...unknown[]]
-				: [T, ...unknown[]];
+			: [T] extends [void]
+				? unknown[]
+				: [T] extends [readonly unknown[]]
+					? IsTuple<T> extends true
+						? [...T]
+						: [T, ...unknown[]]
+					: [T, ...unknown[]];
 
 export type EventHookCallback<T = unknown> = (
 	...args: EventHookArgs<T>
@@ -1713,19 +1720,20 @@ export interface EventHook<T = unknown> {
 
 export type EventHookReturn<T = unknown> = EventHook<T>;
 
-type EventTuple<TArgs> = IsNever<TArgs> extends true
-	? never
-	: IsUnion<TArgs> extends true
+type EventTuple<TArgs> =
+	IsNever<TArgs> extends true
 		? never
-		: undefined extends TArgs
+		: IsUnion<TArgs> extends true
 			? never
-			: [TArgs] extends [readonly unknown[]]
-				? number extends TArgs["length"]
-					? never
-					: IsUnion<TArgs["length"]> extends true
+			: undefined extends TArgs
+				? never
+				: [TArgs] extends [readonly unknown[]]
+					? number extends TArgs["length"]
 						? never
-						: TArgs
-				: never;
+						: IsUnion<TArgs["length"]> extends true
+							? never
+							: TArgs
+					: never;
 
 type EventsInvalidKeys<TEvents extends object> = {
 	[TKey in keyof TEvents]-?: [EventTuple<TEvents[TKey]>] extends [never]
@@ -1733,15 +1741,16 @@ type EventsInvalidKeys<TEvents extends object> = {
 		: never;
 }[keyof TEvents];
 
-export type EventsRecord<TEvents extends object> = IsNever<TEvents> extends true
-	? never
-	: IsUnion<TEvents> extends true
+export type EventsRecord<TEvents extends object> =
+	IsNever<TEvents> extends true
 		? never
-		: EventsInvalidKeys<TEvents> extends never
-			? {
-					[TKey in keyof TEvents]-?: EventTuple<TEvents[TKey]>;
-				}
-			: never;
+		: IsUnion<TEvents> extends true
+			? never
+			: EventsInvalidKeys<TEvents> extends never
+				? {
+						[TKey in keyof TEvents]-?: EventTuple<TEvents[TKey]>;
+					}
+				: never;
 
 export type EventsCallback<TArgs extends readonly unknown[]> = (
 	...args: [...TArgs]
@@ -1830,8 +1839,8 @@ export interface UseEventSourceSerializer<Data> {
 export interface UseEventSourceOptions<
 	Data = string,
 	TEventSource extends EventSourceLike = EventSourceLike,
-	TWindow extends
-		EventSourceWindowLike<TEventSource> = EventSourceWindowLike<TEventSource>,
+	TWindow extends EventSourceWindowLike<TEventSource> =
+		EventSourceWindowLike<TEventSource>,
 > extends EventSourceInit {
 	immediate?: boolean;
 	autoConnect?: boolean;
@@ -1882,8 +1891,8 @@ export interface UseEyeDropperWindowLike<
 
 export interface UseEyeDropperOptions<
 	TEyeDropper extends EyeDropperLike = EyeDropperLike,
-	TWindow extends
-		UseEyeDropperWindowLike<TEyeDropper> = UseEyeDropperWindowLike<TEyeDropper>,
+	TWindow extends UseEyeDropperWindowLike<TEyeDropper> =
+		UseEyeDropperWindowLike<TEyeDropper>,
 > {
 	initialValue?: string;
 	window?: MaybeTarget<TWindow>;
@@ -2316,13 +2325,11 @@ export interface FileSystemAccessPickerOptions {
 	types?: readonly FileSystemAccessAcceptType[];
 }
 
-export interface FileSystemAccessShowOpenFileOptions
-	extends FileSystemAccessPickerOptions {
+export interface FileSystemAccessShowOpenFileOptions extends FileSystemAccessPickerOptions {
 	multiple?: boolean;
 }
 
-export interface FileSystemAccessShowSaveFileOptions
-	extends FileSystemAccessPickerOptions {
+export interface FileSystemAccessShowSaveFileOptions extends FileSystemAccessPickerOptions {
 	suggestedName?: string;
 }
 
@@ -2345,8 +2352,8 @@ export interface FileSystemAccessFileHandleLike {
 }
 
 export interface FileSystemAccessWindowLike<
-	TFileHandle extends
-		FileSystemAccessFileHandleLike = FileSystemAccessFileHandleLike,
+	TFileHandle extends FileSystemAccessFileHandleLike =
+		FileSystemAccessFileHandleLike,
 > extends WindowLike {
 	showOpenFilePicker?: (
 		options?: FileSystemAccessShowOpenFileOptions,
@@ -2365,8 +2372,7 @@ export interface UseFileSystemAccessPickerOptions {
 
 export type UseFileSystemAccessOpenOptions = UseFileSystemAccessPickerOptions;
 
-export interface UseFileSystemAccessSaveOptions
-	extends UseFileSystemAccessPickerOptions {
+export interface UseFileSystemAccessSaveOptions extends UseFileSystemAccessPickerOptions {
 	suggestedName?: MaybeValue<string | undefined>;
 }
 
@@ -2615,8 +2621,8 @@ export interface UseScreenOrientationWindowLike extends WindowLike {
 }
 
 export interface UseScreenOrientationOptions<
-	TWindow extends
-		UseScreenOrientationWindowLike = UseScreenOrientationWindowLike,
+	TWindow extends UseScreenOrientationWindowLike =
+		UseScreenOrientationWindowLike,
 > {
 	window?: MaybeTarget<TWindow | null | undefined>;
 }
@@ -2788,15 +2794,16 @@ export type UseStepperArrayStep = string | number;
 
 export type UseStepperObjectSteps = Record<string, MaybeValue<unknown>>;
 
-export type UseStepperResolvedStep<T> = T extends Signal<infer Value>
-	? Value
-	: T extends ReadonlySignal<infer Value>
+export type UseStepperResolvedStep<T> =
+	T extends Signal<infer Value>
 		? Value
-		: T extends Computed<infer Value>
+		: T extends ReadonlySignal<infer Value>
 			? Value
-			: T extends () => infer Value
+			: T extends Computed<infer Value>
 				? Value
-				: T;
+				: T extends () => infer Value
+					? Value
+					: T;
 
 export type UseStepperObjectStepName<T extends UseStepperObjectSteps> =
 	| Extract<keyof T, string>
@@ -2966,8 +2973,9 @@ export interface UseTimeoutFnReturn<TArgs extends unknown[] = []> {
 	stop(): void;
 }
 
-export interface UseTimeoutOptions<Controls extends boolean = false>
-	extends UseTimeoutFnOptions {
+export interface UseTimeoutOptions<
+	Controls extends boolean = false,
+> extends UseTimeoutFnOptions {
 	controls?: Controls;
 	callback?: () => void;
 }
@@ -3151,8 +3159,9 @@ export interface UseTimeAgoIntlFormatOptions {
 	units?: UseTimeAgoIntlUnit[];
 }
 
-export interface UseTimeAgoIntlOptions<Controls extends boolean = false>
-	extends UseTimeAgoIntlFormatOptions {
+export interface UseTimeAgoIntlOptions<
+	Controls extends boolean = false,
+> extends UseTimeAgoIntlFormatOptions {
 	/**
 	 * Expose pause and resume controls and Intl parts.
 	 *
@@ -3378,8 +3387,8 @@ export interface UseEventListenerReturn {
 }
 
 export interface UseDocumentVisibilityOptions<
-	TDocument extends
-		DocumentVisibilityDocumentLike = DocumentVisibilityDocumentLike,
+	TDocument extends DocumentVisibilityDocumentLike =
+		DocumentVisibilityDocumentLike,
 > {
 	document?: MaybeTarget<TDocument>;
 }
@@ -3415,8 +3424,8 @@ export interface UseDeviceMotionReturn {
 }
 
 export interface UseDeviceOrientationOptions<
-	TWindow extends
-		UseDeviceOrientationWindowLike = UseDeviceOrientationWindowLike,
+	TWindow extends UseDeviceOrientationWindowLike =
+		UseDeviceOrientationWindowLike,
 > {
 	/**
 	 * Pass true to DeviceOrientationEvent.requestPermission(true) when requesting
@@ -3547,8 +3556,8 @@ export interface UseDisplayMediaNavigatorLike<
 
 export interface UseDisplayMediaOptions<
 	TStream extends UseDisplayMediaMediaStreamLike = MediaStream,
-	TNavigator extends
-		UseDisplayMediaNavigatorLike<TStream> = UseDisplayMediaNavigatorLike<TStream>,
+	TNavigator extends UseDisplayMediaNavigatorLike<TStream> =
+		UseDisplayMediaNavigatorLike<TStream>,
 > {
 	/**
 	 * Display media constraints passed to getDisplayMedia().
@@ -3599,8 +3608,8 @@ export interface UseUserMediaNavigatorLike<
 
 export interface UseUserMediaOptions<
 	TStream extends UseUserMediaMediaStreamLike = MediaStream,
-	TNavigator extends
-		UseUserMediaNavigatorLike<TStream> = UseUserMediaNavigatorLike<TStream>,
+	TNavigator extends UseUserMediaNavigatorLike<TStream> =
+		UseUserMediaNavigatorLike<TStream>,
 > {
 	/**
 	 * Recreate the stream when constraints change.
@@ -3699,8 +3708,8 @@ export type UseWakeLockDocumentLike = DocumentVisibilityDocumentLike;
 
 export interface UseWakeLockOptions<
 	TSentinel extends UseWakeLockSentinelLike = WakeLockSentinel,
-	TNavigator extends
-		UseWakeLockNavigatorLike<TSentinel> = UseWakeLockNavigatorLike<TSentinel>,
+	TNavigator extends UseWakeLockNavigatorLike<TSentinel> =
+		UseWakeLockNavigatorLike<TSentinel>,
 	TDocument extends UseWakeLockDocumentLike = UseWakeLockDocumentLike,
 > {
 	navigator?: MaybeValue<TNavigator | null | undefined>;
@@ -3724,8 +3733,8 @@ export interface UseWebNotificationNotificationLike extends EventTarget {
 }
 
 export interface UseWebNotificationConstructorLike<
-	TNotification extends
-		UseWebNotificationNotificationLike = UseWebNotificationNotificationLike,
+	TNotification extends UseWebNotificationNotificationLike =
+		UseWebNotificationNotificationLike,
 > {
 	readonly permission: NotificationPermission;
 	requestPermission(): Promise<NotificationPermission>;
@@ -3736,8 +3745,8 @@ export interface UseWebNotificationConstructorLike<
 }
 
 export interface UseWebNotificationWindowLike<
-	TNotification extends
-		UseWebNotificationNotificationLike = UseWebNotificationNotificationLike,
+	TNotification extends UseWebNotificationNotificationLike =
+		UseWebNotificationNotificationLike,
 > extends WindowLike {
 	readonly document?: DocumentVisibilityDocumentLike;
 	readonly Notification?: UseWebNotificationConstructorLike<TNotification> | null;
@@ -3759,8 +3768,7 @@ export interface UseWebNotificationConstructorOptions {
 	vibrate?: number | readonly number[];
 }
 
-export interface UseWebNotificationOptionsBase
-	extends UseWebNotificationConstructorOptions {
+export interface UseWebNotificationOptionsBase extends UseWebNotificationConstructorOptions {
 	/**
 	 * Title passed as the first Notification constructor argument.
 	 *
@@ -3770,10 +3778,10 @@ export interface UseWebNotificationOptionsBase
 }
 
 export interface UseWebNotificationOptions<
-	TNotification extends
-		UseWebNotificationNotificationLike = UseWebNotificationNotificationLike,
-	TWindow extends
-		UseWebNotificationWindowLike<TNotification> = UseWebNotificationWindowLike<TNotification>,
+	TNotification extends UseWebNotificationNotificationLike =
+		UseWebNotificationNotificationLike,
+	TWindow extends UseWebNotificationWindowLike<TNotification> =
+		UseWebNotificationWindowLike<TNotification>,
 > extends UseWebNotificationOptionsBase {
 	/**
 	 * Request permission when this value becomes true.
@@ -3785,8 +3793,8 @@ export interface UseWebNotificationOptions<
 }
 
 export interface UseWebNotificationReturn<
-	TNotification extends
-		UseWebNotificationNotificationLike = UseWebNotificationNotificationLike,
+	TNotification extends UseWebNotificationNotificationLike =
+		UseWebNotificationNotificationLike,
 > {
 	readonly notification: ReadonlySignal<TNotification | null>;
 	readonly isSupported: ReadonlySignal<boolean>;
@@ -3888,8 +3896,8 @@ export interface UseWebSocketAutoReconnectOptions {
 
 export interface UseWebSocketOptions<
 	TWebSocket extends WebSocketLike = WebSocketLike,
-	TWindow extends
-		UseWebSocketWindowLike<TWebSocket> = UseWebSocketWindowLike<TWebSocket>,
+	TWindow extends UseWebSocketWindowLike<TWebSocket> =
+		UseWebSocketWindowLike<TWebSocket>,
 > {
 	onConnected?: (socket: TWebSocket) => void;
 	onDisconnected?: (socket: TWebSocket, event: CloseEvent) => void;
@@ -3950,8 +3958,9 @@ export interface WorkerConstructorLike<
 	new (scriptURL: string | URL, options?: WorkerOptions): TWorker;
 }
 
-export interface UseWebWorkerWindowLike<TWorker extends WorkerLike = WorkerLike>
-	extends WindowLike {
+export interface UseWebWorkerWindowLike<
+	TWorker extends WorkerLike = WorkerLike,
+> extends WindowLike {
 	readonly Worker?: WorkerConstructorLike<TWorker> | null;
 }
 
@@ -3974,8 +3983,8 @@ export type UseWebWorkerSource<TWorker extends WorkerLike = WorkerLike> =
 
 export interface UseWebWorkerOptions<
 	TWorker extends WorkerLike = WorkerLike,
-	TWindow extends
-		UseWebWorkerWindowLike<TWorker> = UseWebWorkerWindowLike<TWorker>,
+	TWindow extends UseWebWorkerWindowLike<TWorker> =
+		UseWebWorkerWindowLike<TWorker>,
 	Data = unknown,
 > {
 	/**
@@ -4058,8 +4067,8 @@ export interface UseWebWorkerFnWindowLike<
 
 export interface UseWebWorkerFnOptions<
 	TWorker extends WorkerLike = WorkerLike,
-	TWindow extends
-		UseWebWorkerFnWindowLike<TWorker> = UseWebWorkerFnWindowLike<TWorker>,
+	TWindow extends UseWebWorkerFnWindowLike<TWorker> =
+		UseWebWorkerFnWindowLike<TWorker>,
 > {
 	/**
 	 * Milliseconds before terminating the active worker.
@@ -4288,21 +4297,20 @@ export type WatchAtMostSource<T = unknown> =
 	| WatchSource<T>
 	| WatchAtMostDeepSource<T>;
 
-export type WatchAtMostSourceValue<TSource> = TSource extends Signal<
-	infer Value
->
-	? Value
-	: TSource extends ReadonlySignal<infer Value>
+export type WatchAtMostSourceValue<TSource> =
+	TSource extends Signal<infer Value>
 		? Value
-		: TSource extends Computed<infer Value>
+		: TSource extends ReadonlySignal<infer Value>
 			? Value
-			: TSource extends () => infer Value
+			: TSource extends Computed<infer Value>
 				? Value
-				: TSource extends DeepSignal<infer Value>
+				: TSource extends () => infer Value
 					? Value
-					: TSource extends ReadonlyDeepSignal<infer Value>
+					: TSource extends DeepSignal<infer Value>
 						? Value
-						: TSource;
+						: TSource extends ReadonlyDeepSignal<infer Value>
+							? Value
+							: TSource;
 
 export type WatchAtMostSourceValues<TSources extends readonly unknown[]> = {
 	[K in keyof TSources]: WatchAtMostSourceValue<TSources[K]>;
@@ -4328,8 +4336,9 @@ export type WatchAtMostSourceListCallback<
 	onCleanup: WatchAtMostOnCleanup,
 ) => void | Cleanup | Promise<void | Cleanup>;
 
-export interface WatchAtMostOptions<Immediate extends boolean = false>
-	extends WatchOptions<Immediate> {
+export interface WatchAtMostOptions<
+	Immediate extends boolean = false,
+> extends WatchOptions<Immediate> {
 	count: MaybeValue<number>;
 }
 
@@ -4346,21 +4355,20 @@ export type WatchDebouncedSource<T = unknown> =
 	| WatchSource<T>
 	| WatchDebouncedDeepSource<T>;
 
-export type WatchDebouncedSourceValue<TSource> = TSource extends Signal<
-	infer Value
->
-	? Value
-	: TSource extends ReadonlySignal<infer Value>
+export type WatchDebouncedSourceValue<TSource> =
+	TSource extends Signal<infer Value>
 		? Value
-		: TSource extends Computed<infer Value>
+		: TSource extends ReadonlySignal<infer Value>
 			? Value
-			: TSource extends () => infer Value
+			: TSource extends Computed<infer Value>
 				? Value
-				: TSource extends DeepSignal<infer Value>
+				: TSource extends () => infer Value
 					? Value
-					: TSource extends ReadonlyDeepSignal<infer Value>
+					: TSource extends DeepSignal<infer Value>
 						? Value
-						: TSource;
+						: TSource extends ReadonlyDeepSignal<infer Value>
+							? Value
+							: TSource;
 
 export type WatchDebouncedSourceValues<TSources extends readonly unknown[]> = {
 	[K in keyof TSources]: WatchDebouncedSourceValue<TSources[K]>;
@@ -4377,8 +4385,9 @@ export type WatchDebouncedCallback<
 	onCleanup: WatchDebouncedOnCleanup,
 ) => void | Cleanup | Promise<void | Cleanup>;
 
-export interface WatchDebouncedOptions<Immediate extends boolean = false>
-	extends WatchOptions<Immediate> {
+export interface WatchDebouncedOptions<
+	Immediate extends boolean = false,
+> extends WatchOptions<Immediate> {
 	debounce?: MaybeValue<number>;
 	maxWait?: MaybeValue<number>;
 }
@@ -4393,19 +4402,20 @@ export type WatchDeepSource<T = unknown> =
 	| WatchSource<T>
 	| WatchDeepDeepSource<T>;
 
-export type WatchDeepSourceValue<TSource> = TSource extends Signal<infer Value>
-	? Value
-	: TSource extends ReadonlySignal<infer Value>
+export type WatchDeepSourceValue<TSource> =
+	TSource extends Signal<infer Value>
 		? Value
-		: TSource extends Computed<infer Value>
+		: TSource extends ReadonlySignal<infer Value>
 			? Value
-			: TSource extends () => infer Value
+			: TSource extends Computed<infer Value>
 				? Value
-				: TSource extends DeepSignal<infer Value>
+				: TSource extends () => infer Value
 					? Value
-					: TSource extends ReadonlyDeepSignal<infer Value>
+					: TSource extends DeepSignal<infer Value>
 						? Value
-						: TSource;
+						: TSource extends ReadonlyDeepSignal<infer Value>
+							? Value
+							: TSource;
 
 export type WatchDeepSourceValues<TSources extends readonly unknown[]> = {
 	[K in keyof TSources]: WatchDeepSourceValue<TSources[K]>;
@@ -4437,21 +4447,20 @@ export type WatchIgnorableSource<T = unknown> =
 	| WatchSource<T>
 	| WatchIgnorableDeepSource<T>;
 
-export type WatchIgnorableSourceValue<TSource> = TSource extends Signal<
-	infer Value
->
-	? Value
-	: TSource extends ReadonlySignal<infer Value>
+export type WatchIgnorableSourceValue<TSource> =
+	TSource extends Signal<infer Value>
 		? Value
-		: TSource extends Computed<infer Value>
+		: TSource extends ReadonlySignal<infer Value>
 			? Value
-			: TSource extends () => infer Value
+			: TSource extends Computed<infer Value>
 				? Value
-				: TSource extends DeepSignal<infer Value>
+				: TSource extends () => infer Value
 					? Value
-					: TSource extends ReadonlyDeepSignal<infer Value>
+					: TSource extends DeepSignal<infer Value>
 						? Value
-						: TSource;
+						: TSource extends ReadonlyDeepSignal<infer Value>
+							? Value
+							: TSource;
 
 export type WatchIgnorableSourceValues<TSources extends readonly unknown[]> = {
 	[K in keyof TSources]: WatchIgnorableSourceValue<TSources[K]>;
@@ -4489,21 +4498,20 @@ export type WatchTriggerableSource<T = unknown> =
 	| WatchSource<T>
 	| WatchTriggerableDeepSource<T>;
 
-export type WatchTriggerableSourceValue<TSource> = TSource extends Signal<
-	infer Value
->
-	? Value
-	: TSource extends ReadonlySignal<infer Value>
+export type WatchTriggerableSourceValue<TSource> =
+	TSource extends Signal<infer Value>
 		? Value
-		: TSource extends Computed<infer Value>
+		: TSource extends ReadonlySignal<infer Value>
 			? Value
-			: TSource extends () => infer Value
+			: TSource extends Computed<infer Value>
 				? Value
-				: TSource extends DeepSignal<infer Value>
+				: TSource extends () => infer Value
 					? Value
-					: TSource extends ReadonlyDeepSignal<infer Value>
+					: TSource extends DeepSignal<infer Value>
 						? Value
-						: TSource;
+						: TSource extends ReadonlyDeepSignal<infer Value>
+							? Value
+							: TSource;
 
 export type WatchTriggerableSourceValues<TSources extends readonly unknown[]> =
 	{
@@ -4531,8 +4539,9 @@ export type WatchTriggerableCallback<
 export type WatchTriggerableOptions<Immediate extends boolean = false> =
 	WatchIgnorableOptions<Immediate>;
 
-export interface WatchTriggerableReturn<TriggerReturn = void>
-	extends WatchIgnorableReturn {
+export interface WatchTriggerableReturn<
+	TriggerReturn = void,
+> extends WatchIgnorableReturn {
 	trigger(): TriggerReturn | undefined;
 }
 
@@ -4544,21 +4553,20 @@ export type WatchWithFilterSource<T = unknown> =
 	| WatchSource<T>
 	| WatchWithFilterDeepSource<T>;
 
-export type WatchWithFilterSourceValue<TSource> = TSource extends Signal<
-	infer Value
->
-	? Value
-	: TSource extends ReadonlySignal<infer Value>
+export type WatchWithFilterSourceValue<TSource> =
+	TSource extends Signal<infer Value>
 		? Value
-		: TSource extends Computed<infer Value>
+		: TSource extends ReadonlySignal<infer Value>
 			? Value
-			: TSource extends () => infer Value
+			: TSource extends Computed<infer Value>
 				? Value
-				: TSource extends DeepSignal<infer Value>
+				: TSource extends () => infer Value
 					? Value
-					: TSource extends ReadonlyDeepSignal<infer Value>
+					: TSource extends DeepSignal<infer Value>
 						? Value
-						: TSource;
+						: TSource extends ReadonlyDeepSignal<infer Value>
+							? Value
+							: TSource;
 
 export type WatchWithFilterSourceValues<TSources extends readonly unknown[]> = {
 	[K in keyof TSources]: WatchWithFilterSourceValue<TSources[K]>;
@@ -4573,26 +4581,26 @@ export type WatchWithFilterCallback<Value = unknown, OldValue = Value> = (
 ) => void | Cleanup | Promise<void | Cleanup>;
 
 export interface WatchWithFilterOptions<Immediate extends boolean = false>
-	extends WatchOptions<Immediate>,
-		ConfigurableEventFilter {}
+	extends WatchOptions<Immediate>, ConfigurableEventFilter {}
 
 export type WatchWithFilterReturn = WatchStopHandle;
 
 export type WheneverSource<T = unknown> = WatchSource<T>;
 
-export type WheneverSourceValue<TSource> = TSource extends Signal<infer Value>
-	? Value
-	: TSource extends ReadonlySignal<infer Value>
+export type WheneverSourceValue<TSource> =
+	TSource extends Signal<infer Value>
 		? Value
-		: TSource extends Computed<infer Value>
+		: TSource extends ReadonlySignal<infer Value>
 			? Value
-			: TSource extends () => infer Value
+			: TSource extends Computed<infer Value>
 				? Value
-				: TSource extends DeepSignal<infer Value>
+				: TSource extends () => infer Value
 					? Value
-					: TSource extends ReadonlyDeepSignal<infer Value>
+					: TSource extends DeepSignal<infer Value>
 						? Value
-						: TSource;
+						: TSource extends ReadonlyDeepSignal<infer Value>
+							? Value
+							: TSource;
 
 export type WheneverTruthy<T> = Exclude<T, Falsy>;
 
@@ -4604,8 +4612,9 @@ export type WheneverCallback<Value = unknown, OldValue = Value> = (
 	onCleanup: WheneverOnCleanup,
 ) => void | Cleanup | Promise<void | Cleanup>;
 
-export interface WheneverOptions<Immediate extends boolean = false>
-	extends WatchOptions<Immediate> {
+export interface WheneverOptions<
+	Immediate extends boolean = false,
+> extends WatchOptions<Immediate> {
 	/**
 	 * Stop after the first truthy callback run.
 	 *
@@ -4624,21 +4633,20 @@ export type WatchImmediateSource<T = unknown> =
 	| WatchSource<T>
 	| WatchImmediateDeepSource<T>;
 
-export type WatchImmediateSourceValue<TSource> = TSource extends Signal<
-	infer Value
->
-	? Value
-	: TSource extends ReadonlySignal<infer Value>
+export type WatchImmediateSourceValue<TSource> =
+	TSource extends Signal<infer Value>
 		? Value
-		: TSource extends Computed<infer Value>
+		: TSource extends ReadonlySignal<infer Value>
 			? Value
-			: TSource extends () => infer Value
+			: TSource extends Computed<infer Value>
 				? Value
-				: TSource extends DeepSignal<infer Value>
+				: TSource extends () => infer Value
 					? Value
-					: TSource extends ReadonlyDeepSignal<infer Value>
+					: TSource extends DeepSignal<infer Value>
 						? Value
-						: TSource;
+						: TSource extends ReadonlyDeepSignal<infer Value>
+							? Value
+							: TSource;
 
 export type WatchImmediateSourceValues<TSources extends readonly unknown[]> = {
 	[K in keyof TSources]: WatchImmediateSourceValue<TSources[K]>;
@@ -4667,19 +4675,20 @@ export type WatchOnceSource<T = unknown> =
 	| WatchSource<T>
 	| WatchOnceDeepSource<T>;
 
-export type WatchOnceSourceValue<TSource> = TSource extends Signal<infer Value>
-	? Value
-	: TSource extends ReadonlySignal<infer Value>
+export type WatchOnceSourceValue<TSource> =
+	TSource extends Signal<infer Value>
 		? Value
-		: TSource extends Computed<infer Value>
+		: TSource extends ReadonlySignal<infer Value>
 			? Value
-			: TSource extends () => infer Value
+			: TSource extends Computed<infer Value>
 				? Value
-				: TSource extends DeepSignal<infer Value>
+				: TSource extends () => infer Value
 					? Value
-					: TSource extends ReadonlyDeepSignal<infer Value>
+					: TSource extends DeepSignal<infer Value>
 						? Value
-						: TSource;
+						: TSource extends ReadonlyDeepSignal<infer Value>
+							? Value
+							: TSource;
 
 export type WatchOnceSourceValues<TSources extends readonly unknown[]> = {
 	[K in keyof TSources]: WatchOnceSourceValue<TSources[K]>;
@@ -4706,21 +4715,20 @@ export type WatchPausableSource<T = unknown> =
 	| WatchSource<T>
 	| WatchPausableDeepSource<T>;
 
-export type WatchPausableSourceValue<TSource> = TSource extends Signal<
-	infer Value
->
-	? Value
-	: TSource extends ReadonlySignal<infer Value>
+export type WatchPausableSourceValue<TSource> =
+	TSource extends Signal<infer Value>
 		? Value
-		: TSource extends Computed<infer Value>
+		: TSource extends ReadonlySignal<infer Value>
 			? Value
-			: TSource extends () => infer Value
+			: TSource extends Computed<infer Value>
 				? Value
-				: TSource extends DeepSignal<infer Value>
+				: TSource extends () => infer Value
 					? Value
-					: TSource extends ReadonlyDeepSignal<infer Value>
+					: TSource extends DeepSignal<infer Value>
 						? Value
-						: TSource;
+						: TSource extends ReadonlyDeepSignal<infer Value>
+							? Value
+							: TSource;
 
 export type WatchPausableSourceValues<TSources extends readonly unknown[]> = {
 	[K in keyof TSources]: WatchPausableSourceValue<TSources[K]>;
@@ -4736,8 +4744,9 @@ export type WatchPausableCallback<Value = unknown, OldValue = Value> = (
 
 export type WatchPausableInitialState = "active" | "paused";
 
-export interface WatchPausableOptions<Immediate extends boolean = false>
-	extends WatchOptions<Immediate> {
+export interface WatchPausableOptions<
+	Immediate extends boolean = false,
+> extends WatchOptions<Immediate> {
 	initialState?: WatchPausableInitialState;
 }
 
@@ -4756,21 +4765,20 @@ export type WatchThrottledSource<T = unknown> =
 	| WatchSource<T>
 	| WatchThrottledDeepSource<T>;
 
-export type WatchThrottledSourceValue<TSource> = TSource extends Signal<
-	infer Value
->
-	? Value
-	: TSource extends ReadonlySignal<infer Value>
+export type WatchThrottledSourceValue<TSource> =
+	TSource extends Signal<infer Value>
 		? Value
-		: TSource extends Computed<infer Value>
+		: TSource extends ReadonlySignal<infer Value>
 			? Value
-			: TSource extends () => infer Value
+			: TSource extends Computed<infer Value>
 				? Value
-				: TSource extends DeepSignal<infer Value>
+				: TSource extends () => infer Value
 					? Value
-					: TSource extends ReadonlyDeepSignal<infer Value>
+					: TSource extends DeepSignal<infer Value>
 						? Value
-						: TSource;
+						: TSource extends ReadonlyDeepSignal<infer Value>
+							? Value
+							: TSource;
 
 export type WatchThrottledSourceValues<TSources extends readonly unknown[]> = {
 	[K in keyof TSources]: WatchThrottledSourceValue<TSources[K]>;
@@ -4784,8 +4792,9 @@ export type WatchThrottledCallback<Value = unknown, OldValue = Value> = (
 	onCleanup: WatchThrottledOnCleanup,
 ) => void | Cleanup | Promise<void | Cleanup>;
 
-export interface WatchThrottledOptions<Immediate extends boolean = false>
-	extends WatchOptions<Immediate> {
+export interface WatchThrottledOptions<
+	Immediate extends boolean = false,
+> extends WatchOptions<Immediate> {
 	throttle?: MaybeValue<number>;
 	trailing?: boolean;
 	leading?: boolean;
@@ -5295,8 +5304,8 @@ export type UsePerformanceObserverObserveOptions =
 	  };
 
 export type UsePerformanceObserverOptions<
-	TWindow extends
-		UsePerformanceObserverWindowLike = UsePerformanceObserverWindowLike,
+	TWindow extends UsePerformanceObserverWindowLike =
+		UsePerformanceObserverWindowLike,
 > = UsePerformanceObserverObserveOptions & {
 	/**
 	 * Start the observer immediately.
@@ -5355,8 +5364,8 @@ export interface UsePermissionNavigatorLike<
 }
 
 export interface UsePermissionOptions<
-	TNavigator extends
-		UsePermissionNavigatorLike<UsePermissionStatusLike> = UsePermissionNavigatorLike,
+	TNavigator extends UsePermissionNavigatorLike<UsePermissionStatusLike> =
+		UsePermissionNavigatorLike,
 > {
 	navigator?: MaybeValue<TNavigator | null | undefined>;
 }
@@ -5561,8 +5570,7 @@ export type UseTextareaAutosizeWatchSource =
 	| WatchSource
 	| readonly WatchSource[];
 
-export interface UseTextareaAutosizeWindowLike
-	extends ResizeObserverWindowLike {
+export interface UseTextareaAutosizeWindowLike extends ResizeObserverWindowLike {
 	requestAnimationFrame?(callback: FrameRequestCallback): number;
 	cancelAnimationFrame?(handle: number): void;
 }
@@ -5716,8 +5724,8 @@ export interface UseNavigatorLanguageNavigatorLike extends NavigatorLike {
 
 export interface UseNavigatorLanguageOptions<
 	TWindow extends WindowLike = WindowLike,
-	TNavigator extends
-		UseNavigatorLanguageNavigatorLike = UseNavigatorLanguageNavigatorLike,
+	TNavigator extends UseNavigatorLanguageNavigatorLike =
+		UseNavigatorLanguageNavigatorLike,
 > {
 	window?: MaybeTarget<TWindow | null | undefined>;
 	navigator?: MaybeValue<TNavigator | null | undefined>;
@@ -5735,8 +5743,8 @@ export interface UsePreferredLanguagesNavigatorLike extends NavigatorLike {
 
 export interface UsePreferredLanguagesOptions<
 	TWindow extends WindowLike = WindowLike,
-	TNavigator extends
-		UsePreferredLanguagesNavigatorLike = UsePreferredLanguagesNavigatorLike,
+	TNavigator extends UsePreferredLanguagesNavigatorLike =
+		UsePreferredLanguagesNavigatorLike,
 > {
 	window?: MaybeTarget<TWindow | null | undefined>;
 	navigator?: MaybeValue<TNavigator | null | undefined>;
@@ -6229,9 +6237,9 @@ export interface UseScrollReturn {
 export interface UseWindowScrollOptions<
 	TWindow extends UseScrollWindowLike = UseScrollWindowLike,
 > extends Omit<
-		UseScrollOptions<TWindow | null | undefined, TWindow>,
-		"window"
-	> {
+	UseScrollOptions<TWindow | null | undefined, TWindow>,
+	"window"
+> {
 	window?: MaybeTarget<TWindow | null | undefined>;
 }
 
@@ -6369,8 +6377,8 @@ export type SpeechRecognitionForWindow<TWindow> =
 
 export interface UseSpeechRecognitionOptions<
 	TSpeechRecognition extends SpeechRecognitionLike = SpeechRecognitionLike,
-	TWindow extends
-		UseSpeechRecognitionWindowLike<TSpeechRecognition> = UseSpeechRecognitionWindowLike<TSpeechRecognition>,
+	TWindow extends UseSpeechRecognitionWindowLike<TSpeechRecognition> =
+		UseSpeechRecognitionWindowLike<TSpeechRecognition>,
 > {
 	/**
 	 * Controls whether continuous results are returned for each recognition.
@@ -6481,16 +6489,16 @@ export interface SpeechSynthesisUtteranceLike<
 
 export interface SpeechSynthesisUtteranceConstructorLike<
 	TVoice extends SpeechSynthesisVoiceLike = SpeechSynthesisVoiceLike,
-	TUtterance extends
-		SpeechSynthesisUtteranceLike<TVoice> = SpeechSynthesisUtteranceLike<TVoice>,
+	TUtterance extends SpeechSynthesisUtteranceLike<TVoice> =
+		SpeechSynthesisUtteranceLike<TVoice>,
 > {
 	new (text?: string): TUtterance;
 }
 
 export interface SpeechSynthesisLike<
 	TVoice extends SpeechSynthesisVoiceLike = SpeechSynthesisVoiceLike,
-	TUtterance extends
-		SpeechSynthesisUtteranceLike<TVoice> = SpeechSynthesisUtteranceLike<TVoice>,
+	TUtterance extends SpeechSynthesisUtteranceLike<TVoice> =
+		SpeechSynthesisUtteranceLike<TVoice>,
 > extends EventTarget {
 	readonly paused: boolean;
 	readonly pending: boolean;
@@ -6503,8 +6511,8 @@ export interface SpeechSynthesisLike<
 }
 
 export interface SpeechSynthesisEventLike<
-	TUtterance extends
-		SpeechSynthesisUtteranceLike = SpeechSynthesisUtteranceLike,
+	TUtterance extends SpeechSynthesisUtteranceLike =
+		SpeechSynthesisUtteranceLike,
 > extends Event {
 	readonly charIndex: number;
 	readonly charLength: number;
@@ -6514,20 +6522,18 @@ export interface SpeechSynthesisEventLike<
 }
 
 export interface SpeechSynthesisErrorEventLike<
-	TUtterance extends
-		SpeechSynthesisUtteranceLike = SpeechSynthesisUtteranceLike,
+	TUtterance extends SpeechSynthesisUtteranceLike =
+		SpeechSynthesisUtteranceLike,
 > extends SpeechSynthesisEventLike<TUtterance> {
 	readonly error: SpeechSynthesisErrorCode;
 }
 
 export interface UseSpeechSynthesisWindowLike<
 	TVoice extends SpeechSynthesisVoiceLike = SpeechSynthesisVoiceLike,
-	TUtterance extends
-		SpeechSynthesisUtteranceLike<TVoice> = SpeechSynthesisUtteranceLike<TVoice>,
-	TSynthesis extends SpeechSynthesisLike<
-		TVoice,
-		TUtterance
-	> = SpeechSynthesisLike<TVoice, TUtterance>,
+	TUtterance extends SpeechSynthesisUtteranceLike<TVoice> =
+		SpeechSynthesisUtteranceLike<TVoice>,
+	TSynthesis extends SpeechSynthesisLike<TVoice, TUtterance> =
+		SpeechSynthesisLike<TVoice, TUtterance>,
 > extends WindowLike {
 	readonly speechSynthesis?: TSynthesis;
 	readonly SpeechSynthesisUtterance?: SpeechSynthesisUtteranceConstructorLike<
@@ -6565,12 +6571,10 @@ export type SpeechSynthesisVoiceForWindow<TWindow> =
 
 export interface UseSpeechSynthesisOptions<
 	TVoice extends SpeechSynthesisVoiceLike = SpeechSynthesisVoiceLike,
-	TUtterance extends
-		SpeechSynthesisUtteranceLike<TVoice> = SpeechSynthesisUtteranceLike<TVoice>,
-	TWindow extends UseSpeechSynthesisWindowLike<
-		TVoice,
-		TUtterance
-	> = UseSpeechSynthesisWindowLike<TVoice, TUtterance>,
+	TUtterance extends SpeechSynthesisUtteranceLike<TVoice> =
+		SpeechSynthesisUtteranceLike<TVoice>,
+	TWindow extends UseSpeechSynthesisWindowLike<TVoice, TUtterance> =
+		UseSpeechSynthesisWindowLike<TVoice, TUtterance>,
 > {
 	/**
 	 * Language for SpeechSynthesis.
@@ -6649,8 +6653,8 @@ export type UseSpeechSynthesisWindowOptions<
 
 export interface UseSpeechSynthesisReturn<
 	TVoice extends SpeechSynthesisVoiceLike = SpeechSynthesisVoiceLike,
-	TUtterance extends
-		SpeechSynthesisUtteranceLike<TVoice> = SpeechSynthesisUtteranceLike<TVoice>,
+	TUtterance extends SpeechSynthesisUtteranceLike<TVoice> =
+		SpeechSynthesisUtteranceLike<TVoice>,
 > {
 	readonly isSupported: ReadonlySignal<boolean>;
 	readonly isPlaying: ReadonlySignal<boolean>;
@@ -6690,8 +6694,7 @@ export interface UseInfiniteScrollDirections {
 	readonly bottom: boolean;
 }
 
-export interface UseInfiniteScrollWindowLike
-	extends UseElementVisibilityWindowLike {
+export interface UseInfiniteScrollWindowLike extends UseElementVisibilityWindowLike {
 	getComputedStyle?(
 		element: Element,
 		pseudoElt?: string | null,
@@ -6774,8 +6777,8 @@ export interface UseIntersectionObserverWindowLike extends WindowLike {
 }
 
 export interface UseIntersectionObserverOptions<
-	TWindow extends
-		UseIntersectionObserverWindowLike = UseIntersectionObserverWindowLike,
+	TWindow extends UseIntersectionObserverWindowLike =
+		UseIntersectionObserverWindowLike,
 > {
 	/**
 	 * Start observing immediately.
@@ -6931,8 +6934,8 @@ export type UseElementByPointScheduler = (
 
 export interface UseElementByPointOptions<
 	Multiple extends boolean = false,
-	TDocument extends
-		UseElementByPointDocumentLike = UseElementByPointDocumentLike,
+	TDocument extends UseElementByPointDocumentLike =
+		UseElementByPointDocumentLike,
 	TWindow extends UseElementByPointWindowLike = UseElementByPointWindowLike,
 > {
 	x: MaybeValue<number>;
@@ -6984,8 +6987,8 @@ export interface UseElementVisibilityWindowLike extends WindowLike {
 }
 
 export interface UseElementVisibilityOptions<
-	TWindow extends
-		UseElementVisibilityWindowLike = UseElementVisibilityWindowLike,
+	TWindow extends UseElementVisibilityWindowLike =
+		UseElementVisibilityWindowLike,
 > {
 	/**
 	 * Initial visibility value until IntersectionObserver reports the first state.
@@ -7020,8 +7023,10 @@ export type UseClonedCloneFn<T, Cloned = T> = (
 	value: T,
 ) => Cloned extends PromiseLike<unknown> ? never : Cloned;
 
-export interface UseClonedOptions<T, Cloned = T>
-	extends Omit<WatchOptions, "immediate"> {
+export interface UseClonedOptions<T, Cloned = T> extends Omit<
+	WatchOptions,
+	"immediate"
+> {
 	/**
 	 * Custom clone function.
 	 *
@@ -7071,15 +7076,19 @@ export interface UseManualRefHistoryReturn<Raw, Serialized = Raw> {
 	redo(): void;
 }
 
-export interface UseRefHistoryOptions<Raw, Serialized = Raw>
-	extends Omit<UseManualRefHistoryOptions<Raw, Serialized>, "setSource"> {
+export interface UseRefHistoryOptions<Raw, Serialized = Raw> extends Omit<
+	UseManualRefHistoryOptions<Raw, Serialized>,
+	"setSource"
+> {
 	deep?: boolean;
 	flush?: WatchOptions["flush"];
 	shouldCommit?: (oldValue: Raw | undefined, newValue: Raw) => boolean;
 }
 
-export interface UseRefHistoryReturn<Raw, Serialized = Raw>
-	extends UseManualRefHistoryReturn<Raw, Serialized> {
+export interface UseRefHistoryReturn<
+	Raw,
+	Serialized = Raw,
+> extends UseManualRefHistoryReturn<Raw, Serialized> {
 	readonly isTracking: ReadonlySignal<boolean>;
 	pause(): void;
 	resume(commit?: boolean): void;
@@ -7087,8 +7096,10 @@ export interface UseRefHistoryReturn<Raw, Serialized = Raw>
 	dispose(): void;
 }
 
-export interface UseDebouncedRefHistoryOptions<Raw, Serialized = Raw>
-	extends UseRefHistoryOptions<Raw, Serialized> {
+export interface UseDebouncedRefHistoryOptions<
+	Raw,
+	Serialized = Raw,
+> extends UseRefHistoryOptions<Raw, Serialized> {
 	debounce?: MaybeValue<number>;
 }
 
@@ -7097,8 +7108,10 @@ export type UseDebouncedRefHistoryReturn<
 	Serialized = Raw,
 > = UseRefHistoryReturn<Raw, Serialized>;
 
-export interface UseThrottledRefHistoryOptions<Raw, Serialized = Raw>
-	extends UseRefHistoryOptions<Raw, Serialized> {
+export interface UseThrottledRefHistoryOptions<
+	Raw,
+	Serialized = Raw,
+> extends UseRefHistoryOptions<Raw, Serialized> {
 	/**
 	 * Milliseconds before another automatic history commit can run.
 	 *

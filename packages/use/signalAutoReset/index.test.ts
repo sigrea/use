@@ -15,7 +15,7 @@ import {
 	unmountMolecule,
 	watchEffect,
 } from "@sigrea/core";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 
 import { resolveValue } from "../resolveValue";
 import { signalAutoReset } from "./index";

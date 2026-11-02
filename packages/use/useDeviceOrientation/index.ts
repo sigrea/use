@@ -54,8 +54,8 @@ function hasRequestPermission(
  * Reactive DeviceOrientationEvent.
  */
 export function useDeviceOrientation<
-	TWindow extends
-		UseDeviceOrientationWindowLike = UseDeviceOrientationWindowLike,
+	TWindow extends UseDeviceOrientationWindowLike =
+		UseDeviceOrientationWindowLike,
 >(
 	options: UseDeviceOrientationOptions<TWindow> = {},
 ): UseDeviceOrientationReturn {

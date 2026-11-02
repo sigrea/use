@@ -1,5 +1,5 @@
 import { disposeTrackedMolecules, signal } from "@sigrea/core";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vite-plus/test";
 
 import type { FocusMethodOptions, FocusableElementLike } from "../types";
 import { useFocus } from "./index";

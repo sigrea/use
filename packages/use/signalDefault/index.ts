@@ -3,15 +3,15 @@ import type { Computed, Signal } from "@sigrea/core";
 
 import type { SignalDefaultReturn } from "../types";
 
-type SignalDefaultSourceGuard<TSource> = TSource extends Computed<unknown>
-	? [sourceMustNotBeComputed: never]
-	: TSource extends Signal<unknown>
-		? []
-		: [sourceMustBeSignal: never];
+type SignalDefaultSourceGuard<TSource> =
+	TSource extends Computed<unknown>
+		? [sourceMustNotBeComputed: never]
+		: TSource extends Signal<unknown>
+			? []
+			: [sourceMustBeSignal: never];
 
-type SignalDefaultSourceValue<TSource> = TSource extends Signal<infer Value>
-	? Value
-	: never;
+type SignalDefaultSourceValue<TSource> =
+	TSource extends Signal<infer Value> ? Value : never;
 
 type SignalDefaultValue<TSource, TDefault> =
 	| NonNullable<SignalDefaultSourceValue<TSource>>

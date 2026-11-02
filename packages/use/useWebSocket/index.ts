@@ -128,8 +128,8 @@ function resolveDelay(
 export function useWebSocket<
 	Data = unknown,
 	TWebSocket extends WebSocketLike = WebSocket,
-	TWindow extends
-		UseWebSocketWindowLike<TWebSocket> = UseWebSocketWindowLike<TWebSocket>,
+	TWindow extends UseWebSocketWindowLike<TWebSocket> =
+		UseWebSocketWindowLike<TWebSocket>,
 >(
 	url: MaybeValue<string | URL | null | undefined>,
 	options: UseWebSocketOptions<TWebSocket, TWindow> = {},

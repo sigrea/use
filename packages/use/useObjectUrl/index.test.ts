@@ -5,14 +5,14 @@ import {
 	runWithScope,
 	signal,
 } from "@sigrea/core";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { type Mock, afterEach, describe, expect, it, vi } from "vite-plus/test";
 
 import type { UseObjectUrlUrlLike, UseObjectUrlWindowLike } from "../types";
 import { useObjectUrl } from "./index";
 
 function createUrlApi(): UseObjectUrlUrlLike & {
-	readonly createObjectURL: ReturnType<typeof vi.fn>;
-	readonly revokeObjectURL: ReturnType<typeof vi.fn>;
+	readonly createObjectURL: Mock<UseObjectUrlUrlLike["createObjectURL"]>;
+	readonly revokeObjectURL: Mock<UseObjectUrlUrlLike["revokeObjectURL"]>;
 } {
 	let count = 0;
 
@@ -21,7 +21,7 @@ function createUrlApi(): UseObjectUrlUrlLike & {
 			count += 1;
 			return `blob:mock-${count}`;
 		}),
-		revokeObjectURL: vi.fn(),
+		revokeObjectURL: vi.fn<UseObjectUrlUrlLike["revokeObjectURL"]>(),
 	};
 }
 
