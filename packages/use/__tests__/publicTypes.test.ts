@@ -8,7 +8,7 @@ import {
 	readonly,
 	signal,
 } from "@sigrea/core";
-import { describe, expectTypeOf, it } from "vitest";
+import { describe, expectTypeOf, it } from "vite-plus/test";
 
 import type {
 	AfterFetchContext,
@@ -5445,8 +5445,8 @@ describe("public types", () => {
 			expectTypeOf(controls.ignoreUpdates(() => {})).toEqualTypeOf<void>();
 			expectTypeOf(controls.ignorePrevAsyncUpdates()).toEqualTypeOf<void>();
 			expectTypeOf(watchReturn.stop()).toEqualTypeOf<void>();
-			// @ts-expect-error eventFilter is not supported without watchWithFilter
 			watchTriggerable(count, callback, {
+				// @ts-expect-error eventFilter is not supported without watchWithFilter
 				eventFilter(invoke: () => void) {
 					invoke();
 				},
@@ -8904,7 +8904,7 @@ describe("public types", () => {
 		expectTypeOf(pointerLockReturn.isSupported.value).toEqualTypeOf<boolean>();
 		expectTypeOf(pointerLock.isLocked.value).toEqualTypeOf<boolean>();
 		expectTypeOf(pointerLock.element.value).toEqualTypeOf<
-			typeof pointerLockElement | UsePointerLockElementLike | null
+			typeof pointerLockElement | null
 		>();
 		expectTypeOf(pointerLock.lock).toEqualTypeOf<
 			(options?: PointerLockOptions) => Promise<void>
@@ -11404,16 +11404,16 @@ describe("public types", () => {
 			).toEqualTypeOf<CubicBezierPoints>();
 			// @ts-expect-error returned value is readonly
 			result.value = 1;
-			// @ts-expect-error interpolation must return the source type
 			useTransition("from", {
+				// @ts-expect-error interpolation must return the source type
 				interpolation: () => 1,
 			});
-			// @ts-expect-error duration must resolve to a number
 			useTransition(source, {
+				// @ts-expect-error duration must resolve to a number
 				duration: "fast",
 			});
-			// @ts-expect-error disabled must resolve to a boolean
 			useTransition(source, {
+				// @ts-expect-error disabled must resolve to a boolean
 				disabled: "true",
 			});
 		});

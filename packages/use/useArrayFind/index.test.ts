@@ -1,7 +1,7 @@
 // @vitest-environment node
 
 import { computed, readonly, signal } from "@sigrea/core";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vite-plus/test";
 
 import { useArrayFind } from "./index";
 

@@ -1,5 +1,5 @@
 import { disposeTrackedMolecules } from "@sigrea/core";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 
 import type { UseScreenSafeAreaWindowLike } from "../types";
 import { useScreenSafeArea } from "./index";

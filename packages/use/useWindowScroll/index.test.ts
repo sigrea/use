@@ -1,5 +1,12 @@
 import { disposeTrackedMolecules, signal } from "@sigrea/core";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+	afterEach,
+	beforeEach,
+	describe,
+	expect,
+	it,
+	vi,
+} from "vite-plus/test";
 
 import type { UseScrollDocumentLike, UseScrollWindowLike } from "../types";
 import { useWindowScroll } from "./index";

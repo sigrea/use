@@ -9,8 +9,10 @@ import type {
 } from "../types";
 import { useRefHistory } from "../useRefHistory";
 
-interface DebouncedUseRefHistoryOptions<Raw, Serialized>
-	extends UseRefHistoryOptions<Raw, Serialized> {
+interface DebouncedUseRefHistoryOptions<
+	Raw,
+	Serialized,
+> extends UseRefHistoryOptions<Raw, Serialized> {
 	scheduleCommit?: (commit: () => void) => void;
 }
 

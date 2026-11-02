@@ -25,11 +25,10 @@ import type {
 	SyncSignalTransform,
 } from "../types";
 
-type IfEquals<X, Y, Then, Else> = (<T>() => T extends X ? 1 : 2) extends <
-	T,
->() => T extends Y ? 1 : 2
-	? Then
-	: Else;
+type IfEquals<X, Y, Then, Else> =
+	(<T>() => T extends X ? 1 : 2) extends <T>() => T extends Y ? 1 : 2
+		? Then
+		: Else;
 
 type Equal<A, B> = [A] extends [B] ? ([B] extends [A] ? true : false) : false;
 
@@ -42,22 +41,21 @@ type IsReadonlyValue<T> = T extends { value: unknown }
 		>
 	: true;
 
-type WritableSignalSource<TSource> = TSource extends Computed<unknown>
-	? never
-	: TSource extends Signal<unknown>
-		? IsReadonlyValue<TSource> extends true
-			? never
-			: unknown
-		: never;
+type WritableSignalSource<TSource> =
+	TSource extends Computed<unknown>
+		? never
+		: TSource extends Signal<unknown>
+			? IsReadonlyValue<TSource> extends true
+				? never
+				: unknown
+			: never;
 
 type SignalValue<TSource> = TSource extends Signal<infer Value> ? Value : never;
 
-type SyncSignalOptionsArg<L, R, D extends SyncSignalDirection> = Equal<
-	L,
-	R
-> extends true
-	? [options?: SyncSignalOptions<L, R, D>]
-	: [options: SyncSignalOptions<L, R, D>];
+type SyncSignalOptionsArg<L, R, D extends SyncSignalDirection> =
+	Equal<L, R> extends true
+		? [options?: SyncSignalOptions<L, R, D>]
+		: [options: SyncSignalOptions<L, R, D>];
 
 function getValueDescriptor(source: object): PropertyDescriptor | undefined {
 	let current: object | null = source;

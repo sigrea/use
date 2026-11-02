@@ -1,13 +1,21 @@
 import { signal } from "@sigrea/core";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import {
+	type Mock,
+	beforeEach,
+	describe,
+	expect,
+	it,
+	vi,
+} from "vite-plus/test";
 
+import type { OnStartTypingHandler } from "../types";
 import { onStartTyping } from "./index";
 
 describe("onStartTyping", () => {
-	let callback: ReturnType<typeof vi.fn>;
+	let callback: Mock<OnStartTypingHandler>;
 
 	beforeEach(() => {
-		callback = vi.fn();
+		callback = vi.fn<OnStartTypingHandler>();
 		document.body.focus();
 	});
 

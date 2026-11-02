@@ -8,7 +8,7 @@ import {
 	expect,
 	it,
 	vi,
-} from "vitest";
+} from "vite-plus/test";
 
 import { useEventListener } from "../useEventListener";
 import { onLongPress } from "./index";

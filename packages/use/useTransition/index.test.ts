@@ -1,7 +1,14 @@
 // @vitest-environment node
 
 import { disposeTrackedMolecules, signal } from "@sigrea/core";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+	afterEach,
+	beforeEach,
+	describe,
+	expect,
+	it,
+	vi,
+} from "vite-plus/test";
 
 import type { UseTransitionWindowLike } from "../types";
 import { transition, useTransition } from "./index";

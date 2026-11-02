@@ -25,8 +25,8 @@ function isEyeDropperSupported<TEyeDropper extends EyeDropperLike>(
  */
 export function useEyeDropper<
 	TEyeDropper extends EyeDropperLike = EyeDropperLike,
-	TWindow extends
-		UseEyeDropperWindowLike<TEyeDropper> = UseEyeDropperWindowLike<TEyeDropper>,
+	TWindow extends UseEyeDropperWindowLike<TEyeDropper> =
+		UseEyeDropperWindowLike<TEyeDropper>,
 >(
 	options: UseEyeDropperOptions<TEyeDropper, TWindow> = {},
 ): UseEyeDropperReturn<TEyeDropper> {

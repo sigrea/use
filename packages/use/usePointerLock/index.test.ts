@@ -1,5 +1,5 @@
 import { disposeTrackedMolecules, signal } from "@sigrea/core";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { type Mock, afterEach, describe, expect, it, vi } from "vite-plus/test";
 
 import type {
 	UsePointerLockDocumentLike,
@@ -17,13 +17,13 @@ class FakePointerLockElement
 		super();
 	}
 
-	requestPointerLock = vi.fn(
-		async (options?: PointerLockOptions): Promise<void> => {
-			this.requestOptions.push(options);
-			this.owner.pointerLockElement = this;
-			this.owner.dispatchPointerLockChange();
-		},
-	);
+	requestPointerLock: Mock<
+		NonNullable<UsePointerLockElementLike["requestPointerLock"]>
+	> = vi.fn(async (options?: PointerLockOptions): Promise<void> => {
+		this.requestOptions.push(options);
+		this.owner.pointerLockElement = this;
+		this.owner.dispatchPointerLockChange();
+	});
 }
 
 class FakePointerLockDocument
@@ -38,7 +38,9 @@ class FakePointerLockDocument
 		this.documentElement = new FakePointerLockElement(this);
 	}
 
-	exitPointerLock = vi.fn(async (): Promise<void> => {
+	exitPointerLock: Mock<
+		NonNullable<UsePointerLockDocumentLike["exitPointerLock"]>
+	> = vi.fn(async (): Promise<void> => {
 		this.pointerLockElement = null;
 		this.dispatchPointerLockChange();
 	});

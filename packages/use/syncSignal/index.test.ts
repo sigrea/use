@@ -16,7 +16,7 @@ import {
 	unmountMolecule,
 } from "@sigrea/core";
 import type { Signal } from "@sigrea/core";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 
 import { syncSignal } from "./index";
 

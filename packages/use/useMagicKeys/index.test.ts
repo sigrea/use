@@ -1,5 +1,5 @@
 import { signal } from "@sigrea/core";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vite-plus/test";
 
 import { useMagicKeys } from "./index";
 

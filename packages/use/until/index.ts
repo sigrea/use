@@ -18,24 +18,22 @@ import type {
 	UntilValueInstance,
 } from "../types";
 
-type WatchableSource =
-	| WatchSource<unknown>
-	| DeepSignal<object>
-	| ReadonlyDeepSignal<object>;
+type WatchableSource = WatchSource<unknown> | DeepSignal<object>;
 type SourceList = readonly WatchableSource[];
-type UntilSourceValue<T> = T extends Signal<infer Value>
-	? Value
-	: T extends ReadonlySignal<infer Value>
+type UntilSourceValue<T> =
+	T extends Signal<infer Value>
 		? Value
-		: T extends Computed<infer Value>
+		: T extends ReadonlySignal<infer Value>
 			? Value
-			: T extends () => infer Value
+			: T extends Computed<infer Value>
 				? Value
-				: T extends DeepSignal<infer Value>
+				: T extends () => infer Value
 					? Value
-					: T extends ReadonlyDeepSignal<infer Value>
+					: T extends DeepSignal<infer Value>
 						? Value
-						: T;
+						: T extends ReadonlyDeepSignal<infer Value>
+							? Value
+							: T;
 type UntilSourceListValues<T extends readonly unknown[]> = {
 	[K in keyof T]: UntilSourceValue<T[K]>;
 };

@@ -8,7 +8,14 @@ import {
 	signal,
 	trackMolecule,
 } from "@sigrea/core";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+	afterEach,
+	beforeEach,
+	describe,
+	expect,
+	it,
+	vi,
+} from "vite-plus/test";
 
 import { useCountdown } from "./index";
 

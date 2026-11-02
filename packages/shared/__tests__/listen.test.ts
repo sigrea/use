@@ -1,5 +1,5 @@
 import { createScope, disposeScope, runWithScope, signal } from "@sigrea/core";
-import { describe, expect, expectTypeOf, it, vi } from "vitest";
+import { describe, expect, expectTypeOf, it, vi } from "vite-plus/test";
 
 import { listen } from "../listen";
 

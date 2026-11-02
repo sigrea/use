@@ -8,7 +8,7 @@ import {
 	signal,
 	watchEffect,
 } from "@sigrea/core";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vite-plus/test";
 
 import { reactivePick } from "./index";
 

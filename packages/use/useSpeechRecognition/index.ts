@@ -79,15 +79,15 @@ export function useSpeechRecognition<
 ): UseSpeechRecognitionReturn<SpeechRecognitionForWindow<TWindow>>;
 export function useSpeechRecognition<
 	TSpeechRecognition extends SpeechRecognitionLike = SpeechRecognitionLike,
-	TWindow extends
-		UseSpeechRecognitionWindowLike<TSpeechRecognition> = UseSpeechRecognitionWindowLike<TSpeechRecognition>,
+	TWindow extends UseSpeechRecognitionWindowLike<TSpeechRecognition> =
+		UseSpeechRecognitionWindowLike<TSpeechRecognition>,
 >(
 	options?: UseSpeechRecognitionOptions<TSpeechRecognition, TWindow>,
 ): UseSpeechRecognitionReturn<TSpeechRecognition>;
 export function useSpeechRecognition<
 	TSpeechRecognition extends SpeechRecognitionLike = SpeechRecognitionLike,
-	TWindow extends
-		UseSpeechRecognitionWindowLike<TSpeechRecognition> = UseSpeechRecognitionWindowLike<TSpeechRecognition>,
+	TWindow extends UseSpeechRecognitionWindowLike<TSpeechRecognition> =
+		UseSpeechRecognitionWindowLike<TSpeechRecognition>,
 >(
 	options: UseSpeechRecognitionOptions<TSpeechRecognition, TWindow> = {},
 ): UseSpeechRecognitionReturn<TSpeechRecognition> {

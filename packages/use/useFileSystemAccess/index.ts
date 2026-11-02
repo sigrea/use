@@ -140,48 +140,48 @@ async function readFileData(
  * Reactive File System Access API controls.
  */
 export function useFileSystemAccess<
-	TFileHandle extends
-		FileSystemAccessFileHandleLike = FileSystemAccessFileHandleLike,
-	TWindow extends
-		FileSystemAccessWindowLike<TFileHandle> = FileSystemAccessWindowLike<TFileHandle>,
+	TFileHandle extends FileSystemAccessFileHandleLike =
+		FileSystemAccessFileHandleLike,
+	TWindow extends FileSystemAccessWindowLike<TFileHandle> =
+		FileSystemAccessWindowLike<TFileHandle>,
 >(
 	options: UseFileSystemAccessOptions<TWindow> & {
 		dataType: MaybeValue<"Text">;
 	},
 ): UseFileSystemAccessReturn<string>;
 export function useFileSystemAccess<
-	TFileHandle extends
-		FileSystemAccessFileHandleLike = FileSystemAccessFileHandleLike,
-	TWindow extends
-		FileSystemAccessWindowLike<TFileHandle> = FileSystemAccessWindowLike<TFileHandle>,
+	TFileHandle extends FileSystemAccessFileHandleLike =
+		FileSystemAccessFileHandleLike,
+	TWindow extends FileSystemAccessWindowLike<TFileHandle> =
+		FileSystemAccessWindowLike<TFileHandle>,
 >(
 	options: UseFileSystemAccessOptions<TWindow> & {
 		dataType: MaybeValue<"ArrayBuffer">;
 	},
 ): UseFileSystemAccessReturn<ArrayBuffer>;
 export function useFileSystemAccess<
-	TFileHandle extends
-		FileSystemAccessFileHandleLike = FileSystemAccessFileHandleLike,
-	TWindow extends
-		FileSystemAccessWindowLike<TFileHandle> = FileSystemAccessWindowLike<TFileHandle>,
+	TFileHandle extends FileSystemAccessFileHandleLike =
+		FileSystemAccessFileHandleLike,
+	TWindow extends FileSystemAccessWindowLike<TFileHandle> =
+		FileSystemAccessWindowLike<TFileHandle>,
 >(
 	options: UseFileSystemAccessOptions<TWindow> & {
 		dataType: MaybeValue<"Blob">;
 	},
 ): UseFileSystemAccessReturn<Blob>;
 export function useFileSystemAccess<
-	TFileHandle extends
-		FileSystemAccessFileHandleLike = FileSystemAccessFileHandleLike,
-	TWindow extends
-		FileSystemAccessWindowLike<TFileHandle> = FileSystemAccessWindowLike<TFileHandle>,
+	TFileHandle extends FileSystemAccessFileHandleLike =
+		FileSystemAccessFileHandleLike,
+	TWindow extends FileSystemAccessWindowLike<TFileHandle> =
+		FileSystemAccessWindowLike<TFileHandle>,
 >(
 	options?: UseFileSystemAccessOptions<TWindow>,
 ): UseFileSystemAccessReturn<string | ArrayBuffer | Blob>;
 export function useFileSystemAccess<
-	TFileHandle extends
-		FileSystemAccessFileHandleLike = FileSystemAccessFileHandleLike,
-	TWindow extends
-		FileSystemAccessWindowLike<TFileHandle> = FileSystemAccessWindowLike<TFileHandle>,
+	TFileHandle extends FileSystemAccessFileHandleLike =
+		FileSystemAccessFileHandleLike,
+	TWindow extends FileSystemAccessWindowLike<TFileHandle> =
+		FileSystemAccessWindowLike<TFileHandle>,
 >(
 	options: UseFileSystemAccessOptions<TWindow> = {},
 ): UseFileSystemAccessReturn<string | ArrayBuffer | Blob> {

@@ -25,11 +25,10 @@ import {
 } from "../internal/watchSnapshot";
 import type { SyncSignalsOptions, SyncSignalsReturn } from "../types";
 
-type IfEquals<X, Y, Then, Else> = (<T>() => T extends X ? 1 : 2) extends <
-	T,
->() => T extends Y ? 1 : 2
-	? Then
-	: Else;
+type IfEquals<X, Y, Then, Else> =
+	(<T>() => T extends X ? 1 : 2) extends <T>() => T extends Y ? 1 : 2
+		? Then
+		: Else;
 
 type IsReadonlyValue<T> = T extends { value: unknown }
 	? IfEquals<
@@ -40,17 +39,17 @@ type IsReadonlyValue<T> = T extends { value: unknown }
 		>
 	: true;
 
-type SignalTargetValue<TTarget> = TTarget extends Signal<infer Value>
-	? Value
-	: never;
+type SignalTargetValue<TTarget> =
+	TTarget extends Signal<infer Value> ? Value : never;
 
-type WritableSignalTarget<TTarget> = TTarget extends Computed<unknown>
-	? never
-	: TTarget extends Signal<unknown>
-		? IsReadonlyValue<TTarget> extends true
-			? never
-			: unknown
-		: never;
+type WritableSignalTarget<TTarget> =
+	TTarget extends Computed<unknown>
+		? never
+		: TTarget extends Signal<unknown>
+			? IsReadonlyValue<TTarget> extends true
+				? never
+				: unknown
+			: never;
 
 type AssignableSignalTarget<TValue, TTarget> = [TValue] extends [
 	SignalTargetValue<TTarget>,
@@ -66,19 +65,20 @@ type SyncSignalsTargetListArg<TValue, TTargets extends readonly unknown[]> = {
 
 type SyncSignalsSource<TValue> = WatchSource<TValue>;
 
-type WatchSourceValue<TSource> = TSource extends Signal<infer Value>
-	? Value
-	: TSource extends ReadonlySignal<infer Value>
+type WatchSourceValue<TSource> =
+	TSource extends Signal<infer Value>
 		? Value
-		: TSource extends Computed<infer Value>
+		: TSource extends ReadonlySignal<infer Value>
 			? Value
-			: TSource extends () => infer Value
+			: TSource extends Computed<infer Value>
 				? Value
-				: TSource extends DeepSignal<infer Value>
+				: TSource extends () => infer Value
 					? Value
-					: TSource extends ReadonlyDeepSignal<infer Value>
+					: TSource extends DeepSignal<infer Value>
 						? Value
-						: never;
+						: TSource extends ReadonlyDeepSignal<infer Value>
+							? Value
+							: never;
 
 function getValueDescriptor(source: object): PropertyDescriptor | undefined {
 	let current: object | null = source;

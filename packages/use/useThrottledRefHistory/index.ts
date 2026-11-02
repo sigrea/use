@@ -9,8 +9,10 @@ import type {
 } from "../types";
 import { useRefHistory } from "../useRefHistory";
 
-interface ThrottledUseRefHistoryOptions<Raw, Serialized>
-	extends UseRefHistoryOptions<Raw, Serialized> {
+interface ThrottledUseRefHistoryOptions<
+	Raw,
+	Serialized,
+> extends UseRefHistoryOptions<Raw, Serialized> {
 	scheduleCommit?: (commit: () => void) => void;
 }
 

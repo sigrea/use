@@ -42,8 +42,8 @@ function isVisible(visibility: DocumentVisibilityState): boolean {
  */
 export function useWakeLock<
 	TSentinel extends UseWakeLockSentinelLike = WakeLockSentinel,
-	TNavigator extends
-		UseWakeLockNavigatorLike<TSentinel> = UseWakeLockNavigatorLike<TSentinel>,
+	TNavigator extends UseWakeLockNavigatorLike<TSentinel> =
+		UseWakeLockNavigatorLike<TSentinel>,
 	TDocument extends UseWakeLockDocumentLike = UseWakeLockDocumentLike,
 >(
 	options: UseWakeLockOptions<TSentinel, TNavigator, TDocument> = {},

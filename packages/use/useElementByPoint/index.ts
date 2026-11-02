@@ -189,8 +189,8 @@ function createRafScheduler(
 export function useElementByPoint<
 	Multiple extends boolean = false,
 	TElement extends Element = Element,
-	TDocument extends
-		UseElementByPointDocumentLike = UseElementByPointDocumentLike,
+	TDocument extends UseElementByPointDocumentLike =
+		UseElementByPointDocumentLike,
 	TWindow extends UseElementByPointWindowLike = UseElementByPointWindowLike,
 >(
 	options: UseElementByPointOptions<Multiple, TDocument, TWindow>,

@@ -9,7 +9,7 @@ import {
 	signal,
 	unmountMolecule,
 } from "@sigrea/core";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vite-plus/test";
 
 import type { UseStyleTagDocumentLike } from "../types";
 import { useStyleTag } from "./index";

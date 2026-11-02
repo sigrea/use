@@ -2,7 +2,7 @@
 
 import { deepSignal, nextTick, signal } from "@sigrea/core";
 import type { WatchStopHandle } from "@sigrea/core";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 
 import { watchIgnorable } from "./index";
 

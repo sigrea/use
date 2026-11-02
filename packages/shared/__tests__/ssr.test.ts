@@ -1,6 +1,6 @@
 // @vitest-environment node
 
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vite-plus/test";
 
 describe("SSR safety", () => {
 	it("imports the shared entry in a node environment", async () => {

@@ -25,8 +25,10 @@ interface IgnoredWatchValue<Raw> {
 
 type Mapper<From, To> = (value: From) => To;
 
-interface UseRefHistoryInternalOptions<Raw, Serialized>
-	extends UseRefHistoryOptions<Raw, Serialized> {
+interface UseRefHistoryInternalOptions<
+	Raw,
+	Serialized,
+> extends UseRefHistoryOptions<Raw, Serialized> {
 	scheduleCommit?: (commit: () => void) => void;
 }
 

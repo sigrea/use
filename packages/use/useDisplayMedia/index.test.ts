@@ -1,5 +1,5 @@
 import { signal } from "@sigrea/core";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vite-plus/test";
 
 import type {
 	UseDisplayMediaMediaDevicesLike,
@@ -59,9 +59,7 @@ class FakeMediaStream implements UseDisplayMediaMediaStreamLike {
 	}
 }
 
-class FakeMediaDevices
-	implements UseDisplayMediaMediaDevicesLike<FakeMediaStream>
-{
+class FakeMediaDevices implements UseDisplayMediaMediaDevicesLike<FakeMediaStream> {
 	getDisplayMedia = vi.fn(async () => this.stream);
 
 	constructor(readonly stream = new FakeMediaStream()) {}

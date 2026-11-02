@@ -1,7 +1,7 @@
 // @vitest-environment node
 
 import { computed, signal } from "@sigrea/core";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 
 import { formatDate, normalizeDate, useDateFormat } from "./index";
 

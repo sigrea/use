@@ -1,6 +1,6 @@
 // @vitest-environment node
 
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 
 describe("SSR safety", () => {
 	afterEach(() => {
@@ -2092,9 +2092,8 @@ describe("SSR safety", () => {
 
 	it("auto-starts timers when timer APIs are available without a browser window", async () => {
 		vi.useFakeTimers();
-		const { useCountdown, useInterval, useTimeout } = await import(
-			"../../../index"
-		);
+		const { useCountdown, useInterval, useTimeout } =
+			await import("../../../index");
 		const countdown = useCountdown(2, { interval: 1 });
 		const interval = useInterval(1, { controls: true });
 		const timeout = useTimeout(1, { controls: true });

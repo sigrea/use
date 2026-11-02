@@ -35,8 +35,8 @@ function readLatestVisibility(
 }
 
 export function useElementVisibility<
-	TWindow extends
-		UseElementVisibilityWindowLike = UseElementVisibilityWindowLike,
+	TWindow extends UseElementVisibilityWindowLike =
+		UseElementVisibilityWindowLike,
 >(
 	target: MaybeTarget<Element>,
 	options: UseElementVisibilityOptions<TWindow> = {},

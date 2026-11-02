@@ -12,7 +12,7 @@ import {
 	watch,
 	watchEffect,
 } from "@sigrea/core";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 
 import { reactiveComputed } from "./index";
 

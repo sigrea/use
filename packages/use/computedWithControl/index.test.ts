@@ -9,7 +9,7 @@ import {
 	signal,
 	watchEffect,
 } from "@sigrea/core";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 
 import { computedWithControl } from "./index";
 
